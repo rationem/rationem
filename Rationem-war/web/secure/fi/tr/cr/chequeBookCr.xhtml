@@ -1,0 +1,93 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.trChqBkCr}</ui:define>
+ <ui:define name="header">#{pageTitle.trChqBkCr} </ui:define>
+ <ui:define name="content">
+  <h:form id="chqBkCr" prependId="true">
+   <div class="card">
+    <p:messages id="msg" severity="warn, error" closable="true" globalOnly="true" autoUpdate="true"/>
+    <p:growl id="grwl" severity="info" autoUpdate="true" globalOnly="true"/>
+   <p:tooltip hideEffect="fade" position="right" />
+   <p:toolbar >
+    <f:facet name="left">
+     <p:commandButton id="saveBtn" icon="fa fa-floppy-o" value="#{formText.save}"
+                      actionListener="#{chequeBookBean.onSaveNewChequBook}" />
+     <p:commandButton id="resetBtn" icon="fa fa-trash-o" value="#{formText.reset}" >
+      <p:ajax update="chqBkCr:chqPnl" resetValues="true"/>
+     </p:commandButton>
+      
+    </f:facet>
+   </p:toolbar>
+   <p:panelGrid id="chqPnl" layout="grid" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2">
+    <f:facet name="header">
+     <h:outputText value="#{formText.trChqBkCrDet}"/>
+    </f:facet>
+    <p:outputLabel for="comp" value="#{formText.comp}" />
+    <p:selectOneMenu id="comp" value="#{chequeBookBean.compSel}" converter="com.rationem.util.converter.CompanyBasic" var="compV" >
+     <f:selectItems value="#{chequeBookBean.compList}" var="comp" itemValue="#{comp}" itemLabel="#{comp.reference}"/>  
+     <p:column>
+      <h:outputText value="#{compV.reference}"/>
+     </p:column>
+     <p:column>
+      <h:outputText value="#{compV.name}"/>
+     </p:column>
+    </p:selectOneMenu>
+    <h:outputText id="compName" value="#{chequeBookBean.compSel.name}"/>
+    <p:outputLabel for="bnkAccnt" value="#{formText.bnkAcnt}"/>
+    <p:selectOneMenu 
+     id="bnkAccnt" value="#{chequeBookBean.chequeBkSel.bankAccountComp}" 
+     converter="com.rationem.util.converter.BankAccountCompany" var="bnkAcntV1">
+     <f:selectItems value="#{chequeBookBean.bnkAcs}" var="bnkAcnt" itemValue="#{bnkAcnt}" 
+                    itemLabel="#{bnkAcnt.accountNumber}"/>
+     <p:column>
+      <h:outputFormat value="{0}-{1}-{2}">
+       <f:param value="#{fn:substring(bnkAcntV1.accountForBranch.sortCode,0,2)}"/>
+       <f:param value="#{fn:substring(bnkAcntV1.accountForBranch.sortCode,2,4)}"/>
+       <f:param value="#{fn:substring(bnkAcntV1.accountForBranch.sortCode,4,6)}"/>
+      </h:outputFormat>
+     </p:column>
+     <p:column >
+      <h:outputText value="#{bnkAcntV1.accountNumber}"/> 
+     </p:column>
+    </p:selectOneMenu>
+    <h:panelGroup />
+    <p:outputLabel for="name" value="#{formText.name}"/>
+    <p:inputText id="name" value="#{chequeBookBean.chequeBkSel.shortDescr}" maxlength="10" size="10"
+                 required="true" requiredMessage="#{validationText.chqBkName}"/>
+    <h:panelGroup />
+    <p:outputLabel for="descr" value="#{formText.descr}"/>
+    <p:inputText id="descr" value="#{chequeBookBean.chequeBkSel.longDescr}" maxlength="50"/>
+    <h:panelGroup />
+    <p:outputLabel for="fromNum" value="#{formText.numRngFrNum}"/>
+    <p:inputText id="fromNum" value="#{chequeBookBean.chequeBkSel.fromNum}" required="true"
+                 requiredMessage="#{validationText.chqBkStartNum}" 
+                 valueChangeListener="#{chequeBookBean.onNewChqBkStartNumValCh}" 
+                 title="Starting cheque number. Only digits can be entered">
+     <p:keyFilter mask="int"/>
+     <p:ajax event="blur" update="chqBkCr:nextNum"/>
+    </p:inputText>
+    <h:panelGroup />
+    <p:outputLabel for="toNum" value="#{formText.numRngEndNum}"/>
+    <p:inputText id="toNum" value="#{chequeBookBean.chequeBkSel.toNum}" title="Last cheque number. Only digits can be entered">
+     <p:keyFilter for="toNum" mask="int"/>
+    </p:inputText>
+    <h:panelGroup />
+    <p:outputLabel for="externNum" value="#{formText.numRngAuto}"/>
+    <p:inputSwitch id="externNum" value="#{chequeBookBean.chequeBkSel.autoNum}" offLabel="#{formText.no}"
+                   onLabel="#{formText.yes}"/>
+    <h:panelGroup />
+    <p:outputLabel for="nextNum" value="#{formText.numRngNext}"/>
+    <p:inputText id="nextNum" value="#{chequeBookBean.chequeBkSel.nextNum}">
+     <p:keyFilter for="toNum" mask="int"/>
+    </p:inputText>
+   </p:panelGrid>
+   </div>
+  </h:form>
+   
+ </ui:define>
+</ui:composition>

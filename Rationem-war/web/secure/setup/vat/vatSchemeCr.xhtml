@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{menuOption.vatSchemeCr}</ui:define>
+ <ui:define name="header"></ui:define>
+ <ui:define name="content">
+  <h:form id="vatSchemeFrm">
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="addVatCodeSave" icon="fa fa-floppy-o" value="#{formText.save}" 
+                      actionListener="#{vatSchemeBean.onSaveSchemeNew}" 
+                       title="#{formHelpText.actTySave}"   />
+     <p:commandButton type="reset" value="#{formText.reset}" />
+    </f:facet >
+   </p:toolbar>
+   <p:panelGrid columns="2">
+    <p:outputLabel for="ref" value="#{formText.vatSchemeRef}"/>
+    <p:inputText id="ref" value="#{vatSchemeBean.vatScheme.ref}" required="true" requiredMessage="#{errorText.vatSchRef}"/>
+    <p:outputLabel for="schemeName" value="#{formText.vatSchemeName}"/>
+    <p:inputText id="schemeName" value="#{vatSchemeBean.vatScheme.name}"/>
+    <p:outputLabel for="descr" value="#{formText.vatSchemeDescr}"/>
+    <p:inputText id="descr" value="#{vatSchemeBean.vatScheme.description}"/>
+    <p:outputLabel for="cshActng" value="#{formText.vatSchemeCashActng}"/>
+    <p:selectBooleanCheckbox id="cshActng" value="#{vatSchemeBean.vatScheme.cashAccounting}" />
+    <p:outputLabel for="flRate" value="#{formText.vatSchemeFlatRate}"/>
+    <p:selectBooleanCheckbox id="flRate" value="#{vatSchemeBean.vatScheme.flatRate}"/>
+    <p:outputLabel for="annActng" value="#{formText.vatSchemeAnnualAccounting}"/>
+    <p:selectBooleanCheckbox id="annActng" value="#{vatSchemeBean.vatScheme.annualAccounting}"/>
+    <p:outputLabel for="payFreq" value="#{formText.vatSchemePayFreq}"/>
+    <p:selectOneMenu id="payFreq" value="#{vatSchemeBean.vatScheme.paymentFrequency}">
+     <f:selectItem itemValue="M" itemLabel="#{formText.monthly}" />
+     <f:selectItem itemValue="Q" itemLabel="#{formText.quarterly}"/>
+    </p:selectOneMenu>
+    
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

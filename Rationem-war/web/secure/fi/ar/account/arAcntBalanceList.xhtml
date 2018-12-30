@@ -1,0 +1,88 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/List.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.arAcntBalList}</ui:define>
+ <ui:define name="header">#{pageTitle.arAcntBalList}</ui:define>
+ <ui:define name="content">
+  <h:form id="arAcntBalance" prependId="false">
+   <p:panelGrid >
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.comp}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{arAccntListBean.compSel}" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{arAccntListBean.compList}" var="compV" itemValue="#{compV}"
+                      itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+     </p:column> 
+    </p:row>
+    
+   </p:panelGrid>
+   <p:spacer height="4"/>
+   <p:dataTable id="acntLstTbl" value="#{arAccntListBean.acntList}" 
+                emptyMessage="#{validationText.arAcntsNone}"
+                var="acntV" rows="#{arAccntListBean.usrBuff.tblRows}"
+                paginatorAlwaysVisible="true" paginator="true"
+                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="acntLstTbl" fileName="#{listHeading.arAcntListBalFn}" 
+                          postProcessor="#{arAccntListBean.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="acntLstTbl" 
+                      fileName="#{listHeading.arAcntListBalFn}" />
+     </h:commandLink>
+    </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.arAcntList}"/>
+    </f:facet>
+    <p:column sortBy="#{acntV.arAccountCode}" filterBy="#{acntV.arAccountCode}" 
+              filterMatchMode="contains" width="100">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.arAcntRef}"/>
+     </f:facet>
+     <h:outputText value="#{acntV.arAccountCode}"/>
+    </p:column>
+    <p:column sortBy="#{acntV.arAccountName}" filterBy="#{acntV.arAccountName}"
+              filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.arAcntName}"/>
+     </f:facet>
+     <h:outputText value="#{acntV.arAccountName}"/>
+    </p:column>
+    <p:column sortBy="#{acntV.arAccountFor.name}" filterBy="#{acntV.arAccountFor.name}"
+              filterMatchMode="contains" filterMaxLength="3">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.arAcntFor}"/>
+     </f:facet>
+     <h:outputText value="#{acntV.arAccountFor.name}"/>
+    </p:column>
+    <p:column sortBy="#{acntV.sortOrder.name}" filterBy="#{acntV.sortOrder.name}"
+              filterMatchMode="contains" width="100" styleClass="column-financialValue">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.arAcntBal}"/>
+     </f:facet>
+     <h:outputText value="#{acntV.accountBalance}">
+      <f:convertNumber type="number" minIntegerDigits="1" 
+                       maxFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"/>
+     </h:outputText>
+    </p:column>
+    
+   </p:dataTable>
+  </h:form>
+     
+ </ui:define>
+</ui:composition>
+    

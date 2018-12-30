@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_fund_cat_updt}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_fund_cat_updt}" styleClass="panelHeader" /> 
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="catlistFrm" prependId="false">
+  <p:contextMenu for="catList">
+   <p:menuitem value="#{formText.edit}" actionListener="#{fundTypeBean.onEditMenu}"/>
+  </p:contextMenu>
+  <p:dataTable id="catList" value="#{fundTypeBean.fndCategories}" var="cat" selection="#{fundTypeBean.fndCatSelected}"
+               selectionMode="single" rowKey="#{cat.id}">
+   <f:facet name="header">
+    <h:outputText value="#{listHeading.fndCatAvail}"/>
+   </f:facet>
+   <p:column width="100">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.fndCatRef}"/>
+    </f:facet>
+    <h:outputText value="#{cat.catRef}"/>
+   </p:column>
+   <p:column>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.fndCatDescr}"/>
+    </f:facet>
+    <h:outputText value="#{cat.description}"/>
+   </p:column>
+   <p:column width="70" >
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.fndCatRestr}"/>
+    </f:facet>
+    <h:outputText value="#{formText.yes}" rendered="#{cat.restricted}"/>
+    <h:outputText value="#{formText.no}" rendered="#{!cat.restricted}"/>
+   </p:column>
+   <p:column width="100">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.fndProcCd}"/>
+    </f:facet>
+    <h:outputText value="#{cat.processCode}"/>
+   </p:column>
+  </p:dataTable>
+  </h:form>
+  <p:dialog widgetVar="editCatDlg" header="#{formText.edit}" modal="true">
+   <h:form id="editCatFrm" prependId="false">
+    <p:panelGrid styleClass="panelNoBorders">
+     <p:row>
+      <p:column>
+       <p:outputLabel for="catRef" value="#{formText.fndCatRef}" />
+      </p:column>
+      <p:column>
+       <p:inputText id="catRef" value="#{fundTypeBean.fndCatSelected.catRef}" size="5"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="catDescr" value="#{formText.fndCatDescr}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="catDescr" value="#{fundTypeBean.fndCatSelected.description}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="catRestr" value="#{formText.fndCatRestrict}" />
+      </p:column>
+      <p:column>
+       <p:selectBooleanButton id="catRestr" offLabel="#{formText.no}" onLabel="#{formText.yes}" 
+                            value="#{fundTypeBean.fndCatSelected.restricted}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="catPrCd" value="#{formText.fndCatProcessCd}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="catPrCd" value="#{fundTypeBean.fndCatSelected.processCode}" size="5"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="2">
+       <p:commandButton id="editCatSaveBtn" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"
+                        actionListener="#{fundTypeBean.onSaveEditCategory}"/>
+       <p:spacer width="5"/>
+       <p:commandButton id="editCatCloseBtn" value="#{formText.cancel}" icon="ui-icon-close" type="button"
+                        onclick="PF('editCatDlg').hide();"/>
+      </p:column>
+     </p:row>
+     
+     
+     
+     
+     
+     
+     
+    </p:panelGrid>
+   </h:form>
+  </p:dialog>
+ </ui:define>
+</ui:composition>
+  

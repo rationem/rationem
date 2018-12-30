@@ -1,0 +1,580 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiGlStdJnlCr}</ui:define>
+  <ui:define name="header">#{pageTitle.fiGlStdJnlCr}</ui:define>
+  <ui:define name="content">
+    
+    <h:form id="stdGlJnlFrm" prependId="false">
+      
+      <p:toolbar  >
+        <f:facet name="left">
+          
+          <p:commandButton id="postBtn" value="#{formText.docSavePost}"
+                           title="#{formHelpText.docSavePost}"  icon="fa fa-floppy-o" ajax="false"
+                           disabled="#{!glStdJnl.canPost}" actionListener="#{glStdJnl.postDocument}"
+                           action="#{glStdJnl.onPostStdJnlAction}"/>
+          <p:tooltip for="postBtn"/>
+          <p:commandButton id="incomplBtn" value="#{formText.docSaveIncompl}"
+                           title="#{formHelpText.docSaveIncompl}"  icon="fa fa-floppy-o" 
+                           actionListener="#{glStdJnl.saveIncompleteDoc}"
+                           action="#{glStdJnl.onPostStdJnlAction}"/>
+          <p:tooltip for="incomplBtn"/>
+          <p:separator/>
+          
+        </f:facet >
+      </p:toolbar>
+      <p:wizard flowListener="#{glStdJnl.onDocFlow}"   >
+       <p:tooltip showEffect="slide" hideEvent="slide" />
+       <p:tab id="header" title="#{formText.glGlStdHdrTab}" titletip="#{formHelpText.stdJnlTabHdrTip}"  >
+        <p:panel header="#{formText.glGlStdHdrPnl}"   >
+            <p:messages id="messages" />
+            
+            <p:panelGrid   styleClass="panelNoBorders" >
+             <p:row>
+              <p:column>
+               <p:outputLabel for="docDate" value="#{formText.docDocDate}"/>
+              </p:column>
+              <p:column>
+               <p:calendar id="docDate" value="#{glStdJnl.jnl.documentDate}" mode="popup" required="true"
+                    requiredMessage="#{validationText.fiDocDocDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                    title="#{formHelpText.docDocDate}" size="10"  >
+                 <p:ajax event="dateSelect" listener="#{glStdJnl.onDocDateSelect}" process="@this" update="taxDate" />
+
+                </p:calendar>
+              </p:column>
+              <p:column>
+               <p:outputLabel for="taxDate" value="#{formText.docTaxDate}"/>
+              </p:column>
+              <p:column>
+               <p:calendar id="taxDate" value="#{glStdJnl.jnl.taxDate}" mode="popup" size="10"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                    title="#{formHelpText.docTaxDate}" />
+              </p:column>
+              <p:column>
+               <p:outputLabel for="docComp" value="#{formText.docCompany}"/>
+              </p:column>
+              <p:column>
+               <p:selectOneMenu id="docComp" value="#{glStdJnl.jnl.company}" 
+                                converter="com.rationem.util.converter.CompanyBasic" var="comp"  >
+                <f:selectItems var="compVar" value="#{glStdJnl.compList}"
+                         itemValue="#{compVar}" itemLabel="#{compVar.reference}"/>
+                <p:column>
+                 <h:outputText value="#{comp.reference}"/>
+                </p:column>
+                <p:column>
+                 <h:outputText value="#{comp.name}"/>
+                </p:column>
+               </p:selectOneMenu>
+              </p:column>
+              <p:column style="text-align: center;">
+               <h:outputText value="#{formText.docNotes}"/>
+              </p:column>
+             </p:row>
+             <p:row>
+              <p:column>
+               <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
+              </p:column>
+              <p:column>
+               <p:calendar id="postDate" value="#{glStdJnl.jnl.postingDate}" mode="popup"  size="10" 
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                    validator="#{glStdJnl.validatePostDate}" 
+                    validatorMessage="#{validationText.fiDocPerNotOpen}"
+                    title="#{formHelpText.docPostDate}" required="true" requiredMessage="#{validationText.fiDocPostDate}"  >
+                <p:ajax event="dateSelect" listener="#{glStdJnl.onPostDateSelect}" />
+               </p:calendar>
+              </p:column>
+              <p:column>
+               <p:outputLabel for="period" value="#{formText.docPeriod}"/>
+              </p:column>
+              <p:column>
+               <p:inputText id="period" value="#{glStdJnl.jnl.fisPeriod}" maxlength="2" size="2"
+                     title="#{formHelpText.docPeriod}"/>
+              </p:column>
+              <p:column>
+               <p:outputLabel for="fisYr" value="#{formText.docFisYr}"/>
+              </p:column>
+              <p:column>
+               <p:inputText id="fisYr" value="#{glStdJnl.jnl.fisYear}"
+                     disabled="true" maxlength="4" size="4" title="#{formHelpText.docFiscYr}"/>
+              </p:column>
+              <p:column rowspan="4">
+               <p:editor value="#{glStdJnl.jnl.notes}" controls="bold italic underline strikethrough bullets numbering outdent indent alignleft center justify alignright rule copy paste pastetext cut font size style color highlight undo redo "
+                         maxlength="4000"  height="150"      />
+              </p:column>
+             </p:row>
+             <p:row>
+              <p:column>
+               <p:outputLabel for="docTyp" value="#{formText.docType}"/>
+              </p:column>
+              <p:column  colspan="5">
+               <p:selectOneMenu id="docTyp" value="#{glStdJnl.jnl.docType}" var="dt" 
+                                converter="com.rationem.util.converter.DocType" >
+                <f:selectItems value="#{glStdJnl.glDocTypes}" var="docTyVar" itemValue="#{docTyVar}"
+                         itemLabel="#{docTyVar.code}" />
+                <p:column>
+                 <h:outputText value="#{dt.code}"/>
+                </p:column>
+                <p:column>
+                 <h:outputText value="#{dt.name}"/>
+                </p:column>
+               </p:selectOneMenu>
+              </p:column>
+             </p:row>
+             <p:row>
+              <p:column>
+               <p:outputLabel for="ptnrRef" value="#{formText.docPtnrTxt}"/>
+              </p:column>
+              <p:column>
+               <p:inputText id="ptnrRef" value="#{glStdJnl.jnl.partnerRef}" title="#{formHelpText.docPtnrTxt}"/>
+              </p:column>
+              <p:column>
+               <p:outputLabel for="hdrTxt" value="#{formText.docHdrTxt}"/>
+              </p:column>
+              <p:column colspan="3">
+               <p:inputText id="hdrTxt" value="#{glStdJnl.jnl.docHdrText}" size="40" title="#{formHelpText.docHdrTxt}"/>
+              </p:column>
+             </p:row>
+             <p:row>
+              <p:column colspan="6"/>
+              
+             </p:row>
+           </p:panelGrid>
+           
+          </p:panel>
+        </p:tab>
+       <p:tab id="lines" title="#{formText.glGlStdLnTab}" titletip="#{formHelpText.stdJnlTabLineTip}"  >
+         
+        <p:panel header="#{formText.glGlStdLnTab}">
+            
+          <p:panelGrid  >
+           <p:row >
+            <p:column >
+            
+             <p:panelGrid id="lineDet" styleClass="panelNoBorders" >
+              <p:row>
+               <p:column>
+                <p:outputLabel for="pstTyp" value="#{formText.docPostCode}"/>
+               </p:column>
+               <p:column>
+                <p:selectOneMenu id="pstTyp" value="#{glStdJnl.glDocLine.postType}"  filter="true" filterMatchMode="contains"
+                                 valueChangeListener="#{glStdJnl.onPostTypeChange}" 
+                                 converter="com.rationem.util.converter.PostType" var="pt">
+                 <f:selectItems value="#{glStdJnl.postTypes}" var="ty" itemValue="#{ty}" itemLabel="#{ty.postTypeCode}"/>
+                 <p:ajax event="change"/>
+                 <p:column >
+                  <h:outputText value="#{pt.postTypeCode}"/>
+                 </p:column>
+                 <p:column>
+                  <h:outputText value="#{pt.description}"/>
+                 </p:column>
+                </p:selectOneMenu>
+                
+               </p:column>
+               <p:column>
+                <h:outputLabel for="glAct" value="#{formText.glAccountRef}" />
+               </p:column>
+               <p:column>
+                <p:selectOneMenu id="glAct" value="#{glStdJnl.glDocLine.glAccount}" filter="true" filterMatchMode="contains" 
+                                 converter="com.rationem.util.converter.FiGlAccountComp"  var="glac"  
+                                 valueChangeListener="#{glStdJnl.onGlActSelect}">
+                 <f:selectItems value="#{glStdJnl.glAccounts}" var="acnt" itemValue="#{acnt}" 
+                                itemLabel="#{acnt.coaAccount.ref}"/>
+                 <p:ajax event="change"    />
+                 <p:column>
+                  <h:outputText value="#{glac.coaAccount.ref}"/>
+                 </p:column>
+                 <p:column>
+                  <h:outputText value="#{glac.coaAccount.name}"/>
+                 </p:column>
+                </p:selectOneMenu>
+                
+               </p:column>
+               <p:column>
+                <h:outputText id="glActName" value="#{glStdJnl.glDocLine.glAccount.coaAccount.name}"/>
+               </p:column>
+               <p:column>
+                <h:outputLabel for="vatcd" value="#{formText.vatCd}" rendered="#{glStdJnl.jnl.vatable}"/>
+               </p:column>
+               <p:column>
+                <p:selectOneMenu id="vatcd" value="#{glStdJnl.glDocLine.vatCode}"  filter="true" filterMatchMode="contains"
+                                 converter="com.rationem.util.converter.VatCodeCompany" var="vc" 
+                                 rendered="#{glStdJnl.jnl.vatable}">
+                 <f:selectItems var="vatCd" value="#{glStdJnl.vatCodes}" itemValue="#{vatCd}" itemLabel="#{vatCd.vatCode.code}"/>
+                 <p:column>
+                  <h:outputText value="#{vatCd.vatCode.code}"/>
+                 </p:column>
+                 <p:column>
+                  <h:outputText value="#{vatCd.vatCode.description}"/>
+                 </p:column>
+                </p:selectOneMenu>
+               </p:column>
+               <p:column>
+                <p:panelGrid id="docTotalsPG" columns="8">
+                 <h:outputLabel for="drTot" value="#{formText.docTotDr}"/>
+                 <h:outputText id="drTot" value="#{glStdJnl.totalDebits}"   title="#{formHelpText.docTotDr}"
+                          styleClass="jnl_sumAmnt">
+                  <f:convertNumber type="currency" currencySymbol="#{glStdJnl.jnl.company.currencySymbol}" 
+                              locale="#{glStdJnl.jnl.company.locale}"/>
+                 </h:outputText>
+                 <h:outputLabel for="crTot" value="#{formText.docTotCr}"/>
+                 <h:outputText id="crTot" value="#{glStdJnl.totalCredits}" styleClass="jnl_sumAmnt"
+                            title="#{formHelpText.docTotCr}">
+                  <f:convertNumber type="currency" currencySymbol="#{glStdJnl.jnl.company.currencySymbol}" 
+                                locale="#{glStdJnl.jnl.company.locale}"  />
+                 </h:outputText>
+                 <h:outputLabel for="docBal" value="#{formText.docBal}"/>
+                 <h:outputText id="docBal" value="#{glStdJnl.docbalance}" styleClass="jnl_sumAmnt"
+                                          title="#{formHelpText.docTotCr}">
+                  <f:convertNumber type="currency" currencySymbol="#{glStdJnl.jnl.company.currencySymbol}" 
+                                 locale="#{glStdJnl.jnl.company.locale}" />
+                 </h:outputText>
+                 <h:outputLabel for="numLns" value="#{formText.docNumLns}"/>
+                 <h:outputText id="numLns" value="#{glStdJnl.numLines}"  styleClass="jnl_sumAmnt"
+                           title="#{formHelpText.docNumLns}">
+                  <f:convertNumber type="number" locale="#{glStdJnl.jnl.company.locale}"   />
+                 </h:outputText>
+              
+                 </p:panelGrid>
+                </p:column>
+               </p:row>
+              <p:row>
+               <p:column>
+                <h:outputLabel for="amnt" value="#{formText.docLnAmnt}"/>
+               </p:column>
+               <p:column>
+                <p:inputText id="amnt" value="#{glStdJnl.glDocLine.docAmount}" title="#{formHelpText.docLnAmnt}"
+                        required="true" requiredMessage="#{validationText.fiDocLineAmount}"
+                       valueChangeListener="#{glStdJnl.onLineAmountChange}" >
+                 <f:convertNumber   minFractionDigits="2" minIntegerDigits="1"  />
+                 <p:ajax  />
+                </p:inputText>
+               </p:column>
+               <p:column>
+                <h:outputLabel for="lnDescr" value="#{formText.docLnTxt}"/>
+               </p:column>
+               <p:column colspan="4">
+                <p:inputText id="lnDescr" size="50" value="#{glStdJnl.glDocLine.lineText}"
+                        title="#{formHelpText.docLnTxt}"/>
+               </p:column>
+               <p:column style="text-align: center;">
+                <h:outputText value="#{formText.docLineNote}"/>
+               </p:column>
+              
+               
+              </p:row>
+              <p:row>
+               <p:column>
+                <h:outputLabel for="defSort" value="#{formText.docDefSort}"/>
+               </p:column>
+               <p:column>
+                <p:inputText id="defSort" value="#{glStdJnl.glDocLine.sortOrder}" 
+                       title="#{formHelpText.docDefSort}"/>
+               </p:column>
+               <p:column>
+                <h:outputLabel for="restFnds" value="#{formText.docRestrFnds}"/>
+               </p:column>
+               <p:column colspan="4">
+                <p:autoComplete id="restFnds" value="#{glStdJnl.glDocLine.restrictedFund}"
+                                completeMethod="#{glStdJnl.onRestrictedFundsComplete}" dropdown="true"  
+                                converter="com.rationem.util.converter.RestrictedFund" var="rFnd" itemValue="#{rFnd}" 
+                                itemLabel="#{rFnd.fndCode}">
+                 <f:facet name="itemtip">
+                  <h:panelGrid columns="1">
+                   <h:outputText value="#{rFnd.name}"/>
+                  </h:panelGrid>
+                 </f:facet>
+                 <p:ajax event="itemSelect" listener="#{glStdJnl.onRestrictedFundSelect}"/>
+                </p:autoComplete>
+               </p:column>
+               <p:column rowspan="5" >
+                <p:editor value="#{glStdJnl.glDocLine.notes}"  
+                          maxlength="4000" />
+               </p:column>
+              </p:row>
+              <p:row>
+               <p:column>
+                <p:outputLabel for="costCent" value="#{formText.docLineCostCent}"/>
+               </p:column>
+               <p:column >
+                <p:autoComplete id="costCent" value="#{glStdJnl.glDocLine.costCentre}"
+                                completeMethod="#{glStdJnl.onCostCentComplete}"
+                                converter="com.rationem.util.converter.CostCentre" var="ccVar" itemValue="#{ccVar}"
+                                itemLabel="#{ccVar.refrence}">
+                 <f:facet name="itemtip">
+                  <h:panelGrid columns="1">
+                   <h:outputText value="#{ccVar.costCentreName}"/>
+                  </h:panelGrid>
+                 </f:facet>
+                </p:autoComplete>
+                <p:spacer width="15"/>
+               </p:column>
+               <p:column>
+                <p:outputLabel for="prog" value="#{formText.docLineProg}"/>
+               </p:column>
+               <p:column colspan="4">
+                <p:autoComplete id="prog" value="#{glStdJnl.glDocLine.programme}"
+                               completeMethod="#{glStdJnl.onProgrammeComplete}" dropdown="true"
+                                converter="com.rationem.util.converter.Programme" var="progVar" itemValue="#{progVar}"
+                                itemLabel="#{progVar.reference}">
+                 <f:facet name="itemtip">
+                  <h:panelGrid columns="1">
+                   <h:outputText value="#{progVar.name}"/>
+                  </h:panelGrid>
+                 </f:facet>
+                </p:autoComplete>
+               </p:column>
+              </p:row>
+              <p:row>
+               <p:column>
+                <h:outputLabel for="ref1" value="#{formText.docRef1}"/>
+               </p:column>
+               <p:column>
+                <p:inputText id="ref1" value="#{glStdJnl.glDocLine.reference1}" title="#{formHelpText.docRef1}"/>
+               </p:column>
+               <p:column>
+                <h:outputLabel for="ref2" value="#{formText.docRef2}"/>
+               </p:column>
+               <p:column colspan="3">
+                <p:inputText id="ref2" value="#{glStdJnl.glDocLine.reference2}" title="#{formHelpText.docRef2}"/>
+               </p:column>
+               <p:column>
+                <p:commandButton disabled="#{glStdJnl.addLineDisabled}"  icon="ui-icon-plus" id="addLn"
+                           title="#{formText.docLnAdd}" actionListener="#{glStdJnl.onAddLine}"
+                             />
+               </p:column>
+              </p:row>
+              <p:row>
+               <p:column  >
+                
+               </p:column>
+               <p:column >
+                
+               </p:column>
+              </p:row>
+           </p:panelGrid>
+          
+          </p:column>
+         </p:row>
+        </p:panelGrid>
+       </p:panel>
+      </p:tab>
+       
+       <p:tab id="overview" title="#{formText.glGlStdSummTab}" titletip="#{formHelpText.stdJnlTabSumTip}">
+        <p:panel header="#{formText.glGlStdSummTab}">
+        <p:contextMenu for="docSumTbl">
+         <p:menuitem icon="ui-icon-pencil" value="#{formText.edit}" actionListener="#{glStdJnl.onEdLineDlg}"/>
+         <p:menuitem icon="ui-icon-trash" value="#{formText.delete}" actionListener="#{glStdJnl.onDelLineConfDlg}"/>
+        </p:contextMenu>  
+        <p:dataTable id="docSumTbl" emptyMessage="#{formText.docNoLines}" var="docSum" rowKey="#{docSum.id}"
+                     selection="#{glStdJnl.glDocLineSelected}" selectionMode="single"
+                       value="#{glStdJnl.glDocLines}" paginator="true" paginatorAlwaysVisible="false" rows="3"
+                       >
+            <p:column sortBy="#{docSum.glAccount.coaAccount.ref}" >
+              <f:facet name="header">
+                <h:outputText value="#{formText.glAccountRef}"/>
+              </f:facet>
+              <h:outputText value="#{docSum.glAccount.coaAccount.ref}"/>
+            </p:column>
+            <p:column sortBy="#{docSum.glAccount.coaAccount.name}">
+              <f:facet name="header">
+                <h:outputText value="#{formText.glAccountName}"/>
+              </f:facet>
+              <h:outputText value="#{docSum.glAccount.coaAccount.name}"/>
+            </p:column>
+            <p:column style="text-align:right"  >
+              <f:facet name="header">
+                <h:outputText value="#{formText.docDebit}"/>
+
+              </f:facet>
+             <h:outputText value="#{docSum.docAmount}"  rendered="#{docSum.postType.debit}" >
+              <f:convertNumber locale="#{glStdJnl.jnl.company.locale}" minFractionDigits="2"/>
+              </h:outputText>
+            </p:column>
+            <p:column style="text-align:right"  >
+              <f:facet name="header">
+                <h:outputText value="#{formText.docCredit}"/>
+              </f:facet>
+              <h:outputText  value="#{docSum.docAmount}" rendered="#{!docSum.postType.debit}">
+               <f:convertNumber locale="#{glStdJnl.jnl.company.locale}" minFractionDigits="2"/>
+              </h:outputText>
+            </p:column>
+            
+            <p:columnGroup type="footer">
+              <p:row>
+               <p:column colspan="2" style="text-align:right" footerText="#{listHeading.stdJnlTabSumFooter}"/>
+                <p:column  >
+                  <f:facet name="footer">
+                    <h:outputText value="#{glStdJnl.totalDebits}">
+                     <f:convertNumber locale="#{glStdJnl.jnl.company.locale}" minFractionDigits="2"/>
+                    </h:outputText>
+                  </f:facet>
+
+                </p:column>
+                <p:column >
+                 <f:facet name="footer">
+                  <h:outputText value="#{glStdJnl.totalCredits}">
+                   <f:convertNumber locale="#{glStdJnl.jnl.company.locale}" minFractionDigits="2"/>
+                  </h:outputText>
+                 </f:facet>
+                </p:column>
+              </p:row>
+            </p:columnGroup>
+          </p:dataTable>
+        <p:confirmDialog id="delConfDlg" message="#{formText.stdJnlDelLnMsg}" header="#{formText.stdJnlDelLnHdr}"
+                       severity="alert" widgetVar="delLnWvar"  >
+        <p:commandButton id="lnDelConfId" actionListener="#{glStdJnl.onDeleteLine}"
+                         
+                         value="#{formText.yes}" update="docSumTbl"  />
+        <p:commandButton id="lnDelNoId" value="#{formText.no}" onclick="PF('delLnWvar').hide();" type="button"/>
+      </p:confirmDialog>
+            </p:panel>
+        </p:tab>
+        
+      </p:wizard>
+
+    </h:form>
+   
+   <h:form id="editLineFrm" prependId="false">
+    <p:dialog  dynamic="true" widgetVar="editLineDlgWv" modal="true">
+     <f:facet name="header">
+      <h:outputText value="#{formText.stdJnlEdDlgHdr}"/>
+     </f:facet>
+     <p:panelGrid id="lineDetEd" styleClass="panelNoBorders" >
+      <p:row>
+       <p:column>
+        <p:outputLabel for="pstTypEd" value="#{formText.docPostCode}"/>
+       </p:column>
+       <p:column>
+        <p:selectOneMenu id="pstTypEd" value="#{glStdJnl.glDocLineSelected.postType}"  filter="true" filterMatchMode="contains"
+          valueChangeListener="#{glStdJnl.onPostTypeChange}" 
+          converter="com.rationem.util.converter.PostType" var="pt">
+          <f:selectItems value="#{glStdJnl.postTypes}" var="ty" itemValue="#{ty}" itemLabel="#{ty.postTypeCode}"/>
+          <p:ajax event="change"/>
+         <p:column >
+          <h:outputText value="#{pt.postTypeCode}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{pt.description}"/>
+         </p:column>
+        </p:selectOneMenu>
+       </p:column>
+       <p:column>
+        <h:outputLabel for="glActEd" value="#{formText.glAccountRef}" />
+       </p:column>
+       <p:column>
+      
+        <p:selectOneMenu id="glActEd" value="#{glStdJnl.glDocLineSelected.glAccount}" filter="true" filterMatchMode="contains" 
+           converter="com.rationem.util.converter.FiGlAccountComp"  var="glac"  
+           valueChangeListener="#{glStdJnl.onGlActSelect}">
+         <f:selectItems value="#{glStdJnl.glAccounts}" var="acnt" itemValue="#{acnt}" 
+           itemLabel="#{acnt.coaAccount.ref}"/>
+         <p:ajax event="change"    />
+         <p:column>
+          <h:outputText value="#{glac.coaAccount.ref}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{glac.coaAccount.name}"/>
+         </p:column>
+        </p:selectOneMenu>
+       </p:column>
+       <p:column>
+        <h:outputText id="glActNameEd" value="#{glStdJnl.glDocLineSelected.glAccount.coaAccount.name}"/>
+       </p:column>
+       <p:column>
+        <h:outputLabel for="vatcdEd" value="#{formText.vatCd}"/>
+       </p:column>
+       <p:column>
+        <p:selectOneMenu id="vatcdEd" value="#{glStdJnl.glDocLineSelected.vatCode}"  filter="true" filterMatchMode="contains"
+                                 converter="com.rationem.util.converter.VatCodeCompany" var="vc">
+         <f:selectItems var="vatCd" value="#{glStdJnl.vatCodes}" itemValue="#{vatCd}" itemLabel="#{vatCd.vatCode.code}"/>
+         <p:column>
+          <h:outputText value="#{vatCd.vatCode.code}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{vatCd.vatCode.description}"/>
+         </p:column>
+        </p:selectOneMenu>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <h:outputLabel for="amntEd" value="#{formText.docLnAmnt}"/>
+       </p:column>
+       <p:column>
+        <p:inputText id="amntEd" value="#{glStdJnl.glDocLineSelected.docAmount}" title="#{formHelpText.docLnAmnt}"
+                        required="true" requiredMessage="#{validationText.fiDocLineAmount}"
+                       valueChangeListener="#{glStdJnl.onLineAmountChange}" >
+         <f:convertNumber   minFractionDigits="2" minIntegerDigits="1"  />
+         <p:ajax  />
+        </p:inputText>
+       </p:column>
+       <p:column>
+         <h:outputLabel for="lnDescrEd" value="#{formText.docLnTxt}"/>
+       </p:column>
+       <p:column colspan="4">
+        <p:inputText id="lnDescrEd" size="50" value="#{glStdJnl.glDocLineSelected.lineText}"
+                        title="#{formHelpText.docLnTxt}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <h:outputLabel for="defSortEd" value="#{formText.docDefSort}"/>
+       </p:column>
+       <p:column>
+        <p:inputText id="defSortEd" value="#{glStdJnl.glDocLineSelected.sortOrder}" 
+                       title="#{formHelpText.docDefSort}"/>
+       </p:column>
+       <p:column>
+        <h:outputLabel for="restFndsEd" value="#{formText.docRestrFnds}"/>
+       </p:column>
+       <p:column colspan="4">
+        <p:autoComplete id="restFndsEd" value="#{glStdJnl.glDocLineSelected.restrictedFund}"
+                                completeMethod="#{glStdJnl.onRestrictedFundsComplete}" dropdown="true"  
+                                converter="com.rationem.util.converter.RestrictedFund" var="rFnd" itemValue="#{rFnd}" 
+                                itemLabel="#{rFnd.fndCode}">
+         <f:facet name="itemtip">
+          <h:panelGrid columns="1">
+           <h:outputText value="#{rFnd.name}"/>
+          </h:panelGrid>
+         </f:facet>
+         <p:ajax event="itemSelect" listener="#{glStdJnl.onRestrictedFundSelect}"/>
+        </p:autoComplete>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <h:outputLabel for="ref1Ed" value="#{formText.docRef1}"/>
+       </p:column>
+       <p:column>
+        <p:inputText id="ref1Ed" value="#{glStdJnl.glDocLineSelected.reference1}" title="#{formHelpText.docRef1}"/>
+       </p:column>
+       <p:column>
+        <h:outputLabel for="ref2Ed" value="#{formText.docRef2}"/>
+       </p:column>
+       <p:column colspan="3">
+        <p:inputText id="ref2Ed" value="#{glStdJnl.glDocLineSelected.reference2}" title="#{formHelpText.docRef2}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:commandButton  icon="ui-icon-arrowthick-1-w" id="addLnEd"
+                          title="#{formText.transfer}" actionListener="#{glStdJnl.onTransEdLine}"
+                             />
+        <p:spacer width="2"/>
+        <p:commandButton icon="ui-icon-cancel" title="#{formText.close}" type="button" onclick="PF('editLineDlgWv').hide();"/>
+        
+       </p:column>
+      </p:row>
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+
+  </ui:define>
+</ui:composition>
+
+

@@ -1,0 +1,97 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+  <ui:define name="title">#{pageTitle.fiRestFndUpdate}</ui:define>
+    <ui:define name="header"> </ui:define>
+    <ui:define name="content">
+      <h:form id="restrFndUpdtFrm" prependId="false">
+       <p:growl autoUpdate="true"/>
+        <p:toolbar  >
+          <f:facet name="left">
+
+
+           <p:commandButton id="postBtn" value="#{formText.save}"
+                             title="#{formHelpText.restSave}"  icon="fa fa-floppy-o"
+                             actionListener="#{restrictedFundBean.onSaveUpdate}"  />
+            
+            <p:commandButton id="resetBtn" type="reset" value="#{formText.reset}"
+                             title="#{formHelpText.genResetBtn}"  icon="ui-icon-trash">
+             <p:resetInput target="restrFndCr fndRetReq"/>
+            </p:commandButton>
+            
+          </f:facet>
+          </p:toolbar>
+          
+        <h:panelGrid columns="2">
+         <p:outputLabel for="compCodeMnu" value="#{formText.comp}"/>
+          <p:selectOneMenu id="compCodeMnu" value="#{restrictedFundBean.fund.fundForComp}"
+                           converter="com.rationem.util.converter.CompanyBasic">
+            <f:selectItems value="#{restrictedFundBean.compList}" var="compSel"
+                           itemValue="#{compSel}" itemLabel="#{compSel.reference}"/>
+          </p:selectOneMenu>
+          
+          <p:outputLabel for="fnd" value="#{formText.restFndCode}"/>
+          <p:selectOneMenu id="fnd" value="#{restrictedFundBean.fund}" required="true"
+                           converter="com.rationem.util.converter.RestrictedFund" 
+                           valueChangeListener="#{restrictedFundBean.onFundChange}">
+           <f:selectItems var="fund" value="#{restrictedFundBean.funds}" itemValue="#{fund}" 
+                          itemLabel="#{fund.fndCode}"/>
+           <p:ajax event="change"/>
+          </p:selectOneMenu>
+          
+          <p:outputLabel for="fndName" value="#{formText.restFndName}"/>
+          <p:inputText id="fndName" value="#{restrictedFundBean.fund.name}" 
+                       title="#{formHelpText.restFndName}" required="true"/>
+          
+          
+          <p:outputLabel for="fndpurpose" value="#{formText.restFndPurpose}"/>
+          <p:inputTextarea id="fndpurpose" value="#{restrictedFundBean.fund.purpose}" cols="70" rows="5"
+                           autoResize="false" required="true"
+                           title="#{formHelpText.restFndPurpose}"/>
+          
+          <p:outputLabel for="fndStartDt" value="#{formText.restFndValidFrom}"/>
+          <p:calendar id="fndStartDt"  value="#{restrictedFundBean.fund.validFrom}" mode="popup" maxlength="10"
+                      size="8"  navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"  
+                      title="#{formHelpText.restFndValidFrom}"  >
+           <p:ajax event="dateSelect" listener="#{restrictedFundBean.onEditStart}"/>
+          </p:calendar>
+          
+          <p:outputLabel for="fndEndDt" value="#{formText.restFndValidTo}"/>
+          <p:calendar id="fndEndDt"  value="#{restrictedFundBean.fund.validTo}" mode="popup" maxlength="10"
+                      size="8"  navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                      mindate="#{restrictedFundBean.fund.validFrom}"
+                      title="#{formHelpText.restFndValidTo}"  />
+          
+          <p:outputLabel for="fndRetReq" value="#{formText.restFndReptReq}"/>
+          <p:selectBooleanCheckbox id="fndRetReq" value="#{restrictedFundBean.fund.returnRequired}" 
+                                   valueChangeListener="#{restrictedFundBean.onReturnRequiredChange}" >
+           
+          </p:selectBooleanCheckbox>
+          
+          <p:outputLabel for="fndRetDt" value="#{formText.restFndReptdate}"/>
+          <p:calendar id="fndRetDt"  value="#{restrictedFundBean.fund.returnDue}" mode="popup" maxlength="10"
+                      size="8"  navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                      mindate="#{restrictedFundBean.fund.validFrom}"
+                      title="#{formHelpText.restFndReptdate}"
+                        />
+          <p:outputLabel for="fndType" value="#{formText.restFndTyp}"/>
+          <p:selectOneMenu id="fndType" value="#{restrictedFundBean.fund.fundCategory}" 
+                           converter="com.rationem.util.converter.FundCategory">
+           <f:selectItems var="fndCat" value="#{restrictedFundBean.fndCategories}" itemValue="#{fndCat}"
+                          itemLabel="#{fndCat.catRef}"/>
+          </p:selectOneMenu>
+          <p:outputLabel for="fndRestr" value="#{formText.fndCatRestrict}"/>
+          <p:selectBooleanCheckbox id="fndRestr" value="#{restrictedFundBean.fund.fundCategory.restricted}"/>
+          <p:outputLabel for="fndCap" value="#{formText.restFndCap}"/>
+          <p:selectBooleanCheckbox id="fndCap" value="#{restrictedFundBean.fund.fundCategory.endowment}"/>
+          
+
+        </h:panelGrid>
+      </h:form>
+
+ </ui:define>
+</ui:composition>
+

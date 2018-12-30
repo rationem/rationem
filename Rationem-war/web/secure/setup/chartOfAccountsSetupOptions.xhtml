@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+>
+    
+    <ui:composition template="/WEB-INF/template.xhtml">
+        <ui:define name="title">#{menuOption.coaOpt_title}</ui:define>
+        <ui:define name="header"> <p:panel header="#{menuOption.coaOpt_title}"  /></ui:define>
+        <ui:define name="content">
+            <h:form>
+              <p:growl id="messages" showDetail="true"/>
+            <p:tree value="#{treeBean.root}" var="node" selectionMode="single"
+                    selection="#{treeBean.selectedNode}"   
+                    >
+              <p:treeNode>
+                <h:commandLink value="#{node}"/>
+              </p:treeNode>
+            </p:tree>
+                <h:panelGrid columns="1">
+                    <p:menu  >
+                        <p:submenu id="coaOpts" label="#{menuOption.coaOpt_title}">
+                            <p:menuitem id="crCoa" value="#{menuOption.coaOpt_crBasic}" 
+                                        ajax="false" action="coaBasicCreate"/>
+                            <p:menuitem id="amdCoa" value="#{menuOption.coaOpt_amdBasic}" 
+                                        ajax="false" action="coaBasicUpdate"/>
+                        </p:submenu>
+                        <p:submenu id="perCntrl" label="#{menuOption.fisPer}">
+                            <p:menuitem icon="ui-icon ui-icon-gear" id="perCntrlCr" value="#{menuOption.fisPerCr}"
+                                ajax="false" action="fisPeriod"/>
+                            <p:menuitem icon="ui-icon ui-icon-gear" id="perCntrlUpdt" value="#{menuOption.fisPerRuleUpdt}"
+                                ajax="false" action="fisPerRuleUpdt"/>
+                            <p:menuitem icon="ui-icon ui-icon-gear" id="perCalRulelCr" value="#{menuOption.fisPerCalDetail}"
+                                ajax="false" action="fisPerCal"/>
+                        </p:submenu>
+                    </p:menu>
+                    
+                </h:panelGrid>
+            </h:form>
+
+
+        </ui:define>
+    </ui:composition>
+    </html>
+

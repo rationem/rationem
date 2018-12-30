@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+ <h:head>
+  <f:facet name="first">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+   <meta name="apple-mobile-web-app-capable" content="yes" />
+  </f:facet>
+  <title>#{formText.loginTitle}</title>
+  <h:outputScript name="js/ripple.js" library="barcelona-layout" />
+  <h:outputScript name="js/layout.js" library="barcelona-layout" />
+ </h:head>
+
+ <h:body styleClass="login-body">
+  <h:form id="loginFrm">      
+   <div class="login-panel ui-fluid">
+    <div class="ui-g">
+   <div class="ui-g-12 login-header">
+    <h1>#{formText.loginBtn}</h1>
+    <h2>#{formText.welcome}</h2>
+     <p:graphicImage name="images/scales.png" library="rationem-layout" /> 
+   </div>
+     
+     <p:messages id="msgs" />
+    <p:panelGrid columns="1"   styleClass="ui-noborder" layout="grid" >
+     <h:panelGroup styleClass="md-inputfield">
+      <p:inputText  value="#{authManBean.userName}" required="true" />
+      <p:outputLabel for="pw" value="#{formText.usrLogin}"/>
+     </h:panelGroup>
+     <h:panelGroup styleClass="md-inputfield">
+      <p:password id="pw" feedback="false" value="#{authManBean.userPass}" required="true" />
+      <p:outputLabel for="pw" value="#{formText.usrPwd}"/>
+     </h:panelGroup>
+     
+     
+                   
+    </p:panelGrid>
+    
+   <div class="ui-g-12 chkbox-container">
+    <p:selectBooleanCheckbox id="remember-me" />
+    <p:outputLabel for="remember-me" value="Remember Me"/>
+   </div>
+   <div class="ui-g-12 button-container">
+    <p:commandButton id="loginBtn" value="#{formText.loginBtn}" icon="ui-icon-person" 
+                    actionListener="#{authManBean.onLoginBtnActionListener}"
+                    action="#{authManBean.onLoginBtnAction}">
+     <f:param name="userName" value="#{authManBean.usrLogin.logonName}"/>
+    </p:commandButton>
+   </div>
+  </div>
+ </div>
+  </h:form>
+  <h:form id="initPwFrm"  >
+   <div class="ui-fluid">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:dialog id="initPwDlgId" widgetVar="initPwDlgWv" closable="false" modal="true" position="top">
+       <f:facet name="header">
+        <p:messages id="errMsg" />
+        <h:outputText value="#{formText.initPwChange}"/>
+        <p:panelGrid layout="grid" columns="2">
+         <p:outputLabel for="pwd1" value="#{formText.usrPwd}"/>
+         <p:password id="pwd1" value="#{authManBean.initPwd1}" feedback="true" required="true"
+                     requiredMessage="#{validationText.userPw}"/>
+         <p:outputLabel for="pwd2" value="#{formText.usrPwdRep}"/>
+         <p:password id="pwd2" value="#{authManBean.initPwd1}" feedback="true" required="true"
+                     requiredMessage="#{validationText.userPw}" />
+         <p:commandButton id="updateInitPw" value="#{formText.update}"  />
+        </p:panelGrid>
+        
+        
+       </f:facet>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form> 
+  <h:outputStylesheet name="css/layout-blue.css" library="barcelona-layout" />
+  <h:outputStylesheet name="css/ripple.css" library="barcelona-layout" />
+ </h:body>
+
+</html>

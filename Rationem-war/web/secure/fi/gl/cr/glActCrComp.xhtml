@@ -1,0 +1,113 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiGlAcntCrComp}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="acntInComp">
+    <div class="card">
+    <p:wizard styleClass="wizard-width" flowListener="#{glAccountBean.onAcntCompFlowProcess}" >
+     <p:tab id="refAcntTab" title="#{formText.glAccountCopyRef}">
+      <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-1, ui-grid-col-2">
+       <p:outputLabel for="chartAcnt" value="#{formText.glAccountAccount}"/>
+       <p:autoComplete id="chartAcnt" value="#{glAccountBean.refAccount}" itemLabel="#{acntChV.ref}" 
+                     converter="com.rationem.util.converter.FiGlAccountBase" var="acntChV" itemValue="#{acntChV}"
+                     completeMethod="#{glAccountBean.onGlAcntChartComplete}" dropdown="true">
+        <f:facet name="itemtip">
+         <h:outputText value="#{acntChV.name}"/>
+        </f:facet>
+       </p:autoComplete>
+       <p:outputLabel for="acntComp" value="#{formText.comp}"/>
+       <p:selectOneMenu id="acntComp" value="#{glAccountBean.selectedCompany}"
+                       converter="com.rationem.util.converter.CompanyBasic">
+        <f:selectItems value="#{glAccountBean.compList}" var="compV" itemValue="#{compV}" 
+                      itemLabel="#{compV.reference}"/>
+       </p:selectOneMenu>
+      </p:panelGrid>
+     </p:tab>
+     <p:tab id="compAcntTab" title="#{formText.glAccountCompAccount}">
+      <p:messages autoUpdate="true"/>
+      <p:panelGrid  layout="grid" columns="2" columnClasses="ui-grid-col-3, ui-grid-col-2">
+       <f:facet name="header">
+        <h:outputText value="#{formText.glAccountCompDtls}"/>
+       </f:facet>
+       
+       <p:outputLabel for="sort" value="#{formText.glAccountSort}"/>
+       <p:selectOneMenu id="sort" value="#{glAccountBean.glAccountComp.sortOrder}"
+                           converter="com.rationem.util.converter.SortOrder" 
+                           valueChangeListener="#{glAccountBean.onSortOrderChange}" >
+        <f:selectItems var="sortItem" value="#{glAccountBean.sortOrderList}"
+                                       itemValue="#{sortItem}"
+                                       itemLabel="#{sortItem.name}"/>
+           
+       </p:selectOneMenu>
+       <p:outputLabel for="clearing" value="#{formText.glAccountClear}" 
+                      rendered="#{!glAccountBean.refAccount.pl}"/>
+       <p:selectBooleanCheckbox id="clearing" value="#{glAccountBean.glAccountComp.accountClearing}"
+                                valueChangeListener="#{glAccountBean.onAccountClearValueChange}"
+                                rendered="#{!glAccountBean.refAccount.pl}">
+        <p:ajax event="change" update="bankClr, bankUnClr"/>
+       </p:selectBooleanCheckbox>
+                                
+       <p:outputLabel for="bankClr" value="#{formText.glAccountBnkCleared}"
+                      rendered="#{glAccountBean.refAccount.accountType.processCode.name eq 'GL_ACNT_BNK_CSH'}"/>
+       <p:autoComplete 
+        id="bankClr" value="#{glAccountBean.glAccountComp.bankAccountCompanyCleared}" var="bnkAcntClrV"
+        completeMethod="#{glAccountBean.onBankAccountComplete}" itemValue="#{bnkAcntClrV}"
+        converter="com.rationem.util.converter.BankAccountCompany" itemLabel="#{bnkAcntClrV.accountNumber}"
+        disabled="#{glAccountBean.glAccountComp.accountClearing}" dropdown="true"
+        rendered="#{glAccountBean.refAccount.accountType.processCode.name eq 'GL_ACNT_BNK_CSH'}">
+        <f:facet name="itemtip">
+         <h:outputText value="#{bnkAcntClrV.accountName}"/>
+        </f:facet>
+       </p:autoComplete>
+       <p:outputLabel for="bankUnClr" value="#{formText.glAccountBnkUnClr}"
+                      rendered="#{glAccountBean.refAccount.accountType.processCode.name eq 'GL_ACNT_BNK_CSH'}"/>
+       <p:autoComplete 
+        id="bankUnClr" value="#{glAccountBean.glAccountComp.bankAccountCompanyUncleared}" var="bnkAcntUnClrV"
+        completeMethod="#{glAccountBean.onBankAccountComplete}" itemValue="#{bnkAcntUnClrV}"
+        converter="com.rationem.util.converter.BankAccountCompany" itemLabel="#{bnkAcntUnClrV.accountNumber}"
+        disabled="#{!glAccountBean.glAccountComp.accountClearing}" dropdown="true"
+        rendered="#{glAccountBean.refAccount.accountType.processCode.name eq 'GL_ACNT_BNK_CSH'}">
+        <f:facet name="itemtip">
+         <h:outputText value="#{bnkAcntUnClrV.accountName}"/>
+        </f:facet>
+       </p:autoComplete>
+       
+       <p:outputLabel for="vatCode" value="#{formText.glAccountVatCode}"  
+                          rendered="#{glAccountBean.compVatable}" />
+       <p:selectOneMenu id="vatCode" value="#{glAccountBean.glAccountComp.vatCode}"
+                             rendered="#{glAccountBean.compVatable}"
+                             converter="com.rationem.util.converter.VatCodeCompany"
+                             valueChangeListener="#{glAccountBean.onVatCodeChange}">
+        <f:selectItems var="vatItem" value="#{glAccountBean.vatCodeList}"
+                            itemValue="#{vatItem}" itemLabel="#{vatItem.vatCode.code} #{vatItem.vatCode.description}"/>
+       </p:selectOneMenu>
+       <p:outputLabel for="noVat" value="#{formText.glAccountNoVat}"/>
+       <p:selectBooleanCheckbox id="noVat" value="#{glAccountBean.glAccountComp.noVatAllowed}"/>
+       <p:outputLabel for="anlysis1" value="#{formText.glAccountAnalysis1}"/>
+       <p:inputText id="anlysis1" value="#{glAccountBean.glAccountComp.analysis1}"
+                     title="#{formHelpText.glAccountAnalysis1}"/>
+       <p:outputLabel for="anlysis2" value="#{formText.glAccountAnalysis2}"/>
+        <p:inputText id="anlysis2" value="#{glAccountBean.glAccountComp.analysis2}"
+                     title="#{formHelpText.glAccountAnalysis2}"/>
+        <p:outputLabel for="persResp" value="#{formText.glAccountResp}"
+                       rendered="#{!glAccountBean.refAccount.accountType.profitAndLossAccount}"/>
+        <p:inputText id="persResp" value="#{glAccountBean.glAccountComp.personResponsible}"
+                     title="#{formHelpText.glActResp}"
+                     rendered="#{!glAccountBean.refAccount.accountType.profitAndLossAccount}"/>
+        <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                         actionListener="#{glAccountBean.onSaveAccountComp}"/>
+        
+      </p:panelGrid>
+     </p:tab>
+    </p:wizard>
+    </div>
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

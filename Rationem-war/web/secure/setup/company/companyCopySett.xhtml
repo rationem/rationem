@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_copy_cpy_sett}</ui:define>
+ <ui:define name="header">#{pageTitle.cfg_copy_cpy_sett}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="compCpySett">
+   <p:toolbar >
+    <f:facet name="left">
+     <p:commandButton id="saveDef" value="#{formText.exec}" icon="fa fa-cog" styleClass="secondary" 
+                      actionListener="#{companyCopySettings.onCopyExec}"/>
+    </f:facet>
+   </p:toolbar>
+   
+   <p:tooltip trackMouse="true"  showEffect="clip" hideEffect="explode" />
+   
+   <p:growl id="grl" showDetail="true" escape="false"/>
+    <p:growl id="grlTrf" showDetail="true" escape="false"/>
+    <p:messages id="msgs" closable="true" autoUpdate="false"/>
+    <div class="card">
+     <p:fieldset legend="#{formText.cfgCompSel}">
+      <p:panelGrid id="comps" layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-2"
+                 styleClass="ui-noborder">
+       <h:panelGroup class="md-inputfield">
+        <p:autoComplete 
+         id="sourceComp" value="#{companyCopySettings.compSource}" dropdown="true" var="compSrcV"
+         converter="com.rationem.util.converter.CompanyBasic" emptyMessage="#{validationText.compAutoEmpty}"
+         completeMethod="#{companyCopySettings.onCompComplete}" itemValue="#{compSrcV}" 
+         itemLabel="#{compSrcV.name}" required="true"  >
+         <p:ajax event="itemSelect" listener="#{companyCopySettings.onCompSourceSel}"  />
+         <p:column width="25%">
+          
+          <h:outputText value="#{compSrcV.reference}"/>
+         </p:column>
+         <p:column width="75%">
+          <h:outputText value="#{compSrcV.name}"/>
+         </p:column>
+        </p:autoComplete>
+        <p:outputLabel for="sourceComp" value="#{formText.cfgCompSource}"/>
+       </h:panelGroup>
+       <h:panelGroup class="md-inputfield">
+        <p:autoComplete 
+         id="destComp" value="#{companyCopySettings.compDest}" dropdown="true" var="compDstV"
+         completeMethod="#{companyCopySettings.onCompComplete}" itemValue="#{compDstV}" 
+         itemLabel="#{compDstV.name}" required="true" converter="com.rationem.util.converter.CompanyBasic" 
+         emptyMessage="#{validationText.compAutoEmpty}" >
+         <p:ajax event="itemSelect" listener="#{companyCopySettings.onCompDestSel}"  />
+         <p:column width="25%">
+          <h:outputText value="#{compDstV.reference}"/>
+         </p:column>
+         <p:column width="75%">
+          <h:outputText value="#{compDstV.name}"/>
+         </p:column>
+        </p:autoComplete>
+        <p:outputLabel for="sourceComp" value="#{formText.cfgCompDest}"/>
+       </h:panelGroup>
+      </p:panelGrid>
+     </p:fieldset>
+     <p:fieldset legend="#{formText.pickListPrOpt}">
+     
+      <p:pickList 
+       id="optionsPl" value="#{companyCopySettings.copySet}" var="copyV" itemValue="#{copyV}"
+       converter="com.rationem.util.converter.PickListItem" itemLabel="#{copyV.description}"
+       showSourceControls="true" showTargetControls="true" showCheckbox="true" 
+       responsive="true" filterMatchMode="contains" showSourceFilter="true" showTargetFilter="true">
+       <f:facet name="sourceCaption">#{formText.pickListAvail}</f:facet>
+       <f:facet name="targetCaption">#{formText.pickListSel}</f:facet>
+       <p:ajax event="transfer" listener="#{companyCopySettings.onOptTransfer}" update="grl" />
+      </p:pickList>
+     </p:fieldset>
+    </div>
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

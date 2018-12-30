@@ -1,0 +1,991 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.apAcntCr}</ui:define>
+ <ui:define name="header">#{pageTitle.apAcntCr}</ui:define>
+ <ui:define name="content">
+  <h:form id="arActCrFrm" prependId="false">
+   <p:growl autoUpdate="true" />
+   
+   <p:growl id="actNumMsg"/>
+   <p:focus for="accountCode"/>
+   <p:panelGrid  styleClass="ui-noborder">
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.compRef}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{arMastBean.arAccount.company}" 
+                         converter="com.rationem.util.converter.CompanyBasic"
+                         valueChangeListener="#{arMastBean.companySelectValueChange}" >
+       <f:selectItems var="compVar" value="#{arMastBean.compList}" itemValue="#{compVar}"
+                         itemLabel="#{compVar.reference}"/>
+       <p:ajax/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="accountCode" value="#{formTextAr.arAcntCode}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="accountCode" value="#{arMastBean.arAccount.arAccountCode}"
+                   title="#{formHelpText.arActCode}" size="5" required="true" 
+                   requiredMessage="#{validationText.arActNum}"
+                   validatorMessage="#{validationText.ar}">
+       <p:ajax update="actNumMsg" event="blur"  listener="#{arMastBean.arActNumberListener}"/>
+      </p:inputText>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="accountName" value="#{formTextAr.arAccountName}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="accountName" value="#{arMastBean.arAccount.arAccountName}"
+                   valueChangeListener="#{arMastBean.onAccountNameBlur}"
+                   size="20">
+       <p:ajax event="blur" />
+      </p:inputText>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   <p:wizard id="actDetails"   flowListener="#{arMastBean.onAcntCrFlow}" widgetVar="actWv"   >
+    <p:tab id="ptnr" title="#{formTextAr.arPtnrDetTab}" titletip="#{formHelpText.arPtnrDetails}" >
+     <p:growl autoUpdate="true"/>
+     <p:panel id="ptnrDetailsPanel" header="#{formTextAr.arPtnrDetPnl}">
+      <p:panelGrid id="addrPg"  >
+       <p:row>
+        <p:column>
+         <p:outputLabel for="ptnrTyp" value="#{formText.ptnrType}"/>
+        </p:column>
+        <p:column>
+         <p:selectOneMenu id="ptnrTyp" value="#{arMastBean.selectedPtnrTypeCd}"
+                             valueChangeListener="#{arMastBean.partnerTypeValueChange}"
+                              >
+          <f:selectItem itemValue="corp" itemLabel="#{formText.ptnrCorp}"/>
+          <f:selectItem itemValue="indiv" itemLabel="#{formText.ptnrIndiv}"/>
+          <p:ajax update="ptnrDetailsPanel"  />
+         </p:selectOneMenu>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="tradName" value="#{formTextMdm.ptnrTrName}"
+                           rendered="#{arMastBean.selectedPtnrTypeCd == 'corp'}"/>
+         <p:outputLabel for="personName" value="#{formTextMdm.ptnrTrName}"
+                        rendered="#{arMastBean.selectedPtnrTypeCd == 'indiv'}"/>
+        </p:column>
+        <p:column>
+         <p:autoComplete id="tradName" value="#{arMastBean.ptnrCorp}"
+                            rendered="#{arMastBean.selectedPtnrTypeCd == 'corp'}"
+                            converter="com.rationem.util.converter.PartnerCorporate"
+                            completeMethod="#{arMastBean.corpPtnrComplete}" dropdown="true"
+                            var="p" itemLabel="#{p.tradingName}"  itemValue="#{p}"
+                            maxResults="20" minQueryLength="3" emptyMessage="No trading partners found"
+                            required="true" requiredMessage="#{validationText.arActTradName}"
+                            forceSelection="true"
+                            >
+          <p:ajax event="itemSelect" listener="#{arMastBean.onTradingNameSelect}" 
+                 update="addrCountry addrTown addrStr2 addrStreet addHouseName addrStNum"/>
+         </p:autoComplete>
+         <p:autoComplete id="personName" value="#{arMastBean.ptnrPerson}"
+                            rendered="#{arMastBean.selectedPtnrTypeCd == 'indiv'}"
+                            converter="com.rationem.util.converter.PartnerIndividual"
+                            completeMethod="#{arMastBean.personPtnrComplete}" dropdown="true"
+                            var="pers" itemLabel="#{pers.familyName} #{pers.firstName}" 
+                            itemValue="#{pers}" emptyMessage="No trading partners found"
+                            required="true" requiredMessage="#{validationText.arActTradName}"
+                            maxResults="20" minQueryLength="3" forceSelection="true"
+                            >
+          <p:ajax event="itemSelect" listener="#{arMastBean.onTradingNameSelect}" 
+                 update="addrCountry addrTown addrStr2 addrStreet addHouseName addrStNum" />
+         </p:autoComplete>
+         <p:spacer width="20" />
+         <p:tooltip for="tradName" value="#{formHelpText.arPtnrTradingName}" />
+         <p:tooltip for="personName" value="#{formHelpText.arPtnrFamilyname}" />
+        </p:column>
+        <p:column>
+         <p:commandButton id="crCorpPtnr" value="#{formText.ptnrCreate}"
+                     process="@this" title="#{formHelpText.arCrPtnr}"
+                          actionListener="#{arMastBean.onNewPtnrDlg}"
+                          partialSubmit="true" 
+                             rendered="#{arMastBean.selectedPtnrTypeCd == 'corp'}"/>
+         <p:commandButton id="crPersPtnr" value="#{formText.ptnrCreate}"
+                          process="@this" title="#{formHelpText.arCrPtnr}"
+                          actionListener="#{arMastBean.onNewPtnrDlg}"
+                          rendered="#{arMastBean.selectedPtnrTypeCd == 'indiv'}"/>
+         <p:tooltip for="crCorpPtnr"/>
+         <p:tooltip for="crPersPtnr"/> 
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrStNum" value="#{formText.addrHouseNumName}"/>
+        </p:column>
+        <p:column colspan="4">
+         <p:inputText id="addrStNum" value="#{arMastBean.arAccount.accountAddress.houseNumber}"
+                           title="#{formHelpText.addrNum}" size="3" />
+         <p:tooltip for="addrStNum"/>
+         <p:outputLabel  value="/"/>
+         <p:inputText id="addHouseName" value="#{arMastBean.arAccount.accountAddress.houseName}"
+                           title="#{formHelpText.addrHseName}"/>
+         <p:tooltip for="addHouseName"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrStreet" value="#{formText.addrStr1}"/>
+        </p:column>
+        <p:column colspan="4">
+         <p:inputText id="addrStreet" value="#{arMastBean.arAccount.accountAddress.street}"
+                           title="#{formHelpText.addrStr}"
+                           required="true" requiredMessage="#{validationText.adrStreet}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrStr2" value="#{formText.addrStr2}"/>
+        </p:column>
+        <p:column colspan="4">
+         <p:inputText id="addrStr2" value="#{arMastBean.arAccount.accountAddress.street2}"
+                             title="#{formHelpText.addrStr2}"/>
+         <p:tooltip for="addrStr2"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrTown" value="#{formText.addrTown}"/>
+        </p:column>
+        <p:column colspan="4">
+         <p:inputText id="addrTown" value="#{arMastBean.arAccount.accountAddress.town}"
+                             title="#{formHelpText.addrTown}"/>
+         <p:tooltip for="addrTown"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrCounty" value="#{formText.addrCounty}"/>
+        </p:column>
+        <p:column colspan="4">
+         <p:inputText id="addrCounty" value="#{arMastBean.arAccount.accountAddress.countyName}"
+                             title="#{formHelpText.addrCounty}"/>
+         <p:tooltip for="addrCounty"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrCountry" value="#{formText.addrCountry}"/>
+        </p:column>
+        <p:column colspan="4">
+         <p:autoComplete id="addrCountry" value="#{arMastBean.arAccount.accountAddress.country}"
+                           title="#{formHelpText}" dropdown="true" forceSelection="true"
+                           converter="com.rationem.util.converter.country" var="ptnrCntry" itemValue="#{ptnrCntry}"
+                           itemLabel="#{ptnrCntry.countryName}" completeMethod="#{arMastBean.countryComplete}"/>
+         <p:tooltip for="addrCountry"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrPostCd" value="#{formText.addrPostCd}"/>
+        </p:column>
+        <p:column colspan="2">
+         <p:inputText id="addrPostCd" value="#{arMastBean.arAccount.accountAddress.postCode}" 
+                           title="#{formHelpText.addrPostCd}" required="true" 
+                           requiredMessage="#{validationText.adrPostCode}" />
+        </p:column>
+        <p:column>
+         <p:outputLabel for="addrPostCdSearch" value="#{formTextMdm.addrPostCdSearch}" />
+        </p:column>
+        <p:column colspan="4">
+         <p:autoComplete id="addrPostCdSearch" value="#{arMastBean.postCodeAddress}"   
+                                title="#{formHelpText.arPostCode}" 
+                                completeMethod="#{arMastBean.postCodeComplete}" forceSelection="true" 
+                                converter="com.rationem.util.converter.Address"
+                                dropdown="true" maxResults="20" var="arAdr" itemValue="#{arAdr}"
+                                itemLabel="#{arAdr.postCode}">
+          <p:ajax event="itemSelect" listener="#{arMastBean.onPostCodeSelect}" update="addrPg"/>
+        <p:column>
+         <h:outputText value="#{arAdr.postCode}"/>
+         <p:spacer width="1"/>
+         <h:outputText value="-"/>
+         <p:spacer width="1"/>
+         <h:outputText value="#{arAdr.houseNumber }" rendered="#{arAdr.houseNumber ne 0 }"/>
+         <h:outputText value="#{arAdr.houseName}"/>
+         <p:spacer width="1"/>
+         <h:outputText value="#{arAdr.street}"/>
+        </p:column>
+       </p:autoComplete>
+       <p:spacer width="25"/>
+       <p:tooltip for="addrPostCd"/>
+       <p:tooltip for="addrPostCdSearch" />
+       <p:tooltip for="addrStreet"/>
+          </p:column>
+         </p:row>     
+        </p:panelGrid>
+       </p:panel>
+      </p:tab>
+      <p:tab id="account"  title="#{formTextAr.arAccountTab}" titletip="#{formHelpText.arAccount}"  >
+       <p:panel id="arAccountPanel" header="#{formTextAr.arAccountPnl}">
+        <p:panelGrid >
+         <p:row>
+          <p:column>
+           <p:outputLabel for="arRecAct" value="#{formTextAr.arAcntRecGL}"/> 
+          </p:column>
+          <p:column>
+           <p:selectOneMenu id="arRecAct" value="#{arMastBean.arAccount.reconciliationAc}"
+                                 converter="com.rationem.util.converter.FiGlAccountComp">
+            <f:selectItems value="#{arMastBean.glReconciliationAcs}" var="drsAct"
+                           itemLabel="#{drsAct.coaAccount.ref}"
+                                  itemValue="#{drsAct}"/>
+           </p:selectOneMenu>
+           <p:tooltip for="arRecAct" />
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="sortOrderSel1" value="#{formText.docDefSort}"/>
+          </p:column>
+          <p:column>
+           <p:selectOneMenu id="sortOrderSel1" converter="com.rationem.util.converter.SortOrder"
+                                 value="#{arMastBean.arAccount.sortOrder}" >
+            <f:selectItems value="#{arMastBean.sortOrderList}" var="sort"
+                                 itemValue="#{sort}" itemLabel="#{sort.name}"/>
+           </p:selectOneMenu>
+           <p:tooltip for="sortOrderSel1" value="#{formHelpText.arSort}"/>
+           <p:tooltip for="arRecAct" />
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="payTermSel" value="#{formTextAr.arPayTerm}"/>
+          </p:column>
+          <p:column>
+           <p:selectOneMenu id="payTermSel" converter="com.rationem.util.converter.PaymentTerms"
+                                 value="#{arMastBean.arAccount.paymentTerms}" >
+            <f:selectItems value="#{arMastBean.payTermsList}" var="payTerms"
+                                 itemValue="#{payTerms}"
+                                 itemLabel="#{payTerms.payTermsCode}"/>
+           </p:selectOneMenu>
+           <p:tooltip for="payTermSel" value="#{formHelpText.arPayTerm}" />
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="payTypeSel" value="#{formTextAr.arPayType}"/>
+          </p:column>
+          <p:column>
+           <p:selectOneMenu id="payTypeSel" converter="com.rationem.util.converter.PaymentType"
+                                 value="#{arMastBean.arAccount.paymentType}">
+             <f:selectItems value="#{arMastBean.payTypes}" var="payType"
+                                 itemValue="#{payType}" itemLabel="#{payType.description}"/>
+            </p:selectOneMenu>
+            <p:tooltip for="payTypeSel" value="#{formHelpText.arPayType}" />
+          </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="clerk" value="#{formTextAr.arClerk}"/>
+         </p:column>
+         <p:column>
+         <p:inputText id="clerk" value="#{arMastBean.arAccount.accountClerk.familyName}"
+                             title="#{formHelpText.arClerk}"/>
+         <p:tooltip for="clerk"/>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="summCb" value="#{formTextAr.arAcntCrSumCb}"/>
+        </p:column>
+         <p:column>
+          <p:selectBooleanCheckbox id="summCb" value="#{arMastBean.skipToEnd}"/>
+         </p:column>
+          
+       </p:row>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="bank" title="#{formTextAr.arBankTab}" titletip="#{formHelpText.arBank}">
+     <p:panel id="arBankPanel" header="#{formTextAr.arBankTab}">
+      <p:panelGrid  >
+       <p:row>
+        <p:column>
+         <p:commandButton icon="fa fa-file"  title="#{formHelpText.bnkNewAct}"
+                                 value="#{formText.bnkAddAct}"
+                                 actionListener="#{arMastBean.onNewBankAcntDlg}"
+                               />
+         </p:column>
+         </p:row>
+         <p:row>
+          <p:column >
+           <p:contextMenu for="bnkTbl" >
+            <p:menuitem icon="fa fa-trash" actionListener="#{arMastBean.deleteNewBankAction}" 
+                        value="#{formText.delete}"  />
+           </p:contextMenu>
+          
+           <p:dataTable id="bnkTbl" var="arBank" value="#{arMastBean.arAccount.arAccountBanks}"
+                        paginator="true" rows="3" selectionMode="single"  selection="#{arMastBean.selectedBank}" 
+                           rowKey="#{arBank.id}"  >
+            <p:column width="80" styleClass="column-textRight"   >
+           <f:facet name="header"  >
+            <h:outputText value="#{formText.bnkSortCd}" title="#{formHelpText.bnkSortCd}"  />
+           </f:facet>
+           <h:outputText id="bnkSort" value="#{arBank.bankAccount.accountForBranch.sortCode}"/>
+          </p:column>
+            <p:column width="70"  style="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkAccNum}" title="#{formHelpText.bnkAccNum}"/>
+           </f:facet>
+           <h:outputText value="#{arBank.bankAccount.accountNumber}"  />
+          </p:column>
+            <p:column styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkAccName}" title="#{formHelpText.bnkAccName}"/>
+           </f:facet>
+           <h:outputText value="#{arBank.accountName}"/> 
+          </p:column>
+            <p:column  styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkKey}" title="#{formHelpText.bnkKey}"/>
+           </f:facet>
+           <h:outputText id="bnkKey" value="#{arBank.bankKey}"   />
+          </p:column >
+          <p:column width="50" styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkColAuth}" title="#{formHelpText.bnkColAuth}"/>
+           </f:facet>
+           <p:selectBooleanCheckbox value="#{arBank.collectionAuthorisation}" />
+          </p:column >
+          <p:column styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkDdMandate}" title="#{formHelpText.bnkDdMandate}" />
+           </f:facet>
+           <h:outputText id="bnkDdrefId" value="#{arBank.ddRef}" title="#{formHelpText.bnkDdMandate}" />
+          </p:column>
+          <p:column styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkDirectColValidFrom}" 
+                                  title="#{formHelpText.bnkDirectColValidFrom}"/>
+           </f:facet>
+           <h:outputText id="taxDateOut" value="#{arBank.collValidFrom}">
+            <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+           </h:outputText>
+           
+          </p:column>
+          <p:tooltip for="bnkDdrefId" />
+         </p:dataTable>
+        </p:column>
+       </p:row>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="summary" title="#{formTextAr.arAcntCrSumTab}">
+     <p:panel >
+      <f:facet name="header">
+       <h:outputText value="#{formTextAr.arAcntCrSumPnl}"/>
+      </f:facet>
+      <p:growl id="saveMsg"/>
+      <p:panelGrid>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formTextAr.arAcntCode}"/>
+         <p:spacer width="2"/>
+         <h:outputText value="#{arMastBean.arAccount.arAccountCode}" styleClass="textBold"/>
+         <p:spacer width="6"/>
+         <h:outputText  value="#{formTextAr.arAccountName}"/>
+         <p:spacer width="2"/>
+         <h:outputText id="summAcntName" value="#{arMastBean.arAccount.arAccountName}" 
+                       styleClass="textBold"/>
+        </p:column>
+       </p:row>
+      </p:panelGrid>
+      <p:accordionPanel id="sumAddr" dynamic="true" multiple="false" >
+       <p:tab title="#{formText.addr}">
+        <p:panelGrid>
+         <p:row>
+          <p:column>
+           <h:outputText value="#{formText.ptnrType}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{arMastBean.selectedPtnrTypeCd}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{formTextMdm.ptnrTrName}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{arMastBean.arAccount.arAccountFor.name}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText value="#{formText.addrStr1}"/>
+          </p:column>
+          <p:column colspan="4">
+           <h:outputText  value="#{arMastBean.arAccount.accountAddress.houseNumber}" />
+           <h:outputText  value="#{arMastBean.arAccount.accountAddress.houseName}" />
+           <p:spacer width="4"/>
+           <h:outputText  value="#{arMastBean.arAccount.accountAddress.street}"  />
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText  value="#{formText.addrTown}"/>
+          </p:column>
+          <p:column colspan="4">
+           <h:outputText  value="#{arMastBean.arAccount.accountAddress.town}" />
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText  value="#{formText.addrCounty}"/>
+          </p:column>
+          <p:column colspan="4">
+           <h:outputText value="#{arMastBean.arAccount.accountAddress.countyName}"
+                             title="#{formHelpText.addrCounty}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText value="#{formText.addrPostCd}"/>
+          </p:column>
+          <p:column colspan="3">
+           <h:outputText value="#{arMastBean.arAccount.accountAddress.postCode}" />
+          </p:column>
+         </p:row>
+        </p:panelGrid>
+       </p:tab>
+       <p:tab title="#{formTextAr.arAccountTab}">
+        <p:panelGrid >
+         <p:row>
+          <p:column>
+           <h:outputText value="#{formTextAr.arAcntRecGL}"/> 
+          </p:column>
+          <p:column>
+           <h:outputText value="#{arMastBean.arAccount.reconciliationAc.coaAccount.ref}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText value="#{formText.docDefSort}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{arMastBean.arAccount.sortOrder.name}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText  value="#{formTextAr.arPayTerm}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{arMastBean.arAccount.paymentTerms.payTermsCode}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText value="#{formTextAr.arPayType}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{arMastBean.arAccount.paymentType.description}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <h:outputText value="#{formTextAr.arClerk}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{arMastBean.arAccount.accountClerk.familyName}"/>
+          </p:column>
+         </p:row>
+        </p:panelGrid>
+       </p:tab>
+       <p:tab title="#{formTextAr.arBankDet}">
+        <p:dataTable id="bnkTbl" var="arBank" value="#{arMastBean.arAccount.arAccountBanks}"
+                        paginator="true" rows="3" selectionMode="single"  selection="#{arMastBean.selectedBank}" 
+                           rowKey="#{arBank.id}"  >
+            <p:column width="80" styleClass="column-textRight"   >
+           <f:facet name="header"  >
+            <h:outputText value="#{formText.bnkSortCd}" title="#{formHelpText.bnkSortCd}"  />
+           </f:facet>
+           <h:outputText id="bnkSort" value="#{arBank.bankAccount.accountForBranch.sortCode}"/>
+          </p:column>
+            <p:column width="70"  style="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkAccNum}" title="#{formHelpText.bnkAccNum}"/>
+           </f:facet>
+           <h:outputText value="#{arBank.bankAccount.accountNumber}"  />
+          </p:column>
+            <p:column styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkAccName}" title="#{formHelpText.bnkAccName}"/>
+           </f:facet>
+           <h:outputText value="#{arBank.accountName}"/> 
+          </p:column>
+            <p:column  styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkKey}" title="#{formHelpText.bnkKey}"/>
+           </f:facet>
+           <h:outputText id="bnkKey" value="#{arBank.bankKey}"   />
+          </p:column >
+          <p:column width="50" styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkColAuth}" title="#{formHelpText.bnkColAuth}"/>
+           </f:facet>
+           <p:selectBooleanCheckbox value="#{arBank.collectionAuthorisation}" />
+          </p:column >
+          <p:column styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkDdMandate}" title="#{formHelpText.bnkDdMandate}" />
+           </f:facet>
+           <h:outputText id="bnkDdrefId" value="#{arBank.ddRef}" title="#{formHelpText.bnkDdMandate}" />
+          </p:column>
+          <p:column styleClass="column-textRight">
+           <f:facet name="header">
+            <h:outputText value="#{formText.bnkDirectColValidFrom}" 
+                                  title="#{formHelpText.bnkDirectColValidFrom}"/>
+           </f:facet>
+           <h:outputText id="taxDateOut" value="#{arBank.collValidFrom}">
+            <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+           </h:outputText>
+           
+          </p:column>
+          
+         </p:dataTable>
+        
+       </p:tab>
+      </p:accordionPanel>
+      <p:commandButton id="saveAcntBtn" value="#{formText.save}" icon="fa fa-file" 
+                       actionListener="#{arMastBean.onSaveArAccountNew}"
+                        />
+     </p:panel>
+    </p:tab>
+   </p:wizard>
+  </h:form>
+  
+  <h:form id="crPtnrFrm" prependId="false">
+   <p:dialog id="crPtnrDlg" widgetVar="crPtnrWv" dynamic="true" closable="false" modal="true">
+    <f:facet name="header">
+     <h:outputText value="#{formTextAr.arPtnrForAcnt}"/>
+     <p:spacer width="2"/>
+     <h:outputText id="newPtrAcnt" value="#{arMastBean.arAccount.arAccountCode}"/>
+    </f:facet>
+    <p:panelGrid id="newPtnrPg" >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="newPtnrCRef" value="#{formTextMdm.ptnrRef}"
+                           rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}"/>
+       <p:outputLabel for="newPtnrPRef" value="#{formTextMdm.ptnrRef}"
+                           rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="newPtnrCRef" value="#{arMastBean.ptnrCorp.ref}"
+                         required="true" requiredMessage="#{validationText.ptnrRef}"
+                         rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}"/>
+       <p:inputText id="newPtnrPRef" value="#{arMastBean.ptnrPerson.ref}" 
+                         required="true" requiredMessage="#{validationText.ptnrRef}"
+                         rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="newTrNameC" value="#{formTextMdm.ptnrTrName}"
+                          rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}" />
+       <p:outputLabel for="newTrNameP" value="#{formTextMdm.ptnrTrName}"
+                          rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}" />
+      </p:column>
+      <p:column>
+       <p:inputText id="newTrNameC" value="#{arMastBean.ptnrCorp.tradingName}" 
+                         rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}"
+                         required="true" requiredMessage="#{validationText.ptnrTradingName}"/>
+       <p:inputText id="newTrNameP" value="#{arMastBean.ptnrPerson.tradingName}" 
+                         rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}"
+                         required="true" requiredMessage="#{validationText.ptnrTradingName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="newLName" value="#{formTextMdm.ptnrLegalNm}"
+                          rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}" />
+       <p:outputLabel for="newPName" value="#{formTextMdm.ptnrFamilyName}"
+                          rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}" />
+      </p:column>
+      <p:column rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}"
+                     colspan="3">
+       <p:inputText id="newLName" value="#{arMastBean.ptnrCorp.legalName}" 
+                         rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}"
+                         size="70"
+                         required="true" requiredMessage="#{validationText.ptnrTradingName}"/>
+      </p:column>
+      <p:column rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}">
+       <p:inputText id="newPName" value="#{arMastBean.ptnrPerson.familyName}" 
+                         rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}"
+                         required="true" requiredMessage="#{validationText.ptnrTradingName}"/>
+      </p:column>
+      <p:column rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}">
+       <p:outputLabel for="newP1stName" value="#{formTextMdm.ptnrFirstName}"/>
+      </p:column>
+      <p:column rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}">
+       <p:inputText id="newP1stName" value="#{arMastBean.ptnrPerson.firstName}" 
+                         size="70"
+                         required="true" requiredMessage="#{validationText.ptnrTradingName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="4">
+       <p:commandButton id="newPtnrTrf" value="#{formText.transfer}" 
+                             icon="ui-icon-arrowthick-1-w" 
+                             process="newPtnrPg"
+                             actionListener="#{arMastBean.onNewPtnrTrf}"
+                             partialSubmit="true"/>
+       <p:spacer width="5"/>
+       <p:commandButton id="newPtnrClose" type="button" onclick="PF('crPtnrWv').hide();"
+                             value="#{formText.close}" icon="fa fa-close"/>
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+    <f:facet name="footer">
+     <h:outputText value="#{formTextAr.arPtnrCrPt}" styleClass="dlgFooter"/>
+    </f:facet>
+   </p:dialog>
+  </h:form>
+  
+  <h:form id="newBankActFrm" prependId="false">
+   <p:dialog  dynamic="true" widgetVar="addBnkAcntArWv" modal="true" closable="false" >
+    <f:facet name="header">
+     <h:outputText value="#{formTextAr.arAddBnkAcnt}"/>
+    </f:facet>
+    <p:growl id="arAcntCrGr" showDetail="true"/>
+    <p:growl id="ddUploadMsg" showDetail="true"/>
+    <p:panelGrid id="newbankAcntPg"  >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="addSortCode" value="#{formText.bnkSortCd}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="addSortCode" value="#{arMastBean.newBnkAcnt.accountForBranch}"
+                       converter="com.rationem.util.converter.BankBranch" dropdown="true"
+                       var="br" itemValue="#{br}" itemLabel="#{br.sortCode}" 
+                       forceSelection="true"
+                       completeMethod="#{arMastBean.onBankBranchComplete}">
+        <p:ajax event="itemSelect" listener="#{arMastBean.onSortCodeSelect}" update="addNewBnkAcntNum"/>
+        
+        <p:column>
+         <h:outputText value="#{br.sortCode}"/> 
+        </p:column>
+        <p:column>
+         <h:outputText value="#{br.branchName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{br.bank.bankOrganisation.tradingName}"/>
+        </p:column>
+         
+       </p:autoComplete>
+       <p:spacer width="20"/>                
+      </p:column>
+      <p:column colspan="3">
+       <p:commandButton id="addNewBranchBtn" value="#{formText.bnkCreateBranchBtn}"
+                        process="@this" partialSubmit="true" 
+                        icon="fa fa-file" actionListener="#{arMastBean.onNewBankBranchDlg}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:commandButton id="addBnkAcntAutoBtn" value="#{formText.bnkCreateAcntAutoBtn}"
+                        process="@this" partialSubmit="true" 
+                        icon="fa fa-file" actionListener="#{arMastBean.onBankAccountAutoCrDlg}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="addNewBnkAcntNum" value="#{formText.bnkAccNum}"/>
+      </p:column>
+      <p:column >
+       <p:autoComplete id="addNewBnkAcntNum" dropdown="true" var="bnkAcnt"
+                       converter="com.rationem.util.converter.BankAccount"  
+                       value="#{arMastBean.newBnkAcnt}" itemValue="#{bnkAcnt}"
+                       itemLabel="#{bnkAcnt.accountNumber}"
+                       forceSelection="true"  
+                       disabled="#{!arMastBean.branchFound}"
+                       completeMethod="#{arMastBean.onBankAccountNumberComplete}">
+        <p:ajax event="itemSelect" listener="#{arMastBean.onBankAccountSelect}" update="@this" 
+                />                
+       </p:autoComplete>
+       
+       
+      </p:column>
+      <p:column colspan="6">
+       <p:commandButton id="addNmBtn" value="#{formText.bnkAddAct}" 
+                        actionListener="#{arMastBean.onBnkActAddDlg}"
+                        disabled="#{!arMastBean.branchFound}"
+                        process="@this" partialSubmit="true" />
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="newBnkAcntNm" value="#{formText.bnkAccName}" />
+      </p:column>
+      <p:column>
+       <p:inputText id="newBnkAcntNm" value="#{arMastBean.newBank.accountName}"
+                    required="true" requiredMessage="bank acnt req"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="newBnkAcntRef" value="#{formText.bnkAccRef}"/>
+      </p:column>
+      <p:column colspan="5">
+       <p:inputText id="newBnkAcntRef" value="#{arMastBean.newBnkAcnt.accountRef}"/>
+      </p:column>
+     </p:row>
+     
+     <p:row>
+      <p:column>
+       <p:outputLabel for="bnkKey" value="#{formText.bnkKey}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="bnkKey" value="#{arMastBean.newBank.bankKey}"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="bnkCol" value="#{formText.bnkColAuth}"/>
+      </p:column>
+      <p:column>
+       <p:growl id="ddColMsg" />
+       <p:selectBooleanCheckbox id="bnkCol" 
+                                value="#{arMastBean.newBank.collectionAuthorisation}">
+        <p:ajax listener="#{arMastBean.onBacsCollectAuthCheck}"/>
+       </p:selectBooleanCheckbox>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="ddRef" value="#{formTextAr.arBankDdref}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="ddRef" value="#{arMastBean.newBank.ddRef}"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="bnkMdtFr" value="#{formTextAr.arBnkMandtFr}"/>
+      </p:column>
+      <p:column>
+       <p:calendar id="bnkMdtFr"   value="#{arMastBean.newBank.collValidFrom}" 
+                     navigator="true"  pattern="dd/MMM/yyyy" 
+                    showOtherMonths="true" maxlength="11" size="12"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="ddFile" value="#{formTextAr.arBankMandt}"/>
+      </p:column>
+      <p:column colspan="7">
+       <p:fileUpload id="ddFile" fileUploadListener="#{arMastBean.onDdUpload}" auto="true"
+                     dragDropSupport="true" messageTemplate="{name}"
+                     label="#{formTextAr.arbankDdSelF}"
+                     allowTypes="/(\.|\/)(gif|jpe?g|png|pdf|doc?x)$/"
+                     update="ddUploadMsg"/>
+      </p:column>
+     </p:row>
+     
+     <p:row>
+      <p:column colspan="8">
+       
+       <p:commandButton id="trfBnkAcnt" value="#{formText.transfer}" 
+                        icon="ui-icon-arrowthick-1-w" actionListener="#{arMastBean.onBankAccountArTransfer}"/>
+       <p:spacer width="10"/>
+       <p:commandButton id="closeBnkAcnt" type="button" value="#{formText.close}" icon="fa fa-close"
+                        onclick="PF('addBnkAcntWv').hide();" />
+       
+      </p:column>
+     </p:row>
+     
+    </p:panelGrid>
+    <f:facet name="footer">
+     <h:outputText value="#{formTextAr.arComplBnk}"/>
+    </f:facet>
+   </p:dialog>
+  </h:form>
+  
+  <h:form id="addBranch" prependId="false">
+   <p:dialog id="addBrDlg" dynamic="true" widgetVar="addBnkBrWv" header="add Branch">
+    <p:messages id="addBrMsg" />
+    <p:panelGrid id="addBnkBrPg" >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="newSortCode" value="#{formText.bnkSortCd}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="newSortCode" value="#{arMastBean.newBank.bankAccount.accountForBranch.sortCode}" required="true"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="newbnk4Br" value="#{formText.bnkBank}"/>
+      </p:column>
+      <p:column>
+       <p:selectOneMenu id="newbnk4Br" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank}"
+                        filter="true" filterMatchMode="contains" var="bnkSmV"  
+                        converter="com.rationem.util.converter.Bank">
+        <f:selectItems value="#{arMastBean.banks}" var="bnkV" itemValue="#{bnkV}" 
+                       itemLabel="#{bnkV.bankOrganisation.name}"/>
+        <p:column width="30%">
+         <h:outputText value="#{bnkSmV.bankCode}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{bnkSmV.bankOrganisation.name}"/>
+        </p:column>
+       </p:selectOneMenu>
+       
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="brName" value="#{formText.bnkBrName}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="brName" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchName}"
+                    required="true"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="houseNum" value="#{formText.addrHouseNumName}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="houseNum" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.houseNumber}" 
+                    size="4"/>
+       <h:outputText value=" / "/>
+       <p:inputText id="houseName" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.houseName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="street" value="#{formText.addrStr1}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="street" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.street}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="street2" value="#{formText.addrStr2}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="street2" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.street2}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="town" value="#{formText.addrTown}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="town" value="#{arMastBean.newBank.bankAccount.bankAccountnewBank.bankAccountnewBnkAcnt.accountForBranch.branchAddress.town}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="bnkBrCountry" value="#{formText.addrCountry}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="bnkBrCountry" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.country}"
+                           title="#{formHelpText}" dropdown="true" forceSelection="true"
+                           converter="com.rationem.util.converter.country" var="ptnrCntry" itemValue="#{ptnrCntry}"
+                           itemLabel="#{ptnrCntry.countryName}" completeMethod="#{arMastBean.countryComplete}"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="bnkBrPostCd" value="#{formText.addrPostCd}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="bnkBrPostCd" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.postCode}"
+                           title="#{formHelpText}" dropdown="true" 
+                           converter="com.rationem.util.converter.Address" var="brPostcd" itemValue="#{brPostcd}"
+                           itemLabel="#{brPostcd.postCode} #{brPostcd.streetLine}" completeMethod="#{arMastBean.countryComplete}">
+        <p:column width="30%">
+         <h:outputText value="#{brPostcd.postCode}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{brPostcd.streetLine}"/>
+        </p:column>
+       </p:autoComplete>
+       <p:spacer width="25"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="4">
+       <p:commandButton id="addBrBtn" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w" 
+                        actionListener="#{arMastBean.onBankBranchTransfer}" process="addBnkBrPg"/>
+       <p:spacer width="5"/>
+       <p:commandButton  value="#{formText.close}" type="button" icon="fa fa-close"
+                         onclick="PF('addBnkBrWv').hide()"/>
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+   </p:dialog>
+  </h:form>
+  
+  <h:form id="addBnkAct" prependId="false">
+   <p:dialog id="addBnkAcntDlg" widgetVar="addNewBnkAcntTrWv" dynamic="true" modal="true"
+             closable="false">
+    <f:facet name="header">
+     <h:outputText value="#{formText.bnkAddAct}"/>
+    </f:facet>
+    <p:panelGrid id="addBnkAcntPnl"  >
+     <p:row>
+      <p:column>
+       <h:outputText value="#{formText.bnkSortCd}"/>
+      </p:column>
+      <p:column>
+       <h:outputText value="#{arMastBean.newBnkAcnt.accountForBranch.sortCode}"/>
+      </p:column>
+      <p:column>
+       <h:outputText value="#{formText.bnkBank}"/>
+      </p:column>
+      <p:column>
+       <h:outputText value="#{arMastBean.newBnkAcnt.accountForBranch.bank.bankOrganisation.tradingName}"/>
+      </p:column>
+      <p:column>
+       <h:outputText value="#{formText.bnkBankBr}"/>
+      </p:column>
+      <p:column>
+       <h:outputText value="#{arMastBean.newBnkAcnt.accountForBranch.branchName}"/>
+      </p:column>
+      
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="addBnkAcntNum" value="#{formText.bnkAccNum}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="addBnkAcntNum" value="#{arMastBean.newBnkAcnt.accountNumber}"
+                    required="true" requiredMessage="#{validationText.bnkActNumReq}"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="addBnkAcntName" value="#{formText.bnkAccName}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:inputText id="addBnkAcntName" value="#{arMastBean.newBnkAcnt.accountName}" 
+                    required="true" requiredMessage="#{validationText.bnkActName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:commandButton id="trfbankAcntTr" value="#{formText.transfer}" 
+                        icon="ui-icon-arrowthick-1-w"
+                        process="addBnkAct" partialSubmit="true"
+                        actionListener="#{arMastBean.onBankAccountTrTransfer}"/>
+      </p:column>
+      <p:column>
+       <p:commandButton id="trfbankAcntCl" value="#{formText.close}" icon="fa fa-close"
+                        type="button" onclick="PF('addNewBnkAcntTrWv').hide();"/>
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+   </p:dialog>
+  </h:form>
+
+  <h:form id="bnkAcntAutoFrm" prependId="false" >
+   <p:dialog id="bnkAcntAutoDlg" widgetVar="bnkAcntAutoWv" dynamic="true">
+    <f:facet name="header">
+     <h:outputText value="#{formText.bnkCreateAcntAutoBtn}"/>
+    </f:facet>
+    <p:messages id="autoCrMsg"/>
+    <p:panelGrid columns="2">
+     <p:outputLabel for="autoCrSort" value="#{formText.bnkSortCd}"/>
+     <p:inputText id="autoCrSort" required="true" requiredMessage="Sort code must be entered"
+                  value="#{arMastBean.newBnkAcnt.accountForBranch.sortCode}"/>
+     <p:outputLabel for="autoAcNum" value="#{formText.bnkAccNum}"/>
+     <p:inputText id="autoAcNum" required="true" requiredMessage="Account Number must be entered"
+                  value="#{arMastBean.newBnkAcnt.accountNumber}"/>
+     <p:commandButton id="autoCrBtn" value="#{formText.autoCr}" icon="fa fa-file"
+                      actionListener="#{arMastBean.onBnkAcntAutoCr}"/>
+     <p:commandButton type="button" icon="fa fa-close" value="#{formText.close}"
+                      onclick="PF('bnkAcntAutoWv').hide();" />
+    </p:panelGrid>
+   </p:dialog>
+  </h:form>
+   </ui:define>
+</ui:composition>
+    
+

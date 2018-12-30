@@ -1,0 +1,49 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+
+ <ui:define name="title" >Login</ui:define>
+ <ui:define name="top"><h:outputText value="#{formText.appName}"/></ui:define>
+ <ui:define name="content">
+  <h:form id="loginFrm" prependId="false">
+   <h:outputText value="Login" styleClass="textHeader" />
+   <p:panelGrid columns="2" styleClass="panelNoBorders">
+   <p:outputLabel for="usrId" value="#{formText.usrLogin}"/>
+   <p:inputText id="usrId" value="#{authManBean.userName}" required="true"  />
+   <p:outputLabel for="usrPw" value="#{formText.usrPwd}"/>
+   <p:inputText id="usrPw" value="#{authManBean.userPass}" required="true" />
+   <p:commandButton id="loginBtn" value="#{formText.loginBtn}" 
+                    actionListener="#{authManBean.onLoginBtnActionListener}"
+                    action="#{authManBean.onLoginBtnAction}" ajax="true" />
+  </p:panelGrid>
+  </h:form>
+  <h:form id="initPw" prependId="false">
+   <p:dialog id="pwResetDlg" widgetVar="pwResetWv" focus="pw1" modal="true" >
+    <f:facet name="header">
+     <h:outputText value="#{formText.restInitPw}"/>
+    </f:facet>
+    <p:outputPanel autoUpdate="true">
+     <p:panelGrid columns="2" >
+      <p:outputLabel for="pw1" value="#{formText.pw1}"/>
+      <p:password id="pw1" value="#{authManBean.userChangedPass}" match="pw2" feedback="true"
+                  required="true"/>
+      <p:outputLabel for="pw2" value="#{formText.pw2}"/>
+     <p:password id="pw2" value="#{authManBean.userChangedPass}"  feedback="true" required="true"/>
+     <p:commandButton value="#{formText.save}" actionListener="#{authManBean.onSaveInitPw}" 
+                      action="#{authManBean.onLoginBtnAction}" ajax="true"/>
+     </p:panelGrid>
+     <p:messages showDetail="true" showSummary="true" autoUpdate="true"/>
+    </p:outputPanel>
+   </p:dialog>
+ </h:form>
+
+</ui:define>
+ <ui:define name="bottom"> <p:messages /></ui:define>
+</ui:composition>
+
+
+
+

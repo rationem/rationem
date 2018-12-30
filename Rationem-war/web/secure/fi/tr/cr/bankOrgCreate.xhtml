@@ -1,0 +1,167 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.trCrbankOrg}</ui:define>
+  <ui:define name="header">#{pageTitle.trCrbankOrg} </ui:define>
+  <ui:define name="content">
+   <h:form id="bnkOrgCr" prependId="false">
+    <p:growl autoUpdate="true"/>
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton value="#{formText.save}"
+                       actionListener="#{bankOrganisationBean.onCreateBank}"
+                       />
+      
+     </f:facet >
+   </p:toolbar>
+    <p:focus for="bankCode"/>
+    <h:panelGrid columns="2" styleClass="panelNoBorders">
+     <p:outputLabel for="bankCode" value="#{formText.bnkOrgRef}"/>
+     <p:inputText id="bankCode" value="#{bankOrganisationBean.bankOrg.bankCode}" />
+     <p:outputLabel for="chapsCode" value="#{formText.bnkChapsCd}"/>
+     <p:inputText id="chapsCode" value="#{bankOrganisationBean.bankOrg.chapsBankCode}" />
+     <p:outputLabel for="bnkOrgCrLegalName" value="#{formText.ptnrLegalName}"/>
+     <p:inputText id="bnkOrgCrLegalName" required="true" requiredMessage="Bank legal name is required" 
+                   value="#{bankOrganisationBean.bankOrgParty.legalName}"/>
+      <p:outputLabel for="bnkOrgCrTradingName" value="#{formText.ptnrTradingName}"/>
+      <p:inputText id="bnkOrgCrTradingName" required="true" requiredMessage="Bank name is required" 
+                   value="#{bankOrganisationBean.bankOrgParty.tradingName}"/>
+      <p:outputLabel for="bnkOrgCrPhone" value="#{formText.ptnrTelephone}"/>
+      <p:inputText id="bnkOrgCrPhone" value="#{bankOrganisationBean.bankOrgParty.telephone}"/>
+      <p:outputLabel for="bnkOrgCrMobile" value="#{formText.ptnrMobile}"/>
+      <p:inputText id="bnkOrgCrMobile" value="#{bankOrganisationBean.bankOrgParty.mobileTelephone}"/>
+      <p:outputLabel for="bnkOrgCrWeb" value="#{formText.ptnrWeb}"/>
+      <p:inputText id="bnkOrgCrWeb" value="#{bankOrganisationBean.bankOrgParty.webAddress}"/>
+      
+     <p:outputLabel for="addrPnl" value="#{formText.bnkAddress}"/>
+     <p:panel id="addrPnl" toggleable="true" collapsed="true"  >
+      <f:facet name="header">
+       <h:outputText value="#{formText.bnkAddress}"/>
+      </f:facet>
+      <h:panelGrid id="addressGrd" columns="2">
+       <p:outputLabel for="addrRef" value="#{formText.addrRef}"/>
+       <p:inputText id="addrRef" value="#{bankOrganisationBean.bankAddr.addrRef}" size="10"/>
+       <h:outputText  value="#{formText.addrHouseNumName}"/>
+       
+       <h:panelGroup>
+        <p:inputText id="hseNum" value="#{bankOrganisationBean.bankAddr.houseNumber}" 
+                     size="5">
+         <f:convertNumber maxFractionDigits="0"/>
+        </p:inputText>
+        
+        <h:outputText value=" / "/>
+        <p:inputText id="hseName" value="#{bankOrganisationBean.bankAddr.houseName}"/>
+       </h:panelGroup>
+       <p:outputLabel for="street" value="#{formText.addrStr1}"/>
+       <p:inputText id="street" value="#{bankOrganisationBean.bankAddr.street}"/>
+       <p:outputLabel for="town" value="#{formText.addrTown}"/>
+       <p:inputText id="town" value="#{bankOrganisationBean.bankAddr.town}"/>
+       <p:outputLabel for="county" value="#{formText.addrCounty}"/>
+       <p:inputText id="county" value="#{bankOrganisationBean.bankAddr.countyName}"/>
+       <p:outputLabel for="postCode" value="#{formText.addrPostCd}"/>
+       <h:panelGroup>
+        
+        <p:inputText id="postCode" value="#{bankOrganisationBean.bankAddr.postCode}"/>
+        <p:spacer width="2"/>
+        <p:commandButton  icon="ui-icon-search" actionListener="#{bankOrganisationBean.onAddressDlg}" 
+                          title="#{formText.addrSrchByPostCd}" />
+        <p:spacer width="2"/>
+        <p:commandButton  icon="ui-icon-document" actionListener="#{bankOrganisationBean.onAddressClear}"
+                          title="#{formText.addrNew}"/>
+       </h:panelGroup>
+      </h:panelGrid>
+     </p:panel>
+     <p:outputLabel for="bnkMgr" value="#{formText.bnkContact}"/>
+     <h:panelGroup>
+      <p:autoComplete id="bnkMgr" forceSelection="true"
+                      completeMethod="#{bankOrganisationBean.bankContactCompl}"
+                      value="#{bankOrganisationBean.bankContact}" 
+                      converter="com.rationem.util.converter.PartnerIndividual"
+                      var="bnkContV" itemValue="#{bnkContV}" 
+                      itemLabel="#{bnkContV.name}">
+       <f:facet name="itemtip">
+        <h:panelGrid columns="2"   width="200">
+         <h:outputText value="#{formText.ptnrTitle}"/>
+         <h:outputText id="contTile" value="#{bnkContV.title}"/>
+         <h:outputText value="#{formText.ptnrFirstName}"/>
+         <h:outputText id="contFirstName" value="#{bnkContV.firstName}"/>
+         <h:outputText value="#{formText.ptnrFamilyName}"/>
+         <h:outputText value="#{bnkContV.familyName}"/>
+        </h:panelGrid>
+       </f:facet>
+       <p:ajax event="itemSelect" listener="#{bankOrganisationBean.onBnkContactSelect}"/>
+       <p:ajax event="itemUnselect" listener="#{bankOrganisationBean.onBnkContactUnSelect}"/>
+      </p:autoComplete>
+      <p:spacer width="2"/>
+      <p:commandButton   title="#{formText.bnkContactCr}" actionListener="#{bankOrganisationBean.onBankMgrDlg}" 
+                         icon="ui-icon-document" />
+     </h:panelGroup>
+    </h:panelGrid>
+   </h:form>
+   
+     
+   
+    <p:dialog id="bnkContactCrDlg" header="#{formText.bnkContactCr}" draggable="true" 
+              modal="true" widgetVar="bnkContactCrWv">
+     <h:form id="bnkContactCr" prependId="false">
+     <h:panelGrid id="bnkContactCrGrd" columns="2">
+      <p:outputLabel for="bnkContCrTitle" value="#{formText.ptnrTitle}"/>
+      <p:inputText id="bnkContCrTitle" value="#{bankOrganisationBean.bankContact.title}" size="10"/>
+      <p:outputLabel for="bnkContCrFirstName" value="#{formText.ptnrFirstName}" />
+      <p:inputText id="bnkContCrFirstName" 
+                   value="#{bankOrganisationBean.bankContact.firstName}" maxlength="50"/>
+      <p:outputLabel for="bnkContCrMiddleName" value="#{formText.ptnrMiddleName}" />
+      <p:inputText id="bnkContCrMiddleName" 
+                   value="#{bankOrganisationBean.bankContact.middleName}" maxlength="50"/>
+      <p:outputLabel for="bnkContCrFamilyName" value="#{formText.ptnrFamilyName}" />
+      <p:inputText id="bnkContCrFamilyName" 
+                   value="#{bankOrganisationBean.bankContact.familyName}" maxlength="50"/>
+      <p:commandButton value="#{formText.transfer}"  actionListener="#{bankOrganisationBean.onCreateBankContact}" 
+                        icon="ui-icon-arrowthick-1-w"/>
+     </h:panelGrid>
+      </h:form>
+    </p:dialog>
+   
+   <h:form id="addRSchFrm" prependId="false">
+    <p:dialog dynamic="true" widgetVar="addrSrchWv" width="50%" modal="true" >
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrSrchByPostCd}"/>
+     </f:facet>
+    <p:dataTable id="srchAddrLst" var="addrSrch" value="#{bankOrganisationBean.bankAddrList}" 
+                 emptyMessage="#{validationText.addrNoAddrPc}" selection="#{bankOrganisationBean.bankAddrSel}"
+                 rowKey="#{addrSrch.id}" rows="#{bankOrganisationBean.usrBuff.tblRows}" paginator="true" 
+                 paginatorAlwaysVisible="false" >
+     <p:ajax event="rowSelectRadio" listener="#{bankOrganisationBean.onAddressSelect}"/>
+     <p:column width="20" selectionMode="single">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.select}"/>
+      </f:facet>
+     </p:column>
+     <p:column width="100">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.addrHseNumName}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.houseNumber}"/>
+      <h:outputText value="#{addrSrch.houseName}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrStr1}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.street}"/>
+     </p:column>
+     <p:column width="90">
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrPostCd}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.postCode}"/>
+     </p:column>
+     
+    </p:dataTable>
+   </p:dialog>
+   </h:form>
+  </ui:define>
+</ui:composition>

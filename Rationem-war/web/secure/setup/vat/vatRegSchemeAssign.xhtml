@@ -1,0 +1,195 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_vat_reg_Scheme}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="vatRegSchFrm" prependId="false" >
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton icon="fa fa-floppy-o" value="#{formText.save}" actionListener="#{vatRegAssign.onRegSchEditSave}"/>
+     <span class="ui-separator">
+      <span class="ui-icon ui-icon-grip-dotted-vertical" />
+     </span>
+      <p:commandButton icon="ui-icon-arrowthickstop-1-s" value="#{formText.downLoadExcel}" ajax="false">
+       <p:dataExporter target="vatschemetblId" fileName="VAT_REGISTRATION_SCHEME" type="xls" 
+                       postProcessor="#{vatRegAssign.postProcessXLS}"/>
+      </p:commandButton> 
+      <p:commandButton icon="ui-icon-arrowthickstop-1-s" value="#{formText.downloadCsv}" ajax="false">
+       <p:dataExporter target="vatschemetblId" fileName="VAT_REGISTRATION_SCHEME" type="csv"/>
+      </p:commandButton>
+    </f:facet>
+   </p:toolbar>
+   <p:panelGrid columns="4" styleClass="panelNoBorders" >
+   <p:outputLabel for="comp" value="#{formText.comp}"/>
+   <p:selectOneMenu id="comp" value="#{vatRegAssign.comp}" 
+                    converter="com.rationem.util.converter.CompanyBasic">
+    <f:selectItems value="#{vatRegAssign.compList}" var="compV" itemValue="#{compV}" 
+                   itemLabel="#{compV.reference}" />
+   </p:selectOneMenu>
+   <p:outputLabel for="vatReg" value="#{formText.vatReg}"/>
+   
+   <h:outputText id="vatReg" value="#{vatRegAssign.comp.vatRegDetails.vatNumber}"/>
+   
+  </p:panelGrid>
+   <p:contextMenu for="vatschemetblId">
+    <p:menuitem icon="ui-icon-pencil" value="#{formText.edit}" actionListener="#{vatRegAssign.onRegSchEdit}"/>
+    
+   </p:contextMenu>
+   <p:dataTable id="vatschemetblId" value="#{vatRegAssign.comp.vatRegDetails.regSchemes}" var="scheme"
+                rowKey="#{scheme.id}" selection="#{vatRegAssign.vatRegSchemeSelected}" selectionMode="single">
+    <f:facet name="header">
+     <h:outputText value="#{formText.vatRegSchemes}"/>
+    </f:facet>
+    <p:ajax event="rowSelect" listener="#{vatRegAssign.onRegSchRowSelect}"/>
+    <p:column exportable="false" style="width:16px">
+     <p:rowToggler />
+    </p:column>
+    <p:column width="150">
+     <f:facet name="header">
+      <h:outputText value="#{formText.vatRegSchemeAssgnRef}"/>
+     </f:facet>
+     <h:outputText value="#{scheme.ref}"/>
+    </p:column>
+    <p:column>
+     <f:facet name="header">
+      <h:outputText value="#{formText.vatRegSchemeAssgnDescr}"/>
+     </f:facet>
+     <h:outputText value="#{scheme.description}"/>
+    </p:column>
+    <p:column width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.vatRegSchemeAssgnValidFr}"/>
+     </f:facet>
+     <h:outputText value="#{scheme.validFrom}">
+      <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+     </h:outputText>
+    </p:column>
+    <p:column width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.vatRegSchemeAssgnValidTo}"/>
+     </f:facet>
+     <h:outputText value="#{scheme.validTo}">
+      <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+     </h:outputText>
+    </p:column>
+    <p:column width="150">
+     <f:facet name="header">
+      <h:outputText value="#{formText.vatRegScheme}"/>
+     </f:facet>
+     <h:outputText value="#{scheme.vatScheme.name}"/>
+    </p:column>
+    <p:rowExpansion>
+     <p:panelGrid columns="2"  styleClass="panelNoBorders" style="width: 300px">
+      <h:outputText value="#{formText.vatRegSchemeFl}"/>
+      <p:selectBooleanButton offLabel="#{formText.no}" onLabel="#{formText.yes}" value="#{scheme.flatRate}"
+                             disabled="true"/>
+      <h:outputText value="#{formText.vatFlRateInd}"/>
+      <h:outputText value="#{scheme.flatRateIndustry.industry}"/>
+      <h:outputText value="#{formText.vatFlRateDescr}"/>
+      <h:outputText value="#{scheme.flatRateIndustry.descr}"/>
+      <h:outputText value="#{formText.vatFlRateRate}"/>
+      <h:outputText value="#{scheme.flatRateIndustry.rate}">
+       <f:convertNumber type="percent" locale="#{vatRegAssign.comp.locale}" minFractionDigits="2" minIntegerDigits="1"/>
+      </h:outputText>
+     </p:panelGrid>
+    </p:rowExpansion>
+   </p:dataTable>
+   
+  </h:form>
+  <p:dialog id="editRegSchId" widgetVar="editRegSchWv" modal="true" dynamic="true" focus="editSchFrm:editRef" 
+            closable="false">
+   <f:facet name="header">
+    <h:outputText value="#{formText.vatRegSchemeEdit}"/>
+   </f:facet>
+    <h:form id="editSchFrm" prependId="false">
+     
+     <p:panelGrid styleClass="panelNoBorders">
+      <p:row>
+       <p:column>
+        <p:outputLabel for="editRef" value="#{formText.vatRegSchemeAssgnRef}"/>
+       </p:column>
+       <p:column colspan="3">
+        <p:inputText id="editRef" value="#{vatRegAssign.vatRegSchemeSelected.ref}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="editDescr" value="#{formText.vatRegSchemeAssgnDescr}"/>
+       </p:column>
+       <p:column colspan="3">
+        <p:inputText id="editDescr" value="#{vatRegAssign.vatRegSchemeSelected.description}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="editValidFr" value="#{formText.vatFlRateValidFr}"/>
+       </p:column>
+       <p:column>
+        <p:calendar id="editValidFr" value="#{vatRegAssign.vatRegSchemeSelected.validFrom}" 
+                   locale="#{vatRegAssign.comp.locale}" pattern="dd/MMM/yyyy"/>
+       </p:column>
+       <p:column>
+        <p:outputLabel for="editValidTo" value="#{formText.vatFlRateValidTo}"/>
+       </p:column>
+       <p:column>
+        <p:calendar id="editValidTo" value="#{vatRegAssign.vatRegSchemeSelected.validTo}" 
+                   locale="#{vatRegAssign.comp.locale}" pattern="dd/MMM/yyyy"/>
+       </p:column>
+       
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="editVatScheme" value="#{formText.vatRegScheme}"/>
+       </p:column>
+       <p:column colspan="3">
+        <p:inplace label="#{vatRegAssign.vatRegSchemeSelected.vatScheme.name}" editor="true">
+        <p:selectOneMenu id="editVatScheme" value="#{vatRegAssign.vatRegSchemeSelected.vatScheme}"  
+                         converter="com.rationem.util.converter.VatScheme">
+         <f:selectItems var="vatSch" value="#{vatRegAssign.vatSchemeList}" itemValue="#{vatSch}"
+                        itemLabel="#{vatSch.name}" />
+         
+        </p:selectOneMenu>
+        </p:inplace>
+        
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="editFlActive" value="#{formText.vatRegSchemeFl}"/>
+       </p:column>
+       <p:column colspan="3">
+        <p:selectBooleanButton id="editFlActive" value="#{vatSch.flatRate}" onLabel="#{formText.yes}" 
+                               offLabel="#{formText.no}" disabled="true"/>
+       </p:column>
+       
+      </p:row>
+      <p:row rendered="#{vatSch.flatRate eq true}">
+       <p:column>
+        <p:outputLabel for="editFlInd" value="#{formText.vatFlRateInd}"/>
+       </p:column>
+       <p:column colspan="3">
+        <p:selectOneMenu id="EdFlIndustry" value="#{vatRegAssign.vatRegSchemeSelected.flatRateIndustry}"
+                         converter="com.rationem.util.converter.VatIndustry" >
+         <f:selectItems var="EdFlIndustry" value="#{vatRegAssign.vatInds}" itemValue="#{EdFlIndustry.industry}"/>
+        </p:selectOneMenu>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column colspan="4">
+        <p:commandButton id="editTrf" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"
+                         actionListener="#{vatRegAssign.onRegSchEditTransfer}"/>
+        <p:spacer height="10" width="4"/>
+        <p:commandButton id="editClose" value="#{formText.close}" icon="ui-icon-close" 
+                         actionListener="#{vatRegAssign.onRegSchEditClose}"/>
+       </p:column>
+      </p:row>
+     </p:panelGrid>
+    </h:form>
+   
+  </p:dialog>
+ </ui:define>
+</ui:composition>

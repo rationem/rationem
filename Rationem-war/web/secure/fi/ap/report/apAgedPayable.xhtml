@@ -1,0 +1,425 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.apAgedPy}</ui:define>
+ 
+ <ui:define name="content">
+  <div class="ui-fluid ">
+   <div class="ui-g">
+    <div class="ui-g-12">
+   
+    
+     <h:form id="agedPayFrm" >
+      <p:messages id="errMsg" severity="warn, error,fatal" closable="true"/>
+      <p:growl id="okMsg" severity="info" />
+      <div class="card">
+      <p:steps activeIndex="#{apAgedPayable.step}">
+       <p:menuitem value="#{menuText.mi_gen_sel}"/>
+       <p:menuitem value="#{menuText.mi_gen_output}"/>
+      </p:steps>
+      </div>
+      <div class="card card-w-title">
+       <h1>
+         <h:outputText value="#{formText.selOpt}" rendered="#{apAgedPayable.step eq 0}"/>
+         <h:outputText value="#{formTextAp.rptAgedBal}" rendered="#{apAgedPayable.step eq 1}"/>
+       </h1>
+        <p:toolbar>
+         <f:facet name="left">
+          <p:commandButton id="execBtn" value="#{formText.exec}" icon="fa fa-gear" 
+                           actionListener="#{apAgedPayable.onExecRpt}" 
+                           styleClass="secondary" rendered="#{apAgedPayable.step eq 0}" />
+          <p:commandButton id="backBtn" value="#{formText.back}" icon="fa fa-long-arrow-left" 
+                           actionListener="#{apAgedPayable.onBackBtn}" 
+                           styleClass="secondary" rendered="#{apAgedPayable.step eq 1}" />
+         </f:facet>
+        </p:toolbar>
+        <p:spacer height="5"/>
+        <p:outputPanel id="selOp" rendered="#{apAgedPayable.step eq 0}">
+         
+        
+        <p:panelGrid id="selPg" columns="3"  styleClass="ui-noborder" 
+                     >
+         
+         <p:outputLabel for="compM" value="#{formText.comp}"/>
+         <p:selectOneMenu id="compM" value="#{apAgedPayable.selOpt.comp}" 
+                          converter="com.rationem.util.converter.CompanyBasic">
+          <f:selectItems value="#{apAgedPayable.compList}" var="compV" itemValue="#{compV}" 
+                         itemLabel="#{compV.reference}" />
+         </p:selectOneMenu>
+         <h:panelGroup />
+         
+         
+         <h:panelGroup styleClass="md-inputfield">
+          <p:inputText id="acntRefFr" value="#{apAgedPayable.selOpt.actRefFr}" 
+                       valueChangeListener="#{apAgedPayable.onAcntRefFr}">
+           <p:ajax event="blur"/>
+          </p:inputText>
+          <p:outputLabel for="acntRefFr" value="#{formText.selOAcntRefFr}"/>
+         </h:panelGroup>
+         
+         
+         <h:panelGroup styleClass="md-inputfield">
+          <p:inputText id="acntRefTo" value="#{apAgedPayable.selOpt.actRefTo}" 
+                       valueChangeListener="#{apAgedPayable.onAcntRefTo}">
+           <p:ajax event="blur" />
+          </p:inputText>
+          
+          <p:outputLabel for="acntRefTo" value="#{formText.selOAcntRefTo}"/>
+         </h:panelGroup>
+         <h:panelGroup />
+         
+         <p:outputLabel for="ageBasis" value="#{formTextAp.rptAgeBasis}"/>
+         <p:selectOneRadio id="ageBasis" value="#{apAgedPayable.ageBasis}" layout="responsive" columns="1" >
+          <f:selectItem itemValue="dueDt" itemLabel="#{formText.docDueDate}" noSelectionOption="true"/>
+          <f:selectItem itemValue="pstDt" itemLabel="#{formText.docPostDate}"/>
+          <f:selectItem itemValue="docDt" itemLabel="#{formText.docDocDate}"/>
+         </p:selectOneRadio>
+         <p:panelGrid id="ageSplit" columns="5" columnClasses="ui-grid-col-2,ui-grid-col-1,ui-grid-col-1,ui-grid-col-1,ui-grid-col-1">
+          <p:outputLabel for="ageSplit" value="#{formTextAp.ageBalSplit}"/>
+          <h:panelGroup styleClass="md-inputfield">
+           <p:inputText id="days1" value="#{apAgedPayable.days1}" styleClass="column-financialValue"/>
+           <p:outputLabel for="days1" value="#{formTextAp.ageBalDays1}"/>
+          </h:panelGroup>
+          <h:panelGroup styleClass="md-inputfield">
+           <p:inputText id="days2" value="#{apAgedPayable.days2}" styleClass="column-financialValue"/>
+           <p:outputLabel for="days2" value="#{formTextAp.ageBalDays2}"/>
+          </h:panelGroup>
+          <h:panelGroup styleClass="md-inputfield">
+           <p:inputText id="days3" value="#{apAgedPayable.days3}" styleClass="column-financialValue"/>
+           <p:outputLabel for="days3" value="#{formTextAp.ageBalDays3}"/>
+          </h:panelGroup>
+          <h:panelGroup styleClass="md-inputfield">
+           <p:inputText id="days4" value="#{apAgedPayable.days4}" styleClass="column-financialValue"/>
+           <p:outputLabel for="days4" value="#{formTextAp.ageBalDays4}"/>
+          </h:panelGroup>
+         </p:panelGrid>
+         
+         
+        </p:panelGrid>
+        </p:outputPanel>
+        <p:outputPanel id="RptOp" rendered="#{apAgedPayable.step eq 1}">
+         <p:dataTable  reflow="true" selection="#{apAgedPayable.agedBalSel}" selectionMode="single"
+          id="agedBalance" value="#{apAgedPayable.agedBals}"  emptyMessage="#{listHeading.apOpenLinesNone}"
+          rows="#{apAgedPayable.usrBuff.tblRows}" var="lineV" rowKey="#{lineV.lineId}" paginator="true"
+          paginatorAlwaysVisible="true" filteredValue="#{apAgedPayable.agedBalsFilter}"
+          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+          >
+          
+          <f:facet name="{Exporters}">
+           <h:commandLink style="float:right;"  >
+            <p:graphicImage name="/images/Excel-48.gif" width="24" />
+            <p:dataExporter type="xls" target="agedBalance" fileName="#{listHeading.apAgedBal_FN}"  
+                          postProcessor="#{apAgedPayable.postProcessXLS}" />
+           </h:commandLink>
+           <h:commandLink style="float:right;">
+            <p:graphicImage name="/images/csv_text.png" width="24" />
+            <p:dataExporter type="csv" target="agedBalance" 
+                      fileName="#{listHeading.apAgedBal_FN}" />
+           </h:commandLink>
+          </f:facet>
+          <p:column>
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.apAcntRef}"/>
+           </f:facet>
+           <h:outputText value="#{lineV.acntRef}"/>
+          </p:column>
+          <p:column>
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.apAcntName}"/>
+           </f:facet>
+           <h:outputText value="#{lineV.acntName}"/>
+          </p:column>
+          
+          <p:column styleClass="column-financialValue">
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.balAcnt}"/>
+            
+           </f:facet>
+           <h:outputText value="#{lineV.bal}">
+            <f:convertNumber locale="#{apAgedPayable.compSel.locale}" minIntegerDigits="1" 
+                             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:column styleClass="column-financialValue">
+           <f:facet name="header">
+            <h:outputFormat value="#{listHeading.balAgeBucketStart}">
+             <f:param value="#{apAgedPayable.days1}"/>
+            </h:outputFormat>
+           </f:facet>
+           <h:outputText value="#{lineV.amount1}">
+            <f:convertNumber locale="#{apAgedPayable.compSel.locale}" minIntegerDigits="1" 
+                             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:column styleClass="column-financialValue">
+           <f:facet name="header">
+            <h:outputFormat value="#{listHeading.balAgeBucketMid}">
+             
+             <f:param value="#{apAgedPayable.days2}"/>
+            </h:outputFormat>
+           </f:facet>
+           <h:outputText value="#{lineV.amount2}">
+            <f:convertNumber locale="#{apAgedPayable.compSel.locale}" minIntegerDigits="1" 
+                             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:column styleClass="column-financialValue">
+           <f:facet name="header">
+            <h:outputFormat value="#{listHeading.balAgeBucketMid}">
+             
+             <f:param value="#{apAgedPayable.days3}"/>
+            </h:outputFormat>
+           </f:facet>
+           <h:outputText value="#{lineV.amount3}">
+            <f:convertNumber locale="#{apAgedPayable.compSel.locale}" minIntegerDigits="1" 
+                             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:column styleClass="column-financialValue">
+           <f:facet name="header">
+            <h:outputFormat value="#{listHeading.balAgeBucketMid}">
+             
+             <f:param value="#{apAgedPayable.days4}"/>
+            </h:outputFormat>
+           </f:facet>
+           <h:outputText value="#{lineV.amount4}">
+            <f:convertNumber locale="#{apAgedPayable.compSel.locale}" minIntegerDigits="1" 
+                             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:column styleClass="column-financialValue">
+           <f:facet name="header">
+            <h:outputFormat value="#{listHeading.balAgeBucketLast}">
+             <f:param value="#{apAgedPayable.days4}"/>
+            </h:outputFormat>
+           </f:facet>
+           <h:outputText value="#{lineV.amount5}">
+            <f:convertNumber locale="#{apAgedPayable.compSel.locale}" minIntegerDigits="1" 
+                             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:columnGroup type="footer">
+           <p:column colspan="2" styleClass="column-textRight"  >
+            <f:facet name="footer">
+             <h:outputText value="#{listHeading.total}" style="font-weight: 700;"/>
+            </f:facet>
+           </p:column>
+           <p:column styleClass="column-financialValue" >
+            <f:facet name="footer">
+             <h:outputText value="#{apAgedPayable.balTot}" style="font-weight: 700;">
+              <f:convertNumber 
+               locale="#{apAgedPayable.compSel.locale}" 
+               maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minIntegerDigits="1"/>
+             </h:outputText>
+            </f:facet>
+           </p:column>
+           <p:column styleClass="column-financialValue" >
+            <f:facet name="footer">
+             <h:outputText value="#{apAgedPayable.days1Tot}" style="font-weight: 700;">
+              <f:convertNumber 
+               locale="#{apAgedPayable.compSel.locale}" 
+               maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minIntegerDigits="1"/>
+             </h:outputText>
+            </f:facet>
+           </p:column>
+           <p:column styleClass="column-financialValue" >
+            <f:facet name="footer">
+             <h:outputText value="#{apAgedPayable.days2Tot}" style="font-weight: 700;">
+              <f:convertNumber 
+               locale="#{apAgedPayable.compSel.locale}" 
+               maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minIntegerDigits="1"/>
+             </h:outputText>
+            </f:facet>
+           </p:column>
+           <p:column styleClass="column-financialValue" >
+            <f:facet name="footer">
+             <h:outputText value="#{apAgedPayable.days3Tot}" style="font-weight: 700;">
+              <f:convertNumber 
+               locale="#{apAgedPayable.compSel.locale}" 
+               maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minIntegerDigits="1"/>
+             </h:outputText>
+            </f:facet>
+           </p:column>
+           <p:column styleClass="column-financialValue" >
+            <f:facet name="footer">
+             <h:outputText value="#{apAgedPayable.days4Tot}" style="font-weight: 700;">
+              <f:convertNumber 
+               locale="#{apAgedPayable.compSel.locale}" 
+               maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minIntegerDigits="1"/>
+             </h:outputText>
+            </f:facet>
+           </p:column>
+           <p:column styleClass="column-financialValue" >
+            <f:facet name="footer">
+             <h:outputText value="#{apAgedPayable.days5Tot}" style="font-weight: 700;">
+              <f:convertNumber 
+               locale="#{apAgedPayable.compSel.locale}" 
+               maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+               minIntegerDigits="1"/>
+             </h:outputText>
+            </f:facet>
+           </p:column>
+          </p:columnGroup>
+         </p:dataTable>
+         <p:contextMenu for="agedBalance">
+          <p:menuitem id="balLines" value="#{formTextAp.ageBalBal_ln}" icon="fa fa-list-alt" 
+                      actionListener="#{apAgedPayable.onDetailBal}" />
+          <p:menuitem id="cat1Lines" value="#{formTextAp.ageBalBal_cat1_ln}" icon="fa fa-list-alt"
+                      actionListener="#{apAgedPayable.onDetailCat1}" />
+          <p:menuitem id="cat2Lines" value="#{formTextAp.ageBalBal_cat2_ln}" icon="fa fa-list-alt"
+                      actionListener="#{apAgedPayable.onDetailCat2}"/>
+          <p:menuitem id="cat3Lines" value="#{formTextAp.ageBalBal_cat3_ln}" icon="fa fa-list-alt"
+                      actionListener="#{apAgedPayable.onDetailCat3}"/>
+          <p:menuitem id="cat4Lines" value="#{formTextAp.ageBalBal_cat4_ln}" icon="fa fa-list-alt"
+                      actionListener="#{apAgedPayable.onDetailCat4}"/>
+          <p:menuitem id="cat5Lines" value="#{formTextAp.ageBalBal_cat5_ln}" icon="fa fa-list-alt"
+                      actionListener="#{apAgedPayable.onDetailCat5}"/>
+         </p:contextMenu>
+        </p:outputPanel>
+        </div>              
+       
+       
+     
+     </h:form>
+     <h:form id="displLinesFrm">
+      <p:dialog id="linesDlg" widgetVar="linesWv" dynamic="true" responsive="true" modal="true">
+       <p:dataTable 
+        id="transLn" value="#{apAgedPayable.apLinesSel}" var="lineV" rowKey="#{lineV.id}" reflow="true" 
+         emptyMessage="#{listHeading.apLine4SelNone}" rows="#{apAgedPayable.usrBuff.tblRows}"
+         paginator="true" paginatorAlwaysVisible="true" paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+        <f:facet name="header">
+         <h:outputText value="#{formTextAp.ageBalBal_ln}" rendered="#{apAgedPayable.lineTypeDlg eq 'bal'}"/>
+         <h:outputFormat value="#{formTextAp.ageBalDyLineDlg}"  rendered="#{apAgedPayable.lineTypeDlg eq 'day'}">
+          <f:param value="#{apAgedPayable.daysUntil}"/>
+         </h:outputFormat>
+        </f:facet>
+        <f:facet name="{Exporters}">
+         <h:commandLink style="float:right;"  >
+          <p:graphicImage name="/images/Excel-48.gif" width="24" />
+          <p:dataExporter type="xls" target="transLn" fileName="#{listHeading.apTransLine_FN}"  
+                          postProcessor="#{apAgedPayable.postProcessXLS}" />
+         </h:commandLink>
+         <h:commandLink style="float:right;">
+          <p:graphicImage name="/images/csv_text.png" width="24" />
+          <p:dataExporter type="csv" target="agedBalance" 
+                      fileName="#{listHeading.apTransLine_FN}" />
+         </h:commandLink>
+        </f:facet>
+        <p:column width="50" sortable="true" sortBy="#{lineV.docFi.docNumber}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docNumber}"/>
+         </f:facet>
+         <h:outputText value="#{lineV.docFi.docNumber}"/>
+        </p:column>
+        <p:column width="90" sortable="true" sortBy="#{lineV.docFi.postingDate}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docPstDate}"/>
+         </f:facet>
+         <h:outputText value="#{lineV.docFi.postingDate}">
+          <f:convertDateTime type="date" dateStyle="medium" locale="#{apAgedPayable.compSel.locale}"/>
+        </h:outputText>
+        </p:column>
+        <p:column width="90" sortable="true" sortBy="#{lineV.dueDate}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnDueDt}"/>
+         </f:facet>
+         <h:outputText value="#{lineV.dueDate}">
+          <f:convertDateTime type="date" dateStyle="medium" locale="#{apAgedPayable.compSel.locale}"/>
+        </h:outputText>
+        </p:column>
+        <p:column width="50" sortable="true" sortBy="#{lineV.postType.postTypeCode}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docPstTy}"/>
+         </f:facet>
+         <h:outputText value="#{lineV.postType.postTypeCode}"/>
+        </p:column>
+        <p:column  sortable="true" sortBy="#{lineV.lineText}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnText}"/>
+         </f:facet>
+         <h:outputText value="#{lineV.lineText}"/>
+        </p:column>
+        <p:column sortable="true" sortBy="#{lineV.docAmount}" styleClass="column-financialValue">
+         <f:facet name="header">
+          <h:outputText value="#{formText.docDebit}"/>
+         </f:facet>
+         <h:outputText value="#{lineV.docAmount}" rendered="#{lineV.postType.debit}" >
+          <f:convertNumber type="number" locale="#{apAgedPayable.compSel.locale}"
+                          maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                          minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+         </h:outputText>
+        </p:column>
+        <p:column sortBy="#{lineV.docAmount}" sortable="true"  styleClass="column-financialValue">
+         <f:facet name="header">
+          <h:outputText value="#{formText.docCredit}"/>
+         </f:facet>
+         <h:outputText value="#{lineV.docAmount}" rendered="#{not lineV.postType.debit}" >
+          <f:convertNumber type="number" locale="#{apAgedPayable.compSel.locale}"
+                          maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                          minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+         </h:outputText>
+        </p:column>
+        <p:columnGroup type="footer">
+         <p:column colspan="5" styleClass="column-textRight"  >
+          <f:facet name="footer">
+           <h:outputText value="#{listHeading.total}" style="font-weight: 700;"/>
+          </f:facet>
+         </p:column>
+         <p:column styleClass="column-financialValue" >
+          <f:facet name="footer">
+           <h:outputText value="#{apAgedPayable.apLinesSelDr}" style="font-weight: 700;">
+            <f:convertNumber 
+             locale="#{apAgedPayable.compSel.locale}" 
+             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+             minIntegerDigits="1"/>
+           </h:outputText>
+          </f:facet>
+         </p:column>
+         <p:column styleClass="column-financialValue" >
+          <f:facet name="footer">
+           <h:outputText value="#{apAgedPayable.apLinesSelCr}" style="font-weight: 700;">
+            <f:convertNumber 
+             locale="#{apAgedPayable.compSel.locale}" 
+             maxFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+             minFractionDigits="#{apAgedPayable.compSel.currency.minorUnit}"
+             minIntegerDigits="1"/>
+           </h:outputText>
+          </f:facet>
+         </p:column>
+        </p:columnGroup>
+       </p:dataTable>
+         
+                     
+        
+       
+      </p:dialog>
+     </h:form>
+    </div>
+   </div>
+  </div>
+ </ui:define>
+</ui:composition>

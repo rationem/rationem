@@ -1,0 +1,194 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiAccrRev}</ui:define>
+ <ui:define name="header">#{pageTitle.fiAccrRev}</ui:define>
+ <ui:define name="content">
+  <h:form id="accrRevJnlFrm" prependId="false">
+   <p:wizard id="accrRevWizId" widgetVar="accrRevWizWv" flowListener="#{glTemplateJnl.onAccrPostFlow}" 
+             nextLabel="#{formText.glJnlAccrShowlabel}" backLabel="#{formText.glJnlAccrSelLabel}">
+    <p:tab id="select" title="#{formText.glJnlAccrRevSelTab}">
+     <p:panel header="#{formText.glJnlAccrRevSelPnl}">
+      <p:messages id="accrNfMsg" severity="warn, error"/>
+      <p:panelGrid >
+       <p:row>
+        <p:column>
+         <p:outputLabel for="comp" value="#{formText.comp}"/>
+        </p:column>
+        <p:column>
+         <p:selectOneMenu id="comp" value="#{glTemplateJnl.accrualSelOpt.comp}" var="comp1MV"
+                          converter="com.rationem.util.converter.CompanyBasic" >
+          <f:selectItems var="compSiV" value="#{glTemplateJnl.compList}" itemValue="#{compSiV}"
+                         itemLabel="#{compSiV.reference}"/>
+          <p:column style="width: 10%">
+           <h:outputText value="#{comp1MV.reference}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{comp1MV.name}"/>
+          </p:column>
+         </p:selectOneMenu>
+        </p:column>
+        <p:column colspan="2">
+         <h:outputText id="compName" value="#{glTemplateJnl.accrualSelOpt.comp.name}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column >
+         <p:outputLabel for="frDate" value="#{formText.fromDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="frDate" value="#{glTemplateJnl.accrualSelOpt.fromDate}" mode="popup"  size="10" 
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                    required="true" 
+                    requiredMessage="#{validationText.fiDocPostDate}"
+                    >
+         <p:ajax event="dateSelect" listener="#{glTemplateJnl.onPostDateSelect}" />
+        </p:calendar>
+        </p:column>
+        <p:column >
+         <p:outputLabel for="toDate" value="#{formText.toDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="toDate" value="#{glTemplateJnl.accrualSelOpt.toDate}" mode="popup"  size="10" 
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                    required="true" 
+                    requiredMessage="#{validationText.fiDocPostDate}"
+                    >
+         <p:ajax event="dateSelect" listener="#{glTemplateJnl.onPostDateSelect}" />
+        </p:calendar>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column >
+         <h:outputText  value="#{formText.dateBasis}"/>
+        </p:column>
+        <p:column>
+         <p:selectOneMenu id="dateSelBasis" value="#{glTemplateJnl.accrualSelOpt.dateBasis}" required="true">
+          <f:selectItem itemValue="none" itemLabel="#{formText.select}" noSelectionOption="true"/>
+          <f:selectItem itemValue="docDt" itemLabel="#{formText.docDocDate}"/>
+          <f:selectItem itemValue="postDt" itemLabel="#{formText.docPostDate}"/>
+          <f:selectItem itemValue="revDt" itemLabel="#{formText.glJnlRevDate}"/>
+         </p:selectOneMenu>
+        </p:column>
+       </p:row>
+      </p:panelGrid>
+      
+     </p:panel>
+    </p:tab>
+    <p:tab id="post" title="#{formText.glJnlAccrRevPstTab}">
+     <p:panel header="#{formText.glJnlAccrRevPstPnl}">
+      <p:messages  autoUpdate="true" id="msgs" severity="warn, error" closable="true"/>
+      
+      <p:growl id="selectGr" severity="info"/>
+      <p:panelGrid >
+       <p:row>
+        <p:column>
+         <p:outputLabel for="docDate" value="#{formText.docDocDate}" />
+        </p:column>
+        <p:column>
+         <p:calendar id="docDate" value="#{glTemplateJnl.accrualSelOpt.docDate}" mode="popup"  size="10" 
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true">
+         
+        </p:calendar>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="pstDate" value="#{formText.docPostDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="pstDate" value="#{glTemplateJnl.accrualSelOpt.postDate}" mode="popup"  size="10" 
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                    required="true"  readonlyInput="true"
+                    validator="#{glTemplateJnl.validateAccrPostDate}"
+                    requiredMessage="#{validationText.fiDocPostDate}"
+                    >
+          <p:ajax event="dateSelect"/>
+          
+        </p:calendar>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="taxDate" value="#{formText.docTaxDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="taxDate" value="#{glTemplateJnl.accrualSelOpt.taxDate}" mode="popup"  size="10" 
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" >
+         
+        </p:calendar>
+        </p:column>
+        <p:column>
+         <p:commandButton id="pstAccrSelBtn" value="#{formText.glJnlAccrPostSel}" 
+                          actionListener="#{glTemplateJnl.onSaveAccrRev}"
+                          disabled="#{glTemplateJnl.accrualsSelected eq null || glTemplateJnl.accrualsSelected.size() eq 0 }"
+                          update="pstDate"/>
+        </p:column>
+       </p:row>
+      </p:panelGrid>
+      <p:dataTable id="accrList" value="#{glTemplateJnl.accrJnls}" var="accrItem" rowKey="#{accrItem.id}"
+                   emptyMessage="#{formText.glJnlAccrOpenNone}" selection="#{glTemplateJnl.accrualsSelected}"
+                   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                   paginator="true" rows="#{glTemplateJnl.usrBuff.tblRows}">
+       <p:ajax event="toggleSelect" listener="#{glTemplateJnl.onAccrualPostToggle}"/>
+       <p:ajax event="rowSelectCheckbox" listener="#{glTemplateJnl.onAccrualPostChecked}"/>
+       <p:ajax event="rowUnselectCheckbox" listener="#{glTemplateJnl.onAccualPostUnchecked}"/>
+       <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="accrList" fileName="#{formText.glJnlAccr_fn}" 
+                        postProcessor="#{glTemplateJnl.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="accrList" fileName="#{formText.glJnlAccr_fn}" />
+      </h:commandLink>
+      
+     </f:facet>
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.accrOpen}"/>
+       </f:facet>
+       <p:column selectionMode="multiple" width="30" exportable="false">
+        <f:facet name="header">
+         <h:outputText  value="#{formText.post}"/>
+        </f:facet>
+       </p:column>
+       <p:column width="100" sortBy="#{accrItem.nextPostDate}" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.glJnlRevDate}"/>
+        </f:facet>
+        <h:outputText value="#{accrItem.nextPostDate}">
+         <f:convertDateTime locale="#{glTemplateJnl.accrualSelOpt.comp.locale}" dateStyle="medium"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="100" sortBy="#{accrItem.postingDate}">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docDocDate}"/>
+        </f:facet>
+        <h:outputText value="#{accrItem.postingDate}">
+         <f:convertDateTime type="date" locale="#{glTemplateJnl.accrualSelOpt.comp.locale}" 
+                            dateStyle="medium"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="130" sortBy="#{accrItem.docType.name}" filterBy="#{accrItem.docType.name}"
+                 filterMatchMode="contains">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docType}"/>
+        </f:facet>
+        <h:outputText value="#{accrItem.docType.name}"/>
+       </p:column>
+       <p:column sortBy="#{accrItem.docHdrText}" filterBy="#{accrItem.docHdrText}" 
+                 filterMatchMode="contains">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docHdrTxt}"/>
+        </f:facet>
+        <h:outputText value="#{accrItem.docHdrText}"/>
+       </p:column>
+      </p:dataTable>
+     </p:panel>
+    </p:tab>
+   </p:wizard>
+   
+   
+  </h:form>
+ </ui:define>
+</ui:composition>

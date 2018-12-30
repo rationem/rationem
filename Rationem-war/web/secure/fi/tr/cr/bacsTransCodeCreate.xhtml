@@ -1,0 +1,58 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+  <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/newDoc.png" type="image/png"/>
+  </ui:define>
+  <ui:define name="title">#{pageTitle.cfg_tr_bacs_trans_cr}</ui:define>
+  <ui:define name="header"> </ui:define>
+  <ui:define name="content">
+   <h:form id="bacsTrCdCr">
+    <p:growl autoUpdate="true"/>
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton value="#{formText.save}" icon="fa fa-file-o"
+                       actionListener="#{bacsTransCodeBean.onCreateSave}"
+                       
+                       update="bacsTransCdGrd"
+                       >
+       
+       
+      </p:commandButton>
+      <p:commandButton value="#{formText.reset}"  icon="fa fa-refresh" immediate="true"
+                       actionListener="#{bacsTransCodeBean.onReset}">
+       <p:ajax update="bacsTransCdGrd" resetValues="true"/>
+      </p:commandButton>
+     </f:facet >
+    </p:toolbar>
+    <div class="card" >
+     <p:panelGrid id="bacsTransCdGrd" columns="2" layout="grid" columnClasses="ui-grid-col-2,ui-grid-col-3">
+      <p:outputLabel for="transCd" value="#{formText.trBacsTransCd}"/>
+      <p:inputText id="transCd" value="#{bacsTransCodeBean.bacsTransCode.ptnrBnkTransCode}" maxlength="2" size="2" 
+                  required="true" requiredMessage="#{validationText.bacsTransCdReq}"/>
+      <p:outputLabel for="transName" value="#{formText.trBacsTransName}"/>
+      <p:inputText id="transName" value="#{bacsTransCodeBean.bacsTransCode.name}" maxlength="10" size="9"/>
+      <p:outputLabel for="transDescr" value="#{formText.trBacsTransDescr}"/>
+      <p:inputText id="transDescr" value="#{bacsTransCodeBean.bacsTransCode.description}" maxlength="30" 
+                 size="29"/>
+      <p:outputLabel for="contraCd" value="#{formText.trBacsContra}"/>
+      <p:inputText id="contraCd" value="#{bacsTransCodeBean.bacsTransCode.contrTransCode}" required="true"
+                  requiredMessage="#{validationText.bacsContraCdReq}" size="2" maxlength="2"/>
+      <p:outputLabel for="transPrCd" value="#{formText.trBacsProc}"/>
+      <p:inputText id="transPrCd" value="#{bacsTransCodeBean.bacsTransCode.prCode}" maxlength="10" size="9"
+                  required="true" requiredMessage="#{validationText.bacsTransPrCdReq}"/>
+      <p:outputLabel for="transColl" value="#{formText.trBacsColl}"/>
+      <p:selectBooleanButton id="transColl" value="#{bacsTransCodeBean.bacsTransCode.collection}" 
+                              onLabel="#{formText.yes}" offLabel="#{formText.no}"/>  
+      
+     </p:panelGrid>
+    </div>
+   </h:form>
+  </ui:define>
+</ui:composition>
+
+
+

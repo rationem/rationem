@@ -1,0 +1,80 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/List.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.fiGlAcntListComp}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+  <h:form id="fiGlChartList" >
+   <p:messages severity="warn" autoUpdate="true"/>
+   <div class="card">
+   <p:panelGrid id="chartSelPg" layout="grid"  columns="2" columnClasses="ui-grid-col-2,ui-grid-col-3">
+    <p:outputLabel for="chartSel" value="#{formText.glAccountCoa}"/>
+    <p:selectOneMenu id="chartSel" autoWidth="true" converter="com.rationem.util.converter.ChartOfAccounts">
+     <f:selectItems value="#{glChartOfAccountsList.chartList}" var="chartV" itemValue="#{chartV}"
+                    itemLabel="#{chartV.name}"/>
+    </p:selectOneMenu>
+   </p:panelGrid>
+   </div>
+   <div class="card">
+    <p:dataTable 
+     id="acntTblId" value="#{glChartOfAccountsList.chartAccounts}" var="acntV"
+     emptyMessage="No accounts created for Chart" reflow="true"
+     rowKey="#{acntV.id}" paginator="true" paginatorAlwaysVisible="true"
+     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+       <p:graphicImage name="/images/Excel-48.gif" width="24" />
+       <p:dataExporter type="xls" target="acntTblId" fileName="#{listHeading.glRptChart_FN}"  
+        postProcessor="#{apDocDisplay.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="acntTblId"  fileName="#{listHeading.glRptChart_FN}" />
+       </h:commandLink>
+      </f:facet>
+     <f:facet name="header">
+      <h:outputText value="Accounts for chart - "/>
+      <p:spacer width="2"/>
+      <h:outputText value="#{glChartOfAccountsList.chartSel.name}"/>
+      
+     </f:facet>
+     <p:column sortBy="#{acntV.ref}" filterBy="#{acntV.ref}" filterMatchMode="contains" width="100">
+      <f:facet name="header" >
+       <h:outputText value="#{listHeading.glAcRef}"/>
+      </f:facet>
+      <h:outputText value="#{acntV.ref}"/>
+     </p:column>
+     <p:column sortBy="#{acntV.name}" filterBy="#{acntV.name}" filterMatchMode="contains"
+               width="200">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.glAcName}"/>
+      </f:facet>
+      <h:outputText value="#{acntV.name}"/>
+     </p:column>
+     <p:column sortBy="#{acntV.description}" filterBy="#{acntV.description}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.glAcDescr}"/>
+      </f:facet>
+      <h:outputText value="#{acntV.description}"/>
+     </p:column>
+     <p:column sortBy="#{acntV.accountType.name}" filterBy="#{acntV.accountType.name}" 
+               filterMatchMode="contains" width="100">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.glAcntType}"/>
+      </f:facet>
+      <h:outputText value="#{acntV.accountType.name}"/>
+     </p:column>
+    </p:dataTable>>
+   </div>
+   
+  </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

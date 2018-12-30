@@ -1,0 +1,290 @@
+/* 
+    Document   : common
+    Created on : 12-Jul-2011, 19:18:11
+    Author     : Chris
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+body {
+    
+ 
+}
+.panelHeader{
+    
+    text-align: center;
+    font-size: x-large;
+    font-weight: 700;
+}
+#greyOut{
+  font-weight: 100;
+}
+.pageHeader{
+ text-align: center;
+ font-size: x-large;
+ font-weight: 700;
+}
+
+
+.panelNoBorders tr, .panelNoBorders td{
+ background: none !important;
+ border: none !important;
+  
+}
+.panelFormFieldName{
+ font-family: Arial,Helvetica,sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+}
+.panelFieldRight{
+ text-align: right;
+}
+.menubar{
+
+  width: 100%;
+}
+.wizard-width{
+  width: 75%;
+}
+
+.menu-item{
+  font-size: 11px;
+}
+.menu-submenu{
+ font-size: 12px;
+}
+.toolbar-width{
+  width: 60%;
+}
+
+.tableFilter{
+ text-align: left;
+}
+.sect-header{
+
+  font-family: Arial,Helvetica,sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+}
+.ui-datatable-even{
+ 
+ background-color: #ccccff;
+ 
+}
+.ui-datatable-odd{
+ background-color: #ccffff; 
+}
+.noBorders tr .noBorders td {
+ background: none !important;
+ border: none !important;
+}
+
+.column-bnkSortCd{
+ width: 10em;
+ min-width: 1em;
+ max-width: 10em;
+}
+
+.column-bnkAcNum{
+ min-width: 1em;
+ max-width: 5em;
+}
+
+.column-comp{
+ width: 2em;
+ min-width: 1em;
+ max-width: 2em;
+}
+
+.column-CostCent{
+ min-width: 1em;
+ max-width: 5em;
+}
+
+.column-DocNum{
+ width: 10px;
+ text-align:right;
+}
+.column-lineNum{
+ width: 5px;
+ text-align: right;
+}
+.column-GlAccount{
+ min-width: 1em;
+ max-width: 3em;
+}
+
+.column-financialValue{
+
+ text-align: right !important;
+}
+
+.column-min{
+ min-width: 1em;
+ max-width: 1em;
+}
+.column-partCode{
+ min-width: 1em;
+ max-width: 3em;
+ 
+ font-family: serif;
+}
+
+.column-partName{
+ min-width: 1em;
+ max-width: 3em;
+}
+.column-PostType{
+ min-width: 1em;
+ width: 3em;
+ text-align: left;
+ direction: ltr;
+ word-spacing: 1px;
+}
+.column-sortCode{
+ min-width: 1em;
+ max-width: 3em;
+}
+.column-UOM{
+ min-width: 1em;
+ max-width: 3em;
+ 
+}
+
+
+
+
+.column-VatCode{
+ min-width: 1em;
+ max-width: 3em;
+}
+.amount{
+ text-align: right;
+}
+
+.docDisp-Amount{
+    width: 4em;
+    text-align: right;
+}
+
+.docDisp-LineNum{
+ width: 2em;
+ text-align: right;
+}
+
+.left{
+ 
+ text-align: left;
+ 
+}
+.docDispl-txt{
+ font-weight: 700;
+}
+.docDispl-autoLine{
+ font-weight: 700;
+}
+
+.docDisp-Notes{
+ vertical-align: top;
+ font-weight: bold;
+}
+.inv_soldTo{
+ text-align: left;
+ font-weight: bold;
+ background-color: #e6e2e2;
+}
+
+.invDescr-tbl{
+ 
+ text-align: left;
+ color: #000000;
+ font-weight: bold;
+ font-style: normal;
+ font-variant: normal;
+ border-bottom-width: 1px;
+ border-bottom-color: #000000;
+ border-bottom-style: solid;
+ width: 400px;
+}
+.invto-tbl{
+ font-weight: bold;
+ font-style: normal;
+ font-variant: normal;
+ position: relative;
+ font-family: Arial,Helvetica,sans-serif;
+ width: 35em;
+ vertical-align: top;
+}
+.invto-addr{
+width: 35em; 
+font-weight: bold;
+
+}
+
+.invto-cols{
+ vertical-align: top;
+}
+.inv-stock{
+ min-width: 1em;
+ max-width: 2em;
+}
+.inv-date{
+ font-weight: bold;
+ font-style: normal;
+ font-variant: normal;
+ position: relative;
+ font-family: Arial,Helvetica,sans-serif;
+ width: 6em;
+ vertical-align: top;
+}
+.inv-tbl{
+ vertical-align: top;
+}
+.inv-tblR{
+ 
+ right: 1px;
+}
+.right{
+ 
+ text-align: right;
+}
+.inv-summName {
+ width: 50%;
+ text-align: left;
+ font-style: normal;
+ font-weight: bold;
+ font-family: Arial,Helvetica,sans-serif;
+}
+
+.inv-summAmount {
+    width: 50%;
+    text-align: right;
+}
+.invTotal_blck{
+ border-collapse: collapse;
+ position: fixed;
+ clip: rect(1px, 0px, 0px, 0px);
+ border-top-style: none;
+ border-bottom-style: solid;
+}
+.slPart-partCode{
+ min-width: 1em;
+ max-width: 2em;
+}
+.slCrn-overAlloc{
+ font-family: Arial,Helvetica,sans-serif;
+ font-size: 14px;
+ font-weight: 300;
+ color: #cc0000;
+}
+.arReceipt-unalloc{
+ text-align: right;
+ font-style: normal;
+ font-weight: bold;
+ font-family: Arial,Helvetica,sans-serif;
+}

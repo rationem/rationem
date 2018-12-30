@@ -1,0 +1,149 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.ptnrCr} Display</ui:define>
+ <ui:define name="header">#{pageTitle.ptnrCr}</ui:define>
+ <ui:define name="content">
+  <h:form id="ptnrDispFrm">
+   <p:tooltip trackMouse="true"  showEffect="clip" hideEffect="explode" />
+   <div class="ui-fluid">
+    <p:messages id="msgs" closable="true"/>
+    <div class="card">
+     <h1>#{formText.ptnrSel}</h1>
+     
+     <p:panelGrid id="selPg" columns="2"  layout="grid" 
+                  columnClasses="ui-grid-col-2,ui-grid-col-3">
+     <h:panelGroup class="md-inputfield" >
+      
+      <p:autoComplete id="ptnrRef" value="#{partnerDisplayBean.ptnrBase}"  dropdown="true" var="ref"
+                       completeMethod="#{partnerDisplayBean.onPtnrRefComplete}" itemValue="#{ref}" 
+                       forceSelection="true" required="true" size="15" 
+                       converter="com.rationem.util.converter.PartnerBase" itemLabel="#{ref.ref}">
+        <p:ajax event="itemSelect" listener="#{partnerDisplayBean.onPtnrRefSelect}"/>
+        <p:column>
+         <h:outputText value="#{ref.ref}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{ref.displayName}"/>
+        </p:column>
+      </p:autoComplete>
+      <p:outputLabel for="ptnrRef" value="#{formText.ptnrRef}"/>
+     </h:panelGroup>
+      <h:outputText id="ptnrName" value="#{partnerDisplayBean.ptnrBase.displayName}"/>
+     </p:panelGrid>
+    
+   </div>
+    <p:tabView id="tabV">
+     <p:tab title="#{formText.ptnrBasicTab}">
+      <f:facet name="actions">
+       <p:button value="#{formText.save}"/>
+      </f:facet>
+      
+      <p:panelGrid 
+       
+       id="ptnrBasicPnl" layout="grid" columns="6" styleClass="ui-noborder" 
+       columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2">
+       <h:outputText value="#{listHeading.ptnrRlRef}"/>
+       <h:outputText value="#{partnerDisplayBean.ptnrBase.ref}"/>
+       <h:outputText  value="#{formText.ptnrType}"/>
+       <h:outputText value="#{partnerDisplayBean.partnerType}"/>
+       <h:outputText value="#{formText.ptnrRole}"/>
+       <h:outputText value="#{partnerDisplayBean.ptnrRoleText}"/>
+       
+      </p:panelGrid> 
+     </p:tab>
+     <p:tab title="#{formText.ptnrDetTab}">
+      <f:facet name="actions">
+       <p:button value="#{formText.save}"/>
+      </f:facet>
+      <p:outputPanel 
+       rendered="#{partnerDisplayBean.partnerType eq 'Company'}"
+       deferred="true" deferredMode="visible"  >
+       <p:panelGrid 
+        id="corpPtnrPg" columns="6" layout="grid" styleClass="ui-noborder"  rendered="#{partnerDisplayBean.partnerType eq 'Company'}" 
+        columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2">
+        <h:outputText value="#{formText.ptnrCompNum}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.companyNumber}"/>
+        <h:outputText value="#{formText.ptnrLegalName}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.legalName}"/>
+        <h:outputText value="#{formText.ptnrTradingName}" rendered="#{partnerDisplayBean.ptnrTrading}" />
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.tradingName}" rendered="#{partnerDisplayBean.ptnrTrading}"/>
+        <h:outputText rendered="#{not partnerDisplayBean.ptnrTrading}" />
+        <h:outputText rendered="#{not partnerDisplayBean.ptnrTrading}" />
+        
+        <h:outputText value="#{formText.ptnrTelephone}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.telephone}"/>
+        <h:outputText value="#{formText.ptnrEmail}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.email}"/>
+        <h:outputText value="#{formText.ptnrWeb}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.webAddress}"/>
+        
+        <h:outputText value="#{formText.ptnrRegDate}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.compRegistrationDate}">
+         <f:convertDateTime type="date" dateStyle="medium"/>
+        </h:outputText>
+        <h:outputText value="#{formText.ptnrAcntsLastFiled}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.accountsFilingDate}">
+         <f:convertDateTime type="date" dateStyle="medium"/>
+        </h:outputText>
+        <h:outputText value="#{formText.ptnrVatNum}" rendered="#{partnerDisplayBean.ptnrTrading}" />
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.vatNumber}"  rendered="#{partnerDisplayBean.ptnrTrading}" />
+        
+        <h:outputText  rendered="#{not partnerDisplayBean.ptnrTrading}" />
+        <h:outputText   rendered="#{not partnerDisplayBean.ptnrTrading}" />
+        
+        <h:outputText value="#{formText.ptnrCat}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.category}"/>
+       </p:panelGrid> 
+       </p:outputPanel>
+       
+      <p:outputPanel 
+       rendered="#{partnerDisplayBean.partnerType ne 'Company'}"
+       deferred="true" deferredMode="visible"  >
+       <p:panelGrid 
+        id="persPtnrPg" columns="6" layout="grid" styleClass="ui-noborder"  
+        rendered="#{partnerDisplayBean.partnerType eq 'Individual'}" 
+        columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2">
+        <h:outputText value="#{formText.ptnrTitle}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.title}"/>
+        <h:outputText value="#{formText.ptnrFirstName}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.firstName}"/>
+        <h:outputText value="#{formText.ptnrFamilyName}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.familyName}"/>
+        
+        <h:outputText value="#{formText.ptnrTelephone}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.telephone}"/>
+        <h:outputText value="#{formText.ptnrMobile}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.mobileTelephone}"/>
+        <h:outputText value="#{formText.ptnrEmail}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.email}"/>
+        
+        <h:outputText value="#{formText.ptnrWeb}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.webAddress}"/>
+        <h:outputText />
+        <h:outputText />
+        <h:outputText />
+        <h:outputText />
+        
+        <h:outputText value="#{formText.ptnrTradingName}" rendered="#{partnerDisplayBean.ptnrTrading}" />
+        <h:outputText value="#{partnerDisplayBean.ptnrPerson.tradingName}" rendered="#{partnerDisplayBean.ptnrTrading}" />
+        <h:outputText value="#{formText.ptnrVatNum}" rendered="#{partnerDisplayBean.ptnrTrading}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.vatNumber}" rendered="#{partnerDisplayBean.ptnrTrading}"/>
+        
+        <h:outputText value="#{formText.ptnrCat}"/>
+        <h:outputText value="#{partnerDisplayBean.ptnrCorp.category}"/>
+       </p:panelGrid>
+       
+      </p:outputPanel>
+                    
+     
+      
+     </p:tab>
+    </p:tabView>
+   </div>
+  </h:form>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,74 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    template="/WEB-INF/template.xhtml"
+    >
+ <ui:define name="title"><h:outputText value="#{pageTitle.cfg_transTyCr}" /></ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_transTyCr}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="tranTyCrFrm" prependId="false" >
+   <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="saveBtn" icon="fa fa-floppy-o" value="#{formText.save}" 
+                       actionListener="#{transTypeBean.onSaveNewTransType}"/>
+     </f:facet>
+    </p:toolbar>
+   <p:focus for="code"/>
+   <p:panelGrid>
+    <p:row>
+     <p:column>
+      <p:outputLabel id="codeLbl" for="code" value="#{formText.transTypeCode}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="code" value="#{transTypeBean.transType.code}" size="5"
+                   required="true" requiredMessage="#{validationText.transTyCode}"
+                   validator="#{transTypeBean.onValidateTransTypeCode}" validatorMessage="#{validationText.transTyCdUniq}">
+       <p:ajax event="blur"/>
+      </p:inputText>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="name" value="#{formText.transTypeName}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="name" value="#{transTypeBean.transType.shortDescription}" size="10"
+                   required="true" requiredMessage="#{validationText.transTyName}"/>
+     </p:column>
+    </p:row>
+    <p:row >
+     <p:column>
+      <p:outputLabel for="descr" value="#{formText.transTypDescr}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="descr" value="#{transTypeBean.transType.description}" size="40"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="ledger" value="#{formText.transTypLed}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="ledger" value="#{transTypeBean.transType.ledger}" converter="com.rationem.util.converter.Ledger">
+       <f:selectItems var="led" value="#{transTypeBean.ledgers}" itemValue="#{led}" itemLabel="#{led.name}"/>
+      </p:selectOneMenu>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="procCode" value="#{formText.transTypProcCd}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="procCode" value="#{transTypeBean.transType.processCode}" required="true" size='5'
+                   requiredMessage="#{validationText.transTyProcCd}"/>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>

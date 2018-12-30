@@ -1,0 +1,80 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_procCodeUpdt}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_procCodeUpdt}" styleClass="panelHeader" /> 
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="procCodeUpdtFrm" prependId="false" >
+   <p:contextMenu for="prCodeTbl">
+    <p:menuitem icon="ui-icon-pencil" value="#{formText.edit}" actionListener="#{processCodeBean.onEditDlg}"/>
+   </p:contextMenu>
+   <p:dataTable id="prCodeTbl" value="#{processCodeBean.processCodes}" paginator="true" 
+                var="procCodeV" rowKey="#{procCodeV.id}"
+                selection="#{processCodeBean.processCodeSel}" selectionMode="single" 
+                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                sortBy="#{procCodeV.name}" rows="#{processCodeBean.usrBuff.tblRows}" >
+    <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="prCodeTbl" fileName="#{formText.procCd_fn}" 
+                        postProcessor="#{processCodeBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="prCodeTbl" fileName="#{formText.procCd_fn}" />
+      </h:commandLink>
+    </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{formText.procCd_codes}" />
+    </f:facet>
+    <p:column width="100" >
+     <f:facet name="header" >
+      <h:outputText value="#{formText.procCd_name}"/>
+     </f:facet>
+     <h:outputText value="#{procCodeV.name}"/>
+    </p:column>
+    <p:column>
+     <f:facet name="header">
+      <h:outputText value="#{formText.procCd_desc}"/>
+     </f:facet>
+     <h:outputText value="#{procCodeV.description}"/>
+    </p:column>
+    <p:column width="100">
+     <f:facet name="header">
+      <h:outputText value="#{formText.procCd_mod}"/>
+     </f:facet>
+     <h:outputText value="#{procCodeV.module.name}"/>
+    </p:column>
+   </p:dataTable>
+  </h:form>
+  
+  <p:dialog id="editDlg" widgetVar="editProcCdWv" modal="true" dynamic="true" >
+   <f:facet name="header">
+    <h:outputText value="#{formText.procCd_editDlg}"/>
+   </f:facet>
+   <h:form id="edprocFrm" prependId="false">
+    <p:panelGrid id="editProcPg" columns="2" styleClass="panelNoBorders">
+     <p:outputLabel for="editName" value="#{formText.procCd_name}"/>
+     <p:inputText id="editName" value="#{processCodeBean.processCodeSel.name}"/>
+     <p:outputLabel for="editDesc" value="#{formText.procCd_desc}"/>
+     <p:inputText id="editDesc" value="#{processCodeBean.processCodeSel.description}"/>
+     <p:outputLabel for="editMod" value="#{formText.procCd_mod}"/>
+     <p:selectOneMenu id="editMod" value="#{processCodeBean.processCodeSel.module}" 
+                      converter="com.rationem.util.converter.Module" >
+      <f:selectItems value="#{processCodeBean.modules}" var="editModV" itemValue="#{editModV}"
+                     itemLabel="#{editModV.name} - #{editModV.description}"/>
+     </p:selectOneMenu>
+     
+     <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" actionListener="#{processCodeBean.onEditSave}"/>
+     <p:commandButton  value="#{formText.reset}" icon="ui-icon-close" actionListener="#{processCodeBean.onEditReset}"/>
+     
+    </p:panelGrid>
+   </h:form>
+  </p:dialog>
+ </ui:define>
+</ui:composition>

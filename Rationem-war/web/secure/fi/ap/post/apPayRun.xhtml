@@ -1,0 +1,334 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ 
+ <ui:define name="title">#{pageTitle.apPayRun}</ui:define>
+ <ui:define name="header">#{pageTitle.apPayRun}</ui:define>
+ <ui:define name="content">
+  
+  <div class="ui-fluid">
+   <div class="ui-g">
+    <div class="ui-g-12">
+     <h:form id="apPayRunFrm">
+      <div class="card" >
+       <p:steps id="steps" activeIndex="#{apPayment.step}">
+        <p:menuitem value="#{formText.selOpt}"/>
+        <p:menuitem value="#{formText.trPayRenReview}"/>
+        <p:menuitem value="#{formTextAp.paymnts}"/>
+        <p:menuitem value="#{formTextAp.paymntOut}"/>
+       </p:steps>
+       <p:messages id="errMsg" severity="warn, error"  closable="true">
+        <p:autoUpdate />
+       </p:messages>
+       <p:panelGrid id="cntrlBtns" layout="grid" columns="3" 
+                    columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-2"
+                    styleClass="ui-noborder" >
+        <p:commandButton value="#{formText.back}" actionListener="#{apPayment.onPayRunBackBtn}" 
+                         icon="fa fa-long-arrow-left" rendered="#{apPayment.step gt 0}"/>
+        <h:panelGroup rendered="#{apPayment.step eq 0}"/>
+        <h:panelGroup />
+        <p:commandButton value="#{formText.next}" actionListener="#{apPayment.onPayRunNextBtn}"
+                         icon="fa fa fa-long-arrow-right"/>
+       </p:panelGrid>
+       <p:panelGrid id="selOpt" layout="grid" columns="3" styleClass="ui-noborder" 
+                    columnClasses="ui-grid-col-2,ui-grid-col-2, ui-grid-col-4" 
+                    rendered="#{apPayment.step eq 0}">
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="payRunId" value="#{apPayment.payRunRef}" required="true" 
+                      requiredMessage="#{validationText.payRunRefReq}" >
+          <p:ajax event="blur" update="apPayRunFrm:errMsg"/>
+         </p:inputText>
+         <p:outputLabel for="payRunId" value="#{formText.trPayRunRef}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:calendar 
+           id="postDt" value="#{apPayment.fiDocument.postingDate}" navigator="true"
+           locale="#{apPayment.fiDocument.company.locale}"  pattern="dd/MMM/yyyy" maxlength="11" size="12"
+           showOtherMonths="true" />
+         <p:outputLabel for="postDt" value="#{formText.docPostDate}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete 
+          id="docTyAc" value="#{apPayment.fiDocument.docType}" forceSelection="true" dropdown="true"
+          dynamic="true" converter="com.rationem.util.converter.DocType" var="docTyV" itemValue="#{docTyV}"
+          itemLabel="#{docTyV.name}" completeMethod="#{apPayment.onDocTypeComplete}" required="true"
+          emptyMessage="#{validationText.docTypesNone}"/>
+         <p:outputLabel for="docTyAc" value="#{formText.docType}"/>
+          
+        </h:panelGroup>
+        <h:panelGroup >
+         <p:outputLabel for="comp" value="#{formText.comp}"/>
+         <p:selectOneMenu id="comp" value="#{apPayment.fiDocument.company}" 
+                           converter="com.rationem.util.converter.CompanyBasic" >
+           <f:selectItems var="compV" value="#{apPayment.compList}" itemValue="#{compV}"
+                          itemLabel="#{compV.reference}"/>
+         </p:selectOneMenu>
+        </h:panelGroup>
+        <h:panelGroup />
+        <h:panelGroup class="md-inputfield" >
+         
+         <p:autoComplete 
+          id="payTy" value="#{apPayment.paymentTypesSelected}" dropdown="true" dynamic="true"
+          converter="com.rationem.util.converter.PaymentType" multiple="true" required="true"
+          completeMethod="#{apPayment.onPayTypeComplete}" var="payTyV" itemValue="#{payTyV}"
+          itemLabel="#{payTyV.description}" emptyMessage="#{validationText.payTysNone}" />
+         <p:outputLabel for="payTy" value="#{formText.docPayType}"/>
+        </h:panelGroup>
+        
+        <h:panelGroup class="md-inputfield">
+         <p:calendar 
+           id="dueFr" value="#{apPayment.selOpt.docDateFr}" navigator="true"
+           locale="#{apPayment.fiDocument.company.locale}"  pattern="dd/MMM/yyyy" maxlength="11" size="12"
+           showOtherMonths="true" />
+         <p:outputLabel for="dueFr" value="#{formText.trPayRunDueFr}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:calendar 
+           id="dueTo" value="#{apPayment.selOpt.dueDateTo}" navigator="true"
+           locale="#{apPayment.fiDocument.company.locale}"  pattern="dd/MMM/yyyy" maxlength="11" size="12"
+           showOtherMonths="true" />
+         <p:outputLabel for="dueTo" value="#{formText.trPayRunDueTo}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+       
+       
+       <p:dataTable 
+        id="sumTbl" value="#{apPayment.payRunSumList}" var="sumLineV" rowKey="#{sumLineV.accountRef}"
+        emptyMessage="#{validationText.payRunDocsNone}"  reflow="true" rows="#{apPayment.usrBuff.tblRows}"
+        rendered="#{apPayment.step eq 1}" selection="#{apPayment.payRunSumSelected}" 
+        selectionMode="multiple" paginatorAlwaysVisible="true" paginator="true"
+        paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+        
+        <p:ajax event="rowSelect" listener="#{apPayment.onPayRunRowCbSel}"/>
+        <p:ajax event="contextMenu" listener="#{apPayment.onPayRunMenuSelect}" />
+        
+        <f:facet name="{Exporters}">
+           <h:commandLink style="float:right;"  >
+            <p:graphicImage name="/images/Excel-48.gif" width="24" />
+            <p:dataExporter type="xls" target="sumTbl" fileName="#{listHeading.payRunPymnts_FN}"  
+                          postProcessor="#{apDocDisplay.postProcessXLS}" />
+           </h:commandLink>
+           <h:commandLink style="float:right;">
+            <p:graphicImage name="/images/csv_text.png" width="24" />
+            <p:dataExporter type="csv" target="sumTbl" 
+                      fileName="#{listHeading.payRunPymnts_FN}" />
+           </h:commandLink>
+          </f:facet>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payRunOsDoc}"/>
+        </f:facet>
+        
+        <p:column  sortBy="#{sumLineV.accountRef}" width="100">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docAcnt}"/>
+         </f:facet>
+         <h:outputText value="#{sumLineV.accountRef}"/>
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.apAcntFor}"/>
+         </f:facet>
+         <h:outputText value="#{sumLineV.partnerName}"/>
+        </p:column>
+        <p:column styleClass="column-financialValue">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnAmntOs}"/>
+         </f:facet>
+         <h:outputText value="#{sumLineV.open}">
+          <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                           minIntegerDigits="1" 
+                           maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                           minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}" />
+         </h:outputText>
+        </p:column>
+        <p:column styleClass="column-financialValue">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnPyAmnt}"/>
+         </f:facet>
+         <h:outputText value="#{sumLineV.payment}">
+          <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                           minIntegerDigits="1" 
+                           maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                           minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}" />
+         </h:outputText>
+        </p:column>
+        <p:columnGroup type="footer">
+         <p:row>
+          <p:column colspan="2" footerText="#{listHeading.total}" styleClass="column-rowTotal"/>
+          <p:column footerText="20" styleClass="column-rowTotal">
+           <f:facet name="footer">
+            <h:outputText value="#{apPayment.runTotalAmountOs}">
+             <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                           minIntegerDigits="1" 
+                           maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                           minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}" />
+            </h:outputText>
+           </f:facet>
+          </p:column>
+          <p:column  styleClass="column-rowTotal">
+           <f:facet name="footer">
+            <h:outputText value="#{apPayment.runTotalAmountPd}">
+             <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                           minIntegerDigits="1" 
+                           maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                           minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}" />
+            </h:outputText>
+           </f:facet>
+          </p:column>
+         </p:row>
+        </p:columnGroup>
+        
+       </p:dataTable>
+       <p:contextMenu for="apPayRunFrm:sumTbl">
+        <p:menuitem value="#{formText.payRunLines}" actionListener="#{apPayment.onPayRunAcntInvDlg}"/>
+       </p:contextMenu>
+       <p:panelGrid id="paymentPnl" layout="grid" columns="1" rendered="#{apPayment.step eq 2}">
+        
+        
+        <p:dataTable id="chqDocTbl" value="#{apPayment.bankLines}" var="payLnV"  rowKey="#{payLnV}"
+                     rows="#{apPayment.usrBuff.tblRows}">
+         <f:facet name="header">
+          <h:outputText value="Payments"/>
+         </f:facet>
+         <p:column width="70" >
+          <f:facet name="header">
+           <h:outputText value="#{formText.docAcntRef}"/>
+          </f:facet>
+          <h:outputText value="#{payLnV.apAccount.accountCode}"/>
+         </p:column>
+         <p:column  >
+          <f:facet name="header">
+           <h:outputText value="#{formText.name}"/>
+          </f:facet>
+          <h:outputText value="#{payLnV.apAccount.accountName}"/>
+         </p:column>
+         <p:column styleClass="column-financialValue" >
+          <f:facet name="header">
+           <h:outputText value="#{listHeading.payRunPay}"/>
+          </f:facet>
+          <h:outputText value="#{payLnV.amount}">
+           <f:convertNumber 
+            type="number" locale="#{apPayment.fiDocument.company.locale}" minIntegerDigits="1"
+            maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+            minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"/>
+                            
+          </h:outputText>
+         </p:column>
+        </p:dataTable>
+        
+       </p:panelGrid> 
+      </div>
+     </h:form>
+     
+     <h:form id="acntLinesOsFrm">
+      <p:dialog id="acntLinesDlg" widgetVar="acntLinesOsWv" modal="true" dynamic="true"  >
+       <f:facet name="header">
+        <h:outputFormat value="#{formText.payRunOsLns4Acnt}">
+         <f:param value="#{apPayment.payRunSumSelection.accountRef}"/>
+        </h:outputFormat>
+       </f:facet>
+       <p:messages id="acntLnOsErr" closable="true"/>
+        
+       
+       <p:dataTable 
+        id="acntInvsOs" value="#{apPayment.payRunAcntDocLines}" reflow="true" 
+        rows="#{apPayment.usrBuff.tblRows}" cellEditMode="lazy" 
+        editMode="cell" selectionMode="single" selection="#{apPayment.payRunAcntDocLineSel}" 
+        var="acntDocLnV" 
+        rowKey="#{acntDocLnV.id}" editable="true">
+        <p:ajax event="cellEditInit" listener="#{apPayment.onPayRunPartPayEditInit}" />
+        <p:ajax event="cellEdit" listener="#{apPayment.onPayRunPartPayEdit}" />
+        <p:column width="50" sortBy="#{acntDocLnV.docNumber}" sortable="true">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docNumber}"/>
+         </f:facet>
+         <h:outputText value="#{acntDocLnV.docNumber}"/> 
+        </p:column>
+        <p:column width="70" sortBy="#{acntDocLnV.postType.postTypeCode}" sortable="true" >
+         <f:facet name="header">
+         <h:outputText value="#{listHeading.docPstTy}"/>
+         </f:facet>
+        <h:outputText value="#{acntDocLnV.postType.postTypeCode}"/> 
+        </p:column>
+        <p:column  width="100" sortBy="#{acntDocLnV.docType.name}" sortable="true">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docTy}"/>
+         </f:facet>
+         <h:outputText value="#{acntDocLnV.docType.name}"/> 
+        </p:column>
+        <p:column width="70" sortBy="#{acntDocLnV.dueDate}" sortable="true">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnDueDt}"/>
+         </f:facet>
+         <h:outputText value="#{acntDocLnV.dueDate}"/> 
+        </p:column>
+        <p:column >
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnText}"/>
+         </f:facet>
+         <h:outputText value="#{acntDocLnV.lineText}"/> 
+        </p:column>
+        <p:column styleClass="column-financialValue" >
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnAmnt}"/>
+         </f:facet>
+         <h:outputText value="#{acntDocLnV.docAmount}">
+          <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                           minIntegerDigits="1" 
+                           maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                           minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}" />
+         </h:outputText>
+        </p:column>
+        <p:column styleClass="column-financialValue" >
+         <f:facet name="header">
+          <p:outputPanel>
+          <h:outputText value="#{listHeading.docLnPyAmnt}" />
+          
+          <i class="fa fa-pencil-square" aria-hidden="true"></i>
+          </p:outputPanel>
+         </f:facet>
+         <p:cellEditor  >
+          <f:facet name="output">
+           <h:outputText value="#{acntDocLnV.partPayAmount}">
+            <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                           minIntegerDigits="1" 
+                           maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                           minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}" />
+           </h:outputText>
+          </f:facet>
+          <f:facet name="input">
+           <p:inputText  value="#{acntDocLnV.partPayAmount}" validator="#{apPayment.onPayRunPartPayValidate}"  >
+            <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                           minIntegerDigits="1" 
+                           maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                           minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}" />
+            <p:keyFilter mask="num"/>
+            
+           </p:inputText>
+          </f:facet>
+         </p:cellEditor>
+          
+        </p:column>
+       </p:dataTable>
+       
+       <p:panelGrid layout="grid" columns="3" columnClasses="ui-grid-col-2, ui-grid-col-10,ui-grid-col-2"
+                    styleClass="ui-noborder">
+        <p:commandButton value="#{formText.transfer}" actionListener="#{apPayment.onPayRunInvTransf}"  icon="fa fa-long-arrow-left"/>
+        <h:panelGroup />
+        <p:commandButton value="#{formText.close}" icon="fa fa-window-close" onclick="PF('acntLinesOsWv').hide();" />
+       </p:panelGrid> 
+       
+       
+      </p:dialog>
+     </h:form>
+     
+    </div>
+   </div>
+  </div>
+ </ui:define>
+</ui:composition>

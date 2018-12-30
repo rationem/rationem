@@ -1,0 +1,177 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.trChqLst}</ui:define>
+ <ui:define name="header">#{pageTitle.trChqListSel}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="chqListFrm">
+    <p:steps activeIndex="#{chequeBookListBean.step}" >
+     <p:menuitem value="#{menuText.mi_tr_chq_List_sel}" outcome="chqLst"/>
+     <p:menuitem value="#{menuText.mi_tr_chq_List}" outcome="chqListRept"/>
+    </p:steps>
+    <p:messages id="mess" autoUpdate="true" closable="true"/>
+    <p:outputPanel id="statusOp">
+ 
+      <p:panelGrid id="selParams" columns="4" columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2"
+                   layout="grid" rendered="#{chequeBookListBean.step eq 0 }" >
+       
+       <p:outputLabel for="comp" value="#{formText.comp}"/>
+       
+       <p:selectOneMenu id="comp" value="#{chequeBookListBean.chqSelOpts.compSel}" 
+                        converter="com.rationem.util.converter.CompanyBasic"  >
+        <f:selectItems value="#{chequeBookListBean.compList}" var="comp"  itemValue="#{comp}" 
+                     itemLabel="#{comp.reference}"/>
+        <p:column width="20%">
+         <h:outputText value="#{comp.reference}" />
+        </p:column>
+        <p:column width="80%">
+         <h:outputText value="#{comp.name}" />
+        </p:column>
+       </p:selectOneMenu>
+       <h:panelGroup />
+       <h:outputText value="#{chequeBookListBean.chqSelOpts.compSel.name}"/>
+       
+       <p:outputLabel for="bnkAcnt" value="#{formText.bnkAcnt}"/>
+       <p:selectOneMenu id="bnkAcnt" value="#{chequeBookListBean.chqSelOpts.bnkAcntComp}"
+                        converter="com.rationem.util.converter.BankAccountCompany">
+        <f:selectItems value="#{chequeBookListBean.bnkAcntComps}" var="bnkAcnt"
+                     itemValue="#{bnkAcnt}" itemLabel="#{bnkAcnt.accountNumber}"/>
+        <p:column width="20%">
+         <h:outputText value="#{bnkAcnt.accountForBranch.sortCode}" />
+        </p:column>
+        <p:column width="80%">
+         <h:outputText value="#{bnkAcnt.accountName}" />
+        </p:column>
+       </p:selectOneMenu>
+       <h:panelGroup/>
+       <h:panelGroup/>
+       <p:outputLabel for="chqDtFr" value="#{formText.chqIssueFr}"/>
+       <p:calendar id="chqDtFr" value="#{chequeBookListBean.chqSelOpts.chqIssueFrom}" 
+                 locale="#{chequeBookListBean.chqSelOpts.compSel.locale}" navigator="true" 
+                 pattern="dd/MMM/yyyy"  showOtherMonths="true" maxlength="11" size="12" 
+                 maxdate="#{chequeBookListBean.chqSelOpts.chqIssueTo}"/>
+       <p:outputLabel for="chqDtTo" value="#{formText.chqIssueTo}"/>
+       <p:calendar id="chqDtTo" value="#{chequeBookListBean.chqSelOpts.chqIssueTo}" 
+                 locale="#{chequeBookListBean.chqSelOpts.compSel.locale}" navigator="true" 
+                 pattern="dd/MMM/yyyy"  showOtherMonths="true" maxlength="11" size="12"
+                 mindate="#{chequeBookListBean.chqSelOpts.chqIssueFrom}"/>
+       <p:outputLabel for="chqNumFr" value="#{formText.chqNumFr}"/>
+       <h:panelGroup styleClass="md-inputfield">
+        <p:inputText id="chqNumFr" value="#{chequeBookListBean.chqSelOpts.chqNumFr}" size="12" 
+                    validator="#{chequeBookListBean.onValidateChqNumFr}"> 
+         <p:keyFilter mask="pint"/>
+         <p:ajax event="blur" process="chqNumTo"/>
+        </p:inputText>
+        <label>#{formText.numFrom}</label>
+       </h:panelGroup>
+       <p:outputLabel for="chqNumTo" value="#{formText.chqNumTo}"/>
+       <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="chqNumTo" value="#{chequeBookListBean.chqSelOpts.chqNumTo}" size="12"  
+                    validator="#{chequeBookListBean.onValidateChqNumTo}" >
+        <p:keyFilter mask="pint"/>
+        <p:ajax  event="blur" process="chqNumFr" />
+       </p:inputText>
+        <label>#{formText.numTo}</label>
+       </h:panelGroup>
+       <p:outputLabel for="clearStat" value="#{formText.chqClearStat}"/>
+       <p:selectOneRadio id="clearStat" value="#{chequeBookListBean.chqSelOpts.cashmntStat}"
+                       layout="responsive" columns="1"  >
+        <f:selectItem itemLabel="#{formText.chqClearNo}" itemValue="2" noSelectionOption="true" />
+        <f:selectItem itemLabel="#{formText.chqClearYes}" itemValue="1"/>
+        <f:selectItem  itemLabel="#{formText.chqClearAll}"  itemValue="0" />
+        
+       </p:selectOneRadio>
+       <h:panelGroup />
+       <p:commandButton value="#{formText.trChqListDataTbl}" actionListener="#{chequeBookListBean.onChequeListAction}" />
+      </p:panelGrid>
+     <p:dataTable 
+      id="chqTbl" rendered="#{chequeBookListBean.step eq 1}" value="#{chequeBookListBean.cheques}" 
+      var="chqV" rowKey="#{chqV.id}" emptyMessage="#{errorText.chqsNone}" rows="#{chequeBookListBean.usrBuff.tblRows}"
+      paginatorAlwaysVisible="true" paginator="true" reflow="true"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+      <p:ajax event="rowToggle" listener="#{chequeBookListBean.onChqListToggle}"/>
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="chqTbl" fileName="#{listHeading.chqLstFN}" 
+                          postProcessor="#{chequeBookListBean.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="chqTbl" fileName="#{listHeading.chqLstFN}" />
+       </h:commandLink>
+      </f:facet>
+      <f:facet name="header">
+        <h:outputText value="#{listHeading.chqsFnd}" />
+      </f:facet>
+      <p:column width="10" exportable="false">
+       <p:rowToggler  />
+      </p:column>
+      <p:column width="100" sortBy="#{chqV.bnkRef}" styleClass="column-numericValue">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.chqNum}"/>
+       </f:facet>
+       <h:outputText value="#{chqV.bnkRef}"/>
+      </p:column>
+      <p:column  rendered="#{chequeBookListBean.chqSelOpts.compSel.locale ne null}" width="120"
+                 sortBy="#{chqV.issueDate}" >
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.chqCrDate}"/>
+       </f:facet>
+       <h:outputText value="#{chqV.issueDate}">
+        <f:convertDateTime dateStyle="medium" type="date" locale="#{chequeBookListBean.chqSelOpts.compSel.locale}"/>
+       </h:outputText>
+      </p:column>
+      <p:column rendered="#{chequeBookListBean.chqSelOpts.compSel.locale ne null}" styleClass="column-financialValue"
+                sortBy="#{chqV.amount}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.amnt}"/>
+       </f:facet>
+       <h:outputText value="#{chqV.amount}">
+        <f:convertNumber minIntegerDigits="1" minFractionDigits="#{chequeBookListBean.chqSelOpts.compSel.currency.minorUnit}"
+                         maxFractionDigits="#{chequeBookListBean.chqSelOpts.compSel.currency.minorUnit}" 
+                         locale="#{chequeBookListBean.chqSelOpts.compSel.locale}" type="number"/>
+       </h:outputText>
+      </p:column>
+      <p:column sortBy="#{chqV.payee.name}" >
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.chqRecpt}"/>
+       </f:facet>
+       <h:outputText value="#{chqV.payee.name}"/>
+      </p:column>
+      <p:column rendered="#{chequeBookListBean.chqSelOpts.compSel.locale ne null}" width="120"
+                sortBy="#{chqV.voidDate}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.chqVoidDt}"/>
+       </f:facet>
+       <h:outputText value="#{chqV.voidDate}">
+        <f:convertDateTime dateStyle="medium" type="date" locale="#{chequeBookListBean.chqSelOpts.compSel.locale}"/>
+       </h:outputText>
+       </p:column>
+      <p:rowExpansion>
+       <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-2,ui-grid-col-1">
+        <h:outputText value="#{formText.trPayDoc}"/>
+        <h:outputText value="#{chqV.docFiLine.docNumber}"/>
+        <h:outputText value="#{formText.trChqVoidRsn}" />
+        <h:outputText value="#{chqV.voidReason.description}"/>
+        <h:outputText value="#{formText.trChqVoidBy}"/>
+        <h:outputText value="#{chqV.voidBy.nameStructured}"/>
+       </p:panelGrid>
+      </p:rowExpansion>
+      </p:dataTable>
+     <p:panelGrid columns="1" columnClasses="ui-grid-col-1" 
+                  layout="grid" rendered="#{chequeBookListBean.step eq 1 }" >
+      <p:commandButton value="Selection" actionListener="#{chequeBookListBean.onChequeListAction}"/>
+     </p:panelGrid>
+   </p:outputPanel>  
+   </h:form>
+  </div>
+  
+ </ui:define>
+</ui:composition>

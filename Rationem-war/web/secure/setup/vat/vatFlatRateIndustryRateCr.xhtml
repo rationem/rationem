@@ -1,0 +1,48 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{menuOption.vatSchemFlRtCr}</ui:define>
+ <ui:define name="header"></ui:define>
+ <ui:define name="content">
+  <h:form id="vatFlatRateCrFrm">
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="addVatCodeSave" icon="fa fa-floppy-o" value="#{formText.save}" 
+                      actionListener="#{vatSchemeBean.onSaveRateNew}" 
+                       title="#{formHelpText.actTySave}" update="@(form)"   />
+     <p:commandButton type="reset" value="#{formText.reset}" />
+    </f:facet >
+   </p:toolbar>
+   <p:panelGrid id="flRatePg" columns="2" styleClass="panelNoBorders">
+    <p:outputLabel for="name" value="#{formText.vatFlRateRef}"/>
+    <p:inputText id="name" value="#{vatSchemeBean.flIndRate.ref}" required="true" 
+                  requiredMessage="#{validationText.vatIndRateRef}"/>
+    <p:outputLabel for="descr" value="#{formText.vatFlRateDescr}"/>
+    <p:inputText id="descr" value="#{vatSchemeBean.flIndRate.descr}"/>
+    <p:outputLabel for="validFr" value="#{formText.vatFlRateValidFr}"/>
+    
+    <p:calendar id="validFr" value="#{vatSchemeBean.flIndRate.validFrom}" 
+                    mode="popup" required="true"
+                    requiredMessage="#{validationText.vatIndRateValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" size="8"/>
+    <p:outputLabel for="validTo" value="#{formText.vatFlRateValidTo}"/>
+    <p:calendar id="validTo" value="#{vatSchemeBean.flIndRate.validTo}" 
+                    mode="popup" required="true"
+                    requiredMessage="#{validationText.vatIndRateValidTo}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" size="8"/>
+    
+    <p:outputLabel for="rate" value="#{formText.vatFlRateRate}"/>
+    <p:inputText id="rate" value="#{vatSchemeBean.flIndRate.rate}">
+     <f:convertNumber type="percent" maxIntegerDigits="1" maxFractionDigits="4"/>
+    </p:inputText>
+    <p:outputLabel for="ind" value="#{formText.vatFlRateInd}"/>
+    <p:inputText id="ind" value="#{vatSchemeBean.flIndRate.industry}"/>
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

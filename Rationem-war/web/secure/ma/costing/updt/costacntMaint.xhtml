@@ -1,0 +1,288 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.maCstAcntMaint2}</ui:define>
+ <ui:define name="header">#{pageTitle.maCstAcntMaint2}</ui:define>
+ <ui:define name="content">
+  <h:form id="cstAcntAutoFrm" prependId="false" >
+   <p:messages autoUpdate="true" closable="true"/>
+   <p:panelGrid >
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{costAcnt.compSel}" converter="com.rationem.util.converter.CompanyBasic"
+                     >
+       <f:selectItems value="#{costAcnt.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText value="#{costAcnt.compSel.name}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column >
+      <p:outputLabel for="cstAcntS1m" value="#{formText.maCostCent}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="cstAcntS1m" var="#{costAcnt.costCentSel}" 
+                       converter="com.rationem.util.converter.CostCentre">
+       <f:selectItems value="#{costAcnt.costCentList}" var="cstCentV" itemValue="#{cstCentV}"
+                      itemLabel="#{cstCentV.refrence}"/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText value="#{costAcnt.costCentSel.costCentreName}"/>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   <p:contextMenu for="acsDt">
+    <p:menuitem value="#{formText.display}" icon="fa fa-binoculars" 
+                actionListener="#{costAcnt.onCostAcntDispDlg}"/>
+    <p:menuitem value="#{formText.edit}" icon="fa fa-pencil-square-o"
+                actionListener="#{costAcnt.onCostAcntUpdtDlg}"/>
+   </p:contextMenu>
+   <p:dataTable id="acsDt" value="#{costAcnt.costCentSel.costAccountDirectAcs}" 
+                var="costAcntDtV"
+                emptyMessage="#{validationText.maCostAcntNone}" 
+                rowKey="#{costAcntDtV.id}" selectionMode="single"
+                rows="#{costAcnt.usrBuff.tblRows}" selection="#{costAcnt.accountSel}"
+                paginator="true" paginatorAlwaysVisible="true"
+         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+    <f:facet name="header">
+     <h:outputText value="#{formMa.costAccountFor}"/>
+     <p:spacer width="4"/>
+     <h:outputText value="#{costAcnt.costCentSel.costCentreName}"/>
+    </f:facet>
+    <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="acsDt" fileName="#{formText.maCostAcnt_fn}" 
+                        postProcessor="#{costAcnt.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="acsDt" fileName="#{formText.maCostAcnt_fn}" />
+      </h:commandLink>
+      
+     </f:facet>
+    <p:ajax event="contextMenu" listener="#{costAcnt.onContextMenu}"/>
+    <p:column sortBy="#{costAcntDtV.ref}" width="90">
+     <f:facet name="header">
+      <h:outputText value="#{formMa.costAccount}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.ref}"/>
+    </p:column>
+    <p:column sortBy="#{costAcntDtV.name}" width="200">
+     <f:facet  name="header">
+      <h:outputText value="#{formMa.caName}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.name}"/>
+    </p:column>
+    <p:column sortBy="#{costAcntDtV.description}" >
+     <f:facet name="header" >
+      <h:outputText value="#{formMa.caDescr}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.description}"/> 
+    </p:column>
+    <p:column sortBy="#{costAcntDtV.validFrom}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.fromDate}"/>
+     </f:facet>
+     
+     <h:outputText value="#{costAcntDtV.validTo}">
+      <f:convertDateTime type="date" dateStyle="medium" locale="#{costAcnt.compSel.locale}"/>
+     </h:outputText> 
+     </p:column>
+    <p:column sortBy="#{costAcntDtV.validTo}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.toDate}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.validTo}">
+      <f:convertDateTime type="date" dateStyle="medium" locale="#{costAcnt.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    
+   </p:dataTable>
+  </h:form>
+  <h:form id="displAcntFrm" prependId="false">
+   <p:dialog id="dispDlgId" widgetVar="dispDlgWv" dynamic="true" closable="false">
+    <f:facet name="header">
+     <h:outputText value="#{formText.maCostAcntDispDlg}"/>
+     <p:spacer width="2"/>
+     <h:outputText value="#{costAcnt.accountSel.ref}"/>
+     <p:panelGrid id="dispPg" styleClass="ui-noborder" >
+      <p:row>
+       <p:column>
+        <h:outputText value="#{formText.maCostAcntRef}"/>
+       </p:column>
+       <p:column> 
+        <h:outputText value="#{costAcnt.accountSel.ref}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{formText.maCostCentName}"/>
+       </p:column>          
+       <p:column>
+        <h:outputText value="#{costAcnt.accountSel.name}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <h:outputText value="#{formText.maCostAcntDescr}"/>
+       </p:column>
+       <p:column colspan="4">
+        <h:outputText value="#{costAcnt.accountSel.description}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <h:outputText value="#{formText.maProgResp}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{costAcnt.accountSel.responsibilityOf.nameStructured}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{formText.maCostCent}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{costAcnt.accountSel.costCentre.refrence}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <h:outputText value="#{formText.fromDate}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{costAcnt.accountSel.validFrom}">
+         <f:convertDateTime type="date" dateStyle="medium" locale="#{costAcnt.compSel.locale}"/>
+        </h:outputText>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{formText.toDate}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{costAcnt.accountSel.validTo}">
+         <f:convertDateTime type="date" dateStyle="medium" locale="#{costAcnt.compSel.locale}"/>
+        </h:outputText>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column colspan="4">
+        <p:commandButton value="#{formText.close}" icon="fa fa-close" type="button"
+                         onclick="PF('dispDlgWv').hide();" />
+       </p:column>
+      </p:row>
+     </p:panelGrid>
+    </f:facet>
+   </p:dialog>
+  </h:form>
+  
+  <h:form id="updtAcntFrm" prependId="false">
+   <p:dialog id="updtDlgId" widgetVar="updtDlgWv" dynamic="true" closable="false"
+            >
+    <f:facet name="header">
+     <h:outputText value="#{formText.maCostAcntUpdtDlg2}"/>
+     <p:spacer width="2"/>
+     <h:outputText value="#{costAcnt.accountSel.ref}"/>
+    </f:facet>
+     <p:panelGrid id="updtPg" styleClass="ui-noborder" >
+      <p:row>
+       <p:column>
+        <p:outputLabel for="edRef" value="#{formText.maCostAcntRef}"/>
+       </p:column>
+       <p:column> 
+        <p:inputText id="edRef" value="#{costAcnt.accountSel.ref}" required="true"
+                     requiredMessage="#{validationText.maCostAcntRef}">
+         
+        </p:inputText>
+       </p:column>
+       <p:column>
+        <p:outputLabel for="edName" value="#{formText.maCostCentName}"/>
+       </p:column>          
+       <p:column>
+        <p:inputText id="edName" value="#{costAcnt.accountSel.name}" required="true"
+                     requiredMessage="#{validationText.maCostAcntName}">
+         <p:ajax event="blur" />
+        </p:inputText>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="edDescr" value="#{formText.maCostAcntDescr}"/>
+       </p:column>
+       <p:column colspan="4">
+        <p:inputText id="edDescr" value="#{costAcnt.accountSel.description}" required="true"
+                     requiredMessage="#{validationText.maCostAcntDescr}">
+         <p:ajax event="blur" />
+        </p:inputText>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="edResp" value="#{formText.maProgResp}"/>
+       </p:column>
+       <p:column>
+        <p:autoComplete id="edResp" value="#{costAcnt.accountSel.responsibilityOf}"
+                        var="respPersV" dropdown="true" 
+                        completeMethod="#{costAcnt.onRespPers(input)}"
+                        converter="com.rationem.util.converter.PartnerIndividual" itemValue="#{respPersV}"
+                        itemLabel="#{respPersV.familyName}">
+        </p:autoComplete>
+        <p:spacer width="25"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{formText.maCostCent}"/>
+       </p:column>
+       <p:column>
+        <p:autoComplete id="edCostCent" value="#{costAcnt.accountSel.costCentre}"
+                        forceSelection="true" var="costCentV" dropdown="true" 
+                        completeMethod="#{costAcnt.onCostCentreComplete}"
+                        converter="com.rationem.util.converter.CostCentre"
+                        itemValue="#{costCentV}" itemLabel="#{costCentV.refrence}">
+        </p:autoComplete>
+        <p:spacer width="25"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="edFromDt" value="#{formText.fromDate}"/>
+       </p:column>
+       <p:column>
+        <p:calendar id="edFromDt" value="#{costAcnt.accountSel.validFrom}" 
+                    mode="popup" required="true" 
+                    requiredMessage="#{validationText.maAcntFrom}"
+                    navigator="true"  pattern="dd-MMM-yyyy" showOtherMonths="true" 
+                    maxlength="11" size="13"/>
+        
+       </p:column>
+       <p:column>
+        <p:outputLabel for="edToDt" value="#{formText.toDate}"/>
+       </p:column>
+       <p:column>
+        <p:calendar id="edToDt" value="#{costAcnt.accountSel.validTo}" 
+                    mode="popup" required="true" 
+                    requiredMessage="#{validationText.maAcntTo}"
+                    navigator="true"  showOtherMonths="true" pattern="dd-MMM-yyyy" 
+                    maxlength="11" size="13" locale="#{costAcnt.compSel.locale}"/>
+        
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column colspan="4">
+        <p:commandButton value="#{formText.transfer}" icon="ui ui-icon-arrowthick-1-w" 
+                         actionListener="#{costAcnt.onTransferEdit}"/>
+        <p:spacer width="4"/>
+        <p:commandButton value="#{formText.close}" icon="fa fa-close" type="button"
+                         onclick="PF('updtDlgWv').hide()" />
+       </p:column>
+      </p:row>
+     </p:panelGrid>
+    
+   </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>

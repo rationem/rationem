@@ -1,0 +1,107 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiGLAcntAudit}</ui:define>
+  <ui:define name="header">#{pageTitle.fiGLAcntAudit} </ui:define>
+  <ui:define name="content">
+    <p:ajaxStatus>
+      <f:facet name="error">
+         <h:outputText value="Ajax Error" />
+      </f:facet>
+    </p:ajaxStatus>
+    
+    <h:form id="glAuditFrm" prependId="false">
+     <p:toolbar>
+    <f:facet name="left">
+     <h:commandButton  value="#{formText.downLoadExcel}" 
+                       image="/resources/images/Excel-48.gif">
+      <p:dataExporter type="xls" target="coaDataTbl" fileName="#{formText.glAccountChanges}" 
+                            postProcessor="#{glAccountList.postProcessXLS}"/>
+     </h:commandButton>
+     <h:commandButton  value="#{formText.downloadCsv}"  image="/resources/images/csv_text.png" >
+      <p:dataExporter type="csv" target="coaDataTbl" fileName="#{formText.glAccountChanges}"/>
+     </h:commandButton>
+    </f:facet >
+   </p:toolbar>
+    <h:panelGrid columns="4">
+      <h:outputLabel for="auditType" value="#{formText.audGlType}"/>
+      <h:selectOneMenu id="auditType" value="#{auditGlAccount.selectedAuditType}"
+                       valueChangeListener="#{auditGlAccount.onAuditTypeChange}"
+                       title="#{formHelpText.audGlType}">
+        <f:selectItems value="#{auditGlAccount.auditTypes}"/>
+        <p:ajax event="change"/>
+      </h:selectOneMenu>
+      <h:panelGroup/>
+      <h:panelGroup/>
+      <h:outputLabel for="fromDt" value="#{formText.fromDate}"/>
+      <p:calendar id="fromDt" value="#{auditGlAccount.fromDate}" mode="popup" navigator="true"
+                  pattern="dd/MMM/yyyy" showButtonPanel="true" pages="1" showOn="button"
+                  title="#{formHelpText.genSelFromDate}"/>
+      <h:outputLabel for="toDt" value="#{formText.toDate}"/>
+      <p:calendar id="toDt" value="#{auditGlAccount.toDate}" mode="popup" navigator="true"
+                  pattern="dd/MMM/yyyy" showButtonPanel="true" pages="1" showOn="button"
+                  title="#{formHelpText.genSelToDate}"/>
+      <h:outputLabel for="username" value="#{formText.userN}"/>
+      <p:inputText id="username" value="#{auditGlAccount.userName}" title="#{formHelpText.genUserName}"/>
+      <p:commandButton id="auditBtn" value="#{formText.search}"
+                       actionListener="#{auditGlAccount.onSearchAuditRecords}" 
+                       title="#{formHelpText.audSearch}"
+                       update="coaDataTbl"/>
+
+
+    </h:panelGrid>
+      <p:outputPanel id="outPanel">
+
+       <p:dataTable id="coaDataTbl" var="coaLst" value="#{auditGlAccount.coaActChanges}"  paginator="true" 
+                    paginatorAlwaysVisible="false" rows="#{auditGlAccount.usrBuff.tblRows}"
+                    emptyMessage="#{formText.auditSelRecsNone}" >
+        <p:column sortBy="#{coaLst.glAccount.ref}" filterBy="#{coaLst.glAccount.ref}" width="200">
+            <f:facet name="header">
+              <h:outputText value="#{formText.glAccountRef}"/>
+            </f:facet>
+            <h:outputText value="#{coaLst.glAccount.ref}"/>
+          </p:column>
+        <p:column sortBy="#{coaLst.fieldName}" filterBy="#{coaLst.fieldName}">
+            <f:facet name="header">
+              <h:outputText value="#{formText.audField}"/>
+            </f:facet>
+            <h:outputText value="#{coaLst.fieldName}"/>
+          </p:column>
+        <p:column sortBy="#{coaLst.oldValue}" filterBy="#{coaLst.oldValue}">
+            <f:facet name="header">
+              <h:outputText value="#{formText.audOldValue}"/>
+            </f:facet>
+            <h:outputText value="#{coaLst.oldValue}"/>
+          </p:column>
+        <p:column sortBy="#{coaLst.newValue}" filterBy="#{coaLst.newValue}">
+            <f:facet name="header">
+              <h:outputText value="#{formText.audNewValue}"/>
+            </f:facet>
+            <h:outputText value="#{coaLst.newValue}"/>
+          </p:column>
+        <p:column sortBy="#{coaLst.createdBy.ref}" filterBy="#{coaLst.createdBy.ref}" width="200">
+            <f:facet name="header">
+              <h:outputText value="#{formText.audChangedBy}"/>
+            </f:facet>
+         <h:outputText value="#{coaLst.createdBy.nameStructured}"/>
+          </p:column>
+        <p:column sortBy="#{coaLst.auditDate}" width="70">
+            <f:facet name="header">
+              <h:outputText value="#{formText.audChangedOn}"/>
+            </f:facet>
+         <h:outputText value="#{coaLst.auditDate}">
+            <f:convertDateTime type="date" dateStyle="medium"/>
+           </h:outputText>
+          </p:column>
+        </p:dataTable>
+        
+      </p:outputPanel>
+
+   </h:form>
+  </ui:define>
+</ui:composition>
+
+

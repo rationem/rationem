@@ -1,0 +1,142 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+
+ <ui:define name="title">#{pageTitle.cfg_vatCd_updt}</ui:define>
+  <ui:define name="header"></ui:define>
+  <ui:define name="content">
+   
+   <h:form id="vatCodeUpdtFrm">
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="addVatCodeSave" icon="fa fa-floppy-o" value="#{formText.save}" 
+                       actionListener="#{vatCodeBean.onVatCodeUpdateSave}" 
+                       title="#{formHelpText.actTySave}" update="@(form)"  />
+      
+      
+     </f:facet >
+     
+    </p:toolbar>
+    <p:panelGrid  styleClass="panelNoBorders">
+     <p:row>
+      <p:column>
+       <p:outputLabel for="vatCd" value="#{formText.vatCd}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:selectOneMenu id="vatCd" value="#{vatCodeBean.vatCode}" converter="com.rationem.util.converter.VatCode"
+                        valueChangeListener="#{vatCodeBean.onVatCodeChange}">
+      <f:selectItems var="vatCodeSi" value="#{vatCodeBean.vatCodes}" itemValue="#{vatCodeSi}" itemLabel="#{vatCodeSi.code}"/>
+      <p:ajax event="change"/>
+     </p:selectOneMenu>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="vatDescr" value="#{formText.vatDescr}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:inputText id="vatDescr" value="#{vatCodeBean.vatCode.description}" size="50"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="vatRate" value="#{formText.vatRate}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:inputText id="vatRate" value="#{vatCodeBean.vatCode.rate}" required="true" 
+                  valueChangeListener="#{vatCodeBean.onVatRateChange}"  >
+      <f:convertNumber type="percent" maxFractionDigits="4"/>
+      <p:ajax event="change" update="vatCatMnu"/>
+     </p:inputText>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="vatIrrRate" value="#{formText.vatIrrecovRate}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:inputText id="vatIrrRate" value="#{vatCodeBean.vatCode.irrrecoverableRate}" >
+        <f:convertNumber type="percent" maxFractionDigits="4"/>
+       </p:inputText>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="vatValidFr" value="#{formText.vatValidFr}"/>
+      </p:column>
+      <p:column>
+       <p:calendar id="vatValidFr" value="#{vatCodeBean.vatCode.validFrom}"
+                  mode="popup" required="true" 
+                    requiredMessage="#{validationText.vatCdValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="10"/>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="vatValidTo" value="#{formText.vatValidFr}"/>
+      </p:column>
+      <p:column>
+       <p:calendar id="vatValidTo" value="#{vatCodeBean.vatCode.validTo}"
+                  mode="popup" required="true" 
+                    requiredMessage="#{validationText.vatCdValidTo}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="10"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="vatCatMnu" value="#{formText.vatCategory}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:selectOneMenu id="vatCatMnu" value="#{vatCodeBean.vatCode.taxType}" 
+                      disabled="#{vatCodeBean.vatCatDisabled}">
+      <f:selectItem itemLabel="#{formText.vatVatable}" itemValue="V"/>
+      <f:selectItem itemLabel="#{formText.vatExempt}" itemValue="E"/>
+      <f:selectItem itemLabel="#{formText.vatOutSide}" itemValue="O"/>
+     </p:selectOneMenu>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="inputTaxMnu" value="#{formText.vatTaxType}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:selectOneMenu id="inputTaxMnu" value="#{vatCodeBean.vatCode.inputTax}" >
+        <f:selectItem itemLabel="#{formText.vatInput}"  itemValue="true"  />
+        <f:selectItem itemLabel="#{formText.vatOutput}" itemValue="false" />
+       </p:selectOneMenu>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="intraEUMnu" value="#{formText.vatIntraStat}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:selectOneMenu id="intraEUMnu" value="#{vatCodeBean.vatCode.interStatSupply}" >
+      <f:selectItem  itemLabel="#{formText.vatDomestic}" itemValue="false"   />
+      <f:selectItem itemLabel="#{formText.vatNonDomestic}" itemValue="true"  />
+     </p:selectOneMenu>
+      </p:column>
+     </p:row> 
+     <p:row>
+      <p:column>
+       <p:outputLabel for="impEptMnu" value="#{formText.vatImportExport}"/>
+      </p:column>
+      <p:column colspan="3">
+       <p:selectOneMenu id="impEptMnu" value="#{vatCodeBean.vatCode.importExport}" >
+      <f:selectItem itemLabel="#{formText.vatNoImportExport}" itemValue="N"   />
+      <f:selectItem itemLabel="#{formText.vatImport}" itemValue="I"  />
+      <f:selectItem itemLabel="#{formText.vatExport}" itemValue="E"  />
+     </p:selectOneMenu>
+      </p:column>
+     </p:row>
+     
+     
+     
+    </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>
+

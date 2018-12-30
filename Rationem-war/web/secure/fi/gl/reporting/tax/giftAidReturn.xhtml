@@ -1,0 +1,87 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiGlGiftAid}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="giftAid" prependId="false">
+    
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="getGiftAid" icon="ui-icon-search" value="#{formText.giftAidLoad}" 
+                        actionListener="#{giftAidScheduleBean.onGetGiftAid}" update="listOp downloadBtn" />
+     <p:commandButton id="downloadBtn" value="download" ajax="false" disabled="#{!giftAidScheduleBean.giftLinesLoaded}"  >
+      <p:dataExporter type="csv" target="giftAidDt" fileName="Gift" postProcessor="#{giftAidScheduleBean.postProcess}"/>
+     </p:commandButton>
+    </f:facet >
+   </p:toolbar>
+   <h:panelGrid id="sel" columns="4">
+    <p:outputLabel for="year" value="#{formText.docFisYr}"/>
+    <p:inputText id="year" value="#{giftAidScheduleBean.yearStr}" required="true" 
+                  requiredMessage="#{validationText.fiscalYear}" size="4">
+     <f:convertNumber type="number" maxFractionDigits="0" groupingUsed="false" />
+     </p:inputText>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="fromPer" value="#{formText.fisPerCntrl_date_fr}"/>
+     <p:inputText id="fromPer" value="#{giftAidScheduleBean.periodFrStr}" 
+                  validatorMessage="#{validationText.periodRange}" required="true"
+                  requiredMessage="#{validationText.fiscalPeriodFrom}" size="2">
+      <f:convertNumber type="number" maxFractionDigits="0"/>
+      <f:validateLongRange minimum="1" maximum="12"  />
+     </p:inputText>
+     <p:outputLabel for="toPer" value="#{formText.fisPerCntrl_date_to}"/>
+     <p:inputText id="toPer" value="#{giftAidScheduleBean.periodToStr}" 
+                  validatorMessage="#{validationText.periodRange}" required="true"
+                  requiredMessage="#{validationText.fiscalPeriodFrom}" size="2">
+      <f:convertNumber type="number" maxFractionDigits="0"/>
+      <f:validateLongRange minimum="1" maximum="12"  />
+     </p:inputText>
+     
+    </h:panelGrid>
+    <p:outputPanel id="listOp" >
+     
+    <p:dataTable id="giftAidDt" value="#{giftAidScheduleBean.giftAidLines}" emptyMessage="no gift aid donations"
+                 var="giftAidV" rendered="#{giftAidScheduleBean.giftLinesLoaded}" >
+     <p:column >
+      <f:facet name="header">
+       <h:outputText value="Ref"/>
+      </f:facet>
+      <h:outputText value="#{giftAidV.donorRef}"/>
+     </p:column>
+     <p:column >
+      <f:facet name="header">
+       <h:outputText value="Name"/>
+      </f:facet>
+      <h:outputText value="#{giftAidV.donorName}"/>
+     </p:column>
+     <p:column >
+      <f:facet name="header">
+       <h:outputText value="Date"/>
+      </f:facet>
+      <h:outputText value="#{giftAidV.donationDate}">
+       <f:convertDateTime type="date" pattern="dd/MM/yy"/>
+      </h:outputText>
+     </p:column>
+     <p:column >
+      <f:facet name="header">
+       <h:outputText value="Amount"/>
+      </f:facet>
+      <h:outputText value="#{giftAidV.donationAmount}">
+       <f:convertNumber type="number" minFractionDigits="2" minIntegerDigits="1"/>
+      </h:outputText>
+     </p:column>
+     <f:facet name="footer">
+      In total there are #{fn:length(giftAidScheduleBean.giftAidLines)} Gift Aid repayment claims.
+     </f:facet>
+    </p:dataTable>
+    </p:outputPanel>
+   </h:form>
+  </ui:define>
+</ui:composition>
+
+

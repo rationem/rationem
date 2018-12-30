@@ -1,0 +1,418 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.apAcntUpdt}</ui:define>
+ <ui:define name="header">#{pageTitle.apAcntUpdt}</ui:define>
+ <ui:define name="content">
+  <h:form id="apActCrFrm" prependId="false">
+   
+   <p:panelGrid  layout="grid"  columns="6"  columnClasses="panel-w-10, panel-w-10, panel-w-10, panel-w-30, panel-w-10"  >
+      <p:outputLabel for="comp" value="#{formText.comp}"/>
+      <p:selectOneMenu id="comp" value="#{apMast.comp}" converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems var="compV" value="#{apMast.compList}" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+      <p:outputLabel for="partner" value="#{formTextAp.apPtnrTab}"/>
+      <p:autoComplete id="partner" value="#{apMast.ptnrBase}" var="ptnrV" itemValue="#{ptnrV}" 
+                      completeMethod="#{apMast.onPartnerComplete}" itemLabel="#{ptnrV.name}"
+                      converter="com.rationem.util.converter.PartnerBase" dropdown="true">
+       <p:ajax event="itemSelect" listener="#{apMast.onPartnerSelect}" update="acntCode" />
+      </p:autoComplete>
+      
+      <p:outputLabel for="acntCode" value="#{formTextAp.apAcntCode}"/>
+      <p:autoComplete id="acntCode" var="apAcntCdV" value="#{apMast.apAccount}" completeMethod="#{apMast.onApAcntByCodeComplete}"
+                      converter="com.rationem.util.converter.ApAccount" itemValue="#{apAcntCdV}" dropdown="true"
+                      itemLabel="#{apAcntCdV.accountCode}" cache="true" size="5"
+                      disabled="#{!apMast.ptnrSelected}">
+       <p:ajax event="itemSelect" listener="#{apMast.onApAcntSelect}" update="acntTabV"   />
+       <p:column width="25%">
+        <h:outputText value="#{apAcntCdV.accountCode}"/>
+       </p:column>
+       <p:column width="75%">
+        <h:outputText value="#{apAcntCdV.apAccountFor.name}"/>
+       </p:column>
+      </p:autoComplete>
+      
+     </p:panelGrid>
+   <p:tabView id="acntTabV" orientation="top" >
+    <p:tab id="ptnrTab" title="#{formTextAp.apPtnrTab}" titletip="#{formHelpText.arPtnrDetails}" 
+           rendered="#{apMast.apAccountSelected}"  >
+     <p:panel id="ptnrDetailsPanel" header="#{formTextAp.apPtnrPnl}" style="width: 50%"  >
+      <p:panelGrid 
+       id="custIndivPnlId" rendered="#{apMast.selectedPtnrTypeCd eq 'indiv'}"
+       columns="2" >
+        <p:outputLabel for="ptnrIndivRef" value="#{formText.ptnrRef}"/>
+        <h:outputText id="ptnrIndivRef" value="#{apMast.ptnrPerson.ref}" />
+        <p:outputLabel for="ptnrIndivFamName" value="#{formText.ptnrFamilyName}"/>
+        <h:outputText id="ptnrIndivFamName" value="#{apMast.ptnrPerson.familyName}" />
+        <p:outputLabel for="ptnrIndivFrstName" value="#{formText.ptnrFamilyName}"/>
+        <h:outputText id="ptnrIndivFrstName" value="#{apMast.ptnrPerson.firstName}" />
+        <p:commandButton id="custPersEd" value="#{formText.edit}" icon="fa fa-pencil-square-o"
+                           actionListener="#{apMast.onPtnrEditBtn}" />
+      </p:panelGrid>
+       <p:panelGrid id="custCorpPnlId" styleClass="ui-noborder"
+                    rendered="#{apMast.selectedPtnrTypeCd eq 'corp'}" columns="2">
+        <p:outputLabel for="ptnrCorpRef" value="#{formText.ptnrRef}"/>
+        <h:outputText id="ptnrCorpRef" value="#{apMast.ptnrCorp.ref}" />
+        <p:outputLabel for="ptnrCorpName" value=" #{formText.ptnrTradingName}"/>
+        <h:outputText id="ptnrCorpName" value="#{apMast.ptnrCorp.tradingName}" />
+        <p:commandButton id="custCorpEd" value="#{formText.edit}" icon="fa fa-pencil-square-o"
+                           actionListener="#{apMast.onCustEditBtn}" />
+       </p:panelGrid>
+      
+      
+     </p:panel>
+     
+    </p:tab>
+    <p:tab id="addrTab" title="#{formTextAp.apAddrTab}" rendered="#{apMast.apAccountSelected}">
+     <p:panel header="#{formTextAp.apAddrPnl}" style="width: 50%">
+      <p:panelGrid id="addrPG" columnClasses="panel-w-25, panel-w-75" columns="2">
+       <p:outputLabel for="ptrnrCorpStreet" value="#{formText.addrHseStreet}" />
+       <p:outputPanel >
+        <h:outputText 
+         id="ptrnrCorpHse" value="#{apMast.apAccount.accountAddress.houseNumber}  #{apMast.ptnrCorp.defaultAddress.houseName}"
+                          />
+        <p:spacer width="2"/>
+        <h:outputText value="/"/>
+        <p:spacer width="2"/>
+        <h:outputText id="ptrnrCorpStreet" value="#{apMast.apAccount.accountAddress.street}" />
+        
+        </p:outputPanel>
+       <p:outputLabel for="ptrnrCorpPostCd" value="#{formText.addrPostCd}" />
+       <h:outputText id="ptrnrCorpPostCd" value="#{apMast.apAccount.accountAddress.postCode}" />
+       <p:commandButton id="arAcntAddrEdBtn" value="#{formText.change}" />
+      </p:panelGrid>
+     </p:panel>
+     
+    </p:tab>
+    <p:tab title="#{formTextAp.apAcntTab}" titletip="#{formHelpText.arAccount}" 
+           rendered="#{apMast.apAccountSelected}" >
+     <p:panel id="apAcntPnl" header="#{formTextAp.apAcntPnl}" style="width: 50%">
+      <p:tooltip />
+      <p:panelGrid columns="2" columnClasses="panel-w-25, panel-w-75" >
+       <p:outputLabel for="apRecAct" value="#{formTextAp.apAcntReconAcnt}"/>
+       <p:selectOneMenu id="apRecAct" value="#{apMast.apAccount.reconciliationAc}"
+                                 converter="com.rationem.util.converter.FiGlAccountComp" 
+                                 var="recAcVar"  >
+        <f:selectItems value="#{apMast.glReconciliationAcs}" var="drsAct"
+                                itemLabel="#{drsAct.coaAccount.ref}"
+                                  itemValue="#{drsAct}"/>
+        <p:column>
+           #{recAcVar.coaAccount.ref} - #{recAcVar.coaAccount.name}
+        </p:column>
+       </p:selectOneMenu>
+       <p:outputLabel for="actSortOrder" value="#{formText.docDefSort}"/>
+       <p:selectOneMenu 
+        id="actSortOrder" value="#{apMast.apAccount.sortOrder}" var="sortVar"
+                                 converter="com.rationem.util.converter.SortOrder" >
+        <f:selectItems value="#{apMast.sortOrderList}" var="acSortV"
+                                 itemValue="#{acSortV}" itemLabel="#{acSortV.description}"/>
+        <p:column>
+         <h:outputText value="#{sortVar.sortCode} #{sortVar.name} #{sortVar.description}"/>
+        </p:column>
+       </p:selectOneMenu>
+       <p:outputLabel for="payTerms" value="#{formTextAp.apPayTerm}"/>
+       <p:selectOneMenu id="payTerms"
+                          converter="com.rationem.util.converter.PaymentTerms"
+                          value="#{apMast.apAccount.paymentTerms}"
+                          >
+        <f:selectItems value="#{apMast.payTermsList}" var="ptermV" 
+                         itemValue="#{ptermV}" itemLabel="#{ptermV.description}"/>
+       </p:selectOneMenu>
+       <p:outputLabel for="payTypeSel" value="#{formTextAp.apPayType}"/>
+       <p:selectOneMenu id="payTypeSel" converter="com.rationem.util.converter.PaymentType"
+                                 value="#{apMast.apAccount.paymentType}" var="payTypeVar">
+        <f:selectItems value="#{apMast.payTypes}" var="payType"
+                                 itemValue="#{payType}" itemLabel="#{payType.description}"/>
+        <p:column>
+         <h:outputText value= "#{payTypeVar.description}"/>
+        </p:column>
+       </p:selectOneMenu>
+       <p:outputLabel for="clerk" value="#{formTextAp.apClerk}"/>
+       <p:autoComplete 
+       id="clerk" value="#{apMast.apAccount.accountClerk}" forceSelection="true" dropdown="true"
+        maxResults="#{apMast.usrBuff.tblRows}" var="clerkV" itemValue="#{clerkV}"
+        converter="com.rationem.util.converter.PartnerIndividual" itemLabel="#{clerkV.familyName}"
+        completeMethod="#{apMast.apAcntClerkComplete}" >
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2" cellpadding="5">
+          <h:outputText value="#{clerkV.familyName}"/>
+          <h:outputText value="#{clerkV.firstName}"/>
+         </h:panelGrid>
+        </f:facet>
+       </p:autoComplete>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab title="#{formTextAr.arBankTab}" titletip="#{formHelpText.apBank}"
+           rendered="#{apMast.apAccountSelected}" >
+     <p:panel id="bnkPnl" header="#{formTextAp.apBank}">
+      <p:contextMenu for="bnkTbl" >
+       <p:menuitem value="#{formText.add}" icon="fa fa-file-o" actionListener="#{apMast.onNewBankAcntDlg}"/>
+        <p:menuitem value="#{formText.edit}" icon="fa fa-pencil"/>
+        <p:menuitem value="#{formText.delete}" icon="fa fa-trash" 
+                        actionListener="#{apMast.deleteNewBankAction}"/>
+      </p:contextMenu>
+      <p:dataTable id="bnkTbl" var="arBank" value="#{apMast.apAccount.apAccountBanks}"
+                   rows="3" selectionMode="single" emptyMessage="#{validationText.apBanksNone}" 
+                          paginator="true" paginatorAlwaysVisible="true"
+         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+         selection="#{apMast.bankAcApSelected}" 
+                          rowKey="#{apBank.bankAccount.accountNumber}"   >
+        <f:facet name="header">
+         <h:outputText value="#{formTextAp.apBank}"/>
+        </f:facet>
+            
+        <p:column   >
+         <f:facet name="header"  >
+          <h:outputText value="#{formText.bnkSortCd}" title="#{formHelpText.bnkSortCd}"  />
+         </f:facet>
+         <h:outputText id="bnkSort" value="#{arBank.bankAccount.accountForBranch.sortCode}"/>
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkAccNum}" title="#{formHelpText.bnkAccNum}"/>
+         </f:facet>
+         <h:outputText value="#{arBank.bankAccount.accountNumber}"  />
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkAccName}" title="#{formHelpText.bnkAccName}"/>
+         </f:facet>
+         <h:outputText value="#{arBank.bankAccount.accountName}"/>
+        </p:column>
+        <p:column >
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkKey}" title="#{formHelpText.bnkKey}"/>
+         </f:facet>
+         <h:inputText id="bnkKey" value="#{arBank.bankKey}" size="5" />
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkColAuth}" title="#{formHelpText.bnkColAuth}"/>
+         </f:facet>
+         <p:selectBooleanCheckbox value="#{arBank.collectionAuthorisation}" />
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkDdMandate}" title="#{formHelpText.bnkDdMandate}" />
+         </f:facet>
+         <p:inputText id="bnkDdrefId" value="#{arBank.ddRef}" title="#{formHelpText.bnkDdMandate}" />
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkDirectColValidFrom}" 
+                                  title="#{formHelpText.bnkDirectColValidFrom}"/>
+         </f:facet>
+         <p:calendar id="taxDateOut" value="#{arBank.collValidFrom}" mode="popup" maxlength="10" 
+                          size="8" navigator="true"  pattern="dd/MMM/yyyy" 
+                          showOtherMonths="true"/>
+        </p:column>
+        <p:tooltip for="bnkDdrefId" />
+       </p:dataTable>
+     </p:panel>
+    </p:tab>
+    <p:tab title="#{formTextAr.arAcntNoteTab}" titletip="#{formHelpText.arActNote}">
+     <p:panel header="#{formTextAp.apAcntNotePnl}">
+      <p:editor id="acntNote" value="#{apMast.apAccount.acntNote}"/>
+     </p:panel>
+    </p:tab>
+    <p:tab title="#{formTextAp.apAcntContTab}">
+     <p:panel header="#{formTextAp.apAcntContPnl}">
+      <p:contextMenu for="contactsTbl">
+       <p:menuitem value="#{formText.add}" icon="fa fa-file-o"
+                   actionListener="#{apMast.onContactAddDlg}"/>
+      </p:contextMenu>
+      <p:dataTable 
+       id="contactsTbl" value="#{apMast.apAccount.contacts}" var="contV" 
+       rowKey="#{contV.id}" paginator="true" paginatorAlwaysVisible="true" 
+       emptyMessage="#{validationText.contactNone}"  rows="#{apMast.usrBuff.tblRows}"
+       paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+      >
+       <f:facet name="{Exporters}">
+         <h:commandLink style="float:right;"  >
+          <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+          <p:dataExporter type="xls" target="budTblId" fileName="#{formText.budPers_fn}" 
+                        postProcessor="#{apMast.postProcessXLS}" />
+         </h:commandLink>
+         <h:commandLink style="float:right;">
+          <p:graphicImage name="/images/csv_text.png" width="24" />
+          <p:dataExporter type="csv" target="budTblId" fileName="#{formText.budPers_fn}" />
+         </h:commandLink>
+        </f:facet>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.contAvail}"/>
+        </f:facet>
+        <p:column width="10">
+         <p:rowToggler />
+        </p:column>
+        <p:column width="50" >
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.contRole}"/>
+         </f:facet>
+         <h:outputText value="#{contV.role.description}"/>
+        </p:column>
+        <p:column width="50" styleClass="column-textCentre">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.contSum}"/>
+         </f:facet>
+         <h:outputText value="#{contV.summary}"/>
+        </p:column>
+        <p:column styleClass="column-textCentre">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.contCr}"/>
+         </f:facet>
+         <h:outputText value="#{contV.createdOn}">
+          <f:convertDateTime type="date" dateStyle="medium"/>
+         </h:outputText>
+        </p:column>
+        <p:column styleClass="column-textCentre">
+         <f:facet name="header" >
+          <h:outputText value="#{listHeading.contResp}" />
+         </f:facet>
+         <h:outputText value="#{contV.respibilityOf.nameStructured}"/>
+          
+        </p:column>
+        <p:column styleClass="column-textCentre" >
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.contAct}" styleClass="column-textRight"/>
+         </f:facet>
+         <h:outputText value="#{contV.actionContact?formText.yes:formText.no}"/>
+        </p:column>
+        <p:column styleClass="column-textCentre">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.con}"/>
+         </f:facet>
+         <h:outputText value="#{contV.actionCompleted?formText.yes:formText.no}"/>
+        </p:column>
+        <p:column styleClass="column-textCentre">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.contDue}"/>
+         </f:facet>
+         <h:outputText value="#{contV.dueDate}">
+          <f:convertDateTime type="date" dateStyle="medium"/>
+         </h:outputText>
+        </p:column>
+        <p:column styleClass="column-textCentre">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.contCl}"/>
+         </f:facet>
+         <h:outputText value="#{contV.completedDate}">
+          <f:convertDateTime type="date" dateStyle="medium"/>
+         </h:outputText>
+        </p:column>
+        <p:rowExpansion>
+         <p:editor  disabled="true" value="#{contV.detail}" height="700" controls="bold italic underline"/>
+        </p:rowExpansion>
+       
+      </p:dataTable>
+     </p:panel>
+    </p:tab>
+   </p:tabView>
+   
+  </h:form>
+  
+  <h:form id="ptnrEdFrm" prependId="false">
+   <p:dialog id="ptnrEditDlg" widgetVar="ptnrEditWv" modal="true" closable="false" 
+             dynamic="true" minWidth="1000">
+    <f:facet name="header">
+     <h:outputText value="#{formText.basicTab}"/>
+    </f:facet>
+    <p:tooltip />
+    
+    <p:accordionPanel id="ptnrEdAP"  >
+     <p:ajax event="tabChange" listener="#{apMast.onCustEditTabCh}"/>
+     <p:tab id="ptnrTab"> 
+      <f:facet name="title">
+       <h:outputText value="#{formText.ptnrPartner}"/>
+      </f:facet>
+      <p:panelGrid id="editPtnrPg" columns="2">
+       <p:outputLabel for="ptnrTypEd" value="#{formText.ptnrType}"/>
+       <p:selectOneMenu id="ptnrTypEd" value="#{apMast.selectedPtnrTypeCd}"
+                             valueChangeListener="#{apMast.partnerTypeValueChange}"
+                              >
+        <f:selectItem itemValue="corp" itemLabel="#{formText.ptnrCorp}"/>
+        <f:selectItem itemValue="indiv" itemLabel="#{formText.ptnrIndiv}"/>
+          <p:ajax   />
+       </p:selectOneMenu>
+        
+       <p:outputLabel for="tradNameEd" value="#{formTextMdm.ptnrTrName}"
+                           rendered="#{apMast.selectedPtnrTypeCd == 'corp'}"/>
+       <p:outputLabel id="personNameEdId" for="personNameEd" value="#{formTextMdm.ptnrTrName}"
+                        rendered="#{apMast.selectedPtnrTypeCd == 'indiv'}"/>
+      
+       <p:autoComplete id="tradNameEd" value="#{apMast.ptnrCorpEdit}"
+                            rendered="#{apMast.selectedPtnrTypeCd == 'corp'}"
+                            converter="com.rationem.util.converter.PartnerCorporate"
+                            completeMethod="#{apMast.corpPtnrComplete}" dropdown="true"
+                            var="p" itemLabel="#{p.tradingName}"  itemValue="#{p}"
+                            maxResults="20" minQueryLength="3"
+                            required="true" requiredMessage="#{validationText.arActTradName}"
+                            forceSelection="true"
+                            >
+        
+       </p:autoComplete>
+       <p:autoComplete id="personNameEdit" value="#{apMast.ptnrPerson}"
+                            rendered="#{apMast.selectedPtnrTypeCd == 'indiv'}"
+                            converter="com.rationem.util.converter.PartnerIndividual"
+                            completeMethod="#{apMast.personPtnrComplete}" dropdown="true"
+                            var="pers" itemLabel="#{pers.familyName} #{pers.firstName}" 
+                            itemValue="#{pers}" 
+                            required="true" requiredMessage="#{validationText.arActTradName}"
+                            maxResults="20" minQueryLength="3" forceSelection="true"
+                            >
+        
+       </p:autoComplete>
+       
+     
+     
+     
+       <p:commandButton 
+        id="crCorpPtnrEd" value="#{formText.ptnrCreate}" process="@this" partialSubmit="true"
+        title="#{formHelpText.arCrPtnr}" rendered="#{apMast.selectedPtnrTypeCd == 'corp'}"
+        actionListener="#{apMast.onNewPtnrDlg}" />
+       <p:commandButton id="crPersPtnrEd" value="#{formText.ptnrCreate}"
+                          process="@this" title="#{formHelpText.arCrPtnr}"
+                          actionListener="#{apMast.onNewPtnrDlg}"
+                          rendered="#{apMast.selectedPtnrTypeCd == 'indiv'}"/>
+      </p:panelGrid>
+     </p:tab>
+    
+     <p:tab id="roleTab">
+      <f:facet name="title">
+       <h:outputText value="#{formTextMdm.ptnrRole}"/>
+      </f:facet>
+      <p:panelGrid id="rolePg" columns="1">
+       
+       <p:outputLabel for="ptnrRolesId" value="#{formTextAr.arPtnrRoles}"/>    
+       
+       
+       <p:pickList id="ptnrRolesId" converter="com.rationem.util.converter.PartnerRole" var="roleV" 
+                  value="#{apMast.custRoles}"
+                  itemLabel="#{roleV.roleName}" itemValue="#{roleV}">
+        
+       </p:pickList>
+      
+      </p:panelGrid>
+     </p:tab>
+     
+    </p:accordionPanel>
+     
+     
+    
+    <p:panelGrid   >
+     <p:commandButton id="trfEditCustBtn" value="#{formText.transfer}" 
+                        icon="ui-icon-arrowthick-1-w" 
+                        actionListener="#{apMast.onCustEditTrf}"/>
+     <p:commandButton value="#{formText.close}" icon="fa fa-close" 
+                        onclick="PF('CustEditWv').hide();" />
+    </p:panelGrid>
+   </p:dialog>
+   
+   
+  </h:form>
+ </ui:define>
+</ui:composition>
+   

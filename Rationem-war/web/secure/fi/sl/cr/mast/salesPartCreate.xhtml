@@ -1,0 +1,290 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.slPartCr}</ui:define>
+ <ui:define name="header">#{pageTitle.slPartCr} </ui:define>
+ <ui:define name="content">
+  <h:form id="salesPartFrm" prependId="false">
+   <p:growl autoUpdate="true"/>
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="salesPartSvBtn" icon="fa fa-save" value="#{formText.save}" 
+                       action="#{salesPartBean.onSavePart}"  
+                       title="#{formHelpText.slPartSave}"  
+                       />
+     <p:commandButton type="reset" value="#{formText.reset}" icon="fa fa-refresh" >
+      <p:resetInput target="salesPartFrm" clearModel="true" />
+     </p:commandButton>
+           
+    </f:facet >
+   </p:toolbar>
+   
+   <p:panel id="partDetPnl"  collapsed="false">
+    <f:facet name="header">
+     <h:outputText id="partPanel" value="#{formTextSl.partDetail}"/>
+    </f:facet >
+    <h:panelGrid id="partDetGrid" columns="2">
+     <p:outputLabel for="partCode" value="#{formTextSl.partCode}"/>
+     <p:inputText id="partCode" value="#{salesPartBean.part.partCode}" required="true"/>
+     <p:outputLabel for="shortDescr" value="#{formTextSl.partShortDescr}"/>
+     <p:inputText id="shortDescr" value="#{salesPartBean.part.shortDescription}"/>
+     <p:outputLabel for="extDescr" value="#{formTextSl.partExtDescr}"/>
+     <p:inputText id="extDescr" value="#{salesPartBean.part.externalDescription}"/>
+     <p:outputLabel for="phys" value="#{formTextSl.partPhysical}"/>
+     <p:selectBooleanCheckbox id="phys" value="#{salesPartBean.part.physicalPart}">
+      
+     </p:selectBooleanCheckbox>
+    </h:panelGrid>
+    <p:tooltip for="partPanel" value="#{formHelpText.slPartDetail}"/>
+    <p:tooltip for="partCode" value="#{formHelpText.slPartCode}"/>
+    <p:tooltip for="shortDescr" value="#{formHelpText.slPartShortDescr}"/>
+    <p:tooltip for="extDescr" value="#{formHelpText.slPartExtDescr}"/>
+    <p:tooltip for="phys" value="#{formHelpText.slPartPhysical}"/>
+   </p:panel>
+   <p:panel >
+    <f:facet name="header">
+     <h:outputText  value="#{formTextSl.partCompanyAssignment}"/>
+    </f:facet>
+    <p:panelGrid id="compsGrid" >
+     <p:row>
+      <p:column>
+       <p:commandButton id="addCompBtn"  value="#{formText.add}"
+                      actionListener="#{salesPartBean.onCompPartNewAdd}"
+                      icon="fa fa-file" />  
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column width="75%">
+       <p:contextMenu for="compPartLines">
+        <p:menuitem icon="fa fa-trash" value="#{formText.delete}" actionListener="#{salesPartBean.onCompPartNewDelete}" />
+       </p:contextMenu>
+       <p:dataTable id="compPartLines" value="#{salesPartBean.part.salesPartCompanies}" 
+                            var="compPart" emptyMessage="#{formTextSl.partNoCompParts}"
+                            rowExpandMode="single" 
+                            selection="#{salesPartBean.selectedPartCompany}" rowKey="#{compPart.id}"
+                            selectionMode="single" style="width: 75%;">
+        <p:ajax event="contextMenu" listener="#{salesPartBean.onCompPartSelect}"/>
+        <f:facet name="header">
+         <h:outputText value="#{formTextSl.partCompanies}"/>
+        </f:facet>
+        <p:column style="width:16px" rendered="#{salesPartBean.part.physicalPart eq true}">
+            <p:rowToggler />
+        </p:column>
+        <p:column width="50">
+         <f:facet name="header">
+          <h:outputText value="#{formTextSl.partComp}" />
+         </f:facet>
+         <h:outputText value="#{compPart.company.reference}" />
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{formTextSl.partCat}" />
+         </f:facet>
+         <h:outputText value="#{compPart.category.longDescr}" />
+        </p:column>
+        <p:column>
+         <f:facet name="header">
+          <h:outputText value="#{formTextSl.partValidTo}" />
+         </f:facet>
+         <h:outputText value="#{compPart.validTo}" >
+          <f:convertDateTime type="date" dateStyle="medium"/>
+         </h:outputText>
+        </p:column>
+        <p:column width="100">
+         <f:facet name="header">
+          <h:outputText value="#{formTextSl.partUom}" />
+         </f:facet>
+         <h:outputText value="#{compPart.uom.name}" />
+        </p:column>
+        <p:column styleClass="column-financialValue">
+         <f:facet name="header">
+          <h:outputText value="#{formTextSl.partSaleValue}" />
+         </f:facet>
+         <h:outputText value="#{compPart.saleValueFormatted}" />
+        </p:column>
+        <p:column width="200">
+         <f:facet name="header">
+          <h:outputText value="#{formTextSl.partSaleGlAc}" />
+         </f:facet>
+         <h:outputText value="#{compPart.salesAccount.coaAccount.ref} - #{compPart.salesAccount.coaAccount.name}" />
+        </p:column>
+        <p:column width="100">
+         <f:facet name="header">
+          <h:outputText value="#{formTextSl.partRestrFund}" />
+         </f:facet>
+         <h:outputText value="#{compPart.fund.fndCode}" />
+        </p:column>
+        <p:rowExpansion>
+         <p:panelGrid style="width: 800px" >
+          <f:facet name="header">
+           <p:row>
+            <p:column colspan="4">
+             <h:outputText value="#{formTextSl.partPhysAddFld}"/>
+            </p:column>
+           </p:row>
+           
+          </f:facet>
+          <p:row>
+           <p:column style="font-weight: bold;">
+            <h:outputText value="#{formTextSl.cosAcnt}" />
+           </p:column>
+           <p:column>
+            <h:outputText value="#{compPart.cosAccount.coaAccount.ref}" />
+           </p:column>
+           <p:column style="font-weight: bold;">
+            <h:outputText value="#{formTextSl.costValue}" />
+           </p:column>
+           <p:column styleClass="column-financialValue">
+            <h:outputText value="#{compPart.costValueFormatted}" />
+           </p:column>
+          </p:row>
+          <p:row>
+           <p:column style="font-weight: bold;">
+            <h:outputText value="#{formTextSl.stockAcnt}" />
+           </p:column>
+           <p:column>
+            <h:outputText value="#{compPart.stockAccount.coaAccount.ref}" />
+           </p:column>
+           <p:column style="font-weight: bold;">
+            <h:outputText value="#{formTextSl.partStockValue}" />
+           </p:column>
+           <p:column styleClass="column-financialValue">
+            <h:outputText value="#{compPart.stockValueFormatted}" />
+           </p:column>
+          </p:row>
+          <p:row>
+           <p:column style="font-weight: bold;">
+            <h:outputText  value="#{formTextSl.stdCstAcnt}"/>
+           </p:column>
+           <p:column>
+            <h:outputText value="#{formText.yes}" rendered="#{compPart.costOfSalesAccounting eq true}"/>
+            <h:outputText value="#{formText.no}" rendered="#{compPart.costOfSalesAccounting eq false}"/>
+           </p:column>
+           <p:column>
+            
+           </p:column>
+          </p:row>
+          
+         </p:panelGrid>
+        </p:rowExpansion>
+       </p:dataTable>
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+    <p:tooltip for="addCompBtn" value="#{formHelpText.slPartCompAdd}"/>
+   </p:panel>
+  </h:form>
+  <h:form id="addPartCompFrm" prependId="false">
+   <p:dialog id="addCompDlg" dynamic="true"  header="#{formTextSl.partCompDet}"  widgetVar="addCompDlgWv"
+             closable="false" modal="true">
+    <h:panelGrid id="addCompPtGrid" columns="2">
+     <p:outputLabel for="addComp" value="#{formText.comp}"/>
+    <p:selectOneMenu id="addComp" value="#{salesPartBean.partCompany.company}" 
+                     converter="com.rationem.util.converter.CompanyBasic" required="true" >
+     <f:selectItems value="#{salesPartBean.compList}" var="comp" itemValue="#{comp}" 
+                              itemLabel="#{comp.reference} #{comp.name}"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="addCat" value="#{formTextSl.partCat}" />
+    <p:selectOneMenu id="addCat" value="#{salesPartBean.partCompany.category}" 
+                                  required="true"
+                                  converter="com.rationem.util.converter.SalesCategory">
+     <f:selectItems value="#{salesPartBean.salesCatgories}" var="selCat" itemValue="#{selCat}"
+                                 itemLabel="#{selCat.code}"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="addValidTo" value="#{formTextSl.partValidTo}"/>
+    <p:calendar id="addValidTo" value="#{salesPartBean.partCompany.validTo}"
+                pagedate="#{salesPartBean.maxDate}" navigator="true"  pattern="dd/MMM/yyyy" 
+                showOtherMonths="true" maxlength="11" size="12"/>
+    <p:outputLabel for="addUom" value="#{formTextSl.uom}"/>
+    <p:selectOneMenu id="addUom" value="#{salesPartBean.partCompany.uom}" 
+                                  converter="com.rationem.util.converter.UnitOfMeasure" required="true" >
+     <f:selectItems value="#{salesPartBean.uoms}" var="uom" itemValue="#{uom}" 
+                                 itemLabel="#{uom.uomCode} #{uom.name}"/>
+    </p:selectOneMenu>
+                
+    <p:outputLabel for="addSaleValue" value="#{formTextSl.partSaleValue}"/>
+    <p:inputText id="addSaleValue" value="#{salesPartBean.partCompany.saleValue}" >
+     <f:convertNumber type="number" 
+                      maxFractionDigits="#{salesPartBean.partCompany.company.currency.minorUnit}"
+                      minFractionDigits="#{salesPartBean.partCompany.company.currency.minorUnit}"
+                      minIntegerDigits="1"
+                      />
+    </p:inputText>
+    <p:outputLabel for="addSaleGlAct" value="#{formTextSl.partSaleGlAc}"/>
+    <p:selectOneMenu id="addSaleGlAct" value="#{salesPartBean.partCompany.salesAccount}" 
+                               converter="com.rationem.util.converter.FiGlAccountComp" >
+     <f:selectItems value="#{salesPartBean.salesAccounts}" var="sAct" itemValue="#{sAct}" 
+                                itemLabel="#{sAct.coaAccount.ref} #{sAct.coaAccount.name}"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="addFund" value="#{formTextSl.partRestrFund}"/>
+    <p:selectOneMenu id="addFund" value="#{salesPartBean.partCompany.fund}" 
+                               converter="com.rationem.util.converter.RestrictedFund" >
+     <f:selectItem  value="#{salesPartBean.defaultFund}" /> 
+     <f:selectItems value="#{salesPartBean.funds}" var="fnd" itemValue="#{fnd}" 
+                                itemLabel="#{fnd.fndCode} #{fnd.name}"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="addCostVal" value="#{formTextSl.costValue}" 
+                               rendered="#{salesPartBean.part.physicalPart}"/>
+    <p:inputText id="addCostVal" value="#{salesPartBean.partCompany.costValue}" 
+                 rendered="#{salesPartBean.part.physicalPart}">
+     <f:convertNumber type="number" 
+                      maxFractionDigits="#{salesPartBean.partCompany.company.currency.minorUnit}"
+                      minFractionDigits="#{salesPartBean.partCompany.company.currency.minorUnit}"
+                      minIntegerDigits="1"
+                      />
+    </p:inputText>
+    <p:outputLabel for="addCoSAcnt" value="#{formTextSl.cosAcnt}" 
+                               rendered="#{salesPartBean.part.physicalPart}"/>
+    <p:selectOneMenu id="addCoSAcnt" value="#{salesPartBean.partCompany.cosAccount}" 
+                               converter="com.rationem.util.converter.FiGlAccountComp" 
+                               rendered="#{salesPartBean.part.physicalPart}" >
+     <f:selectItems value="#{salesPartBean.cosAccounts}" var="cosAct" 
+                                itemValue="#{cosAct}" 
+                                itemLabel="#{cosAct.coaAccount.ref} #{cosAct.coaAccount.name}"/>
+    </p:selectOneMenu>
+    
+    <p:outputLabel for="addStockVal" value="#{formTextSl.partStockValue}" 
+                               rendered="#{salesPartBean.part.physicalPart}"/>
+    <p:inputText id="addStockVal"  value="#{salesPartBean.partCompany.stockValue}" 
+                 rendered="#{salesPartBean.part.physicalPart}">
+     <f:convertNumber type="number" 
+                      maxFractionDigits="#{salesPartBean.partCompany.company.currency.minorUnit}"
+                      minFractionDigits="#{salesPartBean.partCompany.company.currency.minorUnit}"
+                      minIntegerDigits="1"
+                      />
+    </p:inputText>
+    <p:outputLabel for="addStockAcnt" value="#{formTextSl.stockAcnt}" 
+                               rendered="#{salesPartBean.part.physicalPart}"/>
+    <p:selectOneMenu id="addStockAcnt" value="#{salesPartBean.partCompany.stockAccount}" 
+                               converter="com.rationem.util.converter.FiGlAccountComp" 
+                               rendered="#{salesPartBean.part.physicalPart}" >
+     <f:selectItems value="#{salesPartBean.stockAccounts}" var="stkAct" itemValue="#{stkAct}" 
+                                itemLabel="#{stkAct.coaAccount.ref} #{stkAct.coaAccount.name}"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="cosActing" value="#{formTextSl.stdCstAcnt}" 
+                               rendered="#{salesPartBean.part.physicalPart}"/>
+    <p:selectBooleanCheckbox id="cosActing" 
+                                         value="#{salesPartBean.partCompany.costOfSalesAccounting}" 
+                                         rendered="#{salesPartBean.part.physicalPart}"/>
+                
+    </h:panelGrid>
+   <h:panelGrid columns="3">
+    <p:commandButton icon="fa fa-long-arrow-left" value="#{formText.transfer}"
+               actionListener="#{salesPartBean.onAddCompToPart}"
+               />
+                
+    <p:commandButton id="resetBtn" icon="fa fa-trash" value="#{formText.reset}"  
+                     type="reset">
+     <p:resetInput target="addPartCompFrm" clearModel="true"/>
+    </p:commandButton>
+    <p:commandButton id="closBtn" icon="fa fa-close" value="#{formText.close}"  
+                                 type="button" onclick="PF('addCompDlgWv').hide()"/>
+   </h:panelGrid>
+  </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>
+

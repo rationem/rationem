@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+>
+    
+    <ui:composition template="/WEB-INF/template.xhtml">
+      <ui:define name="title">#{menuOption.mnuNumRngCr}"</ui:define>
+        <ui:define name="header"> </ui:define>
+        <ui:define name="content">
+            
+          <p:growl autoUpdate="true"/>
+            
+            
+              
+                <h:form id="valNumRngFrm" prependId="false" >
+                <h:panelGrid columns="2">
+                    <p:outputLabel for="shortDescr" value="#{formText.numRngSdescr}"/>
+                    <p:inputText id="shortDescr" value="#{validNumberRangeBean.numRange.shortDescr}" maxlength="10"
+                                 size="5" required="true"
+                                 title="#{formHelpText.numRngSdescr}"/>
+                    <p:outputLabel for="longDescr" value="#{formText.numRngLdescr}"/>
+                    <p:inputText id="longDescr" value="#{validNumberRangeBean.numRange.longDescr}" 
+                                 title="#{formHelpText.numRngLdescr}"  />
+                    <p:outputLabel for="module" value="#{formText.mod_code}" />
+                    
+                    <p:selectOneMenu id="module" value="#{validNumberRangeBean.numRange.forModule}"
+                                     
+                                     converter="accounts.Util.converter.Module"  >
+                      <f:selectItems value="#{validNumberRangeBean.modules}" var="modItem"
+                                     itemLabel="#{modItem.moduleCode}" itemValue="#{modItem}"/>
+                      
+
+                    </p:selectOneMenu>
+                      
+                   
+                    <p:outputLabel for="frmNum" value="#{formText.numRngFrNum}" />
+                    <p:inputText id="frmNum" value="#{validNumberRangeBean.numRange.fromNum}"
+                                 title="#{formHelpText.numRngFrNum}" required="true"/>
+                    <p:outputLabel for="toNum" value="#{formText.numRngEndNum}"/>
+                    <p:inputText id="toNum" value="#{validNumberRangeBean.numRange.toNum}"
+                                 title="#{formHelpText.numRngEndNum}" required="true"/>
+                    <p:outputLabel for="autoNum" value="#{formText.numRngAuto}"/>
+                    <h:panelGroup>
+                      <p:selectBooleanCheckbox id="autoNum" value="#{validNumberRangeBean.numRange.autoNum}" />
+                      <p:tooltip for="autoNum" value="#{formHelpText.numRngAuto}"/>
+                    </h:panelGroup>
+
+                    
+                    <p:commandButton value="#{formText.genSaveBtn}"
+                                     actionListener="#{validNumberRangeBean.submit}"  />
+                    
+
+                </h:panelGrid>
+                  
+                  </h:form>
+              
+          
+        </ui:define>
+    </ui:composition>
+    </html>
+
+

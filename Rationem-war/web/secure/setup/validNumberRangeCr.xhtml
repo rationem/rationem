@@ -1,0 +1,47 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    template="/WEB-INF/template.xhtml"
+>
+    
+ <ui:define name="title"><h:outputText value="#{pageTitle.cfg_numRangeCr}" /></ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_numRangeCr}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  
+  <h:form id="valNumRngFrm" prependId="false" >
+   <h:panelGrid columns="2">
+    
+    <p:outputLabel for="shortDescr" value="#{formText.numRngSdescr}"/>
+    <p:inputText id="shortDescr" value="#{numberRange.numRange.shortDescr}" maxlength="10"
+                                 size="12" required="true"
+                                 title="#{formHelpText.numRngSdescr}"/>
+    <p:outputLabel for="longDescr" value="#{formText.numRngLdescr}"/>
+    <p:inputText id="longDescr" value="#{numberRange.numRange.longDescr}" 
+                                 title="#{formHelpText.numRngLdescr}"  />
+    <p:outputLabel for="module" value="#{formText.mod_code}" />
+                    
+    <p:selectOneMenu id="module" value="#{numberRange.numRange.module}"
+          converter="com.rationem.util.converter.Module"  >
+     <f:selectItems value="#{numberRange.modules}" var="modItem"
+                                     itemLabel="#{modItem.moduleCode}" itemValue="#{modItem}" />
+    </p:selectOneMenu>
+    <p:outputLabel for="frmNum" value="#{formText.numRngFrNum}" />
+    <p:inputText id="frmNum" value="#{numberRange.numRange.fromNum}"
+                                 title="#{formHelpText.numRngFrNum}" required="true"/>
+    <p:outputLabel for="toNum" value="#{formText.numRngEndNum}"/>
+    <p:inputText id="toNum" value="#{numberRange.numRange.toNum}"
+                                 title="#{formHelpText.numRngEndNum}" required="true"/>
+    
+    <p:commandButton value="#{formText.save}" actionListener="#{numberRange.submit}"
+                     icon="fa fa-floppy-o"/>
+   </h:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

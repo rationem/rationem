@@ -1,0 +1,209 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title" >#{pageTitle.apPaySingleCr} </ui:define>
+ <ui:define name="content">
+  <h:form id="chqPost">
+   <div class="ui-fluid">
+    <p:toolbar id="toolBar" >
+     <f:facet name="left">
+      <p:commandButton value="#{formText.save}" icon="fa  fa-save" actionListener="#{chequePostBean.onSaveAction}"
+                       update="chqPost"/>
+     </f:facet>
+    </p:toolbar>
+    <p:steps activeIndex="#{chequePostBean.wfStep}" >
+     <p:menuitem value="#{formText.docSel}"/>
+     <p:menuitem value="#{formText.trChqPostDoc}"/>
+    </p:steps>
+    <p:messages severity="warn, error" autoUpdate="true"/>
+    <p:fieldset legend="#{formText.docSelCriteria}"  >
+    <p:panelGrid 
+     id="docSel" columns="3" columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-2"
+     layout="grid" styleClass="ui-noborder" rendered="#{chequePostBean.wfStep eq 0}">
+     
+     <p:outputLabel for="comp" value="#{formText.comp}"/>
+     <p:selectOneMenu id="comp" value="#{chequePostBean.selOpts.comp}" var="compSMV" 
+                      converter="com.rationem.util.converter.CompanyBasic">
+      <f:selectItems value="#{chequePostBean.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+      <p:column width="25%">
+       <h:outputText value="#{compSMV.reference}"/>
+      </p:column>
+      <p:column width="75%">
+       <h:outputText value="#{compSMV.name}"/>
+      </p:column>
+     </p:selectOneMenu>
+     <h:outputText value="#{chequePostBean.selOpts.comp.name}"/>
+     <p:outputLabel for="docTy" value="#{formText.docType}"/>
+     <p:autoComplete id="docTy" value="#{chequePostBean.selOpts.docType}" converter="com.rationem.util.converter.DocType"
+                     completeMethod="#{chequePostBean.onDocTypeComplete}" var="docTyV"
+                     itemValue="#{docTyV}" itemLabel="#{docTyV.name}" dropdown="true" />
+     <h:panelGroup >
+      <p:selectOneMenu id="ledCd" value="#{chequePostBean.selOpts.ledgerCode}" placeholder="#{formText.pstTyLed}">
+       <f:selectItem itemLabel="#{formText.ldgr_pay}" itemValue="AP" noSelectionOption="true"/>
+       <f:selectItem itemLabel="#{formText.ldgr_rec}" itemValue="AR"/>
+      </p:selectOneMenu>
+     </h:panelGroup>
+     
+     
+     <p:outputLabel for="docDtFr" value="#{formText.docDocDate}"/>
+     <h:panelGroup >
+      <p:calendar id="docDtFr" value="#{chequePostBean.selOpts.docDateFrom}" 
+                locale="#{chequePostBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+      <p:watermark for="docDtFr" value="#{formText.fromDate}"/>
+     </h:panelGroup>
+     <h:panelGroup >
+      <p:calendar id="docDtTo" value="#{chequePostBean.selOpts.docDateTo}" 
+                locale="#{chequePostBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+      <p:watermark for="docDtTo" value="#{formText.toDate}"/>
+     </h:panelGroup>
+     <p:outputLabel for="postDtFr" value="#{formText.docPostDate}"/>
+     <h:panelGroup >
+      <p:calendar id="postDtFr" value="#{chequePostBean.selOpts.postDateFrom}" 
+                locale="#{chequePostBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+      <p:watermark for="postDtFr" value="#{formText.fromDate}"/>
+     </h:panelGroup>
+     <h:panelGroup >
+      <p:calendar id="postDtTo" value="#{chequePostBean.selOpts.postDateTo}" 
+                locale="#{chequePostBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+      <p:watermark for="postDtTo" value="#{formText.toDate}"/>
+     </h:panelGroup>
+     <p:outputLabel for="entryDtFr" value="#{formText.docEntryDate}"/>
+     <h:panelGroup >
+      <p:calendar id="entryDtFr" value="#{chequePostBean.selOpts.entryDateFrom}" 
+                locale="#{chequePostBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+      <p:watermark for="entryDtFr" value="#{formText.fromDate}"/>
+     </h:panelGroup>
+     <h:panelGroup >
+      <p:calendar id="entryDtTo" value="#{chequePostBean.selOpts.entryDateTo}" 
+                locale="#{chequePostBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+      <p:watermark for="entryDtTo" value="#{formText.toDate}"/>
+     </h:panelGroup>
+     <h:panelGroup />
+     <h:panelGroup styleClass="md-inputfield">
+      <p:inputText id="docText" value="#{chequePostBean.selOpts.docText}"/>
+      <label>#{formText.docHdrTxt}</label>
+     </h:panelGroup>
+     
+    </p:panelGrid>
+    </p:fieldset>
+     
+    <p:fieldset legend="#{formText.chqBkSel}"  rendered="#{chequePostBean.wfStep eq 0}" >
+     <p:panelGrid id="chkbk" columns="5" columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2"
+                 rendered="#{chequePostBean.wfStep eq 0}" 
+                 layout="grid" styleClass="ui-noborder">
+      <p:outputLabel for="bnkAcnt" value="#{formText.bnkAcnt}"/>
+      <p:selectOneMenu id="bnkAcnt" value="#{chequePostBean.selOpts.bnkAc}"  var="bnkAcntVS1M"
+                       converter="com.rationem.util.converter.BankAccountCompany">
+       <f:selectItems value="#{chequePostBean.bankAccounts}" var="bnkAcntV" itemValue="#{bnkAcntV}" 
+                      itemLabel="#{bnkAcntV.accountNumber}"/>
+       <p:column width="25%">
+        <h:outputText value="#{bnkAcntVS1M.accountForBranch.sortCode}"/>
+       </p:column>
+       <p:column width="75%">
+        <h:outputText value="#{bnkAcntVS1M.accountNumber}"/>
+       </p:column>
+       <p:ajax event="itemSelect" listener="#{chequePostBean.onBankAcntSelect}" update="chqPost:chkBk" />
+      </p:selectOneMenu>
+      <p:outputLabel for="chkBk" value="#{formText.trChqBk}"/>
+      <p:selectOneMenu id="chkBk" value="#{chequePostBean.selOpts.chkBk}" 
+                       converter="com.rationem.util.converter.NumberRangeCheque">
+       <f:selectItems value="#{chequePostBean.chequeBooks}" var="chkBkV" itemValue="#{chkBkV}" 
+                      itemLabel="#{chkBkV.shortDescr}"/> 
+       <p:ajax event="itemSelect" listener="#{chequePostBean.onCheckBookSelect}" update="chqPost:chqNumStart" />
+      </p:selectOneMenu>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="chqNumStart" value="#{chequePostBean.chqNumStart}" disabled="#{chequePostBean.selOpts.chkBk.autoNum}">
+        <p:keyFilter for="chqNumStart" mask="pint"/>
+       </p:inputText>
+       <label>#{formText.chqNum}</label>
+      </h:panelGroup>                
+    </p:panelGrid>
+    </p:fieldset>
+    <p:dataTable 
+     id="chqDocsTbl" value="#{chequePostBean.chequeDocs}" var="chqDocV" rowKey="#{chqDocV.id}" 
+     rendered="#{chequePostBean.wfStep eq 1}"
+     rows="#{chequePostBean.usrBuff.tblRows}" reflow="true" paginator="true" paginatorAlwaysVisible="true"
+     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+       <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+       <p:dataExporter type="xls" target="chqDocsTbl" fileName="#{listHeading.chqLstFN}" 
+                          postProcessor="#{chequeBookListBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+       <p:graphicImage name="/images/csv_text.png" width="24" />
+       <p:dataExporter type="csv" target="chqDocsTbl" fileName="#{listHeading.chqLstFN}" />
+      </h:commandLink>
+     </f:facet>
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.chqPostTbl}"/>
+     </f:facet>
+     <p:column width="100" sortBy="#{chqDocV.bnkRef}" styleClass="column-numericValue">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqNum}"/>
+      </f:facet>
+      <h:outputText value="#{chqDocV.bnkRef}"/>
+     </p:column>
+     <p:column  rendered="#{chequeBookListBean.chqSelOpts.compSel.locale ne null}" width="120"
+                 sortBy="#{chqDocV.issueDate}" >
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqCrDate}"/>
+      </f:facet>
+      <h:outputText value="#{chqDocV.issueDate}">
+       <f:convertDateTime dateStyle="medium" type="date" locale="#{chequeBookListBean.chqSelOpts.compSel.locale}"/>
+      </h:outputText>
+     </p:column>
+     <p:column rendered="#{chequeBookListBean.chqSelOpts.compSel.locale ne null}" styleClass="column-financialValue"
+                sortBy="#{chqDocV.amount}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.amnt}"/>
+      </f:facet>
+      <h:outputText value="#{chqDocV.amount}">
+       <f:convertNumber minIntegerDigits="1" minFractionDigits="#{chequeBookListBean.chqSelOpts.compSel.currency.minorUnit}"
+                         maxFractionDigits="#{chequeBookListBean.chqSelOpts.compSel.currency.minorUnit}" 
+                         locale="#{chequeBookListBean.chqSelOpts.compSel.locale}" type="number"/>
+      </h:outputText>
+     </p:column>
+     <p:column sortBy="#{chqDocV.payee.name}" >
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqRecpt}"/>
+      </f:facet>
+      <h:outputText value="#{chqDocV.payee.name}"/>
+     </p:column>
+     <p:column width="100" sortBy="#{chqDocV.bnkRef}" styleClass="column-numericValue">
+      <f:facet name="header">
+       <h:outputText value="#{formText.trPayDoc}"/>
+      </f:facet>
+      <h:outputText value="#{chqDocV.docFiLine.docNumber}">
+       <f:convertNumber type="number" groupingUsed="false" integerOnly="true"/>
+      </h:outputText>
+     </p:column>
+     <p:column rendered="#{chequeBookListBean.chqSelOpts.compSel.locale ne null}" width="120"
+                sortBy="#{chqDocV.voidDate}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqVoidDt}"/>
+      </f:facet>
+      <h:outputText value="#{chqDocV.voidDate}">
+       <f:convertDateTime dateStyle="medium" type="date" locale="#{chequeBookListBean.chqSelOpts.compSel.locale}"/>
+      </h:outputText>
+     </p:column>
+    </p:dataTable>
+     
+    <h:panelGroup />
+    
+    
+   </div>
+  </h:form>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,119 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{formText.numRngEdTitle}</ui:define>
+  <ui:define name="header"> </ui:define>
+  <ui:define name="content">
+   <h:form id="listFrm" prependId="false">
+    
+    <p:contextMenu for="numRngList">
+     <p:menuitem value="#{formText.edit}" actionListener="#{numberRange.onEditNumDlg}"/>
+     <p:menuitem value="#{formText.delete}" actionListener="#{numberRange.onDeleteDlg}" />
+    </p:contextMenu>
+    <p:dataTable id="numRngList" value="#{numberRange.numberControlList}"
+                               var="numCntrl"
+                               selection="#{numberRange.selectNumberControl}"
+                               selectionMode="single" sortBy="#{numCntrl.shortDescr}"
+                               emptyMessage="#{formText.numRngNone}"
+                               filteredValue="#{numberRange.numberControlsFiltered}"
+                               rowKey="#{numCntrl.numberControlId}" paginator="true"
+                               paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                               rows="#{numberRange.usrBuff.tblRows}"   >
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="numRngList" fileName="#{formText.numRng_Fn}" 
+                        postProcessor="#{numberRange.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="numRngList" fileName="#{formText.numRng_Fn}" />
+      </h:commandLink>
+    </f:facet>
+     <f:facet name="header">
+      <h:outputText value="#{formText.numRngs}"/>
+     </f:facet>
+                    
+     <p:column sortBy="#{numCntrl.shortDescr}" width="100" filterBy="#{numCntrl.shortDescr}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.numRngSdescr}" />
+      </f:facet>
+      <h:outputText value="#{numCntrl.shortDescr}"/>
+     </p:column>
+     <p:column sortBy="#{numCntrl.longDescr}" filterBy="#{numCntrl.shortDescr}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.numRngLdescr}" />
+      </f:facet>
+      <h:outputText value="#{numCntrl.longDescr}"/>
+     </p:column>
+     <p:column sortBy="#{numCntrl.module.moduleCode}" width="90" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.numRngModule}" />
+      </f:facet>
+      <h:outputText value="#{numCntrl.module.moduleCode}"/>
+     </p:column>
+     <p:column sortBy="#{numCntrl.fromNum}" width="110" filterBy="#{numCntrl.fromNum}" filterMatchMode="gte" 
+               filterFunction="#{numberRange.onFilterByRngNum}">
+      <f:facet name="header">
+       <h:outputText value="#{formText.numRngFrNum}" />
+      </f:facet>
+      <h:outputText value="#{numCntrl.fromNum}">
+       <f:convertNumber integerOnly="true" groupingUsed="false"/>
+      </h:outputText>
+     </p:column>
+     <p:column sortBy="#{numCntrl.toNum}" width="100" filterBy="#{numCntrl.toNum}" filterMatchMode="gte" 
+               filterFunction="#{numberRange.onFilterByRngNum}">
+      <f:facet name="header">
+       <h:outputText value="#{formText.numRngEndNum}"  />
+      </f:facet>
+      <h:outputText value="#{numCntrl.toNum}">
+       <f:convertNumber integerOnly="true" groupingUsed="false"/>
+      </h:outputText>
+     </p:column>
+     
+    </p:dataTable>
+    
+
+    <p:confirmDialog id="delRngConfDlg" widgetVar="delRngConfWv" 
+                     message="#{formText.numRngDelMsg}"
+                            header="#{pageTitle.cfg_numRngDelDlg}">
+     <p:commandButton id="delNumRngCBY" value="#{formText.yes}" 
+                             actionListener="#{numberRange.onDeleteAction}"  />
+     <p:commandButton id="delNumRngCBN" value="#{formText.no}" 
+                             type="button"
+                             oncomplete="delRngConfWv.hide()"/>
+    </p:confirmDialog>
+    
+    <p:dialog id="editNumRngId" widgetVar="editNumRngWVar" modal="true"
+              header="#{pageTitle.cfg_numRngEdit}" 
+                      >
+     <h:panelGrid columns="2">
+      <h:outputLabel for="edSdescr" value="#{formText.numRngSdescr}"/>
+      <h:outputText id="edSdescr" value="#{numberRange.selectNumberControl.shortDescr}"
+                            title="#{formHelpText.numRngSdescr}"  />
+      <h:outputLabel for="edLdescr" value="#{formText.numRngLdescr}"/>
+      <p:inputText id="edLdescr" value="#{numberRange.selectNumberControl.longDescr}"
+                            title="#{formHelpText.numRngLdescr}" />
+      <h:outputLabel for="edModule" value="#{formText.numRngModule}"/>
+      <h:outputText id="edModule" value="#{numberRange.selectNumberControl.module.moduleCode}"/>
+      <p:outputLabel for="edStartNum" value="#{formText.numRngFrNum}"/>
+      <p:inputText id="edStartNum" value="#{numberRange.selectNumberControl.fromNum}" 
+                             title="#{formHelpText.numRngFrNum}" required="true"/>
+      <p:outputLabel for="edEndNum" value="#{formText.numRngEndNum}" />
+      <p:inputText id="edEndNum" value="#{numberRange.selectNumberControl.toNum}" 
+                             title="#{formHelpText.numRngEndNum}" required="true"/>
+      <p:outputLabel for="edAutoNum" value="#{formText.numRngAuto}"/>
+      <p:selectBooleanCheckbox id="edAutoNum" 
+                                         value="#{numberRange.selectNumberControl.autoNum}" />
+      <p:commandButton value="#{formText.save}" icon="ui-icon-check"
+                                 actionListener="#{numberRange.onEditSaveAction}"  />
+   </h:panelGrid>
+  </p:dialog>
+ </h:form>
+
+ </ui:define>
+</ui:composition>

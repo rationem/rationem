@@ -1,0 +1,190 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.addrMgt}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="addrListFrm" prependId="false">
+  <p:toolbar>
+   <f:facet name="left">
+    <p:commandButton value="#{formText.addrAdd}" actionListener="#{addressMgtBean.onAddAdressBtn}"/>
+    <span class="ui-separator">
+      <span class="ui-icon ui-icon-grip-dotted-vertical" />
+    </span>
+   </f:facet>
+  </p:toolbar>
+  
+  <p:contextMenu for="addrList">
+   <p:menuitem value="#{formText.edit}" actionListener="#{addressMgtBean.onEditAddrBtn}"/>
+   
+  </p:contextMenu>
+  <p:dataTable id="addrList" value="#{addressMgtBean.addrList}" var="addrVar" selection="#{addressMgtBean.editAddr}"
+               emptyMessage="#{validationText.addrNone}" rowKey="#{addrVar.id}" selectionMode="single" >
+   <p:column sortBy="#{addrVar.addrRef}" >
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrRef}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.addrRef}"/>
+   </p:column>
+   <p:column >
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrHouseNumName}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.houseNumber}"/><h:outputText value="#{addrVar.houseName}"/>
+   </p:column>
+   <p:column sortBy="#{addrVar.street}" >
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrStr1}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.street}"/>
+   </p:column>
+   <p:column sortBy="#{addrVar.street2}">
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrStr2}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.street2}"/>
+   </p:column>
+   <p:column sortBy="#{addrVar.town}">
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrTown}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.town}"/>
+   </p:column>
+   <p:column sortBy="#{addrVar.countyName}">
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrCounty}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.countyName}"/>
+   </p:column>
+   <p:column sortBy="#{addrVar.countyName}">
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrCountry}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.countryName}"/>
+   </p:column>
+   <p:column sortBy="#{addrVar.postCode}" width="70">
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrPostCd}"/>
+    </f:facet>
+    <h:outputText value="#{addrVar.postCode}"/>
+   </p:column>
+  </p:dataTable>
+  </h:form>
+  <p:dialog dynamic="true" widgetVar="newAddrWv">
+   <p:ajax event="close" listener="#{addressMgtBean.onAddAddressCloseBtn}"/>
+   <f:facet name="header">
+    <h:outputText value="#{formText.addrNew}"/>
+   </f:facet>
+   <h:form id="newAddFrmId" prependId="false">
+    
+    <p:panelGrid  styleClass="panelNoBorders">
+     <p:row>
+      <p:column><p:outputLabel for="addrRefAdd" value="#{formText.addrRef}"/></p:column>
+      <p:column colspan="3"><p:inputText id="addrRefAdd" value="#{addressMgtBean.newAddr.addrRef}"
+                                         required="true" requiredMessage="#{validationText.addRef}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="addHseNum" value="#{formText.addrHouseNumName}"/></p:column>
+      <p:column><p:inputText id="addHseNum" value="#{addressMgtBean.newAddr.houseName}" size="5"/></p:column>
+      <p:column><h:outputText value="/"/></p:column>
+      <p:column><p:inputText value="#{addressMgtBean.newAddr.houseName}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="streetAdd" value="#{formText.addrStr1}"/></p:column>
+      <p:column colspan="3"><p:inputText id="streetAdd" value="#{addressMgtBean.newAddr.street}" required="true"
+                  requiredMessage="#{validationText.addStreet}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="street2Add" value="#{formText.addrStr1}"/></p:column>
+      <p:column colspan="3"><p:inputText id="street2Add" value="#{addressMgtBean.newAddr.street}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="townAdd" value="#{formText.addrTown}"/></p:column>
+      <p:column colspan="3"><p:inputText id="townAdd" value="#{addressMgtBean.newAddr.town}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="countyAdd" value="#{formText.addrCounty}"/></p:column>
+      <p:column colspan="3"><p:inputText id="countyAdd" value="#{addressMgtBean.newAddr.countyName}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="countryAdd" value="#{formText.addrCountry}"/></p:column>
+      <p:column colspan="3"><p:inputText id="countryAdd" value="#{addressMgtBean.newAddr.countryName}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="postCdAdd" value="#{formText.addrPostCd}"/></p:column>
+      <p:column colspan="3"><p:inputText id="postCdAdd" value="#{addressMgtBean.newAddr.postCode}" required="true" 
+                  requiredMessage="#{validationText.addPostCd}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="4">
+       <p:commandButton id="addAddSave" value="#{formText.save}" icon="ui-icon-document" 
+                        actionListener="#{addressMgtBean.onAddAddressSaveBtn}"/>
+       <p:commandButton id="addAddClose" value="#{formText.cancel}" icon="ui-icon-close" immediate="true"
+                        type="reset"/>
+       
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+   </h:form>
+  </p:dialog>
+  <p:dialog dynamic="true" widgetVar="addrEditDlgWv">
+   <f:facet name="header">
+    <h:outputText value="#{formText.addrEdit}"/>
+   </f:facet>
+   <h:form id="editAddrFrmId" prependId="false">
+    <p:panelGrid styleClass="panelNoBorders">
+     <p:row>
+      <p:column><p:outputLabel for="editRefAdd" value="#{formText.addrRef}"/></p:column>
+      <p:column colspan="3"><p:inputText id="editRefAdd" value="#{addressMgtBean.editAddr.addrRef}"
+                                         required="true" requiredMessage="#{validationText.addRef}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="editHseNum" value="#{formText.addrHouseNumName}"/></p:column>
+      <p:column><p:inputText id="editHseNum" value="#{addressMgtBean.editAddr.houseName}" size="5"/></p:column>
+      <p:column><h:outputText value="/"/></p:column>
+      <p:column><p:inputText value="#{addressMgtBean.editAddr.houseName}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="editStreet" value="#{formText.addrStr1}"/></p:column>
+      <p:column colspan="3"><p:inputText id="editStreet" value="#{addressMgtBean.editAddr.street}" required="true"
+                  requiredMessage="#{validationText.addStreet}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="editStreet2" value="#{formText.addrStr1}"/></p:column>
+      <p:column colspan="3"><p:inputText id="editStreet2" value="#{addressMgtBean.editAddr.street2}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="editTown" value="#{formText.addrTown}"/></p:column>
+      <p:column colspan="3"><p:inputText id="editTown" value="#{addressMgtBean.editAddr.town}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="editCounty" value="#{formText.addrCounty}"/></p:column>
+      <p:column colspan="3"><p:inputText id="editCounty" value="#{addressMgtBean.editAddr.countyName}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="editCountry" value="#{formText.addrCountry}"/></p:column>
+      <p:column colspan="3"><p:inputText id="editCountry" value="#{addressMgtBean.editAddr.countryName}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column><p:outputLabel for="editPostCd" value="#{formText.addrPostCd}"/></p:column>
+      <p:column colspan="3"><p:inputText id="editPostCd" value="#{addressMgtBean.editAddr.postCode}" required="true" 
+                  requiredMessage="#{validationText.addPostCd}"/></p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="4">
+       <p:commandButton id="editSave" value="#{formText.save}" icon="ui-icon-document" 
+                        actionListener="#{addressMgtBean.onEditAddrSave}"/>
+       <p:commandButton id="editClose" value="#{formText.cancel}" icon="ui-icon-close" immediate="true"
+                        type="reset"/>
+       
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+   </h:form>
+  </p:dialog>
+ </ui:define>
+</ui:composition>

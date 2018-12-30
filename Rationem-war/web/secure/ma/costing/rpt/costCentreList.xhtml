@@ -1,0 +1,78 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.maCostCentList}</ui:define>
+ <ui:define name="header">#{pageTitle.maCostCentList} </ui:define>
+ <ui:define name="content">
+  <h:form id="programmeLst" prependId="false" >
+   <p:growl autoUpdate="true" />
+   <p:toolbar>
+     <f:facet name="left">
+      <h:commandButton id="downloadBtnExcel" value="#{formText.genExcelDownload}" 
+                      image="/resources/images/Excel-48.gif" >
+      <p:dataExporter type="xls" fileName="#{formText.maProgDpenLdFn}" target="prgTbl"/>
+     </h:commandButton>
+      <h:commandButton id="downloadBtnCsv" value="#{formText.genCsvDownload}" 
+                      image="/resources/images/csv_text.png" >
+      <p:dataExporter type="csv" fileName="#{formText.maProgDpenLdFn}" target="prgTbl"/>
+     </h:commandButton>
+      </f:facet >
+   </p:toolbar>
+   <p:panelGrid columns="2" styleClass="panelNoBorders">
+    <h:outputText value="#{formText.comp}"/>
+    <p:selectOneMenu id="compMnu" value="#{costCenreBean.compSelected}" converter="com.rationem.util.converter.CompanyBasic" 
+                     required="true" >
+     <f:selectItems var="cmp" value="#{costCenreBean.compList}" itemValue="#{cmp}" itemLabel="#{cmp.reference}"/>
+    </p:selectOneMenu>
+   </p:panelGrid>
+   <p:dataTable id="prgTbl" value="#{costCenreBean.costCentreList}" paginator="true" paginatorAlwaysVisible="false" 
+                emptyMessage="#{validationText.maCostCentFoundNone}" rows="#{costCenreBean.usrBuff.tblRows}" var="ccent" 
+                filteredValue="#{costCenreBean.costCentresFiltered}">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.maCostCentres}"/>
+    </f:facet>
+    <p:column width="110" filterPosition="bottom"  filterBy="#{ccent.refrence}" sortBy="#{ccent.refrence}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.maCstCentRef}"/>
+     </f:facet>
+     <h:outputText value="#{ccent.refrence}"/>
+    </p:column>
+    <p:column filterPosition="bottom" filterBy="#{ccent.costCentreName}" sortBy="#{ccent.costCentreName}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.maCostCentName}" />
+     </f:facet>
+     <h:outputText value="#{ccent.costCentreName}"/>
+    </p:column>
+    <p:column filterPosition="bottom" filterBy="#{ccent.responsibilityOf.nameStructured}" 
+              sortBy="#{ccent.responsibilityOf.nameStructured}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.maCostCentResp}" />
+     </f:facet>
+     <h:outputText value="#{ccent.responsibilityOf.nameStructured}"/>
+    </p:column>
+    <p:column width="110"  sortBy="#{ccent.validFrom}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.maProgFrom}" />
+     </f:facet>
+     <h:outputText value="#{ccent.validFrom}">
+      <f:convertDateTime type="date" dateStyle="medium"/>
+     </h:outputText>
+    </p:column>
+    <p:column width="110"  sortBy="#{ccent.validTo}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.maProgTo}"/>
+     </f:facet>
+     <h:outputText value="#{ccent.validTo}">
+      <f:convertDateTime type="date" dateStyle="medium"/>
+     </h:outputText>
+    </p:column>
+   </p:dataTable>
+   
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

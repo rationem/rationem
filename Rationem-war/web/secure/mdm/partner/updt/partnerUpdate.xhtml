@@ -1,0 +1,1050 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.ptnrUpdt}</ui:define>
+ <ui:define name="header">#{pageTitle.ptnrUpdt} </ui:define>
+ <ui:define name="content">
+  
+  <h:form id="ptnrCrFrm" prependId="false">
+   <p:growl autoUpdate="true"/>
+   <p:wizard  flowListener="#{partnerBean.onCreateWizStepChange}"  >
+    <p:tab id="ptnrTypT" title="#{formText.ptnrType}" >
+     <p:panel >
+      <f:facet name="header">
+       <h:outputText value="#{formText.ptnrTypWizPnl}"/>
+      </f:facet>
+      <p:panelGrid styleClass="panelNoBorders" columns="2">
+       <p:outputLabel for="ptnrRef" value="#{formText.ptnrRef} *"/>
+       <p:autoComplete id="ptnrRef" value="#{partnerBean.ptnrBase}"  dropdown="true" var="ref"
+                       completeMethod="#{partnerBean.onPtnrRefComplete}" itemValue="#{ref}" 
+                       forceSelection="true" 
+                       converter="com.rationem.util.converter.PartnerBase" itemLabel="#{ref.ref}">
+        <p:ajax event="itemSelect" listener="#{partnerBean.onPtnrRefSelect}"/>
+        <p:column>
+         <h:outputText value="#{ref.ref}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{ref.displayName}"/>
+        </p:column>
+       </p:autoComplete>
+       <h:outputText  value="#{formText.ptnrType}"/>
+       <h:outputText id="ptnrType" value="#{partnerBean.ptnrType}"/>
+       
+       
+      </p:panelGrid>
+     </p:panel> 
+    </p:tab>
+    <p:tab id="ptnrDetTab" title="#{formText.ptnrDetTab}" >
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.ptnrDetCorpWizPnl}" rendered="#{partnerBean.ptnrType eq 'Company'}"/>
+       <h:outputText value="#{formText.ptnrDetIndivWizPnl}" rendered="#{partnerBean.ptnrType eq 'Individual'}"/>
+      </f:facet>
+      <p:outputPanel rendered="#{partnerBean.ptnrType eq 'Company'}" deferred="true" deferredMode="visible">
+       <p:panelGrid id="corpDetPg" styleClass="panelNoBorders">
+        <p:row>
+         <p:column>
+          <p:outputLabel for="legalName" value="#{formText.ptnrLegalName}*"/>
+         </p:column>
+         <p:column colspan="5">
+          <p:inputText id="legalName" value="#{partnerBean.ptnrCorp.legalName}"/>
+         </p:column>
+         
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="tradName" value="#{formText.ptnrTradingName} *"/>
+         </p:column>
+         <p:column colspan="5">
+          <p:inputText id="tradName" value="#{partnerBean.ptnrCorp.tradingName}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="compNum" value="#{formText.ptnrCompNum}"/>
+          
+         </p:column>
+         <p:column >
+          <p:inputText id="compNum" value="#{partnerBean.ptnrCorp.companyNumber}" maxlength="10" size="9"/>
+         </p:column>
+         <p:column>
+          <p:outputLabel for="regDate" value="#{formText.ptnrRegDate}"/>
+         </p:column>
+         <p:column>
+          <p:calendar id="regDate" value="#{partnerBean.ptnrCorp.compRegistrationDate}" pattern="dd/MMM/yyyy"
+                      navigator="true" size="10"/>
+         </p:column>
+         <p:column>
+          <p:outputLabel for="acsFileDt" value="#{formText.ptnrAcntsLastFiled}"/>
+         </p:column>
+         <p:column>
+          <p:calendar id="acsFileDt" value="#{partnerBean.ptnrCorp.accountsFilingDate}" size="10" 
+                      pattern="dd/MMM/yyyy"      navigator="true"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="vatRegNum" value="#{formText.ptnrVatNum}"/>
+         </p:column>
+         <p:column colspan="5" >
+          <p:inputText id="vatRegNum" value="#{partnerBean.ptnrCorp.vatNumber}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="phone" value="#{formText.ptnrTelephone}"/>
+         </p:column>
+         <p:column>
+          <p:inputText id="phone" value="#{partnerBean.ptnrCorp.telephone}"/>
+         </p:column>
+         <p:column>
+          <p:outputLabel for="emailAddr" value="#{formText.ptnrEmail}"/>
+         </p:column>
+         <p:column colspan="3">
+          <p:inputText id="emailAddr" value="#{partnerBean.ptnrCorp.email}" size="50">
+           <f:validator validatorId="com.rationem.util.helper.emailValidator" />
+          </p:inputText>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="webAddr" value="#{formText.ptnrWeb}"/>
+         </p:column>
+         <p:column colspan="5">
+          <p:inputText id="webAddr" value="#{partnerBean.ptnrCorp.webAddress}" size="70"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="cat" value="#{formText.ptnrCat}"/>
+         </p:column>
+         <p:column>
+          <p:inputText id="cat" value="#{partnerBean.ptnrCorp.category}"/>
+         </p:column>
+        </p:row>
+        
+       </p:panelGrid>
+      </p:outputPanel>
+      <p:outputPanel rendered="#{partnerBean.ptnrType eq 'Individual'}" deferred="true" deferredMode="visible">
+       <p:panelGrid styleClass="panelNoBorders">
+        <p:row>
+        <p:column>
+         <p:outputLabel for="salut" value="#{formText.ptnrTitle}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="salut" value="#{partnerBean.ptnrPerson.title}" size="5"/>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="firstName" value="#{formText.ptnrFirstName}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="firstName" value="#{partnerBean.ptnrPerson.firstName}" size="30"/>
+         
+        </p:column>
+        <p:column>
+         <p:outputLabel for="famName" value="#{formText.ptnrFamilyName} *"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="famName" value="#{partnerBean.ptnrPerson.familyName}" size="30"/>
+        </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="vatRegNumPers" value="#{formText.ptnrVatNum}"/>
+         </p:column>
+         <p:column colspan="5" >
+          <p:inputText id="vatRegNumPers" value="#{partnerBean.ptnrPerson.vatNumber}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="phonePers" value="#{formText.ptnrTelephone}"/>
+         </p:column>
+         <p:column>
+          <p:inputText id="phonePers" value="#{partnerBean.ptnrPerson.telephone}" validatorMessage="Only numbers allowed">
+           <f:convertNumber groupingUsed="false" integerOnly="true" />
+          </p:inputText>
+         </p:column>
+         <p:column >
+          <p:outputLabel for="mobPers" value="#{formText.ptnrMobile}"/>
+         </p:column>
+         <p:column colspan="3">
+          <p:inputText id="mobPers" value="#{partnerBean.ptnrPerson.mobileTelephone}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="emailAddrPers" value="#{formText.ptnrEmail}"/>
+         </p:column>
+         <p:column colspan="5">
+          <p:inputText id="emailAddrPers" value="#{partnerBean.ptnrPerson.email}" size="50">
+           <f:validator validatorId="com.rationem.util.helper.emailValidator" />
+          </p:inputText>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="webAddrPers" value="#{formText.ptnrWeb}"/>
+         </p:column>
+         <p:column colspan="5">
+          <p:inputText id="webAddrPers" value="#{partnerBean.ptnrPerson.webAddress}" size="70"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <p:outputLabel for="catPers" value="#{formText.ptnrCat}"/>
+         </p:column>
+         <p:column colspan="5">
+          <p:inputText id="catPers" value="#{partnerBean.ptnrPerson.category}"/>
+         </p:column>
+        </p:row>
+       </p:panelGrid>
+      </p:outputPanel>
+     </p:panel>
+    </p:tab>
+    <p:tab id="addrTabId" title="#{formText.ptnrAddrTab}">
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.ptnrAddrWizPnl}"/>
+      </f:facet>
+      
+      <p:accordionPanel id="addrPnl" dynamic="true" prependId="false"  >
+       
+       <p:tab title="#{formText.ptnrAddDefTab}" >
+        <p:panelGrid id="addrDefPg">
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRefDef" value="#{formText.addrRef} *"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="addrRefDef" value="#{partnerBean.addrDefault.addrRef}" 
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRoomDef" value="#{formText.addrRoom}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrRoomDef" value="#{partnerBean.addrDefault.room}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrFloorDef" value="#{formText.addrFloor}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrFloorDef" value="#{partnerBean.addrDefault.floor}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrBuildDef" value="#{formText.addrBuild}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrBuildDef" value="#{partnerBean.addrDefault.building}" size="40"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="hseNumDef" value="#{formText.addrHouseNumName}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="hseNumDef" value="#{partnerBean.addrDefault.houseNumber}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+           <h:outputText value="/"/>
+           <p:inputText id="hseNameDef" value="#{partnerBean.addrDefault.houseName}"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="streetDef" value="#{formText.addrStr1} *"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="streetDef" value="#{partnerBean.addrDefault.street}"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="street2Def" value="#{formText.addrStr2}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="street2Def" value="#{partnerBean.addrDefault.street2}"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText> 
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="townDef" value="#{formText.addrTown}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="townDef" value="#{partnerBean.addrDefault.town}"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column >
+           <p:outputLabel for="countyDef"  value="#{formText.addrCounty}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="countyDef" value="#{partnerBean.addrDefault.countyName}"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax />
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="countryDef" value="#{formText.addrCountry}"/>
+          </p:column>
+          <p:column colspan="5" width="40">
+           <p:inplace editor="true"  >
+            <f:facet name="output" >
+             <h:outputText  value="#{formText.addrCountrySel}" rendered="#{partnerBean.addrDefault.country eq null}"/>
+             <h:outputText value="#{partnerBean.addrDefault.country.countryName}" rendered="#{partnerBean.addrDefault.country ne null}"/>
+            </f:facet>
+            <f:facet name="input">
+             <h:selectOneMenu id="countryDef" value="#{partnerBean.addrDefault.country}" 
+                              converter="com.rationem.util.converter.country" 
+                               >
+              <f:selectItems value="#{partnerBean.countries}" var="cntry" itemValue="#{cntry}" 
+                          itemLabel="#{cntry.countryName}"/>
+             </h:selectOneMenu>
+            </f:facet>
+           </p:inplace>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="postCdDef" value="#{formText.addrPostCd} *"/>
+          </p:column>
+          <p:column colspan="4">
+           <p:inputText id="postCdDef" value="#{partnerBean.addrDefault.postCode}" size="7" 
+                        converter="com.rationem.util.converter.toUpperCase"
+                        valueChangeListener="#{partnerBean.onAddrDefFieldChange}">
+            <p:ajax event="blur"/>
+           </p:inputText>
+           <p:commandButton  id="addrSrchDef"  title="#{formText.addrSel}" icon="ui-icon-search" 
+                             actionListener="#{partnerBean.onAddrDefPostCodeSearch}"  />
+          </p:column>
+          <p:column>
+           <p:commandButton id="addDefAddrDlg" icon="ui-icon-document" value="#{formText.addrNew}" 
+                           actionListener="#{partnerBean.onNewAddrDefDlg}"
+                           rendered="#{partnerBean.addrDefault.id ne null}"/>
+          </p:column>
+          
+         </p:row>
+        </p:panelGrid>
+       </p:tab>
+       
+        <p:tab title="#{formText.ptnrAddrRegOffTab}" rendered="#{partnerBean.ptnrType eq 'Company'}">
+         <p:panelGrid id="regOffAddrPg">
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRefRegOff" value="#{formText.addrRef} *"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="addrRefRegOff" value="#{partnerBean.addrRegOff.addrRef}"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRoomRegOff" value="#{formText.addrRoom}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrRoomRegOff" value="#{partnerBean.addrRegOff.room}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrFloorRegOff" value="#{formText.addrFloor}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrFloorRegOff" value="#{partnerBean.addrRegOff.floor}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrBuildRegOff" value="#{formText.addrBuild}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrBuildRegOff" value="#{partnerBean.addrRegOff.building}" size="40"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="hseNumRegOff" value="#{formText.addrHouseNumName}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="hseNumRegOff" value="#{partnerBean.addrRegOff.houseNumber}"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+           <h:outputText value="/"/>
+           <p:inputText id="hseNameRegOff" value="#{partnerBean.addrRegOff.houseName}"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="streetRegOff" value="#{formText.addrStr1} *" />
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="streetRegOff" value="#{partnerBean.addrRegOff.street}"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="street2RegOff" value="#{formText.addrStr2}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="street2RegOff" value="#{partnerBean.addrRegOff.street2}"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/> 
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="townRegOff" value="#{formText.addrTown}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="townRegOff" value="#{partnerBean.addrRegOff.town}"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column >
+           <p:outputLabel for="countyRegOff"  value="#{formText.addrCounty}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="countyRegOff" value="#{partnerBean.addrRegOff.countyName}"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="countryRegOff" value="#{formText.addrCountry}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inplace editor="true" >
+            <f:facet name="output" >
+             <h:outputText  value="#{formText.addrCountrySel}" rendered="#{partnerBean.addrRegOff.country eq null}"/>
+             <h:outputText value="#{partnerBean.addrRegOff.country.countryName}" rendered="#{partnerBean.addrRegOff.country ne null}"/>
+            </f:facet>
+            <f:facet name="input">
+             <h:selectOneMenu id="countryRegOff" value="#{partnerBean.addrRegOff.country}" 
+                           converter="com.rationem.util.converter.country" >
+              <f:selectItems value="#{partnerBean.countries}" var="cntry" itemValue="#{cntry}" 
+                          itemLabel="#{cntry.countryName}"/>
+             </h:selectOneMenu>
+            </f:facet>
+           </p:inplace>
+          
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="postCdRegOff" value="#{formText.addrPostCd} *"/>
+          </p:column>
+          <p:column colspan="4">
+           <p:inputText id="postCdRegOff" value="#{partnerBean.addrRegOff.postCode}" 
+                        converter="com.rationem.util.converter.toUpperCase"
+                        valueChangeListener="#{partnerBean.onAddrRegOffFieldChange}"/>
+           <p:commandButton  id="addrSrchRegOff"  title="#{formText.addrSel}" icon="ui-icon-search"
+                             actionListener="#{partnerBean.onAddrRegOffPostCodeSearch}"/>
+          </p:column>
+          <p:column>
+           <p:commandButton id="addRegOffAddrDlg" icon="ui-icon-document" value="#{formText.addrNew}" 
+                            actionListener="#{partnerBean.onNewAddrRegDlg}" 
+                            rendered="#{partnerBean.addrRegOff.id ne null}"/>
+          </p:column>
+         </p:row>
+        </p:panelGrid>
+       </p:tab>
+       
+       <p:tab title="#{formText.ptnrAddHoTab}" rendered="#{partnerBean.ptnrType eq 'Company'}">
+        <p:panelGrid id="hoAddrPg">
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRefHoOff" value="#{formText.addrRef} *"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="addrRefHoOff" value="#{partnerBean.addrHeadOff.addrRef}" 
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}">
+            
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRoomHoOff" value="#{formText.addrRoom}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrRoomHoOff" value="#{partnerBean.addrHeadOff.room}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrFloorHoOff" value="#{formText.addrFloor}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrFloorHoOff" value="#{partnerBean.addrHeadOff.floor}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrBuildHoOff" value="#{formText.addrBuild}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrBuildHoOff" value="#{partnerBean.addrHeadOff.building}" size="40"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="hseNumHoOff" value="#{formText.addrHouseNumName}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="hseNumHoOff" value="#{partnerBean.addrHeadOff.houseNumber}"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+           <h:outputText value="/"/>
+           <p:inputText id="hseNameHoOff" value="#{partnerBean.addrHeadOff.houseName}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="streetHoOff" value="#{formText.addrStr1} *"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="streetHoOff" value="#{partnerBean.addrHeadOff.street}"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="street2HoOff" value="#{formText.addrStr2}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="street2HoOff" value="#{partnerBean.addrHeadOff.street2}"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/> 
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="townHoOff" value="#{formText.addrTown}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="townHoOff" value="#{partnerBean.addrHeadOff.town}"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column >
+           <p:outputLabel for="countyHoOff"  value="#{formText.addrCounty}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="countyHoOff" value="#{partnerBean.addrHeadOff.countyName}"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="countryHoOff" value="#{formText.addrCountry}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inplace editor="true" >
+            <f:facet name="output" >
+             <h:outputText  value="#{formText.addrCountrySel}" rendered="#{partnerBean.addrHeadOff.country eq null}"/>
+             <h:outputText value="#{partnerBean.addrHeadOff.country.countryName}" rendered="#{partnerBean.addrHeadOff.country ne null}"/>
+            </f:facet>
+            <f:facet name="input">
+             <h:selectOneMenu id="countryHoOff" value="#{partnerBean.addrHeadOff.country}" 
+                           converter="com.rationem.util.converter.country" >
+              <f:selectItems value="#{partnerBean.countries}" var="cntry" itemValue="#{cntry}" 
+                          itemLabel="#{cntry.countryName}"/>
+             </h:selectOneMenu>
+            </f:facet>
+           </p:inplace>
+          
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="postCdHoOff" value="#{formText.addrPostCd} *"/>
+          </p:column>
+          <p:column colspan="4">
+           <p:inputText id="postCdHoOff" value="#{partnerBean.addrHeadOff.postCode}"
+                        converter="com.rationem.util.converter.toUpperCase"
+                        valueChangeListener="#{partnerBean.onAddrHeadOffFieldChange}"/>
+           <p:commandButton  id="addrSrchHoOff"  title="#{formText.addrSel}" icon="ui-icon-search"
+                             actionListener="#{partnerBean.onAddrHeadOffPostCodeSearch}"/>
+          </p:column>
+          <p:column>
+           <p:commandButton id="addHoOffAddrDlg" icon="ui-icon-document" value="#{formText.addrNew}" 
+                           actionListener="#{partnerBean.onNewAddrHoDlg}"
+                           rendered="#{partnerBean.addrHeadOff.id ne null}"/>
+          </p:column>
+         </p:row>
+        </p:panelGrid>
+       </p:tab>
+      </p:accordionPanel>
+      
+     </p:panel>
+    </p:tab>
+    <p:tab id="summTabId" title="#{formText.ptnrSumTab}" >
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.ptnrSumWizPnl}"/>
+      </f:facet>
+      <p:panelGrid styleClass="panelNoBorders">
+       <p:row>
+        <p:column>
+         <h:outputText value="#{listHeading.ptnrRef}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrBase.ref}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.ptnrType}"/>
+        </p:column>
+        <p:column colspan="3">
+         <h:outputText value="#{formText.ptnrCorp}" rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}"/>
+         <h:outputText value="#{formText.ptnrIndiv}" rendered="#{!partnerBean.ptnrType.equalsIgnoreCase('Company')}"/>
+        </p:column>
+        
+       </p:row>
+       <p:row>
+        <p:column colspan="6">
+         <h:outputText value="#{formText.ptnrPartner}" styleClass="panelBodyBold"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Individual')}">
+        <p:column>
+         <h:outputText value="#{formText.ptnrTitle}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrPerson.title}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.ptnrFirstName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrPerson.firstName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.ptnrFamilyName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrPerson.familyName}"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column >
+         <h:outputText value="#{formText.ptnrLegalName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.legalName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.ptnrTradingName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.tradingName}"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Individual')}">
+        <p:column>
+         <h:outputText value="#{formText.ptnrVatNum}"/>
+        </p:column>
+        <p:column colspan="5">
+         <h:outputText value="#{partnerBean.ptnrPerson.vatNumber}"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column>
+         <h:outputText value="#{formText.ptnrCompNum}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.companyNumber}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.ptnrRegDate}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.charityRegistrationDate}">
+          <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.ptnrAcntsLastFiled}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.accountsFilingDate}">
+          <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column>
+         <h:outputText value="#{formText.ptnrVatNum}"/>
+        </p:column>
+        <p:column colspan="5">
+         <h:outputText value="#{partnerBean.ptnrPerson.vatNumber}"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Individual')}">
+        <p:column>
+         <h:outputText value="#{formText.ptnrTelephone}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrPerson.telephone}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.ptnrMobile}"/>
+        </p:column>
+        <p:column colspan="3">
+         <h:outputText value="#{partnerBean.ptnrPerson.mobileTelephone}"/>
+        </p:column>
+        </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column>
+         <h:outputText value="#{formText.ptnrTelephone}"/>
+         
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.telephone}"/>
+          
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.ptnrEmail}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.email}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.ptnrWeb}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.email}"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column>
+         <h:outputText value="#{formText.ptnrCat}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{partnerBean.ptnrCorp.category}"/>
+        </p:column>
+       </p:row>
+        <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Individual')}">
+         <p:column>
+          <h:outputText value="#{formText.ptnrEmail}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{partnerBean.ptnrPerson.email}"/>
+         </p:column>
+         <p:column >
+          <h:outputText value="#{formText.ptnrWeb}"/>
+         </p:column>
+         <p:column colspan="3">
+          <h:outputText value="#{partnerBean.ptnrPerson.webAddress}"/>
+         </p:column>
+        </p:row>
+        <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Individual')}">
+         <p:column >
+         <h:outputText value="#{formText.ptnrCat}"/>
+        </p:column>
+        <p:column colspan="5">
+         <h:outputText value="#{partnerBean.ptnrPerson.category}"/>
+        </p:column>
+        </p:row>
+       <p:row>
+        <p:column colspan="6">
+         <h:outputText value="#{formText.ptnrAddrTab}" styleClass="panelBodyBold"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.addrStr1}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrDefault.houseNumber}"/>
+         <p:spacer width="4"/>
+         <h:outputText value="#{partnerBean.addrDefault.houseName}"/>
+         <p:spacer width="4"/>
+         <h:outputText value="#{partnerBean.addrDefault.street}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.addrTown}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrDefault.town}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.addrPostCd}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrDefault.postCode}"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column colspan="6">
+         <h:outputText value="#{formText.ptnrAddHoTab}" styleClass="panelBodyBold"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column>
+         <h:outputText value="#{formText.addrStr1}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrHeadOff.houseNumber}"/>
+         <p:spacer width="4"/>
+         <h:outputText value="#{partnerBean.addrHeadOff.houseName}"/>
+         <p:spacer width="4"/>
+         <h:outputText value="#{partnerBean.addrHeadOff.street}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.addrTown}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrHeadOff.town}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.addrPostCd}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrHeadOff.postCode}"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column colspan="6">
+         <h:outputText value="#{formText.ptnrAddrRegOffTab}" styleClass="panelBodyBold"/>
+        </p:column>
+       </p:row>
+       <p:row rendered="#{partnerBean.ptnrType.equalsIgnoreCase('Company')}">
+        <p:column>
+         <h:outputText value="#{formText.addrStr1}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrRegOff.houseNumber}"/>
+         <p:spacer width="4"/>
+         <h:outputText value="#{partnerBean.addrRegOff.houseName}"/>
+         <p:spacer width="4"/>
+         <h:outputText value="#{partnerBean.addrRegOff.street}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.addrTown}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrRegOff.town}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{formText.addrPostCd}"/>
+        </p:column>
+        <p:column >
+         <h:outputText value="#{partnerBean.addrRegOff.postCode}"/>
+        </p:column>
+       </p:row>
+       
+      </p:panelGrid>
+      <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                       action="#{partnerBean.onSaveUpdatePtnrAction}" validateClient="true"
+                       actionListener="#{partnerBean.onSaveUpdatePtnr}"/>
+     </p:panel>
+    </p:tab>
+    
+   </p:wizard>
+   
+  </h:form>
+  <h:form id="newAddrFrm" prependId="false">
+   <p:dialog dynamic="true" widgetVar="addNewAddrDlgWv" width="50%">
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrAdd}"/>
+    </f:facet>
+    <p:panelGrid>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRefNew" value="#{formText.addrRef}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="addrRefNew" value="#{partnerBean.addrNew.addrRef}" 
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"
+                        required="true" requiredMessage="#{validationText.addRef}">
+            
+           </p:inputText>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="addrRoomNew" value="#{formText.addrRoom}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrRoomNew" value="#{partnerBean.addrNew.room}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrFloorNew" value="#{formText.addrFloor}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrFloorNew" value="#{partnerBean.addrNew.floor}" size="4"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="addrBuildNew" value="#{formText.addrBuild}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="addrBuildNew" value="#{partnerBean.addrNew.building}" size="40"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="hseNumNew" value="#{formText.addrHouseNumName}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="hseNumNew" value="#{partnerBean.addrNew.houseNumber}"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"/>
+           <h:outputText value="/"/>
+           <p:inputText id="hseNameNew" value="#{partnerBean.addrNew.houseName}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="streetNew" value="#{formText.addrStr1}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="streetNew" value="#{partnerBean.addrNew.street}"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}" required="true" 
+                        requiredMessage="#{validationText.adrStreet}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="street2New" value="#{formText.addrStr2}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="street2New" value="#{partnerBean.addrNew.street2}"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"/> 
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="townNew" value="#{formText.addrTown}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="townNew" value="#{partnerBean.addrNew.town}"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column >
+           <p:outputLabel for="countyNew"  value="#{formText.addrCounty}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inputText id="countyNew" value="#{partnerBean.addrNew.countyName}"
+                        valueChangeListener="#{partnerBean.onAddrNewFieldChange}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="countryNew" value="#{formText.addrCountry}"/>
+          </p:column>
+          <p:column colspan="5">
+           <p:inplace editor="true" >
+            <f:facet name="output" >
+             <h:outputText  value="#{formText.addrCountrySel}" rendered="#{partnerBean.addrNew.country eq null}"/>
+             <h:outputText value="#{partnerBean.addrNew.country.countryName}" 
+                           rendered="#{partnerBean.addrNew.country ne null}"/>
+            </f:facet>
+            <f:facet name="input">
+             <h:selectOneMenu id="countryNew" value="#{partnerBean.addrNew.country}" 
+                           converter="com.rationem.util.converter.country" >
+              <f:selectItems value="#{partnerBean.countries}" var="cntry" itemValue="#{cntry}" 
+                          itemLabel="#{cntry.countryName}"/>
+             </h:selectOneMenu>
+            </f:facet>
+           </p:inplace>
+          
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="postCdNew" value="#{formText.addrPostCd}"/>
+          </p:column>
+      <p:column colspan="5">
+       <p:inputText id="postCdNew" value="#{partnerBean.addrNew.postCode}" 
+                    converter="com.rationem.util.converter.toUpperCase"
+                    valueChangeListener="#{partnerBean.onAddrNewFieldChange}" required="true" 
+                    requiredMessage="#{validationText.adrPostCode}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       
+       <p:commandButton id="trfAddr" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w" 
+                       actionListener="#{partnerBean.onTransferAddr}"/>
+      </p:column>
+      
+     </p:row>
+    </p:panelGrid>
+   </p:dialog>
+  </h:form>
+  
+  <h:form id="addRSchFrm" prependId="false">
+   <p:dialog dynamic="true" widgetVar="addrSrchWv" width="50%" >
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrSrchByPostCd}"/>
+     </f:facet>
+    <p:dataTable id="srchAddrLst" var="addrSrch" value="#{partnerBean.addrList}" 
+                 emptyMessage="#{validationText.addrNoAddrPc}" selection="#{partnerBean.addrSelected}"
+                 rowKey="#{addrSrch.id}" rows="#{partnerBean.usrBuff.tblRows}" paginator="true" 
+                 paginatorAlwaysVisible="false" >
+     <p:ajax event="rowSelectRadio" listener="#{partnerBean.onAddrSelectRow}"/>
+     <p:column width="20" selectionMode="single">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.select}"/>
+      </f:facet>
+     </p:column>
+     <p:column width="100">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.addrHseNumName}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.houseNumber}"/>
+      <h:outputText value="#{addrSrch.houseName}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrStr1}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.street}"/>
+     </p:column>
+     <p:column width="90">
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrPostCd}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.postCode}"/>
+     </p:column>
+     
+    </p:dataTable>
+   </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>

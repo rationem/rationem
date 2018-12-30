@@ -1,0 +1,498 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.apDocDisp}</ui:define>
+ <ui:define name="header">#{pageTitle.apDocDisp}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <div class="ui-g">
+    <div class="ui-g-12">
+     <h:form id="apInvCrFrm" prependId="false">
+      <div class="card">
+       <p:messages  globalOnly="true" />
+       <p:panelGrid layout="grid" columns="7" 
+                  columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-1,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2">
+      <p:outputLabel for="comp" value="#{formText.comp}" />
+      <p:selectOneMenu id="comp" value="#{apDocDisplay.comp}"  
+                       converter="com.rationem.util.converter.CompanyBasic" required="true" >
+       <f:selectItems value="#{apDocDisplay.compList}" var="compV" itemValue="#{compV}" 
+                      itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+      <p:outputLabel for="vend" value="#{formTextAp.apAcnt}" />
+      <p:autoComplete id="vend" value="#{apDocDisplay.apAccount}" dropdown="true"  forceSelection="true" 
+                      var="acntV"
+                      converter="com.rationem.util.converter.ApAccount" itemValue="#{acntV}" 
+                      itemLabel="#{acntV.accountCode}" completeMethod="#{apDocDisplay.onApAcntComplete}">
+       <p:ajax event="itemSelect" />
+      </p:autoComplete>
+      <p:outputLabel for="docNum" value="#{formText.docNum}" />
+      <p:autoComplete id="docNum" value="#{apDocDisplay.doc}" dropdown="true"  forceSelection="true" 
+                      var="docV"
+                      converter="com.rationem.util.converter.DocFi" itemValue="#{docV}" 
+                      itemLabel="#{docV.docNumber}" completeMethod="#{apDocDisplay.onDocComplete}">
+       <p:column headerText="number">
+        <h:outputText value="#{docV.docNumber}"/>
+       </p:column>
+       <p:column  headerText="Posted">
+        <h:outputText value="#{docV.postingDate}">
+         <f:convertDateTime type="date" locale="#{apDocDisplay.comp.locale}" dateStyle="medium"/>
+        </h:outputText>
+       </p:column>
+       
+       <p:ajax event="itemSelect" update="invOP" listener="#{apDocDisplay.onDocSelect}" />
+      </p:autoComplete>
+      
+     </p:panelGrid>
+     </div>
+     <p:outputPanel id="invOP">
+      <div class="card" >
+       <p:tabView id="docTabV" dynamic="true" cache="false">
+        <p:ajax event="tabChange" listener="#{apDocDisplay.onTabChange}" />
+        <p:tab id="basicTabId" title="#{formText.basicTab}" titletip="#{formHelpText.arDocPayTab}" disabled="#{apDocDisplay.docSel eq false}">
+         <p:panel header="#{formText.docEntryBasicPnl}">
+          <p:panelGrid  columns="3" layout="grid"  styleClass="ui-noborder" 
+                        columnClasses="ui-grid-col-2,ui-grid-col-1.ui-grid-col-9">
+           <h:outputText value="#{formTextAp.apAcntCode}" />  
+           <h:outputText value="#{apDocDisplay.docLineAp.apAccount.accountCode}"/>
+           <h:outputText value="#{apDocDisplay.docLineAp.apAccount.apAccountFor.name}"/>
+          </p:panelGrid>
+          <p:panelGrid  
+           columns="6" layout="grid" styleClass="ui-noborder" >
+           <p:outputLabel for="invDate" value="#{formText.docDocDate}"/>
+           <h:outputText id="invDate" value="#{apDocDisplay.doc.documentDate}">
+            <f:convertDateTime dateStyle="medium" locale="#{apDocDisplay.comp.locale}" type="date"/>
+           </h:outputText>
+           <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
+           <h:outputText  id="postDate" value="#{apDocDisplay.doc.postingDate}" >
+            <f:convertDateTime dateStyle="medium" locale="#{apDocDisplay.comp.locale}" type="date"/>
+           </h:outputText>
+           <p:outputLabel for="taxDate" value="#{formText.docTaxDate}"/>
+           <h:outputText  id="taxDate" value="#{apDocDisplay.doc.taxDate}" >
+            <f:convertDateTime dateStyle="medium" locale="#{apDocDisplay.comp.locale}" type="date"/>
+           </h:outputText>
+           <p:outputLabel for="docType" value="#{formText.docType}"/>
+           <h:outputText  id="docType" value="#{apDocDisplay.doc.docType.name}" />
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <p:outputLabel for="ptnrRef" value="#{formText.docPtnrTxt}"/>
+           <h:outputText id="ptnrRef" value="#{apDocDisplay.doc.partnerRef}"/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <p:outputLabel for="payTerms" value="#{formText.docPayTerms}"/>
+           <h:outputText id="payTerms" value="#{apDocDisplay.docLineAp.payTerms.description}" />
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <p:outputLabel for="dueDate" value="#{formText.docDueDate}"/>
+           <h:outputText  id="dueDate" value="#{apDocPost.docLineAp.dueDate}" >
+            <f:convertDateTime dateStyle="medium" locale="#{apDocDisplay.comp.locale}" type="date"/>
+           </h:outputText>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+           <h:panelGroup/>
+          </p:panelGrid>
+          <p:panelGrid columns="4" layout="grid" columnClasses="ui-grid-col-2,ui-grid-col-8,ui-grid-col-1,ui-grid-col-1"
+                     styleClass="ui-noborder">
+           <p:outputLabel for="docHdrTxt" value="#{formText.docHdrTxt}"/>
+           <h:outputText id="docHdrTxt" value="#{apDocDisplay.doc.docHdrText}"  />
+          </p:panelGrid>
+         </p:panel>
+        </p:tab>
+        <p:tab id="payTabId" title="#{formText.payTab}" titletip="#{formHelpText.arDocPayTab}" disabled="#{apDocDisplay.docSel eq false}">
+         <p:panel header="#{formTextAp.apDocPayPnl}">
+         <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-2,ui-grid-col-10">
+          <p:outputLabel for="payType" value="#{formText.docPayType}" />
+          <h:outputText id="payType" value="#{apDocDisplay.docLineAp.payType.description}"/>
+          
+          <p:outputLabel for="apBnkAcnt" value="#{formTextAp.apDocBnkAc}"/>
+          <h:outputText id="apBnkAcnt" value="#{apDocDisplay.docLineAp.paymntBank.accountName}"/>
+         </p:panelGrid>
+        </p:panel>
+        </p:tab>
+        <p:tab id="orderTabId" title="#{formText.orderTab}" titletip="#{formHelpText.arDocOrderTab}" disabled="#{apDocDisplay.docSel eq false}">
+         <p:panel header="#{formTextAp.apDocOrderPnl}">
+          <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-">
+           <p:outputLabel for="orderNum" value="#{formTextAp.apDocOrdNum}"/>
+           <h:outputText id="orderNum" value="#{apDocDisplay.docLineAp.orderReference}"/>
+           <p:outputLabel for="orderedBy" value="#{formTextAp.apDocOrdBy}"/>
+           <h:outputText id="orderedBy" value="#{apDocDisplay.docLineAp.orderedBy.nameStructured}"/>
+           <p:commandButton icon="fa fa-file-pdf-o" ajax="false" value="#{formText.download}">
+            <p:fileDownload value="#{apDocDisplay.order}"/>
+           </p:commandButton> 
+          </p:panelGrid>
+         </p:panel>
+        </p:tab>
+        <p:tab id="notesTabId" title="#{formText.notesTab}" disabled="#{apDocDisplay.docSel eq false}" 
+              titletip="#{formHelpText.arDocNotesPanel}" >
+         <p:panelGrid columns="2" columnClasses="ui-grid-1,ui-grid-11">
+          <p:outputLabel for="invNotes" value="#{formText.docNote}"/>
+          <p:editor id="invNotes" value="#{apDocDisplay.doc.notes}" height="100" disabled="true" controls=" " />
+          <p:outputLabel for="lineNotes" value="#{formTextap.apDocApLnNote}"/>
+          <p:editor id="lineNotes" value="#{apDocDisplay.docLineAp.notes}" height="100" disabled="true"
+                    controls=""/>
+        </p:panelGrid>
+        
+       
+        </p:tab>
+        <p:tab id="linesTabId" title="#{formTextAp.apDocLinesTab}" disabled="#{apDocDisplay.docSel eq false}"
+              titletip="#{formHelpText.docLnPnl}"
+              >
+        
+       
+         <p:dataTable
+          id="lines" value="#{apDocDisplay.doc.docLines}"  var="ln" rowKey="#{ln.id}"
+          rowIndexVar="lnRowV" emptyMessage="#{listHeading.docLnsNon}"
+          rows="#{apDocDisplay.usrBuff.tblRows}" selection="#{apDocDisplay.docLineSel}" 
+          widgetVar="docLinesWv" reflow="true" rowExpandMode="single"
+          selectionMode="single"  paginatorAlwaysVisible="true" paginator="false"
+          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+          <p:ajax event="contextMenu" />
+          <p:ajax event="rowToggle" />
+          <f:facet name="header">
+           <h:outputText value="#{formTextAp.apDocLinesDataHdr}" />
+          </f:facet>
+
+          <p:column width="4">
+           <p:rowToggler  />
+          </p:column>
+          <p:column width="70" sortBy="#{ln.postType.description}">
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.docLnPstKey}"/>
+           </f:facet>
+           <h:outputText value="#{ln.postType.description}"/>
+           
+          </p:column>
+          <p:column width="70" >
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.docLineAcnt}"/>
+           </f:facet>
+           <h:outputText value="#{ln.accountRef}"/>
+          </p:column  >
+          <p:column width="100" sortBy="#{ln.sortOrder}">
+           <f:facet name="header">
+            <h:outputText value="#{formText.docLineSort}"/>
+           </f:facet>
+           <h:outputText value="#{ln.sortOrder}"/>
+          </p:column>
+          <p:column sortBy="#{ln.lineText}">
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.docLnText}"/>
+           </f:facet>
+           <h:outputText value="#{ln.lineText}"/>
+          </p:column>
+          <p:column styleClass="column-financialValue" sortBy="#{ln.docAmount}">
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.docLineDebit}"/>
+           </f:facet>
+           <h:outputText value="#{ln.docAmount}" rendered="#{ln.postType.debit}">
+            <f:convertNumber locale="#{apDocDisplay.doc.company.locale}" minIntegerDigits="1"
+                            minFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}"
+                            maxFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:column styleClass="column-financialValue" sortBy="#{ln.docAmount}">
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.docLineCredit}"/>
+           </f:facet>
+           <h:outputText value="#{ln.docAmount}" rendered="#{!ln.postType.debit}">
+            <f:convertNumber locale="#{apDocDisplay.doc.company.locale}" minIntegerDigits="1"
+                            minFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}"
+                            maxFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}"/>
+           </h:outputText>
+          </p:column>
+          <p:rowExpansion >
+           <p:panelGrid columnClasses="ui-g-1,ui-g-2,ui-g1-1,ui-g-2,ui-g-1,ui-g-2" layout="grid" 
+                        columns="6" rendered="#{ln.lineType.lineCode eq 'GL'}" >
+            
+            <h:outputText value="#{formText.docLineTaxCode}"/>
+            <h:outputText value="#{apDocDisplay.docLineSel.vatCode.vatCode.code}" />
+            <h:outputText value="#{formText.docLnAmnt}"/>
+            <h:outputText value="#{ln.taxAmnt}">
+             <f:convertNumber locale="#{apDocDisplay.doc.company.locale}" minIntegerDigits="1"
+                            minFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}"
+                            maxIntegerDigits="#{apDocDisplay.doc.company.currency.minorUnit}"/>
+            </h:outputText>
+            <h:outputText value="#{formText.docLineRestrFnd}"/>
+            <h:outputText value="#{ln.restrictedFund.name}"/>
+            <h:outputText value="#{formText.docLineCostCent}"/>
+            <h:outputText value="#{ln.costCentre.costCentreName}"/>
+            <h:outputText value="#{formText.docLineProg}"/>
+            <h:outputText value="#{ln.programme.name}"/>
+           </p:panelGrid>
+          </p:rowExpansion>
+          <p:columnGroup type="footer">
+           <p:row>
+            <p:column colspan="5" style="text-align:right;" footerText="Totals:"/>
+            <p:column styleClass="column-financialValue"  >
+             <f:facet name="footer">
+              <h:outputText value="#{apDocDisplay.totalDebit}" style="font-weight: bold">
+               <f:convertNumber locale="#{apDocDisplay.doc.company.locale}" minIntegerDigits="1"
+                            minFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}"
+                            maxFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}" />
+              </h:outputText>
+             </f:facet>
+            </p:column>
+            <p:column styleClass="column-financialValue">
+             <f:facet name="footer">
+              <h:outputText value="#{apDocDisplay.totalCredit}" style="font-weight: bold">
+               <f:convertNumber locale="#{apDocDisplay.doc.company.locale}" minIntegerDigits="1"
+                            minFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}"
+                            maxFractionDigits="#{apDocDisplay.doc.company.currency.minorUnit}" />
+              </h:outputText>
+             </f:facet>
+            </p:column>
+           </p:row>
+          </p:columnGroup>
+         </p:dataTable>
+        </p:tab>
+        <p:tab id="contactsId" title="#{formTextAp.apAcntContTab}" disabled="#{apDocDisplay.docSel eq false}">
+         <p:panel header="#{formTextAp.apAcntContPnl}">
+          <p:accordionPanel prependId="true" id="contsAccordId" dynamic="true" cache="false">
+           
+           <p:tab id="sel" title="Contact selection">
+            <p:growl id="contactGr"/>
+            <p:messages id="contErr" />
+            <p:panelGrid id="contSelOpt" layout="grid" columns="5" columnClasses="ui-g-1,ui-g-2,ui-g-1,ui-g-2,ui-g-5">
+             
+             <p:outputLabel for="fromDt" value="#{formText.fromDate}"/>
+             <p:calendar id="fromDt" value="#{apDocDisplay.contSelOpt.from}" 
+                         locale="#{apDocDisplay.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+             <p:outputLabel for="toDt" value="#{formText.toDate}"/>
+             <p:calendar id="toDt" value="#{apDocDisplay.contSelOpt.to}" 
+                         locale="#{apDocDisplay.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+             <h:panelGroup />
+             <p:outputLabel for="type" value="#{formText.contType}"/>
+             <p:splitButton id="type" value="#{formText.contTyDoc}" actionListener="#{apDocDisplay.onContactLoadDoc}"
+                            process="docTabV:contsAccordId" update="docTabV:contsAccordId">
+              <p:menuitem value="#{formText.contTyAcnt}"  actionListener="#{apDocDisplay.onContactLoadAcnt}"/>
+              <p:menuitem value="#{formText.contTyPtnr}" actionListener="#{apDocDisplay.onContactLoadPtnr}" />
+             </p:splitButton>
+             
+            </p:panelGrid>
+           </p:tab>
+           <p:tab id="contTab" title="#{formText.docLineContacts}">
+            
+            
+            <p:contextMenu for="contTbl">
+             <p:menuitem icon="fa fa-file-o" value="#{formText.add}" actionListener="#{apDocDisplay.onContactNewMnu}"/>
+            </p:contextMenu>
+            <p:dataTable 
+             id="contTbl"  reflow="true" var="contV" value="#{apDocDisplay.contacts}" 
+             rowKey="#{contV.id}" paginator="true" paginatorAlwaysVisible="true" rowExpandMode="single"
+             emptyMessage="#{listHeading.contListEmpty}"  rows="#{apDocDisplay.usrBuff.tblRows}"
+             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+            >
+             <f:facet name="{Exporters}">
+              <h:commandLink style="float:right;"  >
+               <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+               <p:dataExporter type="xls" target="budTblId" fileName="#{listHeading.contFN}" 
+                        postProcessor="#{apDocDisplay.postProcessXLS}" />
+              </h:commandLink>
+              <h:commandLink style="float:right;">
+               <p:graphicImage name="/images/csv_text.png" width="24" />
+               <p:dataExporter type="csv" target="budTblId" fileName="#{listHeading.contFN}" />
+              </h:commandLink>
+             </f:facet>
+             <f:facet name="header">
+              <h:outputText value="#{listHeading.contAvail}"/>
+             </f:facet>
+             <p:column width="10">
+              <p:rowToggler />
+             </p:column>
+             <p:column width="50" sortBy="#{contV.role.description}" >
+              <f:facet name="header">
+               <h:outputText value="#{listHeading.contRole}"/>
+              </f:facet>
+              <h:outputText value="#{contV.role.description}"/>
+             </p:column>
+             <p:column width="50" styleClass="column-textCentre" sortBy="#{contV.summary}">
+              <f:facet name="header">
+               <h:outputText value="#{listHeading.contSum}"/>
+              </f:facet>
+              <h:outputText value="#{contV.summary}"/>
+             </p:column>
+             <p:column styleClass="column-textCentre" sortBy="#{contV.createdOn}" sortable="true"> 
+              <f:facet name="header">
+               <h:outputText value="#{listHeading.contCr}"/>
+              </f:facet>
+              <h:outputText value="#{contV.createdOn}">
+               <f:convertDateTime type="date" dateStyle="medium"/>
+              </h:outputText>
+             </p:column>
+             <p:column styleClass="column-textCentre" sortBy="#{contV.respibilityOf.nameStructured}" >
+              <f:facet name="header" >
+               <h:outputText value="#{listHeading.contResp}" />
+              </f:facet>
+              <h:outputText value="#{contV.respibilityOf.nameStructured}"/>
+             </p:column>
+             <p:column styleClass="column-textCentre" sortBy="#{contV.actionContact}"  >
+              <f:facet name="header">
+               <h:outputText value="#{listHeading.contAct}" styleClass="column-textRight"/>
+              </f:facet>
+              <h:outputText value="#{contV.actionContact?formText.yes:formText.no}"/>
+             </p:column>
+             <p:column styleClass="column-textCentre" sortBy="#{contV.actionCompleted}">
+              <f:facet name="header">
+               <h:outputText value="#{listHeading.contCompl}"/>
+              </f:facet>
+              <h:outputText value="#{contV.actionCompleted?formText.yes:formText.no}"/>
+             </p:column>
+             <p:column styleClass="column-textCentre" sortBy="#{contV.dueDate}">
+              <f:facet name="header">
+               <h:outputText value="#{listHeading.contDue}"/>
+              </f:facet>
+              <h:outputText value="#{contV.dueDate}">
+               <f:convertDateTime type="date" dateStyle="medium"/>
+              </h:outputText>
+             </p:column>
+             <p:column styleClass="column-textCentre" sortBy="#{contV.completedDate}">
+              <f:facet name="header">
+               <h:outputText value="#{listHeading.contCl}"/>
+              </f:facet>
+              <h:outputText value="#{contV.completedDate}">
+               <f:convertDateTime type="date" dateStyle="medium"/>
+              </h:outputText>
+             </p:column>
+             <p:rowExpansion>
+              <p:editor  disabled="true" value="#{contV.detail}" height="700" controls="bold italic underline"/>
+             </p:rowExpansion>
+            </p:dataTable>
+           </p:tab>
+          </p:accordionPanel>
+         </p:panel>
+        </p:tab>
+        <p:tab id="auditId" title="#{formText.docAudRecs}" disabled="#{apDocDisplay.docSel eq false}"  >
+         <p:dataTable 
+          id="auditTbl" value="#{apDocDisplay.auditList}" var="audRecV" reflow="true"
+          rowKey="#{audRecV.id}" paginator="true" paginatorAlwaysVisible="true" rowExpandMode="single"
+          emptyMessage="#{listHeading.docAudListEmpty}"  rows="#{apDocDisplay.usrBuff.tblRows}"
+          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+          <f:facet name="header">
+           <h:outputText value="#{listHeading.docAudList}" />
+          </f:facet>
+          <p:column width="90" >
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.audDate}"/>
+           </f:facet>
+           <h:outputText value="#{audRecV.auditDate}">
+            <f:convertDateTime type="date" locale="#{apDocDisplay.doc.company.locale}" dateStyle="medium"/>
+           </h:outputText>
+          </p:column>
+          <p:column width="90">
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.audTy}"/>
+           </f:facet>
+           <h:outputText value="Created" rendered="#{audRecV.usrAction eq 'I'}" />
+           <h:outputText value="Update" rendered="#{audRecV.usrAction eq 'U'}" />
+          </p:column>
+          <p:column >
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.audfield}"/>
+           </f:facet>
+           <h:outputText value="#{audRecV.fieldNameTranslated}" />
+          </p:column>
+          <p:column >
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.audOld}"/>
+           </f:facet>
+           <h:outputText value="#{audRecV.oldValue}"/>
+          </p:column>
+          <p:column >
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.audNew}"/>
+           </f:facet>
+           <h:outputText value="#{audRecV.newValue}"/>
+          </p:column>
+          <p:column >
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.audPers}"/>
+           </f:facet>
+           <h:outputText value="#{audRecV.createdBy.nameStructured}"/>
+          </p:column>
+          <p:column >
+           <f:facet name="header">
+            <h:outputText value="#{listHeading.audSource}"/>
+           </f:facet>
+           <h:outputText value="#{audRecV.source}"/>
+          </p:column>
+         </p:dataTable>            
+        </p:tab>
+       
+         
+       </p:tabView>
+      </div>
+     </p:outputPanel>
+     </h:form>
+    
+   
+  
+     <h:form id="addContFrm" prependId="false" >
+      <p:dialog id="addContId"  widgetVar="addContWv" modal="true" dynamic="true" >
+       <f:facet name="header">
+        <h:outputText value="#{formText.add}"/>
+       </f:facet>
+       <p:panelGrid id="addPG" columns="5" columnClasses="ui-g-1,ui-g-3,ui-g-1,ui-g-2,ui-g-5" layout="grid">
+        <p:outputLabel for="contAddSum" value="#{formText.contSumm}"/>
+        <p:inputText id="contAddSum" value="#{apDocDisplay.contact.summary}" required="true"
+                     requiredMessage="#{validationText.contSummReq}" size="50">
+         <p:ajax event="blur"/>
+        </p:inputText>
+        <p:outputLabel for="contAddType" value="#{formText.contType}"/>
+        <p:selectOneMenu id="contAddType" value="#{apDocDisplay.contact.role}"
+                        converter="com.rationem.util.converter.ContactRole">
+         <f:selectItems value="#{apDocDisplay.contactRoleList}" var="contRlV" 
+                       itemLabel="#{contRlV.description}" itemValue="#{contRlV}"/>
+        </p:selectOneMenu>
+       </p:panelGrid>
+       <p:panelGrid columns="2" columnClasses="ui-g-1,ui-g-11" layout="grid">
+        <p:outputLabel for="contAddDet" value="#{formText.contDet}"/>
+        <p:editor id="contAddDet" value="#{apDocDisplay.contact.detail}" height="150"/>
+       </p:panelGrid>
+       <p:panelGrid columns="5" columnClasses="ui-g-2,ui-g-3,ui-g-1,ui-g-2,ui-g-4"  layout="grid">
+        <p:outputLabel for="contAddAtt" value="#{formText.attachmnt}"/>
+        <p:fileUpload id="contAddAtt" auto="true" label="#{formText.contAttSel}"
+                      fileUploadListener="#{apDocDisplay.onContactAttachUpload}"
+                     allowTypes="/(\.|\/)(gif|jpe?g|png|doc|pdf|xls|txt|docx|xlsx)$/"
+                     sizeLimit="100000"  />
+        
+        <p:outputLabel for="contNewAct" value="#{formText.contAct}"/>
+        
+        <p:selectBooleanButton id="contNewAct" offLabel="#{formText.no}" onLabel="#{formText.yes}"
+                              value="#{apDocDisplay.contact.actionContact}"/>
+        <h:panelGroup />
+        <p:outputLabel for="contNewResp" value="#{formText.contResp}"/>
+        <p:autoComplete id="contNewResp" value="#{apDocDisplay.contact.respibilityOf}"
+                       var="respV" converter="com.rationem.util.converter.PartnerIndividual"
+                       completeMethod="#{apDocDisplay.personPtnrComplete}" dropdown="true"
+                       forceSelection="true" itemValue="#{respV}" itemLabel="#{respV.familyName}"    >
+         <p:ajax event="itemSelect" listener="#{apDocDisplay.onNewContRespPersSel}" />
+        
+        </p:autoComplete>
+        
+        <p:outputLabel for="contNewEnded" value="#{formText.contDueOn}"/>
+        <p:calendar id="contNewEnded" value="#{apDocDisplay.contact.dueDate}" mode="popup" 
+                   navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"/>
+        <h:panelGroup />
+        <p:commandButton id="trfCont" value="#{formText.transfer}" icon="fa fa-long-arrow-left" 
+                         actionListener="#{apDocDisplay.onContactTrf}" process=""/>
+        <p:commandButton value="#{formText.close}" icon="fa fa-close" onclick="PF('addContWv').hide();"/>
+       </p:panelGrid>
+      </p:dialog> 
+     </h:form>
+    </div>
+   </div>
+  </div>
+ </ui:define>
+</ui:composition>

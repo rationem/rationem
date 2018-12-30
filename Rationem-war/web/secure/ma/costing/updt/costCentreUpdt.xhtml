@@ -1,0 +1,150 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.maCostCentUpdt}</ui:define>
+ <ui:define name="header">#{pageTitle.maCostCentUpdt}</ui:define>
+ <ui:define name="content">
+  <h:form id="costCntreUpdt" prependId="false" >
+   <p:growl autoUpdate="true" />
+       <p:toolbar>
+        <f:facet name="left">
+         <p:commandButton id="costCntreCrBtn" icon="fa fa-floppy-o" value="#{formText.save}" 
+                          action="#{costCenreBean.onSaveUpdateCostCent}" 
+                       title="#{formHelpText.maCostCentreSave}" />
+         <p:commandButton type="reset" value="#{formText.reset}" />
+        </f:facet >
+        
+       </p:toolbar>
+   <h:panelGrid columns="2">
+    <p:outputLabel for="comp" value="#{formText.maCostCentComp}"/>
+    <p:selectOneMenu id="comp" value="#{costCenreBean.newCostCent.costCentreForCompany}" 
+                     converter="com.rationem.util.converter.CompanyBasic" required="true">
+     <f:selectItems value="#{costCenreBean.compList}" var="comp" itemValue="#{comp}" 
+                    itemLabel="#{comp.reference} #{comp.name}"/>
+     </p:selectOneMenu>
+   </h:panelGrid >
+   <p:contextMenu for="ccList">
+    <p:menuitem value="#{formText.edit}" icon="ui-icon-pencil" actionListener="#{costCenreBean.onCcEditDlgShow}" />
+   </p:contextMenu>
+   <p:dataTable id="ccList" value="#{costCenreBean.costCentreList}" emptyMessage="#{validationText.maCostCentFoundNone}"
+                var="costCent"  paginator="true" sortBy="#{costCent.refrence}"  filteredValue="#{costCenreBean.costCentresFiltered}"
+                paginatorAlwaysVisible="true+"  
+                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                selection="#{costCenreBean.costCentreSelected}"
+                selectionMode="single" rowKey="#{costCent.id}">
+    <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="ccList" fileName="#{formText.maCostCent_fn}" 
+                        postProcessor="#{countryBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="ccList" fileName="#{formText.maCostCent_fn}" />
+      </h:commandLink>
+     </f:facet>
+    <p:column  sortBy="#{costCent.refrence}" filterBy="#{costCent.refrence}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.maCostCentRef}"/>
+     </f:facet>
+     <h:outputText value="#{costCent.refrence}"/>
+    </p:column>
+    <p:column sortBy="#{costCent.costCentreName}" filterBy="#{costCent.costCentreName}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{formText.maCostCentName}"/>
+     </f:facet>
+     <h:outputText value="#{costCent.costCentreName}"/>
+    </p:column>
+    <p:column sortBy="#{costCent.validFrom}" >
+     <f:facet name="header">
+      <h:outputText value="#{formText.fromDate}"/>
+     </f:facet>
+     <h:outputText value="#{costCent.validFrom}">
+      <f:convertDateTime type="date" dateStyle="medium" />
+     </h:outputText>
+    </p:column>
+    <p:column sortBy="#{costCent.validTo}"  >
+     <f:facet name="header">
+      <h:outputText value="#{formText.toDate}"/>
+     </f:facet>
+     <h:outputText value="#{costCent.validTo}">
+      <f:convertDateTime type="date" dateStyle="medium" />
+     </h:outputText>
+    </p:column>
+    <p:column sortBy="#{costCent.responsibilityOf.nameStructured}" filterBy="#{costCent.responsibilityOf.nameStructured}" filterMatchMode="contains" >
+     <f:facet name="header">
+      <h:outputText value="#{formText.maCostCentResp}"/>
+     </f:facet>
+     <h:outputText value="#{costCent.responsibilityOf.nameStructured}"/>
+     
+    </p:column>
+   </p:dataTable>
+   
+  </h:form>
+  
+  <h:form id="editCcFrm" prependId="false">
+   <p:dialog id="editCcDlgId" widgetVar="editCcDlgWv" dynamic="true" modal="true"> 
+    <f:facet name="header">
+     <h:outputText value="#{formText.maCostCentEdit}"/>
+    </f:facet>
+    <h:panelGrid id="updtCcPg" columns="2">
+    <p:outputLabel for="ref" value="#{formText.maCostCentRef}"/>
+    <p:inputText id="ref" value="#{costCenreBean.updateCostCent.refrence}" required="true" 
+                    requiredMessage="#{validationText.maCostCentRef}"  />
+    
+    
+    <p:outputLabel for="name" value="#{formText.maCostCentName}"/>
+    <p:inputText id="name" value="#{costCenreBean.updateCostCent.costCentreName}"/>
+    
+     <p:outputLabel for="resp" value="#{formText.maCostCentResp}" />
+     <h:panelGroup>
+      <p:autoComplete id="resp" value="#{costCenreBean.updateCostCent.responsibilityOf}" dropdown="true" 
+                     converter="com.rationem.util.converter.PartnerIndividual" forceSelection="true"
+                     var="pers" itemValue="#{pers}" itemLabel="#{pers.familyName} #{pers.firstName}"
+                     completeMethod="#{costCenreBean.respPersComplete}" 
+                     maxlength="#{costCenreBean.completeResultSize}" />
+      <p:commandButton icon="ui-icon-document"  actionListener="#{costCenreBean.onAddRespPersonDlg}"/>
+     </h:panelGroup>
+     <p:outputLabel for="fromDate" value="#{formText.maCostCentValidFr}" />
+     <p:calendar id="fromDate" value="#{costCenreBean.updateCostCent.validFrom}" 
+                    mode="popup" required="true"
+                    requiredMessage="#{validationText.maCostCentreValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="12"/>
+     <p:outputLabel for="toDate" value="#{formText.maCostCentValidTo}" />
+     <p:calendar id="toDate" value="#{costCenreBean.updateCostCent.validTo}" 
+                    mode="popup" required="true"
+                    requiredMessage="#{validationText.maCostCentreValidTo}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="12"/>
+     <p:commandButton value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"  actionListener="#{costCenreBean.onCcEditTransfer}"/>
+    
+   </h:panelGrid>
+   </p:dialog>
+  </h:form>
+  
+  <h:form id="addRespPersDlg">
+   <p:dialog  header="#{formText.maResponsiblePersonCr}" widgetVar="crPersDlg" modal="true">
+    <h:panelGrid id="indivCrGrid" columns="2">
+     <p:outputLabel for="title" value="#{formText.ptnrTitle}"/>
+     <p:inputText id="title" value="#{costCenreBean.respPerson.title}"/>
+     <p:outputLabel for="firstName" value="#{formText.ptnrFirstName}"/>
+     <p:inputText id="firstName" value="#{costCenreBean.respPerson.firstName}" required="true"/>
+     <p:outputLabel for="middleName" value="#{formText.ptnrMiddleName}"/>
+     <p:inputText id="middleName" value="#{costCenreBean.respPerson.middleName}"/>
+     <p:outputLabel for="familyName" value="#{formText.ptnrFamilyName}"/>
+     <p:inputText id="familyName" value="#{costCenreBean.respPerson.familyName}" required="true"/>
+     <p:commandButton actionListener="#{costCenreBean.onAddRespPerson}"  icon="ui-icon-arrowthick-1-w" 
+                      value="#{formText.transfer}" />
+     <p:commandButton   actionListener="#{costCenreBean.onAddRespPersonClose}" immediate="true"
+                      icon="ui-icon-close" value="#{formText.close}"/>
+    </h:panelGrid>
+   </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

@@ -1,0 +1,51 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui" 
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+  <ui:define name="title">#{menuOption.trLstBankOrg}</ui:define>
+  <ui:define name="header"> </ui:define>
+  <ui:define name="content">
+   <h:form id="bnkOrgCr" prependId="false">
+    <p:growl autoUpdate="true"/>
+    <p:toolbar>
+     <f:facet name="left">
+     <h:commandButton id="downloadBtnExcel" value="#{formText.genExcelDownload}" 
+                      image="/resources/images/Excel-48.gif" >
+      <p:dataExporter type="xls" fileName="#{formText.bnkBank}" target="bnkList"/>
+     </h:commandButton>
+      <h:commandButton id="downloadBtnCsv" value="#{formText.genCsvDownload}" 
+                      image="/resources/images/csv_text.png" >
+      <p:dataExporter type="csv" fileName="#{formText.bnkBank}" target="bnkList"/>
+     </h:commandButton>
+     </f:facet >
+    </p:toolbar>
+    <p:dataTable id="bnkList" value="#{bankOrganisationBean.bankList}" var="bank" 
+                 sortBy="#{bank.bankCode}"  >
+     <p:column styleClass="column-bnkSortCd" sortBy="#{bank.bankCode}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.bnkOrgRef}"/>
+      </f:facet>
+      <h:outputText value="#{bank.bankCode}"/>
+     </p:column>
+     <p:column styleClass="column-bnkSortCd" sortBy="#{bank.chapsBankCode}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.bnkChapsCd}"/>
+      </f:facet>
+      <h:outputText value="#{bank.chapsBankCode}"/>
+     </p:column>
+     <p:column sortBy="#{bank.bankOrganisation.tradingName}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.bnkName}"/>
+      </f:facet>
+      <h:outputText value="#{bank.bankOrganisation.tradingName}"/>
+     </p:column>
+    </p:dataTable>
+    
+   </h:form>
+  </ui:define>
+</ui:composition>
+   
+
+

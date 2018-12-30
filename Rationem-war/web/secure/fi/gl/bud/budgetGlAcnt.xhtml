@@ -1,0 +1,181 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiBudGlAcnt}</ui:define>
+ <ui:define name="header">#{pageTitle.fiBudGlAcnt}</ui:define>
+ <ui:define name="content">
+  <h:form id="glActBud" prependId="false" >
+   <p:toolbar >
+    <f:facet name="left">
+     <p:commandButton icon="fa fa-floppy-o" title="#{formText.save}" 
+                      actionListener="#{budgetGlAccount.onGlAcntBudSave}"/>
+     <p:commandButton icon="fa fa-arrows" title="Even Spread" 
+                      actionListener="#{budgetGlAccount.onBudSpread}"/>
+     <span class="ui-separator">
+      <span class="ui-icon ui-icon-grip-dotted-vertical" />
+     </span>
+     <h:outputText value="#{formText.budAnnual}"/>
+     <p:spacer width="4"/>
+     <p:inputText id="annTotal" value="#{budgetGlAccount.annualTotal}" styleClass="budTotal">
+      <f:convertNumber type="number" locale="#{budgetGlAccount.compSel.locale}" 
+                       minIntegerDigits="1"
+                       minFractionDigits="#{budgetGlAccount.compSel.currency.minorUnit}"
+                       maxFractionDigits="#{budgetGlAccount.compSel.currency.minorUnit}"/>
+     </p:inputText>
+    </f:facet>
+   </p:toolbar>
+   <p:messages autoUpdate="true" closable="true"/>
+   <p:panelGrid id="selOpt" styleClass="ui-noborder" >
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{budgetGlAccount.compSel}" var="compSmV" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{budgetGlAccount.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+       <p:column>
+        <h:outputText value="#{compSmV.reference}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{compSmV.name}"/>
+       </p:column>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText id="compName" value="#{budgetGlAccount.compSel.name}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <h:outputText value="#{formText.docAcntRef}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="glAcnt" value="#{budgetGlAccount.glAcntSel}" 
+                       converter="com.rationem.util.converter.FiGlAccountComp" var="glAcntSmV"
+                       filter="true" filterMatchMode="contains" syncTooltip="true"
+                       valueChangeListener="#{budgetGlAccount.onAccountChange}"
+                       >
+       <f:selectItems value="#{budgetGlAccount.glAcntList}" var="glAcntV" itemValue="#{glAcntV}"
+                      itemLabel="#{glAcntV.coaAccount.ref}"/>
+       <p:ajax event="itemSelect"/>
+       <p:column>
+        <h:outputText value="#{glAcntSmV.coaAccount.ref}"/>
+        <p:spacer width="1"/> <h:outputText value="-"/> <p:spacer width="1"/>
+        <h:outputText value="#{glAcntSmV.coaAccount.name}"/>
+       </p:column>
+       </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText id="glAcntName" value="#{budgetGlAccount.glAcntSel.coaAccount.name}"/>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="budYr" value="#{formText.fisYear}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="budYr" value="#{budgetGlAccount.budYearSel}" 
+                       disabled="#{budgetGlAccount.budgetYears eq null}"
+                       valueChangeListener="#{budgetGlAccount.onBudgetYearChange}">
+       <f:selectItems var="budYr" value="#{budgetGlAccount.budgetYears}" itemValue="#{budYr}" 
+                      itemLabel="#{budYr}"/>
+       <p:ajax event="change"/>
+       <p:ajax event="itemSelect" listener="#{budgetGlAccount.onBudYearClick}" />
+     
+      </p:selectOneMenu>
+     </p:column>
+     
+     <p:column>
+      <p:commandButton id="addBudYrBtn" value="#{formText.budAddYear}" icon="fa fa-file-o"
+                       type="button" onclick="PF('addBudYrWv').show();"/>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   <p:dataTable id="budTblId" var="budPer" value="#{budgetGlAccount.budgetList}" 
+         emptyMessage="No budget periods for year" style="width: 30%;" editable="true"
+         paginator="true" paginatorAlwaysVisible="true"
+         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+         rows="#{budgetGlAccount.usrBuff.tblRows}"        editMode="row">
+    <p:ajax event="rowEdit" listener="#{budgetGlAccount.onBudPerValEdit}"/>
+    <p:ajax event="rowEditInit" listener="#{budgetGlAccount.onBudPerValEditInit}"/>
+    <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="budTblId" fileName="#{formText.budPers_fn}" 
+                        postProcessor="#{glTemplateJnl.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="budTblId" fileName="#{formText.budPers_fn}" />
+      </h:commandLink>
+      
+     </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{formText.budPers}" rendered="#{budgetGlAccount.budYearSel  eq 0}"/>
+     <h:outputText value="#{formText.budPer4Yr}" rendered="#{budgetGlAccount.budYearSel  gt 0}"/>
+     <p:spacer width="3"/>
+     <h:outputText value="#{budgetGlAccount.budYearSel}" rendered="#{budgetGlAccount.budYearSel  gt 0}">
+      <f:convertNumber type="number" integerOnly="true" groupingUsed="false"/>
+     </h:outputText>
+    </f:facet>
+    <p:column width="50">
+     <f:facet name="header">
+      <h:outputText value="#{formText.budPer}"/>
+     </f:facet>
+     <h:outputText value="#{budPer.balPeriod}"/>
+    </p:column>
+    <p:column styleClass="column-financialValue">
+     <f:facet name="header">
+      <h:outputText value="#{formText.docAmnt}"/>
+     </f:facet>
+     <p:cellEditor>
+      <f:facet name="output">
+       <h:outputText value="#{budPer.periodBudgetAmount}">
+        <f:convertNumber type="number" locale="#{budgetGlAccount.glAcntSel.company.locale}" minIntegerDigits="1"
+                       maxFractionDigits="#{budgetGlAccount.glAcntSel.company.currency.minorUnit}"
+                       minFractionDigits="#{budgetGlAccount.glAcntSel.company.currency.minorUnit}"/>
+       </h:outputText>
+      </f:facet>
+      <f:facet name="input">
+       <p:inputText value="#{budPer.periodBudgetAmount}">
+        <f:convertNumber type="number" locale="#{budgetGlAccount.glAcntSel.company.locale}" minIntegerDigits="1"
+                       maxFractionDigits="#{budgetGlAccount.glAcntSel.company.currency.minorUnit}"
+                       minFractionDigits="#{budgetGlAccount.glAcntSel.company.currency.minorUnit}"/>
+       </p:inputText>
+      </f:facet>
+     </p:cellEditor>
+    </p:column>
+    <p:column exportable="false" width="20">
+     <f:facet name="header">
+      <h:outputText value="#{formText.edit}"/>
+     </f:facet>
+     <p:rowEditor/>
+    </p:column>
+   </p:dataTable>
+  </h:form>
+  <h:form id="addYearFrm" prependId="false">
+   <p:dialog dynamic="true" widgetVar="addBudYrWv" closable="false" modal="true">
+    <f:facet name="header">
+     <h:outputText value="#{formText.budYearNew}"/>
+    </f:facet>
+    <p:messages autoUpdate="true" closable="true"/>
+    <p:panelGrid columns="2">
+     <p:outputLabel for="budYrInpt" value="#{formText.budYr}"/>
+     <p:inputText id="budYrInpt" value="#{budgetGlAccount.budYearNew}" maxlength="4" required="true"
+                  requiredMessage="#{validationText.glAcntBudYr}"
+                  validatorMessage="#{validationText.glAcntBudYrRng}">
+      <f:convertNumber type="number" integerOnly="true" groupingUsed="false"/>
+      <f:validateLongRange maximum="9999" minimum="1960"   /> 
+      <f:validateLength minimum="4" maximum="4" />
+     </p:inputText>
+     <p:commandButton id="budYrTrf" value="#{formText.transfer}" icon="ui-icon ui-icon-arrowthick-1-w"
+                      actionListener="#{budgetGlAccount.onBudgetYearNewTrf}" />
+     <p:commandButton value="#{formText.close}" icon="ui-icon ui-icon-close" 
+                      onclick="PF('addBudYrWv').hide();" type="button"/>
+    </p:panelGrid>
+   </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>

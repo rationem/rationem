@@ -1,0 +1,91 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_vatCd_cr}</ui:define>
+  <ui:define name="header"></ui:define>
+  <ui:define name="content">
+   <p:growl autoUpdate="true"  />
+   <h:form id="vatCodeCrFrm">
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="addVatCodeSave" icon="fa fa-floppy-o" value="#{formText.save}" 
+                       action="#{vatCodeBean.onVatCodeUpdateSave}" 
+                       title="#{formHelpText.actTySave}" update="@(form)"  />
+      <p:commandButton type="reset" value="#{formText.reset}" />
+      
+     </f:facet >
+     
+    </p:toolbar>
+    <h:panelGrid columns="4"  >
+     <p:outputLabel for="vatCd" value="#{formText.vatCd}"/>
+     <p:inputText id="vatCd" value="#{vatCodeBean.vatCode.code}" required="true"/>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="vatDescr" value="#{formText.vatDescr}"/>
+     <p:inputText id="vatDescr" value="#{vatCodeBean.vatCode.description}"/>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="vatRate" value="#{formText.vatRate}"/>
+     <p:inputText id="vatRate" value="#{vatCodeBean.vatCode.rate}" required="true" 
+                  valueChangeListener="#{vatCodeBean.onVatRateChange}"  >
+      <f:convertNumber type="percent" maxFractionDigits="4"/>
+      <p:ajax event="change" update="vatCatMnu"/>
+     </p:inputText>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="vatIrrRate" value="#{formText.vatIrrecovRate}"/>
+     <p:inputText id="vatIrrRate" value="#{vatCodeBean.vatCode.irrrecoverableRate}" >
+      <f:convertNumber type="percent" maxFractionDigits="4"/>
+     </p:inputText>
+     <h:panelGroup/>
+     <h:panelGroup/>
+      <p:outputLabel for="vatValidFr" value="#{formText.vatValidFr}"/>
+      <p:calendar id="vatValidFr" value="#{vatCodeBean.vatCode.validFrom}"
+                  mode="popup" required="true" 
+                    requiredMessage="#{validationText.vatCdValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" size="8"/>
+      <p:outputLabel for="vatValidTo" value="#{formText.vatValidTo}"/>
+      <p:calendar id="vatValidTo" value="#{vatCodeBean.vatCode.validTo}"
+                  mode="popup" required="true" 
+                    requiredMessage="#{validationText.vatCdValidTo}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" size="8"/>
+      
+     
+     <p:outputLabel for="vatCatMnu" value="#{formText.vatCategory}"/>
+     <p:selectOneMenu id="vatCatMnu" value="#{vatCodeBean.vatCode.taxType}" 
+                      disabled="#{vatCodeBean.vatCatDisabled}">
+      <f:selectItem itemLabel="#{formText.vatVatable}" itemValue="V"/>
+      <f:selectItem itemLabel="#{formText.vatExempt}" itemValue="E"/>
+      <f:selectItem itemLabel="#{formText.vatOutSide}" itemValue="O"/>
+     </p:selectOneMenu>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="inputTaxMnu" value="#{formText.vatTaxType}"/>
+     <p:selectOneMenu id="inputTaxMnu" value="#{vatCodeBean.vatCode.inputTax}" >
+      <f:selectItem itemLabel="#{formText.vatInput}"  itemValue="true"  />
+      <f:selectItem itemLabel="#{formText.vatOutput}" itemValue="false" />
+     </p:selectOneMenu>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="intraEUMnu" value="#{formText.vatIntraStat}"/>
+     <p:selectOneMenu id="intraEUMnu" value="#{vatCodeBean.vatCode.interStatSupply}" >
+      <f:selectItem  itemLabel="#{formText.vatDomestic}" itemValue="false"   />
+      <f:selectItem itemLabel="#{formText.vatNonDomestic}" itemValue="true"  />
+     </p:selectOneMenu>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="impEptMnu" value="#{formText.vatImportExport}"/>
+     <p:selectOneMenu id="impEptMnu" value="#{vatCodeBean.vatCode.importExport}" >
+      <f:selectItem itemLabel="#{formText.vatNoImportExport}" itemValue="N"   />
+      <f:selectItem itemLabel="#{formText.vatImport}" itemValue="I"  />
+      <f:selectItem itemLabel="#{formText.vatExport}" itemValue="E"  />
+     </p:selectOneMenu>
+     
+    </h:panelGrid>
+   </h:form>
+  </ui:define>
+</ui:composition>
+

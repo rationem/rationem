@@ -1,0 +1,768 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_comp_cr}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="comCrFrm" prependId="false" >
+   <p:wizard  flowListener="#{companyBean.onCompCrWorkflowStep}">
+    <p:tab id="basic" title="#{formText.compTabBasic}">
+     <p:panel >
+      <f:facet name="header">
+       <h:outputText value="#{formText.compPnlBasic}"/>
+      </f:facet>
+      <p:focus for="compRef"/>
+   <p:panelGrid id="compCrPg" styleClass="panelNoBorders">
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compRef" value="#{formText.coa_ref}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="compRef" value="#{companyBean.company.reference}"
+           title="#{formHelpText.compRef}" required="true" requiredMessage="#{validationText.compRef}"
+           valueChangeListener="#{companyBean.onCompRefChange}">
+       <p:ajax event="blur"/>
+      </p:inputText>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compName" value="#{formText.compName}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compName" value="#{companyBean.company.name}" title="#{formHelpText.comName}"
+                              required="true" requiredMessage="#{validationText.compName}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compLegalName" value="#{formText.compLegalName}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compLegalName" value="#{companyBean.company.legalName}" title="#{formHelpText.compLegalName}"
+                              required="true" requiredMessage="#{validationText.compName}"/>
+     </p:column>
+    </p:row>
+    
+    
+    <p:row>
+     <p:column colspan="2">
+      <h:outputText value="#{formText.compAddr}" styleClass="sect-header"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrHseNum" value="#{formText.addrHouseNumName}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrHseNum" value="#{companyBean.company.address.houseNumber}" size="5" disabled="true"/>
+      <h:outputText value=" / " />
+      <p:inputText id="compAddrHseName" value="#{companyBean.company.address.houseName}" size="20" disabled="true"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrStr" value="#{formText.addrStr1}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrStr" value="#{companyBean.company.address.street}" disabled="true"  />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrTown" value="#{formText.addrTown}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrTown" value="#{companyBean.company.address.town}" disabled="true" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrCounty" value="#{formText.addrCounty}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrCounty" value="#{companyBean.company.address.countyName}" disabled="true" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrCountry" value="#{formText.addrCountry}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrCountry" value="#{companyBean.company.address.country.countryName}" 
+                        disabled="true"/>
+       
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrPostCd" value="#{formText.addrPostCd}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrPostCd" value="#{companyBean.company.address.postCode}" size="7" 
+                   required="true" requiredMessage="#{validationText.compPostCode}" />
+     </p:column>
+     <p:column>
+      <p:commandButton icon="ui-icon-search" actionListener="#{companyBean.onAddrSelClick}"  />
+      <p:commandButton icon="ui-icon-pencil" actionListener="#{companyBean.onAddrChng}" />
+      <p:commandButton icon="ui-icon-document" actionListener="#{companyBean.onAddrAdd}"  />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compType" value="#{formText.compTyp}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneRadio id="compType" value="#{companyBean.company.companyType}" layout="pageDirection"
+                        valueChangeListener="#{companyBean.onCompTySel}" 
+                        required="true" requiredMessage="#{validationText.compType}">
+       <f:selectItem itemLabel="#{formText.compTySolTrader}" itemValue="Sole"/>
+       <f:selectItem itemLabel="#{formText.compTySolPtnr}" itemValue="Ptnr"/>
+       <f:selectItem itemLabel="#{formText.compTyCompLtdSh}" itemValue="CompSh"/>
+       <f:selectItem itemLabel="#{formText.compTyCompLtdGuar}" itemValue="CompGuaran"/>
+       <p:ajax event="change" process="compCrPg"/>
+      </p:selectOneRadio>
+     </p:column>
+    </p:row>
+    <p:row  rendered="#{companyBean.company.corp}"   >
+     <p:column  >
+      <p:outputLabel for="compStartDt" value="#{formText.compStart}"  />
+     </p:column>
+     <p:column>
+      <p:calendar id="compStartDt" value="#{companyBean.company.incorporatedDate}"
+                  mode="popup"  title="#{formHelpText.compStart}" pattern="dd/MM/yyyy"/> 
+     </p:column>
+     <p:column>
+      <p:outputLabel for="compRegNum"  value="#{formText.compRegNum}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="compRegNum" 
+                   value="#{companyBean.company.companyNumber}" />
+     </p:column>
+    </p:row>
+    
+   </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="compDetId" title="#{formText.compTabDetail}">
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.compPnlDetail}"/>
+      </f:facet>
+      <p:panelGrid id="compDetPgId" styleClass="panelNoBorders" >
+       <p:row>
+        <p:column>
+         <p:outputLabel for="coa" value="#{formText.coa}"/>
+        </p:column>
+        <p:column>
+         <p:selectOneMenu id="coa" value="#{companyBean.company.chartOfAccounts}" 
+                        converter="com.rationem.util.converter.ChartOfAccounts">
+          <f:selectItems value="#{companyBean.coaList}" var="coaV" itemValue="#{coaV}" 
+                       itemLabel="#{coaV.reference}"/>
+         </p:selectOneMenu>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="vat" value="#{formText.compVat}"/>
+        </p:column>
+        <p:column>
+         <p:selectBooleanButton id="vat" offLabel="#{formText.no}" onLabel="#{formText.yes}" 
+                                value="#{companyBean.company.vatReg}" valueChangeListener="#{companyBean.onVatReg}">
+          <p:ajax event="change"/>
+         </p:selectBooleanButton>
+        </p:column>
+        
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="charity" value="#{formText.compCharity}"/>
+        </p:column>
+        <p:column>
+         <p:selectBooleanButton id="charity" offLabel="#{formText.no}" onLabel="#{formText.yes}" 
+                                value="#{companyBean.company.charity}" 
+                                valueChangeListener="#{companyBean.onCharityBtn}">
+          <p:ajax event="change"/>
+         </p:selectBooleanButton>
+        </p:column>
+        <p:column rendered="#{companyBean.company.charity}">
+         <h:outputLabel for="charityNum" value="#{formText.compCharityNum}"/>
+        </p:column>
+        <p:column rendered="#{companyBean.company.charity}">
+         <p:inputText id="charityNum" value="#{companyBean.company.charityNumber}"/>
+        </p:column>
+        <p:column rendered="#{companyBean.company.charity}">
+         <p:outputLabel for="charityRegDate" value="#{formText.compCharityRegDt}"/>
+        </p:column>
+        <p:column rendered="#{companyBean.company.charity}">
+         <p:calendar id="charityRegDate" value="#{companyBean.company.charityRegDate}" 
+                     pattern="dd/MMM/yyyy" locale="#{companyBean.usrBuff.loc}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column >
+         <p:outputLabel for="currCd" value="#{formText.compCurrCode}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="currCd" value="#{companyBean.company.currencyCode}" size="4"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="currSymb" value="#{formText.compCurrSymb}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="currSymb" value="#{companyBean.company.currencySymbol}" size="1"/>
+        </p:column>
+       </p:row>
+       
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="vatTabId"  title="#{formText.compVatTab}">
+     
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.compVatPanel}"/>
+      </f:facet>
+      <p:panelGrid  styleClass="panelNoBorders">
+       <p:row>
+        <p:column>
+         <p:outputLabel for="vatRegNum" value="#{formText.compVATNum}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="vatRegNum" value="#{companyBean.vatRegistration.vatNumber}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="vatRegDate" value="#{formText.compVatRegDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="vatRegDate" value="#{companyBean.vatRegistration.registrationDate}"/>
+        </p:column>
+        <p:column colspan="2">
+         <p:outputLabel for="vatDeregDate" value="#{formText.compVatDeregDate}"/>
+        </p:column>
+        <p:column colspan="5" >
+         <p:calendar id="vatDeregDate" value="#{companyBean.vatRegistration.registrationEnd}" pattern="dd/MM/yyyy"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="vatRegScheme" value="#{formText.vatRegScheme}"/>
+        </p:column>
+        <p:column>
+         <p:selectOneMenu id="vatRegScheme" value="#{companyBean.vatRegScheme.vatScheme}" 
+                          converter="com.rationem.util.converter.VatScheme">
+          <f:selectItems value="#{companyBean.vatSchemes}" var="vatSch"  itemValue="#{vatSch}" 
+                         itemLabel="#{vatSch.ref}"/>
+         </p:selectOneMenu>
+         
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="vatoff" value="#{formText.compVatOff}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="vatoff" value="#{companyBean.vatRegistration.vatOffice}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.compVatInsp}"/>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="vatInspTitle" value="#{formText.ptnrTitle}"/>
+        </p:column>
+        <p:column >
+         <p:inputText id="vatInspTitle" value="#{companyBean.vatRegistration.inspector.title}" size="2"/>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="vatInspFirstName" value="#{formText.ptnrFirstName}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="vatInspFirstName" value="#{companyBean.vatRegistration.inspector.firstName}" />
+        </p:column>
+        <p:column>
+         <p:outputLabel for="vatInspFamilyName" value="#{formText.ptnrFamilyName}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="vatInspFamilyName" value="#{companyBean.vatRegistration.inspector.familyName}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column colspan="9">
+         <p:separator />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.addrHouseNumName}"/>
+        </p:column>
+        <p:column colspan="8">
+        <p:inputText id="hseNum" value="#{companyBean.vatRegistration.vatOfficeAddress.houseNumber}" size="5"/>
+        <h:outputText value=" / " />
+        <p:inputText id="hseName" value="#{companyBean.vatRegistration.vatOfficeAddress.houseName}" />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="street" value="#{formText.addrStr1}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="street" value="#{companyBean.vatRegistration.vatOfficeAddress.street}" />
+        </p:column>
+       </p:row>
+       
+       <p:row>
+        <p:column>
+         <p:outputLabel for="town" value="#{formText.addrTown}" />
+        </p:column>
+        <p:column>
+         <p:inputText id="town" value="#{companyBean.vatRegistration.vatOfficeAddress.town}" />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="county" value="#{formText.addrCounty}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="county" value="#{companyBean.vatRegistration.vatOfficeAddress.countyName}" />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="postcd" value="#{formText.addrPostCd}" />
+        </p:column>
+        <p:column>
+         <p:inputText id="postcd" value="#{companyBean.vatRegistration.vatOfficeAddress.postCode}" />
+        </p:column>
+       </p:row>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="summTabId" title="#{formText.compTabSummary}">
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.compPnlSummary}"/>
+      </f:facet>
+      <p:fieldset>
+       <p:panelGrid styleClass="panelNoBorders">
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.comp}" styleClass="sect-header"/>
+                  
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.coa_ref}:" />
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.reference}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compName}:" />
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.name}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compLegalName}:" />
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.legalName}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compTyp}:" />
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{formText.compTySolTrader}" 
+                        rendered="#{companyBean.company.companyType eq 'Sole'}"/>
+          <h:outputText value="#{formText.compTySolPtnr}" 
+                        rendered="#{companyBean.company.companyType eq 'Ptnr'}"/>
+          <h:outputText value="#{formText.compTyCompLtdSh}" 
+                        rendered="#{companyBean.company.companyType eq 'CompSh'}"/>
+          <h:outputText value="#{formText.compTyCompLtdGuar}" 
+                        rendered="#{companyBean.company.companyType eq 'CompGuaran'}"/>
+         </p:column>
+        </p:row>
+        <p:row  rendered="#{companyBean.company.corp}">
+         <p:column>
+          <h:outputText value="#{formText.compIncorp}" styleClass="sect-header"/>
+         </p:column>
+         <p:column colspan="2">
+          <h:outputText value="#{formText.compRegNumShrt}: "/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.companyNumber}"/>
+         </p:column>
+         <p:column colspan="2">
+          <h:outputText value="#{formText.compStart}: "/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.incorporatedDate}">
+           <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+          </h:outputText>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.compAddr}:" styleClass="sect-header"/>
+         </p:column>
+         <p:column colspan="4">
+          <h:outputText value="#{companyBean.company.address.houseNumber}" />
+          <p:spacer width="4" height="10" rendered="#{companyBean.company.address.houseNumber.length() > 0}"/>
+          <h:outputText value="#{companyBean.company.address.houseName}" />
+          <h:outputText value=", " rendered="#{companyBean.company.address.street.length() > 0 and companyBean.company.address.houseName.length() > 0}" />
+          <h:outputText value="#{companyBean.company.address.street}"  />
+          <h:outputText value=", " rendered="#{companyBean.company.address.town.length() > 0}" />
+          <h:outputText value="#{companyBean.company.address.town}"  />
+          <h:outputText value=", "  rendered="#{companyBean.company.address.postCode.length() > 0}"/>
+          <h:outputText value="#{companyBean.company.address.postCode}"  />
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.coa}:" styleClass="sect-header"/>
+         </p:column>
+         <p:column colspan="4">
+          <h:outputText value="#{companyBean.company.chartOfAccounts.reference}"/>
+         </p:column>
+        </p:row>
+        
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.compCharity}:" styleClass="sect-header"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.yes}" rendered="#{companyBean.company.charity eq true}"/>
+          <h:outputText value="#{formText.no}" rendered="#{companyBean.company.charity eq false}"/>
+         </p:column>
+         <p:column rendered="#{companyBean.company.charity eq true}">
+          <h:outputText value="#{formText.compCharityNum}:" rendered="#{companyBean.company.charity eq true}"/>
+          <p:spacer width="4" height="10" rendered="#{companyBean.company.charity eq true}"/>
+          <h:outputText value="#{companyBean.company.charityNumber}" 
+                        rendered="#{companyBean.company.charity eq true}"/>
+         </p:column>
+         <p:column colspan="2" rendered="#{companyBean.company.charity eq true}">
+          <h:outputText value="#{formText.compCharityRegDt}:" rendered="#{companyBean.company.charity eq true}"/>
+          <p:spacer width="4" height="10" rendered="#{companyBean.company.charity eq true}"/>
+          <h:outputText value="#{companyBean.company.charityRegDate}" rendered="#{companyBean.company.charity eq true}" >
+           <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+          </h:outputText>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.compCcy}:" styleClass="sect-header"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compCurrCode}:"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.currencyCode}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compCurrSymb}:"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.currencySymbol}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.compVat}:" styleClass="sect-header"/>
+         </p:column>
+         <p:column >
+          <h:outputText value="#{formText.yes}" rendered="#{companyBean.company.vatReg eq true}"/>
+          <h:outputText value="#{formText.no}" rendered="#{companyBean.company.vatReg eq false}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compVATNum}:" rendered="#{companyBean.company.vatReg eq true}"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.vatRegistration.vatNumber}" rendered="#{companyBean.company.vatReg eq true}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compVatRegDateShrt}:" rendered="#{companyBean.company.vatReg eq true}"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.vatRegistration.registrationDate}" 
+                        rendered="#{companyBean.company.vatReg eq true}">
+           <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+          </h:outputText>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.compVatScheme}:" 
+            rendered="#{companyBean.company.vatReg eq true and companyBean.vatRegistration.scheme ne null }"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.company.vatRegDetails.scheme.ref}" 
+            rendered="#{companyBean.company.vatReg eq true and companyBean.vatRegistration.scheme ne null }"/>
+         </p:column>
+         
+        </p:row>
+        <p:row rendered="#{companyBean.company.vatReg eq true}">
+         <p:column>
+          <h:outputText value="#{formText.compVatOff}" styleClass="sect-header" 
+                        rendered="#{companyBean.company.vatReg eq true}"/>
+         </p:column>
+         <p:column colspan="4">
+          <h:outputText value="#{companyBean.vatRegistration.vatOffice}"
+             rendered="#{companyBean.company.vatReg eq true}" />
+         </p:column>
+        </p:row>
+        <p:row rendered="#{companyBean.company.vatReg eq true}">
+         <p:column>
+          <h:outputText value="#{formText.compVatInsp}: " styleClass="sect-header" 
+                        rendered="#{companyBean.company.vatReg eq true}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.ptnrTitle}: " rendered="#{companyBean.company.vatReg eq true}"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.vatRegistration.inspector.title}"
+            rendered="#{companyBean.company.vatReg eq true}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.ptnrFirstName}: " rendered="#{companyBean.company.vatReg eq true}"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.vatRegistration.inspector.firstName}"
+            rendered="#{companyBean.company.vatReg eq true}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.ptnrFamilyName}: " rendered="#{companyBean.company.vatReg eq true}"/>
+          <p:spacer width="4" height="10"/>
+          <h:outputText value="#{companyBean.vatRegistration.inspector.familyName}"
+            rendered="#{companyBean.company.vatReg eq true}"/>
+         </p:column>
+        </p:row>
+        <p:row rendered="#{companyBean.company.vatReg eq true}">
+         <p:column >
+          <h:outputText value="#{formText.addr}" styleClass="sect-header" 
+                         />
+         </p:column>
+         
+         
+         <p:column colspan="4">
+          <h:outputText value="#{companyBean.vatRegistration.vatOfficeAddress.houseNumber}" />
+          <p:spacer width="4" height="10" rendered="#{companyBean.vatRegistration.vatOfficeAddress.houseNumber.length() > 0}"/>
+          <h:outputText value="#{companyBean.vatRegistration.vatOfficeAddress.houseName}" />
+          <h:outputText value=", " rendered="#{companyBean.vatRegistration.vatOfficeAddress.street.length() > 0 and companyBean.company.address.houseName.length() > 0}" />
+          <h:outputText value="#{companyBean.vatRegistration.vatOfficeAddress.street}"  />
+          <h:outputText value=", " rendered="#{companyBean.vatRegistration.vatOfficeAddress.town.length() > 0}" />
+          <h:outputText value="#{companyBean.vatRegistration.vatOfficeAddress.town}"  />
+          <h:outputText value=", "  rendered="#{companyBean.vatRegistration.vatOfficeAddress.postCode.length() > 0}"/>
+          <h:outputText value="#{companyBean.vatRegistration.vatOfficeAddress.postCode}"  />
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column colspan="5">
+          <p:commandButton id="saveNewCompBtn" icon="fa fa-floppy-o" value="#{formText.save}" 
+                           action="#{companyBean.onCreatCompAction}" actionListener="#{companyBean.onCreateCompButton}" />
+          
+         </p:column>
+        </p:row>
+       </p:panelGrid>
+      </p:fieldset>
+     </p:panel>
+    </p:tab>
+   </p:wizard>
+  </h:form>
+  
+  <p:dialog id="selAddrDlgId" widgetVar="selAddrDlgWv" dynamic="true" width="500" modal="true" >
+   <f:facet name="header">
+    <h:outputText value="#{formText.addrSel}"/>
+   </f:facet>
+   <h:form id="selAddrFrm" prependId="false">
+    <p:panelGrid  styleClass="panelNoBorders">
+     <p:row>
+      <p:column>
+       <p:outputLabel for="srchPostCd" value="#{formText.addrPostCd}"/>
+      </p:column>
+      <p:column width="10">
+       <p:inputText id="srchPostCd" value="#{companyBean.postCodeSrch}"/>
+       <p:spacer width="4"/>
+       <p:commandButton icon="ui-icon-search" actionListener="#{companyBean.onPostCodeSearch}"/>
+      </p:column>
+     </p:row>
+      
+    </p:panelGrid>
+    <p:dataTable id="selectedAddrTbl" value="#{companyBean.addrList}" var="addrItem" 
+                 emptyMessage="#{validationText.addrNoAddrPc}" selectionMode="single" 
+                 selection="#{companyBean.addrSelected}" rowKey="#{addrItem.id}" >
+     <f:facet name="header">
+      <h:outputText value="#{formText.addrFound}"/>
+     </f:facet>
+     <p:ajax event="rowSelect" listener="#{companyBean.onAddrSelRowSel}"/>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrHouseNumName}" />
+      </f:facet>
+      <h:outputText value="#{addrItem.houseNumber}" />
+      <h:outputText value=" / " />
+      <h:outputText value="#{addrItem.houseName}" />
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrStr1}"/>
+      </f:facet>
+      <h:outputText value="#{addrItem.street}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrTown}"/>
+      </f:facet>
+      <h:outputText value="#{addrItem.town}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrPostCd}"/>
+      </f:facet>
+      <h:outputText value="#{addrItem.postCode}"/>
+     </p:column>
+    </p:dataTable>
+   </h:form>
+  </p:dialog>
+  
+  <p:dialog id="addrEditDlgId" widgetVar="addrEditDlgWv" dynamic="true" width="500" modal="true">
+   <f:facet name="header">
+    <h:outputText value="#{formText.addrEdit}"/>
+   </f:facet>
+   <h:form id="addrEditFrm" prependId="false">
+    <p:panelGrid id="addEditPnl" styleClass="panelNoBorders">
+     <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrEditHseNum" value="#{formText.addrHouseNumName}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrEditHseNum" value="#{companyBean.addrSelected.houseNumber}" size="5" />
+      <h:outputText value=" / " />
+      <p:inputText id="compAddrEditHseName" value="#{companyBean.addrSelected.houseName}" size="20" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrEditStr" value="#{formText.addrStr1}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrEditStr" value="#{companyBean.addrSelected.street}"  />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrEditTown" value="#{formText.addrTown}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrEditTown" value="#{companyBean.addrSelected.town}" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrEditCounty" value="#{formText.addrCounty}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrEditCounty" value="#{companyBean.addrSelected.countyName}" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrEditCountry" value="#{formText.addrCountry}" />
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="compAddrEditCountry" value="#{companyBean.addrSelected.country}"  
+                       converter="com.rationem.util.converter.country" 
+                       valueChangeListener="#{companyBean.onCompUpdateCountryChange}" >
+       <p:ajax event="change"/>
+       <f:selectItems value="#{companyBean.countries}" var="cntry" itemValue="#{cntry}" 
+                      itemLabel="#{cntry.countryName}" />
+      </p:selectOneMenu>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrEditPostCd" value="#{formText.addrPostCd}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrEditPostCd" value="#{companyBean.addrSelected.postCode}" size="7" 
+                   required="true" requiredMessage="#{validationText.compPostCode}"  />
+      </p:column>
+     </p:row>
+    <p:row> 
+     <p:column colspan="2">
+      <p:commandButton icon="ui-icon-document" actionListener="#{companyBean.onAddrChngSave}" 
+                       value="#{formText.save}" />
+      <p:spacer width="4" height="10"/>
+      <p:commandButton icon="ui-icon-close"  type="reset" value="#{formText.close}" 
+                       onclick="PF('addrEditDlgWv').hide()" >
+       <p:resetInput target="addrEditFrm"/>
+      </p:commandButton>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   </h:form>
+  </p:dialog>
+  
+  <p:dialog id="addrAddDlgId" widgetVar="addrAddDlgWv" dynamic="true" width="500" modal="true" >
+   <f:facet name="header">
+    <h:outputText value="#{formText.addrNew}"/>
+   </f:facet>
+   <h:form id="addrAddFrm" prependId="false">
+    <p:panelGrid id="addrAddPnlId" styleClass="panelNoBorders">
+     <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrAddHseNum" value="#{formText.addrHouseNumName}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrAddHseNum" value="#{companyBean.addrSelected.houseNumber}" size="5" />
+      <h:outputText value=" / " />
+      <p:inputText id="compAddrAddHseName" value="#{companyBean.addrSelected.houseName}" size="20" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrAddStr" value="#{formText.addrStr1}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrAddStr" value="#{companyBean.addrSelected.street}"  />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrAddTown" value="#{formText.addrTown}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrAddTown" value="#{companyBean.addrSelected.town}" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrAddCounty" value="#{formText.addrCounty}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrAddCounty" value="#{companyBean.addrSelected.countyName}" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrAddCountry" value="#{formText.addrCountry}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrAddCountry" value="#{companyBean.addrSelected.country.countryName}" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="compAddrAddPostCd" value="#{formText.addrPostCd}" />
+     </p:column>
+     <p:column>
+      <p:inputText id="compAddrAddPostCd" value="#{companyBean.addrSelected.postCode}" size="7" 
+                   required="true" requiredMessage="#{validationText.compPostCode}"  />
+      </p:column>
+     </p:row>
+    <p:row> 
+     <p:column colspan="2">
+      <p:commandButton icon="ui-icon-document" actionListener="#{companyBean.onAddrAddSave}" 
+                       value="#{formText.save}" />
+      <p:spacer width="4" height="10"/>
+      <p:commandButton icon="ui-icon-close" actionListener="#{companyBean.onAddrAddReset}" immediate="true" 
+                       value="#{formText.close}" />
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   </h:form>
+  </p:dialog>
+ </ui:define>
+</ui:composition>
+   
+

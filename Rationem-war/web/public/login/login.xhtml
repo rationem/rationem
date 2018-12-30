@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      >
+
+  <style type="text/css">
+
+        .panelHeader{
+          text-align: center;
+          font-size: x-large;
+          font-weight: 700;
+        }
+      </style>
+ <link rel="icon" href="${request.contextPath}/resources/images/scales.png" type="image/png"/>
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/scales.png" type="image/png"/>
+    <h:head>
+        <title>BAC Login </title>
+    </h:head>
+    <h:body>
+      <h:outputText styleClass="panelHeader" value="#{formText.login}"/>
+      <f:view>
+        <h:form id="login">
+          <h:panelGrid columns="2">
+           <h:outputLabel for="username" value="user name"/>
+           <p:inputText id="username" required="true" value="#{authorisationBean.userName}" />
+            <h:outputLabel for="password" value="password"/>
+            <p:password feedback="true"   inline="false" id="password"
+                            required="true" value="#{authorisationBean.password}" />
+                <h:commandButton value="Login" action="#{authorisationBean.loginSubmit}"   />
+           </h:panelGrid>
+        </h:form>
+        </f:view>
+    </h:body>
+</html>

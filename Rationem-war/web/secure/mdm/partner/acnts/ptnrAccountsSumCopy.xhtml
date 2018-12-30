@@ -1,0 +1,103 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.ptnrAcnts}</ui:define>
+ <ui:define name="header">#{pageTitle.ptnrAcnts} </ui:define>
+ <ui:define name="content">
+  <h:form id="ptnrAcntsFrm" prependId="false">
+   <p:panelGrid>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="partner" value="#{formText.ptnrPartner}"/>    
+     </p:column>
+     <p:column>
+      <p:autoComplete id="partner" value="#{partnerAccounts.ptnrBase}" var="ptnrV"
+                      converter="com.rationem.util.converter.PartnerBase" dropdown="true"
+                     completeMethod="#{partnerAccounts.onPartnerComplete}"
+                     forceSelection="true"
+                     itemValue="#{ptnrV}" itemLabel="#{ptnrV.name}">
+       <p:ajax event="itemSelect" listener="#{partnerAccounts.onPartnerSelect}"/>
+      </p:autoComplete>
+      <p:spacer width="20"/>
+     </p:column>
+     <p:column>
+      <h:outputText id="ptnrName" value="#{partnerAccounts.ptnrBase.tradingName}" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column colspan="2" width="50%">
+      <f:facet name="header">
+       <h:outputText value="AR accounts"/>
+      </f:facet>
+      <p:dataTable id="arAcnts" value="#{partnerAccounts.arAccounts}" emptyMessage="#{validationText.arAcntNone4Ptnr}"
+                   var="arAcnt">
+       <f:facet name="header">
+        <h:outputText value="#{formText.ptnrArAcnts}"/>
+       </f:facet>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.arAcntRef}"/>
+        </f:facet>
+        <h:outputText value="#{arAcnt.arAccountCode}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{formText.comp}"/>
+        </f:facet>
+        <h:outputText value="#{arAcnt.company.reference}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.arAcntBal}"/>
+        </f:facet>
+        <h:outputText value="#{arAcnt.accountBalance}">
+         <f:convertNumber type="number" groupingUsed="true" 
+                          maxFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          minFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+        </h:outputText>
+       </p:column>
+      </p:dataTable>
+     </p:column>
+     <p:column width="50%">
+      <f:facet name="header">
+       <h:outputText value="Ap accounts"/>
+      </f:facet>
+      <p:dataTable id="apAcnts" value="#{partnerAccounts.apAccounts}" var="apAcntV"
+                   emptyMessage="No Vendor accounts found">
+       <f:facet name="header">
+        <h:outputText value="#{formText.ptnrApAcnts}"/>
+       </f:facet>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.apAcntRef}"/>
+        </f:facet>
+        <h:outputText value="#{apAcntV.accountCode}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{formText.comp}"/>
+        </f:facet>
+        <h:outputText value="#{apAcnt.company.reference}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.apAcntBal}"/>
+        </f:facet>
+        <h:outputText value="#{apAcnt.accountBalance}">
+         <f:convertNumber type="number" groupingUsed="true" 
+                          maxFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          minFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+        </h:outputText>
+       </p:column>
+      </p:dataTable>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>

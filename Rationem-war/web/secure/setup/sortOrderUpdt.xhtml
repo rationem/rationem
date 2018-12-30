@@ -1,0 +1,78 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    template="/WEB-INF/template.xhtml"
+>
+    
+ <ui:define name="title"><h:outputText value="#{pageTitle.cfg_sortOrderUpdt}" /></ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_sortOrderUpdt}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  
+  <h:form id="sortOrderUpdtFrm" prependId="false" >
+   <p:contextMenu for="sortTblId">
+    <p:menuitem value="#{formText.edit}" actionListener="#{sortOrderBean.onEditDlg}" />
+   </p:contextMenu>
+   <p:dataTable id="sortTblId" value="#{sortOrderBean.sortOrders}" var="sortV" paginator="true" 
+                paginatorAlwaysVisible="false" rowKey="#{sortV.id}" emptyMessage="#{blacResponse.sortOrdersNone}" 
+                selection="#{sortOrderBean.sortOrderSelected}" selectionMode="single">
+    <f:facet name="header">
+     <h:outputText value="#{formText.sortOrderAvail}"/>
+    </f:facet>
+    <p:column width="70" sortBy="#{sortV.sortCode}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.sortOrderCd}"/>
+     </f:facet>
+     <h:outputText value="#{sortV.sortCode}"/>
+    </p:column>
+    <p:column width="250" sortBy="#{sortV.name}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.sortOrderName}"/>
+     </f:facet>
+     <h:outputText value="#{sortV.name}"/>
+    </p:column>
+    <p:column sortBy="#{sortV.description}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.sortOrderDescr}"/>
+     </f:facet>
+     <h:outputText value="#{sortV.description}"/>
+    </p:column>
+   </p:dataTable>
+  </h:form>
+  
+  <p:dialog widgetVar="editSortOrderWv" dynamic="true" modal="true" closable="false" >
+   <f:facet name="header">
+    <h:outputText value="#{formText.sortOrderEditDlg}"/>
+   </f:facet>
+   <h:form id="editSortDlgFrm" prependId="false">
+    <p:outputPanel id="editPanel" style="text-align:left;">
+   <h:panelGrid columns="2">
+    
+    <p:outputLabel for="code" value="#{formText.sortOrderCd}"/>
+    <p:inputText id="code" value="#{sortOrderBean.sortOrderSelected.sortCode}" maxlength="10"
+                                 size="12" required="true"
+                                 />
+    <p:outputLabel for="name" value="#{formText.sortOrderName}"/>
+    <p:inputText id="name" value="#{sortOrderBean.sortOrderSelected.name}" 
+                                  />
+    <p:outputLabel for="descr" value="#{formText.sortOrderDescr}"  />
+    <p:inputText id="descr" value="#{sortOrderBean.sortOrderSelected.description}" size="50"/>               
+    
+    
+    <p:commandButton value="#{formText.transfer}" actionListener="#{sortOrderBean.onSaveEditSortOrder}"  
+                     icon="ui-icon-arrowthick-1-w"/>
+    <p:commandButton type="button" value="#{formText.close}" onclick="PF('editSortOrderWv').hide();"/>
+    
+   </h:panelGrid>
+    </p:outputPanel>
+   </h:form>
+  </p:dialog>
+  
+ </ui:define>
+</ui:composition>
+
+

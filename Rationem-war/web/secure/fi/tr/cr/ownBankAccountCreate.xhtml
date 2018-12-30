@@ -1,0 +1,186 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.trOwnBankCr}</ui:define>
+  <ui:define name="header"> #{pageTitle.trOwnBankCr}</ui:define>
+  <ui:define name="content">
+   <h:form id="ownBnkAcCr" prependId="false">
+    <p:growl autoUpdate="true"/>
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton value="#{formText.save}" ajax="false"
+                       actionListener="#{companyBankAccountBean.onSaveCreateOwnBankAc}"
+                       partialSubmit="true" process="bnkBrGrd"
+                       update=":ownBnkAcCr"
+                       >
+       <p:resetInput target=":ownBnkAcCr" />
+      </p:commandButton>
+      <p:commandButton value="#{formText.reset}" update="@(form)"  >
+        <p:resetInput target=":ownBnkAcCr" />
+      </p:commandButton>
+     </f:facet >
+   </p:toolbar>
+    <p:panelGrid id="bnkBrGrd" >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="compList" value="#{formText.bnkComp}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="compList" value="#{companyBankAccountBean.bankAcComp.comp}" 
+                     converter="com.rationem.util.converter.CompanyBasic"
+                     completeMethod="#{companyBankAccountBean.compComplete}"
+                     var="comp" forceSelection="true" dropdown="true" itemValue="#{comp}"
+                     itemLabel="#{comp.reference}" required="true">
+      <f:facet name="itemtip">
+       <h:panelGrid columns="2" cellpadding="5">
+        <p:outputLabel for="itemTipCompRef" value="#{formText.compRef}"/>
+        <h:outputText id="itemTipCompRef" value="#{comp.reference}"/>
+        <p:outputLabel for="itemTipCompRef" value="#{formText.compName}"/>
+        <h:outputText id="itemTipCompName" value="#{comp.name}"/>
+       </h:panelGrid>
+      </f:facet>
+      <p:ajax event="itemSelect" listener="#{companyBankAccountBean.onCompanySelect}" 
+              process="compList" update="clearedGlAc unclearedAcs compNameTxt" partialSubmit="true" />
+     </p:autoComplete>
+      <p:spacer width="2"/>
+      </p:column>
+      <p:column>
+       <h:outputText id="compNameTxt" value="#{companyBankAccountBean.bankAcComp.comp.name}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="bank" value="#{formText.bnkBank}" />
+      </p:column>
+      <p:column>
+       <p:autoComplete id="bank" value="#{companyBankAccountBean.bank}" forceSelection="true"
+                      converter="com.rationem.util.converter.Bank" completeMethod="#{companyBankAccountBean.bankComplete}"
+                      var="bankV" itemValue="#{bankV}" itemLabel="#{bankV.bankCode}"
+                      dropdown="true" required="true">
+       <f:facet name="itemtip">
+       <h:panelGrid columns="2" cellpadding="5">
+        <p:outputLabel for="itemTipBnkCode" value="#{formText.bnkBankCode}"/>
+        <h:outputText id="itemTipBnkCode" value="#{bankV.bankCode}"/>
+        <p:outputLabel for="itemTipbnkName" value="#{formText.bnkBankName}"/>
+        <h:outputText id="itemTipbnkName" value="#{bankV.bankOrganisation.tradingName}"/>
+       </h:panelGrid>
+      </f:facet>
+       <p:ajax event="itemSelect"  
+               process="bank" update="bnkNameTxt bankBr" 
+               listener="#{companyBankAccountBean.onBankSelect}"  partialSubmit="true"/>
+       
+        
+      </p:autoComplete>
+      </p:column>
+      <p:column>
+       <h:panelGroup id="bankPG" layout="block">
+       <h:outputText id="bnkNameTxt" 
+                    value="#{companyBankAccountBean.bank.bankOrganisation.tradingName}"/>
+       </h:panelGroup>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="bankBr" value="#{formText.bnkBankBr}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="bankBr" value="#{companyBankAccountBean.bankAcComp.accountForBranch}" forceSelection="true"
+                      converter="com.rationem.util.converter.BankBranch" 
+                      completeMethod="#{companyBankAccountBean.bankBranchComplete}"
+                      var="bankBrV" itemValue="#{bankBrV}" itemLabel="#{bankBrV.sortCode}"
+                      dropdown="true" required="true" disabled="#{!companyBankAccountBean.bankFound}" >
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2" cellpadding="5">
+          <p:outputLabel for="itemTipBnkBrSortCode" value="#{formText.bnkSortCd}"/>
+          <h:outputText id="itemTipBnkBrSortCode" value="#{bankBrV.sortCode}"/>
+          <p:outputLabel for="itemTipBnkBrName" value="#{formText.bnkBrName}"/>
+          <h:outputText id="itemTipBnkBrName" value="#{bankBrV.branchName}"/>
+         </h:panelGrid>
+        </f:facet>
+        <p:ajax event="itemSelect" listener="#{companyBankAccountBean.onBankBranchSelect}"  process="bankBr" update="bnkBrNameTxt actNum" 
+                 partialSubmit="true"/>
+       </p:autoComplete>
+      </p:column>
+      <p:column>
+       <h:outputText id="bnkBrNameTxt" 
+                    value="#{companyBankAccountBean.bankAcComp.accountForBranch.branchName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="actRef" value="#{formText.bnkAccRef}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="actRef" value="#{companyBankAccountBean.bankAcComp.accountRef}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="actNum" value="#{formText.bnkAccNum}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="actNum" value="#{companyBankAccountBean.bankAcComp.accountNumber}" 
+                  required="true" disabled="#{!companyBankAccountBean.bankBranchSelected}" >
+        <p:ajax event="blur" listener="#{companyBankAccountBean.onBankAccountNumberBlur}" 
+              update="actNum" partialSubmit="true"/>
+       </p:inputText>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="actName" value="#{formText.bnkAccName}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="actName" value="#{companyBankAccountBean.bankAcComp.accountName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="clearedGlAc" value="#{formText.bnkGlCleared}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="clearedGlAc" value="#{companyBankAccountBean.bankAcComp.clearedGlAccount}" forceSelection="true"
+                      converter="com.rationem.util.converter.FiGlAccountComp" 
+                      completeMethod="#{companyBankAccountBean.glAccountComplete}"
+                      var="clearedGlAcV" itemValue="#{clearedGlAcV}" itemLabel="#{clearedGlAcV.coaAccount.ref}"
+                      dropdown="true" required="true" 
+                      disabled="#{!companyBankAccountBean.compSelected}" >
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2" cellpadding="5">
+          <p:outputLabel for="itemTipClearedGlAcRef" value="#{formText.glAccountRef}"/>
+          <h:outputText id="itemTipClearedGlAcRef" value="#{clearedGlAcV.coaAccount.ref}"/>
+          <p:outputLabel for="itemTipClearedGlAcName" value="#{formText.glAccountName}"/>
+          <h:outputText id="itemTipClearedGlAcName" value="#{clearedGlAcV.coaAccount.name}"/>
+         </h:panelGrid>
+        </f:facet>
+        <p:ajax event="itemSelect"  process="clearedGlAc" update="complGlAcName" partialSubmit="true"/>
+       </p:autoComplete>
+      </p:column>
+      <p:column>
+       <h:outputText id="complGlAcName" 
+                     value="#{companyBankAccountBean.bankAcComp.clearedGlAccount.coaAccount.name}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="unclearedAcs" value="#{formText.bnkGlUncleared}"/>
+      </p:column>
+      <p:column>
+       <p:pickList id="unclearedAcs" value="#{companyBankAccountBean.glAccountsDualListModel}" 
+                 var="unclearedGlAcVar"
+                 itemLabel="#{unclearedGlAcVar.coaAccount.ref} - #{unclearedGlAcVar.coaAccount.name}" 
+                 itemValue="#{unclearedGlAcVar}" converter="com.rationem.util.converter.FiGlAccountComp"
+                 disabled="#{!companyBankAccountBean.compSelected}">
+        <f:facet name="sourceCaption">#{formText.bnkAccGlAcs}</f:facet>
+        <f:facet name="targetCaption">uncleared</f:facet>
+       </p:pickList>
+      </p:column>
+     </p:row>
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>
+

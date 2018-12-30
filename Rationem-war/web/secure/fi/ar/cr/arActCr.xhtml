@@ -1,0 +1,835 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.apAcntCr}</ui:define>
+ <ui:define name="header">#{pageTitle.apAcntCr}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+  <h:form id="arActCrFrm">
+   <p:growl id="growlId" />
+   <p:messages id="msgs" />
+  
+   <p:panelGrid 
+    id="actNumPg" layout="grid" columns="5" styleClass="ui-noborder"
+    columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-2,ui-grid-col-2,ui-grid-col-3">
+    <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+     <p:selectOneMenu id="comp" value="#{arMastBean.arAccount.company}" var="c"
+                         converter="com.rationem.util.converter.CompanyBasic"
+                          >
+      <f:selectItems var="compVar" value="#{arMastBean.compList}" itemValue="#{compVar}"
+                         itemLabel="#{compVar.reference}"/>
+      <p:column width="10%">
+       <h:outputText value="#{c.reference}"/>
+      </p:column>
+      <p:column >
+       <h:outputText value="#{c.name}"/>
+      </p:column>
+      <p:ajax event="itemSelect" listener="#{arMastBean.onAcntCrCompSel}" />
+     </p:selectOneMenu>
+    <h:outputText id="compName" value="#{arMastBean.arAccount.company.name}"/>
+     <h:panelGroup class="md-inputfield">
+      <p:inputText id="accountCode" value="#{arMastBean.arAccount.arAccountCode}"
+                   title="#{formHelpText.arActCode}"  required="true" 
+                   requiredMessage="#{validationText.arActNum}"
+                   validatorMessage="#{validationText.arAccountNumUnique}">
+       <p:ajax update="arActCrFrm:msgs" event="blur"  listener="#{arMastBean.arActNumberListener}"/>
+      </p:inputText>
+      <p:outputLabel for="accountCode" value="#{listHeading.arAcntRef}"/>
+     </h:panelGroup>
+     <h:panelGroup class="md-inputfield">
+      <p:inputText id="accountName" value="#{arMastBean.arAccount.arAccountName}"
+                   valueChangeListener="#{arMastBean.onAccountNameBlur}"
+                   >
+       <p:ajax event="blur" />
+      </p:inputText>
+      <p:outputLabel for="accountName" value="#{formTextAr.arAccountName}"/>
+     </h:panelGroup>
+   </p:panelGrid>
+   <div class="card">
+    <p:steps activeIndex="#{arMastBean.step}" id="acntCrSteps">
+     <p:menuitem value="#{formTextAr.arPtnrDetTab}"/>
+     <p:menuitem value="#{formTextAr.arAccountAddrTab}" />
+     <p:menuitem value="#{formTextAr.arAccountTab}"/>
+     <p:menuitem value="#{formTextAr.arBankTab}" />
+     <p:menuitem value="#{formTextAr.arAcntCrSumTab}" />
+    </p:steps>
+    
+    <p:panelGrid id="navBtn" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-2"
+                 layout="grid" styleClass="ui-noborder"   >
+     <p:commandButton id="backBtn" value="#{formText.back}" rendered="#{arMastBean.step gt 0}"
+                      actionListener="#{arMastBean.onAcntCrPrevStep()}" icon="fa fa-angle-double-left"
+                         immediate="true"/>
+     <h:panelGroup rendered="#{arMastBean.step eq 0}" />
+     <h:panelGroup />
+     <p:commandButton id="nextBtn" value="#{formText.next}" icon="fa fa-angle-double-right" 
+                      actionListener="#{arMastBean.onAcntCrNextStep()}" iconPos="right" 
+                       rendered="#{arMastBean.step lt 4}"/>
+     <p:commandButton 
+      id="saveBtn" value="#{formText.save}" icon="fa fa-floppy-o" rendered="#{arMastBean.step eq 4}"
+      actionListener="#{arMastBean.onSaveArAccountNew}"  />
+    </p:panelGrid>
+    
+    <p:panel id="ptnrDetailsPanel" rendered="#{arMastBean.step eq 0}" styleClass="ui-noborder">
+     <f:facet name="header">
+      <h:outputText value="#{formTextAr.arPtnrDetPnl}"/>
+     </f:facet>
+     <p:panelGrid 
+      id="ptnrPg" layout="grid" columns="4" styleClass="ui-noborder" 
+      columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2">
+      
+      <p:outputLabel for="ptnrTyp" value="#{formText.ptnrType}"/>
+      
+       <p:selectOneMenu id="ptnrTyp" value="#{arMastBean.selectedPtnrTypeCd}"
+                             valueChangeListener="#{arMastBean.partnerTypeValueChange}"
+                              >
+        <f:selectItem itemValue="corp" itemLabel="#{formText.ptnrCorp}"/>
+        <f:selectItem itemValue="indiv" itemLabel="#{formText.ptnrIndiv}"/>
+        <p:ajax update="ptnrDetailsPanel"  />
+        
+       </p:selectOneMenu>
+      
+      <h:panelGroup>
+       <p:outputLabel for="tradName" value="#{formTextMdm.ptnrTrName}"
+                           rendered="#{arMastBean.selectedPtnrTypeCd == 'corp'}"/>
+       <p:outputLabel for="personName" value="#{formTextMdm.ptnrTrName}"
+                        rendered="#{arMastBean.selectedPtnrTypeCd == 'indiv'}"/>
+      </h:panelGroup>
+      <p:autoComplete id="tradName" value="#{arMastBean.ptnrCorp}"
+                            rendered="#{arMastBean.selectedPtnrTypeCd == 'corp'}"
+                            converter="com.rationem.util.converter.PartnerCorporate"
+                            completeMethod="#{arMastBean.corpPtnrComplete}" dropdown="true"
+                            var="p" itemLabel="#{p.displayName}"  itemValue="#{p}"
+                            maxResults="20" minQueryLength="3" emptyMessage="#{validationText.ptnrsNotFoundSel}"
+                            required="true" requiredMessage="#{validationText.arActTradName}"
+                            forceSelection="true"
+                            >
+          <p:ajax event="itemSelect" listener="#{arMastBean.onTradingNameSelect}" 
+                 />
+         </p:autoComplete>
+         <p:autoComplete id="personName" value="#{arMastBean.ptnrPerson}"
+                            rendered="#{arMastBean.selectedPtnrTypeCd == 'indiv'}"
+                            converter="com.rationem.util.converter.PartnerIndividual"
+                            completeMethod="#{arMastBean.personPtnrComplete}" dropdown="true"
+                            var="pers" itemLabel="#{pers.displayName}"  
+                            itemValue="#{pers}" unique="true" emptyMessage="#{validationText.ptnrsNotFoundSel}"
+                            required="true" requiredMessage="#{validationText.arActTradName}"
+                            maxResults="20" minQueryLength="3" forceSelection="true"
+                            >
+          <p:ajax event="itemSelect" listener="#{arMastBean.onTradingNameSelect}" 
+                 update="arActCrFrm:addrStrPG, arActCrFrm:addrRemPG,  arActCrFrm:addrPostCdPG" />
+         </p:autoComplete>
+      
+     </p:panelGrid>
+     
+     
+                     
+         
+         
+    </p:panel>
+    <p:panel id="acntAddrPanel" rendered="#{arMastBean.step eq 1}" >
+      <f:facet name="header">
+       <h:outputText value="#{formTextAr.arAcntAddrTab}"/>
+     </f:facet>
+     <p:panelGrid id="addrStrPG"  layout="grid" columns="5" styleClass="ui-noborder" 
+      columnClasses="ui-grid-col-1,ui-grid-col-2, ui-grid-col-2,ui-grid-col-1,ui-grid-col-1"> 
+      <h:panelGroup class="md-inputfield" >
+      <p:inputText id="addrHseNum" value="#{arMastBean.arAccount.accountAddress.houseNumber}"
+                           title="#{formHelpText.addrNum}" size="3" />
+      <p:outputLabel for="addrHseNum" value="#{formText.addrHseNum}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield" >
+      <p:inputText id="addrHseName" value="#{arMastBean.arAccount.accountAddress.houseName}"
+                           title="#{formHelpText.addrNum}"  />
+      <p:outputLabel for="addrHseName" value="#{formText.addrHseName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText 
+        id="addrStreet" value="#{arMastBean.arAccount.accountAddress.street}" 
+        title="#{formHelpText.addrStr}" requiredMessage="#{validationText.adrStreet}"/>
+        <p:outputLabel for="addrStreet" value="#{formText.addrStr1}"/>                    
+      </h:panelGroup>
+      <p:commandButton id="newAddr" title="#{formTextAr.arAcntAddrNew}" icon="fa fa-file-o"
+                       actionListener="#{arMastBean.onArAcntAddrNew}"/>
+      <p:commandButton 
+       id="addrPstcdSrch" icon="fa fa-search" title="#{formTextAr.arAddrPostCodeSearch}"
+       actionListener="#{arMastBean.onPostCodeSearchDlg}" />
+     </p:panelGrid>
+     <p:panelGrid id="addrRemPG"  layout="grid" columns="1" styleClass="ui-noborder" 
+      columnClasses="ui-grid-col-3" >
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="addrStr2" value="#{arMastBean.arAccount.accountAddress.street2}"
+                             title="#{formHelpText.addrStr2}"/>
+       <p:outputLabel for="addrStr2" value="#{formText.addrStr2}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="addrTown" value="#{arMastBean.arAccount.accountAddress.town}"
+                             title="#{formHelpText.addrTown}"/>
+       <p:outputLabel for="addrTown" value="#{formText.addrTown}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="addrCounty" value="#{arMastBean.arAccount.accountAddress.countyName}"
+                             title="#{formHelpText.addrCounty}"/>
+       <p:outputLabel for="addrCounty" value="#{formText.addrCounty}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete 
+        id="addrCountry" value="#{arMastBean.arAccount.accountAddress.country}" forceSelection="true"
+        completeMethod="#{arMastBean.onCountryComplete}" var="cntryV" itemValue="#{cntryV}"
+        converter="com.rationem.util.converter.country" 
+        itemLabel="#{cntryV.countryName}" dropdown="true" title="#{formHelpText.addrCountry}"/>
+                       
+       
+       <p:outputLabel for="addrCountry" value="#{formText.addrCountry}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid id="addrPostCdPG"  layout="grid" columns="2" styleClass="ui-noborder" 
+      columnClasses="ui-grid-col-3, ui-grid-col-3" >
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="addrPostCd" value="#{arMastBean.arAccount.accountAddress.postCode}"
+                    title="#{formHelpText.addrPostCd}"/>
+       <p:outputLabel for="addrPostCd" value="#{formText.addrPostCd}"/>
+      </h:panelGroup> 
+      
+     </p:panelGrid>
+     
+    </p:panel>
+    <p:panel id="accountPnl" rendered="#{arMastBean.step eq 2}">
+     <f:facet name="header">
+      <h:outputText value="#{formTextAr.arAccountPnl}"/>
+     </f:facet>
+     <p:panelGrid id="arAccountPnl" layout="grid" columns="2"  styleClass="ui-noborder"
+                  columnClasses="ui-grid-col-2, ui-grid-col-2">
+      <h:panelGroup class="md-inputfield" >
+       <p:autoComplete 
+        id="arRecAct" value="#{arMastBean.arAccount.reconciliationAc}"  dropdown="true"
+        converter="com.rationem.util.converter.FiGlAccountComp" var="acntV"
+        completeMethod="#{arMastBean.onReconciliationAcComplete}" 
+        emptyMessage="#{validationText.arAcntRecNF}"
+        itemValue="#{acntV}" itemLabel="#{acntV.coaAccount.ref}"/>
+       <p:outputLabel for="arRecAct" value="#{formTextAr.arAcntRecGL}"/> 
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete 
+        id="arSortOrder" value="#{arMastBean.arAccount.sortOrder}"  dropdown="true"
+        converter="com.rationem.util.converter.SortOrder" var="sortOrdV"
+        completeMethod="#{arMastBean.onSortOrderComplete}" 
+        emptyMessage="#{validationText.sortOrdersNF}"
+        itemValue="#{sortOrdV}" itemLabel="#{sortOrdV.name}"/>
+       <p:outputLabel for="arSortOrder" value="#{formTextAr.arAccountSortOrd}"/> 
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete
+        id="payTerm" value="#{arMastBean.arAccount.paymentTerms}" var="payTermsV" dropdown="true"
+        converter="com.rationem.util.converter.PaymentTerms" itemValue="#{payTermsV}" 
+        itemLabel="#{payTermsV.payTermsCode}" completeMethod="#{arMastBean.onPayTermsComplete}"/>
+       <p:outputLabel for="payTerm" value="#{formTextAr.arPayTerm}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete
+        id="payType" value="#{arMastBean.arAccount.paymentType}" var="payTypeV" dropdown="true"
+        converter="com.rationem.util.converter.PaymentType" itemValue="#{payTypeV}" 
+        itemLabel="#{payTypeV.description}" completeMethod="#{arMastBean.onPayTermsComplete}"/>
+       <p:outputLabel for="payTerm" value="#{formTextAr.arPayTerm}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete
+        id="clerk" value="#{arMastBean.arAccount.accountClerk}" var="clerkV" 
+        converter="com.rationem.util.converter.PartnerIndividual" itemValue="#{clerkV}" 
+        itemLabel="#{clerkV.displayName}" completeMethod="#{arMastBean.onPartnerPersonComplete}"
+        forceSelection="true"  minQueryLength="3" dropdown="true"/>
+       <p:outputLabel for="clerk" value="#{formTextAr.arClerk}"/>
+      </h:panelGroup>
+      <p:commandButton id="newClerk" icon="fa fa-file-o" title="#{formTextMdm.ptnrAddCnt}"
+                       actionListener="#{arMastBean.onClerkAddBtn}"/>
+      <h:panelGroup>
+       <p:outputLabel for="summCb" value="#{formTextAr.arAcntCrSumCb}"/>
+       <p:spacer width="4"/>
+       <p:selectBooleanCheckbox id="summCb" value="#{arMastBean.skipToEnd}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     
+    </p:panel>
+    <p:panel id="arBankPanel" rendered="#{arMastBean.step eq 3}" >
+     <f:facet name="header">
+      <h:outputText value="#{formTextAr.arBankTab}" />
+     </f:facet>
+     <p:growl id="bnkMsg" />
+     <p:dataTable 
+      id="bnkTbl" var="arBank" value="#{arMastBean.arAccount.arAccountBanks}"
+      paginator="true" rows="3" selectionMode="single"  selection="#{arMastBean.selectedBank}" 
+      rowKey="#{arBank.id}" emptyMessage="#{formTextAr.arBanksNone}"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+      <p:ajax event="contextMenu" />
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24" />
+        <p:dataExporter type="xls" target="partnerListId" fileName="#{listHeading.ptnrs_FN}"  
+                          postProcessor="#{partnerAccounts.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="partnerListId" 
+                      fileName="#{listHeading.ptnrs_FN}" />
+       </h:commandLink>
+      </f:facet>
+      <p:column width="80" styleClass="column-textRight"   >
+       <f:facet name="header"  >
+        <h:outputText value="#{formText.bnkSortCd}" title="#{formHelpText.bnkSortCd}"  />
+       </f:facet>
+       <h:outputText id="bnkSort" value="#{arBank.bankAccount.accountForBranch.sortCode}"/>
+      </p:column>
+      <p:column width="70"  style="column-textRight">
+       <f:facet name="header">
+        <h:outputText value="#{formText.bnkAccNum}" title="#{formHelpText.bnkAccNum}"/>
+       </f:facet>
+       <h:outputText value="#{arBank.bankAccount.accountNumber}"  />
+      </p:column>
+      <p:column styleClass="column-textRight">
+       <f:facet name="header">
+        <h:outputText value="#{formText.bnkAccName}" title="#{formHelpText.bnkAccName}"/>
+       </f:facet>
+       <h:outputText value="#{arBank.accountName}"/> 
+      </p:column>
+      <p:column  styleClass="column-textRight">
+       <f:facet name="header">
+        <h:outputText value="#{formText.bnkKey}" title="#{formHelpText.bnkKey}"/>
+       </f:facet>
+       <h:outputText id="bnkKey" value="#{arBank.bankKey}"   />
+      </p:column >
+      <p:column width="50" styleClass="column-textRight">
+       <f:facet name="header">
+        <h:outputText value="#{formText.bnkColAuth}" title="#{formHelpText.bnkColAuth}"/>
+       </f:facet>
+       <p:selectBooleanCheckbox value="#{arBank.collectionAuthorisation}" />
+      </p:column >
+      <p:column styleClass="column-textRight">
+       <f:facet name="header">
+        <h:outputText value="#{formText.bnkDdMandate}" title="#{formHelpText.bnkDdMandate}" />
+       </f:facet>
+       <h:outputText id="bnkDdrefId" value="#{arBank.ddRef}" title="#{formHelpText.bnkDdMandate}" />
+      </p:column>
+      <p:column styleClass="column-textRight">
+       <f:facet name="header">
+        <h:outputText value="#{formText.bnkDirectColValidFrom}" 
+                                  title="#{formHelpText.bnkDirectColValidFrom}"/>
+       </f:facet>
+       <h:outputText id="taxDateOut" value="#{arBank.collValidFrom}">
+        <f:convertDateTime type="date" dateStyle="medium" />
+       </h:outputText>
+      </p:column>
+     </p:dataTable>
+     <p:contextMenu for="bnkTbl">
+      <p:menuitem id="bnkAcAddBtn" value="#{formTextAr.arAcntBnkAcAdd}" icon="fa fa-file-o"
+                  actionListener="#{arMastBean.onBankAcntNewDlg}"/>
+      <p:menuitem id="bnkAcDelBtn" value="#{formTextAr.arAcntBnkAcEd}" icon="fa fa-trash-o"
+                  actionListener="#{arMastBean.onBankAcntNewRowDelete}" />
+     </p:contextMenu>
+    </p:panel>
+    <p:panel id="arSummPnl" rendered="#{arMastBean.step eq 4}">
+     <f:facet name="header">
+       <h:outputText value="#{formTextAr.arAcntCrSumPnl}"/>
+     </f:facet>
+     <p:growl id="saveMsg"/>
+     <p:panelGrid id="arSummPg" layout="grid" columns="1" columnClasses="ui-grid-col-10"
+                  styleClass="ui-noborder">
+      <h:panelGroup>
+       <h:outputText value="#{formTextAr.arAcntCode}" styleClass="panelFormFieldName"/>
+         <p:spacer width="2"/>
+         <h:outputText value="#{arMastBean.arAccount.arAccountCode}" />
+         <p:spacer width="6"/>
+         <h:outputText  value="#{formTextAr.arAccountName}" styleClass="panelFormFieldName"/>
+         <p:spacer width="2"/>
+         <h:outputText id="summAcntName" value="#{arMastBean.arAccount.arAccountName}" 
+                       />
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:accordionPanel id="sumAccordP" dynamic="true" multiple="false" >
+      <p:tab title="#{formText.addr}">
+       <p:panelGrid 
+        layout="grid" columns="4" columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2"
+        styleClass="ui-noborder">
+         <h:outputText value="#{formText.ptnrType}" styleClass="panelFormFieldName"/>
+         <h:outputText value="#{formText.ptnrCorp}" rendered="#{arMastBean.selectedPtnrTypeCd eq 'corp'}"/>
+         <h:outputText value="#{formText.ptnrIndiv}" rendered="#{arMastBean.selectedPtnrTypeCd eq 'indiv'}"/>
+         <h:outputText value="#{formText.ptnrName}" styleClass="panelFormFieldName"/>
+         <h:outputText value="#{arMastBean.arAccount.arAccountFor.name}"/>
+       </p:panelGrid>
+       <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-7">
+        <h:outputText value="#{formText.addrStr1}" styleClass="panelFormFieldName"/>
+        <h:panelGroup>
+         <h:outputText  value="#{arMastBean.arAccount.accountAddress.houseNumber}" />
+         <h:outputText  value="#{arMastBean.arAccount.accountAddress.houseName}" />
+         <p:spacer width="4"/>
+         <h:outputText  value="#{arMastBean.arAccount.accountAddress.street}"  />
+        </h:panelGroup>
+        <h:outputText  value="#{formText.addrTown}" styleClass="panelFormFieldName"/>
+        <h:outputText  value="#{arMastBean.arAccount.accountAddress.town}" />
+        <h:outputText  value="#{formText.addrCounty}" styleClass="panelFormFieldName"/>
+        <h:outputText value="#{arMastBean.arAccount.accountAddress.countyName}"
+                             title="#{formHelpText.addrCounty}"/>
+        <h:outputText value="#{formText.addrPostCd}" styleClass="panelFormFieldName"/>
+        <h:outputText value="#{arMastBean.arAccount.accountAddress.postCode}" />
+       </p:panelGrid>
+      </p:tab>
+      <p:tab title="#{formTextAr.arAccountTab}">
+       <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-7">
+        <h:outputText value="#{formTextAr.arAcntRecGL}" styleClass="panelFormFieldName"/> 
+        <h:outputText value="#{arMastBean.arAccount.reconciliationAc.coaAccount.ref}"/>
+        <h:outputText value="#{formText.docDefSort}" styleClass="panelFormFieldName"/>
+        <h:outputText value="#{arMastBean.arAccount.sortOrder.name}"/>
+        <h:outputText  value="#{formTextAr.arPayTerm}" styleClass="panelFormFieldName"/>
+        <h:outputText value="#{arMastBean.arAccount.paymentTerms.description}"/>
+        <h:outputText value="#{formTextAr.arPayType}" styleClass="panelFormFieldName"/>
+        <h:outputText value="#{arMastBean.arAccount.paymentType.description}"/>
+        <h:outputText value="#{formTextAr.arClerk}" styleClass="panelFormFieldName"/>
+        <h:outputText value="#{arMastBean.arAccount.accountClerk.displayName}"/>
+       </p:panelGrid> 
+      </p:tab>
+      <p:tab title="#{formTextAr.arBankDet}">
+       <p:dataTable id="bnkTbl" var="arBank" value="#{arMastBean.arAccount.arAccountBanks}"
+                        paginator="true" rows="3" selectionMode="single"  selection="#{arMastBean.selectedBank}" 
+                           rowKey="#{arBank.id}"  >
+        <p:column width="80" styleClass="column-textRight"   >
+         <f:facet name="header"  >
+          <h:outputText value="#{formText.bnkSortCd}" title="#{formHelpText.bnkSortCd}"  />
+         </f:facet>
+         <h:outputText id="bnkSort" value="#{arBank.bankAccount.accountForBranch.sortCode}"/>
+        </p:column>
+        <p:column width="70"  style="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkAccNum}" title="#{formHelpText.bnkAccNum}"/>
+         </f:facet>
+         <h:outputText value="#{arBank.bankAccount.accountNumber}"  />
+        </p:column>
+        <p:column styleClass="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkAccName}" title="#{formHelpText.bnkAccName}"/>
+         </f:facet>
+         <h:outputText value="#{arBank.accountName}"/> 
+        </p:column>
+        <p:column  styleClass="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkKey}" title="#{formHelpText.bnkKey}"/>
+         </f:facet>
+         <h:outputText id="bnkKey" value="#{arBank.bankKey}"   />
+        </p:column >
+        <p:column width="50" styleClass="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkColAuth}" title="#{formHelpText.bnkColAuth}"/>
+         </f:facet>
+         <p:selectBooleanCheckbox value="#{arBank.collectionAuthorisation}" />
+        </p:column >
+        <p:column styleClass="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkDdMandate}" title="#{formHelpText.bnkDdMandate}" />
+         </f:facet>
+         <h:outputText id="bnkDdrefId" value="#{arBank.ddRef}" title="#{formHelpText.bnkDdMandate}" />
+        </p:column>
+        <p:column styleClass="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{formText.bnkDirectColValidFrom}" 
+                                  title="#{formHelpText.bnkDirectColValidFrom}"/>
+         </f:facet>
+         <h:outputText id="taxDateOut" value="#{arBank.collValidFrom}">
+          <f:convertDateTime type="date" dateStyle="medium" />
+         </h:outputText>
+        </p:column>
+       </p:dataTable>
+      </p:tab>
+     </p:accordionPanel>
+    </p:panel>
+    
+   </div>
+  </h:form>
+   
+   
+  <h:form id="addrSrchFrm">
+   <p:dialog id="pstCdSrchDlg" widgetVar="pstCdSrchDlgWv" modal="true" resizable="true">
+    <f:facet name="header">
+     <h:outputText value="#{formTextAr.addrSrchPcDlg}"/>
+    </f:facet>
+    <p:panelGrid id="srchPG" layout="grid" columns="2" columnClasses="ui-grid-col-2, ui-grid-col-1">
+     <h:panelGroup class="md-inputfield">
+      <p:inputText id="srchPcd" value="#{arMastBean.postCodeEntry}"/>
+      <p:outputLabel for="srchPcd" value="#{formText.addrPostCd}"/>
+     </h:panelGroup>
+     <p:commandButton id="pcdSrchButton" icon="fa fa-search" title="#{formText.search}"
+                      actionListener="#{arMastBean.onAddressSearchByPostCd}"/>
+     </p:panelGrid> 
+     <p:dataTable 
+      id="addrList" value="#{arMastBean.addressList}" emptyMessage="#{validationText.addrNone}"
+      var="addrV" paginator="true" rowKey="#{addrV.id}" rows="#{arMastBean.usrBuff.tblRows}" 
+      selectionMode="single" selection="#{arMastBean.addressSelected}" 
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.addrAvailLst}" />
+      </f:facet>
+      <p:ajax event="rowSelect" listener="#{arMastBean.onAddressSelectCr}" />
+      <p:column sortBy="#{addrV.streetLine}" filterBy="#{addrV.streetLine}" filterMatchMode="contains" >
+       <f:facet name="header">
+        <h:outputText value="#{formText.addrStr1}"/> 
+       </f:facet>
+       <h:outputText value="#{addrV.streetLine}" />
+      </p:column>
+      <p:column sortBy="#{addrV.postCode}" filterBy="#{addrV.postCode}" filterMatchMode="contains">
+       <f:facet name="header">
+        <h:outputText value="#{formText.addrPostCd}"/>
+       </f:facet>
+       <h:outputText value="#{addrV.postCode}"/>
+      </p:column>
+      
+     </p:dataTable>
+                  
+    
+   </p:dialog>
+  </h:form>
+   <h:form id="addClerkFrm" >
+    <p:dialog id="clerkAddDlg" widgetVar="clerkAddDlgWv" modal="true" resizable="true"  
+              responsive="true" closable="false" width="840">
+     <f:facet name="header">
+      <h:outputFormat value="#{formTextAr.arAccountContAdd}">
+       <f:param value="#{arMastBean.arAccount.arAccountCode}"/>
+      </h:outputFormat>
+     </f:facet>
+     <p:panelGrid id="clerkAddPg" layout="grid" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-2">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="ref" value="#{arMastBean.ptnrPersonNew.ref}" size="10" 
+                         />
+       <p:outputLabel for="ref" value="#{formTextMdm.ptnrRef}" />
+      </h:panelGroup>
+      <h:panelGroup />
+      <h:panelGroup class="md-inputfield" >
+       <p:inputText id="title" value="#{arMastBean.ptnrPersonNew.title}" size="10" 
+                         />
+       <p:outputLabel for="title" value="#{formTextMdm.ptnrTitle}" />
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield" >
+       <p:inputText id="fName" value="#{arMastBean.ptnrPersonNew.firstName}" size="10" 
+                         />
+       <p:outputLabel for="fName" value="#{formTextMdm.ptnrFirstName}" />
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield" >
+       <p:inputText id="sName" value="#{arMastBean.ptnrPersonNew.familyName}" size="10" 
+                         />
+       <p:outputLabel for="sName" value="#{formTextMdm.ptnrFamilyName}" />
+      </h:panelGroup>
+      <p:commandButton id="clerkTrf" value="#{formText.save}" icon="fa fa-floppy-o"
+                       actionListener="#{arMastBean.onClerkTrf}"/>
+      <p:commandButton id="clerkCls" value="#{formText.close}" icon="fa fa-close" type="button"
+                       onclick="PF('clerkAddDlgWv').hide();"/>
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+   
+   <h:form id="newBankActFrm" >
+    <p:dialog  dynamic="true" widgetVar="addBnkAcntArWv" modal="true" closable="true" responsive="true"
+                >
+     <f:facet name="header">
+      <h:outputText value="#{formTextAr.arAddBnkAcnt}"/>
+     </f:facet>
+     <p:growl id="arAcntCrGr" showDetail="true"/>
+     <p:growl id="ddUploadMsg" showDetail="true"/>
+     <p:messages id="bnkAcCrMsg" closable="true"/>
+     <p:panelGrid 
+      id="newbankAcntPg" layout="grid" columns="3" styleClass="ui-noborder" 
+      columnClasses="ui-grid-col-3,ui-grid-col-4,ui-grid-col-5">
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete id="addSortCode" value="#{arMastBean.newBank.bankAccount.accountForBranch}"
+                       converter="com.rationem.util.converter.BankBranch" dropdown="true"
+                       var="br" itemValue="#{br}" itemLabel="#{br.sortCode}" 
+                       forceSelection="true" required="true"
+                       completeMethod="#{arMastBean.onBankBranchComplete}">
+        <p:ajax event="itemSelect" listener="#{arMastBean.onSortCodeSelect}" />
+        <p:column>
+         <h:outputText value="#{br.sortCode}"/> 
+        </p:column>
+        <p:column>
+         <h:outputText value="#{br.branchName}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{br.bank.bankOrganisation.tradingName}"/>
+        </p:column>
+       </p:autoComplete>
+       <p:outputLabel for="addSortCode" value="#{formText.bnkSortCd}"/>
+      </h:panelGroup>
+      <p:commandButton id="addNewBranchBtn" value="#{formText.bnkCreateBranchBtn}"
+                        process="@this" partialSubmit="true" 
+                        icon="fa fa-file" actionListener="#{arMastBean.onBankBranchNewDlg}"/>
+      <p:commandButton id="addBnkAcntAutoBtn" value="#{formText.bnkCreateAcntAutoBtn}"
+                        process="@this" partialSubmit="true" 
+                        icon="fa fa-file" actionListener="#{arMastBean.onBankAccountAutoCrDlg}"/>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete id="addNewBnkAcntNum" dropdown="true" var="bnkAcnt"
+                       converter="com.rationem.util.converter.BankAccount"  
+                       value="#{arMastBean.newBank.bankAccount}" itemValue="#{bnkAcnt}"
+                       itemLabel="#{bnkAcnt.accountNumber}"  
+                       forceSelection="true" validator="#{arMastBean.onBankAcntUniqueValidate}"  
+                       disabled="#{!arMastBean.branchFound}" required="true"
+                       completeMethod="#{arMastBean.onBankAccountNumberComplete}">
+        <p:ajax event="itemSelect" listener="#{arMastBean.onBankAccountSelect}" update="@this"  />  
+        <p:ajax event="blur"/>
+       </p:autoComplete>
+       <p:outputLabel for="addNewBnkAcntNum" value="#{formText.bnkAccNum}"/>
+      </h:panelGroup>
+      <p:commandButton id="addNmBtn" value="#{formText.bnkAddAct}" 
+                       actionListener="#{arMastBean.onBnkActAddDlg}" partialSubmit="true"
+                        disabled="#{!arMastBean.branchFound}" process="@this"
+                        />
+      </p:panelGrid>
+      <p:panelGrid 
+       id="addBnkNumPg" layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-10" 
+       styleClass="ui-noborder" >
+       <h:panelGroup class="md-inputfield">
+        <p:inputText id="newBnkAcntNm" value="#{arMastBean.newBank.accountName}"
+                    required="true" requiredMessage="bank acnt req"/>
+        <p:outputLabel for="newBnkAcntNm" value="#{formText.bnkAccName}" />
+       </h:panelGroup>
+    
+    
+       <h:panelGroup class="md-inputfield">
+        <p:inputText id="newBnkAcntRef" value="#{arMastBean.newBnkAcnt.accountRef}"/>
+        <p:outputLabel for="newBnkAcntRef" value="#{formText.bnkAccRef}"/>
+       </h:panelGroup>
+      </p:panelGrid>
+     <p:panelGrid 
+       id="addBnkAcDdPg" columns="4" styleClass="ui-noborder"
+       columnClasses="ui-grid-col-3,ui-grid-col-3,ui-grid-col-3,ui-grid-col-3" >
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="bnkKey" value="#{arMastBean.newBank.bankKey}"/>
+       <p:outputLabel for="bnkKey" value="#{formText.bnkKey}"/>
+      </h:panelGroup>
+      <h:panelGroup >
+       <p:outputLabel for="bnkCol" value="#{formTextAr.arAcntBnkCollAuth}"/>
+       <p:spacer width="4" />
+       <p:selectBooleanCheckbox 
+        id="bnkCol"  value="#{arMastBean.newBank.collectionAuthorisation}" disabled="#{arMastBean.newBank.bankAccount eq null}">
+        <p:ajax listener="#{arMastBean.onBacsCollectAuthCheck}"/>
+       </p:selectBooleanCheckbox>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="ddRef" value="#{arMastBean.newBank.ddRef}"/>
+       <p:outputLabel for="ddRef" value="#{formTextAr.arBankDdref}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:calendar id="bnkMdtFr"   value="#{arMastBean.newBank.collValidFrom}" 
+                   navigator="true" pattern="dd-MMM-yyyy"
+                    showOtherMonths="true" maxlength="11" size="12"/>
+       <p:outputLabel for="bnkMdtFr" value="#{formTextAr.arBnkMandtFr}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid 
+      id="ddFilePg" layout="grid" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-7,ui-grid-col-4"
+      styleClass="ui-noborder">
+       <p:outputLabel for="ddFile" value="#{formTextAr.arBankMandt}"/>
+       <p:fileUpload id="ddFile" fileUploadListener="#{arMastBean.onDdUpload}" 
+                     dragDropSupport="true" auto="true"
+                     label="#{formTextAr.arbankDdSelF}" messageTemplate="{name}"
+                     allowTypes="/(\.|\/)(gif|jpe?g|png|pdf|odt|rtf|doc?x)$/"
+                     update="newBankActFrm:ddUploadMsg newBankActFrm:ddFileName "/>
+       <h:outputText id="ddFileName" value="#{arMastBean.newBank.ddFileName}"/>
+     </p:panelGrid>
+     <p:panelGrid id="buttonsPg" layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-3"
+                  styleClass="ui-noborder">
+      <p:commandButton 
+       id="trfBnkAcnt" value="#{formText.transfer}" icon="fa fa-long-arrow-left"
+       actionListener="#{arMastBean.onBankAccountArTransfer}"/>
+       
+      <p:commandButton id="closeBnkAcnt" type="button"  value="#{formText.close}" icon="fa fa-close"
+                        onclick="PF('addBnkAcntArWv').hide();">
+        
+       </p:commandButton>
+     </p:panelGrid>            
+    </p:dialog >
+   </h:form>
+   
+   <h:form id="addBranchFrm" >
+    <p:dialog id="addBrDlg" dynamic="true" widgetVar="addBnkBrWv" responsive="true" modal="true"
+              footer="#{formTextMdm.bnkBrComplSu}">
+     <f:facet name="header">
+      <h:outputText value="#{formTextMdm.bnkBrAdd}"/>
+     </f:facet>
+     <p:tooltip />
+     <p:messages id="addBrMsg" closable="true" />
+     <p:panelGrid id="addBnkBrPg" layout="grid" columns="3" columnClasses="ui-gris-col-2,ui-gris-col-2,ui-gris-col-1" >
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="newSortCode" value="#{arMastBean.newBank.bankAccount.accountForBranch.sortCode}" required="true"/>
+       <p:outputLabel for="newSortCode" value="#{formText.bnkSortCd}"/> 
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete 
+        id="newbnk4Br" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank}" dropdown="true"
+        converter="com.rationem.util.converter.Bank" var="bnkV" itemValue="#{bnkV}" 
+        forceSelection="true"
+        emptyMessage="#{formTextMdm.bnksNon}" 
+        itemLabel="#{bnkV.bankOrganisation.displayName}" completeMethod="#{arMastBean.onBankComplete}" >
+       </p:autoComplete>
+       <p:outputLabel for="newbnk4Br" value="#{formText.bnkBank}"/>
+      </h:panelGroup>
+      <p:commandButton id="newBnkBtn" value="#{formTextMdm.bnkNew}" partialSubmit="true" process="@this" 
+                       actionListener="#{arMastBean.onBankNewBtn}"/>
+     </p:panelGrid>
+     <p:panelGrid id="branchNamePg" layout="grid" columns="1" columnClasses="ui-grid-col-4" 
+      styleClass="ui-noborder">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="brName" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchName}"
+                    required="true"/>
+       <p:outputLabel for="brName" value="#{formText.bnkBrName}"/>
+       </h:panelGroup>              
+     </p:panelGrid>
+     <p:panelGrid 
+      id="brStreetPg" layout="grid" columns="3"  styleClass="ui-noborder"
+      columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-4" >
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="houseNum" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.houseNumber}" 
+                    />
+       <p:outputLabel for="houseNum" value="#{formText.addrHseNum}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="houseName" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.houseName}" 
+                    />
+       <p:outputLabel for="houseNum" value="#{formText.addrHseName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="street" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.street}"
+                    required="true"/>
+       <p:outputLabel for="street" value="#{formText.addrStr1}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid id="branchAddrPt2Pg" layout="grid" columns="1" columnClasses="ui-grid-col-4" 
+      styleClass="ui-noborder">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="street2" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.street2}"/>
+       <p:outputLabel for="street2" value="#{formText.addrStr2}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="town" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.town}"/>
+       <p:outputLabel for="town" value="#{formText.addrTown}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="county" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.countyName}"/>
+       <p:outputLabel for="county" value="#{formText.addrCounty}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete 
+        id="bnkBrCountry" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.country}"
+        title="#{formHelpText.addrCountry}" dropdown="true" forceSelection="true"
+        converter="com.rationem.util.converter.country" var="ptnrCntry" itemValue="#{ptnrCntry}"
+        itemLabel="#{ptnrCntry.countryName}" completeMethod="#{arMastBean.countryComplete}"/>
+       <p:outputLabel for="bnkBrCountry" value="#{formText.addrCountry}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="bnkBrPostCd" value="#{arMastBean.newBank.bankAccount.accountForBranch.branchAddress.postCode}"
+                    required="true"/>
+       <p:outputLabel for="bnkBrPostCd" value="#{formText.addrPostCd}"/>
+      </h:panelGroup>
+      
+     </p:panelGrid>
+     <p:panelGrid 
+      id="buttons" layout="grid" columns="3" columnClasses="ui-grid-column-1,ui-grid-column-1,ui-grid-column-7"
+      styleClass="ui-noborder">
+      <p:commandButton 
+       id="addBrBtn" value="#{formText.transfer}" icon="fa fa-long-arrow-left" 
+       actionListener="#{arMastBean.onBankBranchTransfer}" />
+      <p:commandButton  
+       value="#{formText.close}" type="button" icon="fa fa-close" onclick="PF('addBnkBrWv').hide()"/>
+                         
+     </p:panelGrid>
+                  
+     
+    </p:dialog>
+   </h:form>
+   
+   <h:form id="newBankFrm">
+    <p:dialog id="newBankDlg" widgetVar="newBankDlgWv" closable="true" responsive="true" modal="true"
+              footer="#{formTextMdm.bnkComplSu}"> 
+     <f:facet name="header">
+      <h:outputText value="#{formTextMdm.bnkNew}"/> 
+     </f:facet>
+     <p:messages id="msgs" closable="true"/>
+     <p:panelGrid id="newBankPg" layout="grid" columns="2" styleClass="ui-noborder" 
+                  columnClasses="ui-grid-col-8,ui-grid-col-8" >
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="bankCode" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.bankCode}" />
+       <p:outputLabel for="bankCode" value="#{formText.bnkOrgRef}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="chapsCode" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.chapsBankCode}" />
+       <p:outputLabel for="chapsCode" value="#{formText.bnkChapsCd}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText 
+        id="bnkOrgCrLegalName" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.bankOrganisation.legalName}" required="true"
+        requiredMessage="#{validationText.bnkLegName}"/>
+       <p:outputLabel for="bnkOrgCrLegalName" value="#{formText.ptnrLegalName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="bnkOrgCrTradingName" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.bankOrganisation.tradingName}"
+                    required="true" requiredMessage="#{validationText.bnkTradName}"/>
+       <p:outputLabel for="bnkOrgCrTradingName" value="#{formText.ptnrTradingName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="bnkOrgCrPhone" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.bankOrganisation.telephone}" />
+       <p:outputLabel for="bnkOrgCrPhone" value="#{formText.ptnrTelephone}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="bnkOrgCrMobile" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.bankOrganisation.mobileTelephone}" />
+       <p:outputLabel for="bnkOrgCrMobile" value="#{formText.ptnrMobile}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="bnkOrgCrWeb" value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.bankOrganisation.webAddress}" />
+       <p:outputLabel for="bnkOrgCrWeb" value="#{formText.ptnrWeb}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-3" 
+      styleClass="ui-noborder" >
+      <p:commandButton value="#{formTextMdm.bnkSave}" icon="fa fa-floppy-o"
+                       actionListener="#{arMastBean.onBankSave}"/>
+      <p:commandButton 
+       value="#{formText.close}" icon="fa fa-trash-o" onclick="PF('newBankDlgWv').hide()"
+       type="button"/>
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+   
+   <h:form id="newBankActTrFrm">
+    <p:dialog id="addBnkAcntDlg" widgetVar="addNewBnkAcntTrWv" dynamic="true" modal="true"
+              closable="false" responsive="true" footer="#{formTextMdm.bnkAcntComplSu}" >
+    <f:facet name="header">
+     <h:outputFormat value="#{formTextMdm.bnkAcnt4BrNew}">
+      <f:param value="#{arMastBean.newBank.bankAccount.accountForBranch.bank.bankOrganisation.displayName}" />
+      <f:param value="#{arMastBean.newBank.bankAccount.accountForBranch.sortCode}"/>
+     </h:outputFormat>
+    </f:facet>
+     
+     <p:panelGrid 
+      id="bnkAcntDetPnl" layout="grid" columns="2" styleClass="ui-noborder" 
+      columnClasses="ui-grid-col-3,ui-grid-col-7"  >
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="addBnkAcntNum" value="#{arMastBean.newBank.bankAccount.accountNumber}"
+                    required="true" requiredMessage="#{validationText.bnkActNumReq}"/>
+       <p:outputLabel for="addBnkAcntNum" value="#{formText.bnkAccNum}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="addBnkAcntName" value="#{arMastBean.newBank.bankAccount.accountName}" 
+                    required="true" requiredMessage="#{validationText.bnkActName}"/>
+       <p:outputLabel for="addBnkAcntName" value="#{formText.bnkAccName}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid 
+      id="savePg" layout="grid" columns="2" styleClass="ui-noborder"
+      columnClasses="ui-grid-col-4,ui-grid-col-4">
+       <p:commandButton id="trfbankAcntTr" value="#{formText.transfer}" 
+                        icon="fa fa-long-arrow-left"
+                        actionListener="#{arMastBean.onBankAccountTrTransfer}"/>
+       <p:commandButton id="trfbankAcntCl" value="#{formText.close}" icon="fa fa-close"
+                        type="button" onclick="PF('addNewBnkAcntTrWv').hide();"/>
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+   
+  </div>
+ </ui:define>
+</ui:composition>

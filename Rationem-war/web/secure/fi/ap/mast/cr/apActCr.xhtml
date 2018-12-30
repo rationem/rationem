@@ -1,0 +1,1264 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.arAcntCr}</ui:define>
+ <ui:define name="header">#{pageTitle.arAcntCr}</ui:define>
+ <ui:define name="content">
+  
+  <h:form id="apActCrFrm" >
+   <p:tooltip trackMouse="true"  showEffect="clip" hideEffect="explode" />
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:messages id="errMsg" closable="true" />
+      <p:growl id="grl" />
+      
+      <div class="card">
+       
+       <p:panelGrid id="acntNumPg" styleClass="ui-noborder" layout="grid" columns="2" 
+                    columnClasses="ui-grid-col-2,ui-grid-col-3" >
+        <h:panelGroup >
+         <p:outputLabel for="comp" value="#{formText.compRef}"/>
+         <p:selectOneMenu id="comp"   
+                            value="#{apMast.apAccount.company}"
+                          converter="com.rationem.util.converter.CompanyBasic" >
+          <f:selectItems var="compVar" value="#{apMast.compList}" itemValue="#{compVar}"
+                         itemLabel="#{compVar.reference}"/>
+          <p:ajax/>
+         </p:selectOneMenu>
+         
+        </h:panelGroup>
+        <h:panelGroup />
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="accountCode" value="#{apMast.apAccount.accountCode}"
+                       title="#{formHelpText.arActCode}" size="5" required="true" 
+                       requiredMessage="#{validationText.arActNum}"  >
+            <p:ajax  event="blur"
+                    listener="#{apMast.onApActNumberBlur}"/>
+         </p:inputText>
+         <p:outputLabel for="accountCode" value="#{formTextAp.apAcntCode}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="apAcntName" value="#{apMast.apAccount.accountName}"
+                       maxlength="30" size="25"  >
+          <p:ajax event="blur"/>
+         </p:inputText>
+         <p:outputLabel for="apAcntName" value="#{formTextAp.apAcntName}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+      </div>
+      <div class="card">
+       <p:steps activeIndex="#{apMast.apAcntCrStep}" id="acntCrStep">
+        <p:menuitem value="#{formTextAp.apPtnrTab}"/>
+        <p:menuitem value="#{formTextAp.apAddrTab}"/>
+        <p:menuitem value="#{formTextAp.apAcntTab}" />
+        <p:menuitem value="#{formTextAp.apBankTab}" />
+        <p:menuitem value="#{formTextAp.apAcntSummTab}" />
+       </p:steps>
+       <p:panelGrid id="navBtn" columns="3" columnClasses="ui-grid-col-1,ui-grid-col-10,ui-grid-col-1" 
+                 layout="grid" styleClass="ui-noborder">
+        <p:commandButton id="backBtn" value="#{formText.back}" rendered="#{apMast.apAcntCrStep gt 0}"
+                         actionListener="#{apMast.onApAcntCrBack}"/>
+        <h:panelGroup rendered="#{apMast.apAcntCrStep eq 0}" />
+        <h:panelGroup />
+        <p:commandButton id="nextBtn" value="#{formText.next}" 
+                      process="apActCrFrm:acntNumPg" actionListener="#{apMast.onApAcntCrNext}" 
+                      ajax="false" rendered="#{apMast.apAcntCrStep lt 4}"/>
+     
+        <h:panelGroup rendered="#{apMast.apAcntCrStep eq 4}" />
+       </p:panelGrid>
+       <p:panel id="ptnrDetPnl" header="#{formTextAp.apPtnrPnl}" rendered="#{apMast.apAcntCrStep eq 0}">
+        <p:panelGrid id="ptnrDetPg" columns="2" styleClass="ui-noborder" layout="grid" 
+                columnClasses="ui-grid-col-2,ui-grid-col-10" rendered="#{apMast.apAcntCrStep eq 0}" >
+        
+        <p:outputLabel for="ptnrTyp" value="#{formText.ptnrType}"/>
+        <p:panelGrid id="ptnrLnPg" columns="4" styleClass="ui-noborder" layout="grid"
+                  columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-1"  >
+         <p:selectOneMenu  id="ptnrTyp" value="#{apMast.selectedPtnrTypeCd}"
+                             valueChangeListener="#{apMast.onPartnerTypeValueChange}"
+                             styleClass="ptnrTyp">
+          <f:selectItem itemValue="corp" itemLabel="#{formText.ptnrCorp}"/>
+          <f:selectItem itemValue="indiv" itemLabel="#{formText.ptnrIndiv}"/>
+          <p:ajax update="ptnrDetPg"  />
+         </p:selectOneMenu>
+         <h:panelGroup class="md-inputfield">
+          <p:autoComplete id="tradName" value="#{apMast.ptnrCorp}"
+                            rendered="#{apMast.selectedPtnrTypeCd == 'corp'}"
+                            converter="com.rationem.util.converter.PartnerCorporate"
+                            completeMethod="#{apMast.corpPtnrComplete}" dropdown="true"
+                            var="p" itemLabel="#{p.tradingName}"  itemValue="#{p}"
+                            maxResults="20" minQueryLength="3"
+                            required="true" requiredMessage="#{validationText.arActTradName}"
+                            forceSelection="true"
+                            >
+           <p:ajax   event="itemSelect" listener="#{apMast.onTradingNameSelect}"   />
+          </p:autoComplete>
+          <p:autoComplete id="personName" value="#{apMast.ptnrPerson}"
+                            rendered="#{apMast.selectedPtnrTypeCd == 'indiv'}"
+                            converter="com.rationem.util.converter.PartnerIndividual"
+                            completeMethod="#{apMast.onPartnerPersonComplete}" dropdown="true"
+                            var="pers" itemLabel="#{pers.familyName} #{pers.firstName}" 
+                            itemValue="#{pers}" 
+                            required="true" requiredMessage="#{validationText.arActFamilyname}"
+                            maxResults="20" minQueryLength="3" forceSelection="true"
+                            title="#{formHelpText.addrNameCompAuto3}"
+                            >
+           <p:ajax event="itemSelect" listener="#{apMast.onTradingNameSelect}" />
+          </p:autoComplete>
+          <p:outputLabel for="tradName" value="#{formText.ptnrTradingName}"
+                           rendered="#{apMast.selectedPtnrTypeCd == 'corp'}"/>
+          <p:outputLabel for="personName" value="#{formText.ptnrFamilyName}"
+                           rendered="#{apMast.selectedPtnrTypeCd == 'indiv'}"/>
+         </h:panelGroup>
+         <p:commandButton id="crPtnr"  value="#{formText.ptnrCreate}"
+                               title="#{formHelpText.arCrPtnr}"
+                               process="@this"
+                             actionListener="#{apMast.onNewAcntCrPtnrDlg}"/>
+        </p:panelGrid>
+        <h:outputText  value="#{formText.addrHouseNumName}"/>
+        <h:panelGroup>
+         <h:outputText id="addrStNum" 
+                            value="#{apMast.apAccount.apAccountFor.defaultAddress.houseNumber}"
+                           title="#{formHelpText.addrNum}"  />
+         <h:outputText id="addHouseName" 
+                            value="#{apMast.apAccount.apAccountFor.defaultAddress.houseNumber}"
+                           title="#{formHelpText.addrHseName}"/>
+        </h:panelGroup>
+        <p:outputLabel for="addrStreet" value="#{formText.addrStr1}"/>
+        <h:outputText id="addrStreet" value="#{apMast.apAccount.apAccountFor.defaultAddress.street}"
+                           title="#{formHelpText.addrStr}"/>
+        <p:outputLabel for="addrStr2" value="#{formText.addrStr2}"/>
+        <h:outputText id="addrStr2" value="#{apMast.apAccount.apAccountFor.defaultAddress.street2}"
+                             title="#{formHelpText.addrStr2}"/>
+        <p:outputLabel for="addrTown" value="#{formText.addrTown}"/>
+        <h:outputText id="addrTown" value="#{apMast.apAccount.apAccountFor.defaultAddress.town}"
+                             title="#{formHelpText.addrTown}"/>
+        <p:outputLabel for="addrCounty" value="#{formText.addrCounty}"/>
+        <h:outputText id="addrCounty" value="#{apMast.apAccount.apAccountFor.defaultAddress.countyName}"
+                             title="#{formHelpText.addrCounty}"/>
+        <p:outputLabel for="addrCountry" value="#{formText.addrCountry}"/>
+        <h:outputText id="addrCountry" value="#{apMast.apAccount.apAccountFor.defaultAddress.countryName}"
+                            title="#{formText.addrCountry}"/>
+        <p:outputLabel for="addrPostCd" value="#{formText.addrPostCd}"/>
+        <h:outputText id="addrPostCd" value="#{apMast.apAccount.apAccountFor.defaultAddress.postCode}" 
+                           title="#{formHelpText.addrPostCd}"  />
+        <p:outputLabel for="defCb" value="#{formTextAp.apCrJmpSum}"/>
+        <p:selectBooleanCheckbox id="defCb" value="#{apMast.apAcntCrStepCompl}"   />
+        </p:panelGrid>
+       </p:panel>
+       
+       <p:panel id="acntAddrPnl" header="#{formTextAp.apCrAcntAddrPnl}" 
+                rendered="#{apMast.apAcntCrStep eq 1}" >
+        <p:panelGrid id="acntAddrBtnPg" columns="1" styleClass="ui-noborder" layout="grid" 
+                     columnClasses="ui-grid-col-3" rendered="#{apMast.apAcntCrStep eq 1}">
+         <p:splitButton id="addrBtn" value="#{formText.addrUsePtnr}" icon="fa fa-user" >
+          <p:menuitem  value="#{formText.addrSel}" actionListener="#{apMast.onApAcntAddrFind}"
+                       icon="fa fa-search"/>
+          <p:menuitem value="#{formText.addrNew}" icon="fa fa-file" actionListener="#{apMast.onApAcntAddrNew}"/>
+         </p:splitButton>
+        </p:panelGrid>
+        <p:panelGrid id="acntAddrNumNamePg" columns="2" layout="grid" styleClass="ui-noborder"
+                     columnClasses="ui-grid-col-2,ui-grid-col-2">
+         <h:panelGroup class="md-inputfield" >
+          <p:inputText id="acntAddrHseNum" value="#{apMast.apAccount.accountAddress.houseNumber}" 
+                   maxlength="11"  size="10" disabled="#{not apMast.acntAddrNew}">
+           <f:convertNumber integerOnly="true" groupingUsed="false" />
+          </p:inputText>
+          <p:outputLabel for="acntAddrHseNum"  value="#{formText.addrHseNum}"/>
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield">
+          <p:inputText id="acntAddrHseName" value="#{apMast.apAccount.accountAddress.houseName}" 
+                   disabled="#{not apMast.acntAddrNew}"/>
+          <p:outputLabel for="acntAddrHseName"  value="#{formText.addrHseName}"/>
+         </h:panelGroup>
+        </p:panelGrid>
+        <p:panelGrid id="acntAddrPg" columns="1" styleClass="ui-noborder" layout="grid" 
+                 columnClasses="ui-grid-col-4" rendered="#{apMast.apAcntCrStep eq 1}">
+         <h:panelGroup class="md-inputfield" >
+          <p:inputText id="acntAddrStreet" value="#{apMast.apAccount.accountAddress.street}" 
+                  disabled="#{not apMast.acntAddrNew}" />
+          <p:outputLabel for="acntAddrStreet" value="#{formText.addrStr1}" />
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield" >
+          <p:inputText id="acntAddrStreet2" value="#{apMast.apAccount.accountAddress.street2}" 
+                  disabled="#{not apMast.acntAddrNew}" />
+          <p:outputLabel for="acntAddrStreet2" value="#{formText.addrStr2}" />
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield" >
+          <p:inputText id="acntAddrTown" value="#{apMast.apAccount.accountAddress.town}"
+                  disabled="#{not apMast.acntAddrNew}" />
+          <p:outputLabel for="acntAddrTown" value="#{formText.addrTown}" />
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield" >
+          <p:inputText id="acntAddrCounty" value="#{apMast.apAccount.accountAddress.countyName}"
+                  disabled="#{not apMast.acntAddrNew}" />
+          <p:outputLabel for="acntAddrCounty" value="#{formText.addrCounty}" />
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield" >
+          <p:inputText id="acntAddrCountry" value="#{apMast.apAccount.accountAddress.countyName}"
+                  disabled="#{not apMast.acntAddrNew}" />
+          <p:outputLabel for="acntAddrCountry" value="#{formText.addrCountry}" />
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield" >
+          <p:inputText id="acntAddrPostCd" value="#{apMast.apAccount.accountAddress.postCode}"
+                  disabled="#{not apMast.acntAddrNew}" />
+          <p:outputLabel for="acntAddrPostCd" value="#{formText.addrPostCd}" />
+         </h:panelGroup>
+        </p:panelGrid>
+       </p:panel>
+       
+       <p:panel id="apAccountPanel" header="#{formTextAp.apAcntPnl}" 
+                rendered="#{apMast.apAcntCrStep eq 2}">
+        <p:panelGrid id="accntPg" columns="1" layout="grid" columnClasses="ui-grid-col-2">
+         <h:panelGroup >
+          <p:outputLabel for="recAct" value="#{formTextAp.apAcntReconAcnt}"/>
+          <p:selectOneMenu id="recAct" value="#{apMast.apAccount.reconciliationAc}"
+                                 converter="com.rationem.util.converter.FiGlAccountComp">
+           <f:selectItems value="#{apMast.glReconciliationAcs}" var="recAcntV"
+                                 itemLabel="#{recAcntV.coaAccount.ref}"
+                                  itemValue="#{recAcntV}"/>
+          </p:selectOneMenu>
+          
+         </h:panelGroup>
+         <h:panelGroup >
+          <p:outputLabel for="sortOrderSel1" value="#{formText.docDefSort}"/>
+          <p:selectOneMenu id="sortOrderSel1" converter="com.rationem.util.converter.SortOrder"
+                                 value="#{apMast.apAccount.sortOrder}" >
+           <f:selectItems value="#{apMast.sortOrderList}" var="sort"
+                                 itemValue="#{sort}" itemLabel="#{sort.name}"/>
+          </p:selectOneMenu>
+          
+         </h:panelGroup>
+         <h:panelGroup >
+          <p:outputLabel for="payTermSel" value="#{formTextAp.apPayTerm}"/>
+          <p:selectOneMenu id="payTermSel" converter="com.rationem.util.converter.PaymentTerms"
+                                 value="#{apMast.apAccount.paymentTerms}" >
+           <f:selectItems value="#{apMast.payTermsList}" var="payTerms"
+                                 itemValue="#{payTerms}"
+                                 itemLabel="#{payTerms.payTermsCode}"/>
+          </p:selectOneMenu>
+          
+         </h:panelGroup>
+         <h:panelGroup >
+          <p:outputLabel for="payTypeSel" value="#{formTextAp.apPayType}"/>
+          <p:selectOneMenu id="payTypeSel" converter="com.rationem.util.converter.PaymentType"
+                                 value="#{apMast.apAccount.paymentType}">
+           <f:selectItems value="#{apMast.payTypes}" var="payType"
+                                 itemValue="#{payType}" itemLabel="#{payType.description}"/>
+          </p:selectOneMenu>
+          
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield">
+          <p:autoComplete id="clerk" value="#{apMast.apAccount.accountClerk}"
+                             converter="com.rationem.util.converter.PartnerIndividual"
+                             var="clerkV" itemValue="#{clerkV}" 
+                             itemLabel="#{clerkV.familyName}"
+                             completeMethod="#{apMast.onPartnerPersonComplete}" 
+                             dropdown="true"/>
+          <p:outputLabel for="clerk" value="#{formTextAp.apAcntClerk}"/>
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield">
+          <p:keyFilter mask="email"  for="acntEmail" regEx="/[a-z0-9_\.\-@]/i" preventPaste="true"/>
+          <p:inputText id="acntEmail" maxlength="50" value="#{apMast.apAccount.acntEmail}"
+                          size="30" validatorMessage="#{validationText.emailValidation}"  >
+           <f:validator validatorId="com.bac.util.helper.emailValidator"  />
+          </p:inputText>
+          <p:outputLabel for="acntEmail" value="#{formTextAp.apAcntEmail}"/>
+         </h:panelGroup>
+        </p:panelGrid>  
+       </p:panel>
+       <p:panel id="apAcntBnkPnl" header="#{formTextAp.apBankPnl}" rendered="#{apMast.apAcntCrStep eq 3}">
+        <p:dataTable id="bnkTbl" var="apBank" value="#{apMast.apAccount.apAccountBanks}"
+                     paginator="true" rows="#{apMast.usrBuff.tblRows}" selectionMode="single"  
+                        selection="#{apMast.bankAcApSelected}" 
+                        rowKey="#{apBank.id}"
+                        paginatorAlwaysVisible="true" reflow="true"  emptyMessage="#{listHeading.apAcntBankNone}"
+           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+         <f:facet name="{Exporters}">
+          <h:commandLink style="float:right;"  >
+           <p:graphicImage name="/images/Excel-48.gif" width="24" />
+           <p:dataExporter type="xls" target="bnkTbl" fileName="#{listHeading.arApBanks_FN}"  
+                          postProcessor="#{apMast.postProcessXLS}" />
+          </h:commandLink>
+          <h:commandLink style="float:right;">
+           <p:graphicImage name="/images/csv_text.png" width="24" />
+           <p:dataExporter type="csv" target="bnkTbl" 
+                      fileName="#{listHeading.arApBanks_FN}" />
+          </h:commandLink>
+         </f:facet>
+         <p:column width="80" styleClass="column-textLeft" 
+                        sortBy="#{apBank.bankAccount.accountForBranch.sortCode}"   >
+          <f:facet name="header"  >
+           <h:outputText value="#{formText.bnkSortCd}" title="#{formHelpText.bnkSortCd}"  />
+          </f:facet>
+          <h:outputText id="bnkSort" value="#{apBank.bankAccount.accountForBranch.sortCode}"/>
+         </p:column>
+         <p:column width="70"  style="column-textLeft"
+                        sortBy="#{apBank.bankAccount.accountNumber}">
+          <f:facet name="header">
+           <h:outputText value="#{formText.bnkAccNum}" title="#{formHelpText.bnkAccNum}"/>
+          </f:facet>
+          <h:outputText value="#{apBank.bankAccount.accountNumber}"  />
+         </p:column>
+         <p:column styleClass="column-textLeft" sortBy="#{apBank.accountName}">
+          <f:facet name="header">
+           <h:outputText value="#{formText.bnkAccName}" title="#{formHelpText.bnkAccName}"/>
+          </f:facet>
+          <h:outputText value="#{apBank.accountName}"/> 
+         </p:column>
+         <p:column  styleClass="column-textRight" sortBy="#{apBank.bankKey}">
+          <f:facet name="header">
+           <h:outputText value="#{formText.bnkKey}" title="#{formHelpText.bnkKey}"/>
+          </f:facet>
+          <h:outputText id="bnkKey" value="#{apBank.bankKey}"   />
+         </p:column >
+         <p:column width="50" styleClass="column-textRight">
+          <f:facet name="header">
+           <h:outputText value="#{formText.bnkColAuth}" title="#{formHelpText.bnkColAuth}"/>
+          </f:facet>
+          <p:selectBooleanCheckbox value="#{apBank.collectionAuthorisation}" />
+         </p:column >
+         <p:column styleClass="column-textRight" sortBy="#{apBank.ddRef}">
+          <f:facet name="header">
+           <h:outputText value="#{formText.bnkDdMandate}" title="#{formHelpText.bnkDdMandate}" />
+          </f:facet>
+          <h:outputText id="bnkDdrefId" value="#{apBank.ddRef}" title="#{formHelpText.bnkDdMandate}" />
+         </p:column>
+         <p:column styleClass="column-textRight" sortBy="#{apBank.collValidFrom}">
+          <f:facet name="header">
+           <h:outputText value="#{formText.bnkDirectColValidFrom}" 
+                                  title="#{formHelpText.bnkDirectColValidFrom}"/>
+          </f:facet>
+          <h:outputText id="taxDateOut" value="#{apBank.collValidFrom}">
+           <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+          </h:outputText>
+         </p:column>
+        </p:dataTable>
+        <p:contextMenu for="bnkTbl" >
+         <p:menuitem icon="fa fa-file" actionListener="#{apMast.onNewBankAcntArDlg}" 
+                     value="#{formText.new}"/>
+         <p:menuitem icon="fa fa-trash" actionListener="#{apMast.onDeleteNewApBank}" 
+                        value="#{formText.delete}"  />
+        </p:contextMenu>
+       </p:panel>
+       
+       <p:panel id="apAcntSummPnl" header="#{formTextAp.apAcntSummPnl}" 
+                rendered="#{apMast.apAcntCrStep eq 4}">
+        <p:accordionPanel id="sumAddr" dynamic="true" multiple="false"  >
+         <p:tab title="#{formTextAp.apPtnrTab}" >
+          <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-2,ui-grid-col-3" styleClass="ui-noborder" >
+           <h:outputText value="#{formText.ptnrType}"/>
+           <h:panelGroup>
+            <h:outputText value="#{formText.ptnrCorp}" rendered="#{apMast.selectedPtnrTypeCd == 'corp'}"/>
+            <h:outputText value="#{formText.ptnrIndiv}" rendered="#{apMast.selectedPtnrTypeCd == 'indiv'}" />
+           </h:panelGroup>
+           <h:outputText value="#{formText.ptnrName}"/>
+           <h:panelGroup>
+            <h:outputText value="#{apMast.ptnrCorp.tradingName}" 
+                         rendered="#{apMast.selectedPtnrTypeCd == 'corp'}"/>
+            <h:outputText value="#{apMast.ptnrPerson.nameStructured}" 
+                         rendered="#{apMast.selectedPtnrTypeCd == 'indiv'}" />
+           </h:panelGroup>
+          </p:panelGrid>
+         </p:tab>
+         <p:tab title="#{formTextAp.apAddrTab}">
+          <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-3" 
+                       styleClass="ui-noborder"  >
+           <h:outputText value="#{formText.addrHouseNumName}" />
+           <h:outputText 
+            value="#{apMast.apAccount.accountAddress.houseNumber}  #{apMast.apAccount.accountAddress.houseName}"/>
+           <h:outputText value="#{formText.addrStr1}" />
+           <h:outputText  value="#{apMast.apAccount.accountAddress.street}"/>
+           <h:outputText value="#{formText.addrStr2}" />
+           <h:outputText  value="#{apMast.apAccount.accountAddress.street2}"/>
+           <h:outputText value="#{formText.addrCounty}" />
+           <h:outputText  value="#{apMast.apAccount.accountAddress.countyName}"/>
+           <h:outputText value="#{formText.addrCountry}" />
+           <h:outputText   value="#{apMast.apAccount.accountAddress.country.countryName}"/>
+           <h:outputText  value="#{formText.addrPostCd}" />
+           <h:outputText  value="#{apMast.apAccount.accountAddress.postCode}"/>
+          </p:panelGrid>
+         </p:tab>
+         <p:tab title="#{formTextAp.apAcntTab}">
+          <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-3" 
+                       styleClass="ui-noborder"  >
+           <h:outputText value="#{formTextAp.apAcntReconAcnt}"/>
+           <h:outputText value="#{apMast.apAccount.reconciliationAc.coaAccount.ref}"/>
+           <h:outputText value="#{formText.docDefSort}"/>
+           <h:outputText  value="#{apMast.apAccount.sortOrder.name}" />
+           <h:outputText value="#{formTextAp.apPayTerm}"/>
+           <h:outputText value="#{apMast.apAccount.paymentTerms.description}" />
+           <h:outputText value="#{formTextAp.apPayType}"/>
+           <h:outputText value="#{apMast.apAccount.paymentType.description}"/>
+           <h:outputText value="#{formTextAp.apAcntClerk}"/>
+           <h:outputText value="#{apMast.apAccount.accountClerk.nameStructured}" />
+           <h:outputText  value="#{formTextAp.apAcntEmail}"/>
+           <h:outputText value="#{apMast.apAccount.acntEmail}"/>
+          </p:panelGrid>
+         </p:tab>
+         <p:tab title="#{formTextAp.apBankTab}">
+          <p:dataTable 
+           id="sumBnkTbl" var="apBank" value="#{apMast.apAccount.apAccountBanks}" paginator="true" 
+           rows="#{apMast.usrBuff.tblRows}" 
+           selectionMode="single" selection="#{apMast.bankAcApSelected}" rowKey="#{apBank.id}"
+           paginatorAlwaysVisible="true" reflow="true"  emptyMessage="#{validationText.apBanksNone}"
+           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+           <f:facet name="{Exporters}">
+            <h:commandLink style="float:right;"  >
+             <p:graphicImage name="/images/Excel-48.gif" width="24" />
+             <p:dataExporter type="xls" target="sumBnkTbl" fileName="#{listHeading.arApBanks_FN}"  
+                          postProcessor="#{apMast.postProcessXLS}" />
+            </h:commandLink>
+            <h:commandLink style="float:right;">
+             <p:graphicImage name="/images/csv_text.png" width="24" />
+             <p:dataExporter type="csv" target="sumBnkTbl" 
+                      fileName="#{listHeading.arApBanks_FN}" />
+            </h:commandLink>
+           </f:facet>              
+           <p:column width="80" styleClass="column-textRight"   >
+            <f:facet name="header"  >
+             <h:outputText value="#{formText.bnkSortCd}" title="#{formHelpText.bnkSortCd}"  />
+            </f:facet>
+            <h:outputText id="bnkSort" value="#{apBank.bankAccount.accountForBranch.sortCode}"/>
+           </p:column>
+           <p:column width="70"  style="column-textRight">
+            <f:facet name="header">
+             <h:outputText value="#{formText.bnkAccNum}" title="#{formHelpText.bnkAccNum}"/>
+            </f:facet>
+            <h:outputText value="#{apBank.bankAccount.accountNumber}"  />
+           </p:column>
+           <p:column styleClass="column-textRight">
+            <f:facet name="header">
+             <h:outputText value="#{formText.bnkAccName}" title="#{formHelpText.bnkAccName}"/>
+            </f:facet>
+            <h:outputText value="#{apBank.accountName}"/> 
+           </p:column>
+           <p:column  styleClass="column-textRight">
+            <f:facet name="header">
+             <h:outputText value="#{formText.bnkKey}" title="#{formHelpText.bnkKey}"/>
+            </f:facet>
+            <h:outputText id="bnkKey" value="#{apBank.bankKey}"   />
+           </p:column >
+           <p:column width="50" styleClass="column-textRight">
+            <f:facet name="header">
+             <h:outputText value="#{formText.bnkColAuth}" title="#{formHelpText.bnkColAuth}"/>
+            </f:facet>
+            <p:selectBooleanCheckbox value="#{apBank.collectionAuthorisation}" disabled="true" />
+           </p:column >
+           <p:column styleClass="column-textRight">
+            <f:facet name="header">
+             <h:outputText value="#{formText.bnkDdMandate}" title="#{formHelpText.bnkDdMandate}" />
+            </f:facet>
+            <h:outputText id="bnkDdrefId" value="#{apBank.ddRef}" title="#{formHelpText.bnkDdMandate}" />
+           </p:column>
+           <p:column styleClass="column-textRight">
+            <f:facet name="header">
+             <h:outputText value="#{formText.bnkDirectColValidFrom}" 
+                                  title="#{formHelpText.bnkDirectColValidFrom}"/>
+            </f:facet>
+            <h:outputText id="taxDateOut" value="#{apBank.collValidFrom}">
+             <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+            </h:outputText>
+           </p:column>
+          </p:dataTable>
+          
+         </p:tab>
+         <p:tab title="save" >
+          <p:panelGrid layout="grid" columns="1" columnClasses="ui-grid-col-2" 
+                       styleClass="ui-noborder">
+           <p:commandButton id="saveAcntBtn" value="#{formText.save}" 
+              icon="fa fa-file-o"  action="#{apMast.onSaveApAcntNew}"/>
+          </p:panelGrid>
+         </p:tab>
+        </p:accordionPanel>
+       </p:panel>
+      </div>
+     </div >
+    </div >
+   </div>
+  </h:form>
+  
+  <h:form id="selAddrFrm">
+   <p:tooltip trackMouse="true"  showEffect="clip" hideEffect="explode" />
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:messages id="errMsg" closable="true" />
+      <p:growl id="grl" />
+      <p:dialog id="selAddrDlg" header="#{formText.addrSrchByPostCd}" closable="true" modal="true"
+                widgetVar="selAddrWv" hideEffect="fade">
+        
+        <p:panelGrid columns="2" layout="grid" columnClasses="ui-col-grid-2,ui-col-grid-1" 
+                     styleClass="ui-noborder">
+         <h:panelGroup class="md-inputfield">
+          <p:inputText id="postCode" value="#{apMast.acntpostCdSel}" size="15" required="true" />
+          <p:outputLabel for="postCode" value="#{formText.addrPostCd}"/>
+          <p:commandButton id="postCodeSrchBtn" icon="fa fa-search" actionListener="#{apMast.onAddrPostCdSrch}"
+                         process="selAddrFrm"/>
+         </h:panelGroup>
+        </p:panelGrid>
+       
+       <div class="card">
+        <p:dataTable 
+         id="addrSelTbl" value="#{apMast.addressList}" rows="#{apMast.usrBuff.tblRows}" var="addrV"
+         rowKey="#{addrV.id}" emptyMessage="#{validationText.addrNoAddrPc}" reflow="true"
+         paginator="true" selection="#{apMast.addrSelect}" selectionMode="single"
+         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
+         
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.addrAvailLst}"/>
+         </f:facet>
+         <p:ajax event="rowSelect" listener="#{apMast.onAddrSrchRowSel}"/>
+         <p:column>
+          <f:facet name="header">
+           <h:outputText value="#{formText.addrStr1}"/>
+          </f:facet>
+          <h:outputText value="#{addrV.streetLine}"/>
+         </p:column>
+         <p:column>
+          <f:facet name="header">
+           <h:outputText value="#{formText.addrTown}"/>
+          </f:facet>
+          <h:outputText value="#{addrV.town}"/>
+         </p:column>
+         <p:column>
+          <f:facet name="header">
+           <h:outputText value="#{formText.addrCounty}"/>
+          </f:facet>
+          <h:outputText value="#{addrV.countyName}"/>
+         </p:column>
+         <p:column>
+          <f:facet name="header">
+           <h:outputText value="#{formText.addrPostCd}"/>
+          </f:facet>
+          <h:outputText value="#{addrV.postCode}"/>
+         </p:column>
+        </p:dataTable>
+       </div>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form>
+  
+  <h:form id="newPtnrFrm" prependId="false">
+   <p:tooltip  showEffect="clip" hideEffect="explode" />
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      
+      <p:dialog id="newPtnrDlgId" header="#{formText.ptnrCreate}" widgetVar="crPtnrDlg"
+             dynamic="true" closable="false">
+       <f:facet name="header">
+        <h:outputText value="#{formText.ptnrCreate}"/>
+        <p:spacer width="5"/>
+        <h:outputText value="#{formTextAp.apPtnrCorp}"
+                   rendered="#{apMast.selectedPtnrTypeCd eq 'corp'}"/>
+        <h:outputText value="#{formTextAp.apPtnrPers}"
+                   rendered="#{apMast.selectedPtnrTypeCd eq 'indiv'}"/>
+       </f:facet>
+       <p:messages id="errMsg" closable="true" severity="warn, error" autoUpdate="true" />
+       <p:growl id="grl" />
+       <p:panelGrid id="newCorpPG" layout="grid" columns="1" 
+                 rendered="#{apMast.selectedPtnrTypeCd eq 'corp'}" styleClass="ui-noborder">
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crCorpPtnrRef" value="#{apMast.ptnrCorp.ref}"
+                      title="#{formHelpText.ptnrRef}" required="true" 
+                               requiredMessage="#{validationText.ptnrRef}"  />
+         <p:outputLabel for="crCorpPtnrRef" value="#{formText.ptnrRef}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crCorpPtnrTrName" value="#{apMast.ptnrCorp.tradingName}"
+                    title="#{formHelpText.ptnrTradingName}" required="true" 
+                    requiredMessage="#{validationText.ptnrTradingName}" />
+         <p:outputLabel for="crCorpPtnrTrName" value="#{formText.ptnrTradingName}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crCorpPtnrLegName" value="#{apMast.ptnrCorp.legalName}"
+                    title="#{formHelpText.ptnrLegalName}" 
+                    requiredMessage="#{validationText.ptnrLegalname}" />
+         <p:outputLabel for="crCorpPtnrLegName" value="#{formText.ptnrLegalName}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crCorpPtnrTrVatNum" value="#{apMast.ptnrCorp.vatNumber}"
+                             title="#{formHelpText.ptnrVatNum}"/>
+         <p:outputLabel for="crCorpPtnrTrVatNum" value="#{formText.ptnrVatNum}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+       <p:panelGrid id="newIndivPG" rendered="#{apMast.selectedPtnrTypeCd eq 'indiv'}"
+                    layout="grid" columns="1">
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crPersPtnrRef" value="#{apMast.ptnrPerson.ref}"
+                             title="#{formHelpText.ptnrRef}"  />
+         <p:outputLabel for="crPersPtnrRef" value="#{formText.ptnrRef}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crPersPtnrFamName" value="#{apMast.ptnrPerson.familyName}"
+                               title="#{formHelpText.ptnrFamilyName}" />
+         <p:outputLabel for="crPersPtnrFamName" value="#{formText.ptnrFamilyName}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crPersPtnrFirstName" value="#{apMast.ptnrPerson.firstName}"
+                               title="#{formHelpText.ptnrFirstName}" />
+         <p:outputLabel for="crPersPtnrFirstName" value="#{formText.ptnrFirstName}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="crPersPtnrTrVatNum" value="#{apMast.ptnrPerson.vatNumber}"
+                             title="#{formHelpText.ptnrVatNum}"/>
+         <p:outputLabel for="crPersPtnrTrVatNum" value="#{formText.ptnrVatNum}"/>
+        </h:panelGroup>
+    
+       </p:panelGrid>
+       <p:panelGrid id="dlgBtnPg"  layout="grid" columns="2"  styleClass="ui-noborder">
+        <p:commandButton id="crCorpPtnrBtn" value="#{formText.transfer}"
+                        icon="fa fa-long-arrow-left"
+                        actionListener="#{apMast.onCreatePartnerBtn}"
+                        process="newPtnrFrm" />
+        <p:commandButton id="resetBtn" value="#{formText.close}"  type="button"
+                        icon="fa fa-close" onclick="PF('crPtnrDlg').hide();"/>
+       </p:panelGrid>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+   
+  </h:form>
+  <h:form id="addrEdFrm"  >
+   <p:dialog dynamic="true" id="addrEdDlg" widgetVar="addrEdDlgWv" closable="false"
+             modal="true">
+    <f:facet name="header">
+     <h:outputText value="#{formTextAp.apAcntAddrEdDlg}"/>
+    </f:facet>
+    <p:panelGrid id="addrEdPgId" styleClass="ui-noborder"  >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdHseNum" value="#{formText.addrHouseNumName}" />
+      </p:column>
+      <p:column colspan="3">
+       <p:inputText id="apAcntAddrEdHseNum" 
+                    value="#{apMast.addrEdit.houseNumber}"
+        size="5"/>
+       <p:spacer width="2"/>
+       <h:outputText value="/"/>
+       <p:spacer width="2"/>
+       <p:inputText id="apAcntAddrEdHseNm" value="#{apMast.addrEdit.houseName}"
+         size="30"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdStr1" value="#{formText.addrStr1}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="apAcntAddrEdStr1" value="#{apMast.addrEdit.street}"
+                    required="true" requiredMessage="#{validationText.addStreet}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdStr2" value="#{formText.addrStr2}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="apAcntAddrEdStr2" value="#{apMast.addrEdit.street2}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdTown" value="#{formText.addrTown}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="apAcntAddrEdTown" value="#{apMast.addrEdit.town}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdCounty" value="#{formText.addrCounty}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="apAcntAddrEdCounty" value="#{apMast.addrEdit.countyName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdCountry" value="#{formText.addrCountry}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="apAcntAddrEdCountry" value="#{apMast.addrEdit.country}"
+                        converter="com.rationem.util.converter.country" 
+                        var="cntryV" itemValue="#{cntryV}" itemLabel="#{cntryV.countryName}"
+                        dropdown="true" dropdownMode="current"
+                        completeMethod="#{apMast.onCountryComplete}"/>
+       
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdPostCd" value="#{formText.addrPostCd}" />
+      </p:column>
+      <p:column>
+       <p:inputText id="apAcntAddrEdPostCd" value="#{apMast.addrEdit.postCode}"
+                    required="true" requiredMessage="#{validationText.addPostCd}">
+        <p:ajax event="blur"/>
+       </p:inputText>
+      </p:column>
+      <p:column>
+       <p:outputLabel for="apAcntAddrEdPostCdSrch" value="#{formText.addrByPostCd}" />
+      </p:column>
+      <p:column>
+       <p:autoComplete id="apAcntAddrEdPostCdSrch" value="#{apMast.postCodeAddress}"
+                       converter="com.rationem.util.converter.Address" var="pCodeV"
+                       itemValue="#{pCodeV}" itemLabel="#{pCodeV.postCode}" dropdown="true"
+                       completeMethod="#{apMast.onPostCodeComplete}" >
+        <p:column width="10%">
+         <h:outputText value="#{pCodeV.houseNumber}"/>
+         <h:outputText value="#{pCodeV.houseName}" />
+        </p:column>
+        <p:column width="65%">
+         <h:outputText value="#{pCodeV.street}"/>
+        </p:column>
+        <p:column width="25%">
+         <h:outputText value="#{pCodeV.postCode}"/>
+        </p:column>
+        <p:ajax event="itemSelect" listener="#{apMast.onAddrEditPostCodeSel}"/>
+       </p:autoComplete>
+       <p:spacer width="20"/>
+       
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="2">
+       <p:commandButton value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"
+                        actionListener="#{apMast.onNewAcntAddrTrf}"
+                        process="addrEdPgId"
+                        />
+       <p:spacer width="4"/>
+       <p:commandButton value="#{formText.new}" icon="fa fa-file-o" 
+                        actionListener="#{apMast.onAddrEditNewAddr}"
+                        />
+       <p:spacer width="4"/>
+       <p:commandButton value="#{formText.close}" onclick="PF('addrEdDlgWv').hide()"
+                        type="button" icon="fa fa-close"/>
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+   </p:dialog>
+  </h:form>
+ 
+  <h:form id="newBankActApFrm" >
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:dialog  dynamic="true" widgetVar="addBnkAcntApWv" modal="true" closable="false" >
+       <f:facet name="header">
+        <h:outputText value="#{formTextAp.apAddBnkAcnt}"/>
+       </f:facet>
+       <p:growl id="arAcntCrGr" showDetail="true"/>
+       <p:growl id="ddUploadMsg" showDetail="true"/>
+       <p:panelGrid id="newApbankAcntPg" columns="4" layout="grid" styleClass="ui-noborder"  >
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete id="addApBankAcBranch" 
+                       value="#{apMast.bankAcApNew.bankAccount.accountForBranch}"
+                       converter="com.rationem.util.converter.BankBranch" dropdown="true"
+                       completeMethod="#{apMast.onBankBranchComplete}" 
+                       forceSelection="true" cache='true'
+                       var="bnkBrV" itemValue='#{bnkBrV}' itemLabel="#{bnkBrV.sortCode}">
+          <f:facet name="itemtip">
+           <p:panelGrid styleClass="ui-noborder" layout="grid" columns="2" 
+                      columnClasses="ui-grid-col2,ui-grid-col2" >
+            <h:outputText value="#{bnkBrV.bank.bankOrganisation.tradingName}"/>
+            <h:outputText value="#{bnkBrV.branchName}"/>
+           </p:panelGrid>
+          </f:facet>
+          <p:ajax event="itemSelect" listener="#{apMast.onNewBankAcntArSelBr}"/>
+         </p:autoComplete> 
+         <p:outputLabel for="addApBankAcBranch" value="#{formText.bnkSortCd}"/>
+        </h:panelGroup>
+       
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete id="addApBankAcBnkAc" value="#{apMast.bankAcApNew.bankAccount}"
+                       converter="com.rationem.util.converter.BankAccount" forceSelection="true"
+                       completeMethod="#{apMast.onBankAccountComplete}" var="bnkAcV"
+                       itemValue="#{bnkAcV}" itemLabel="#{bnkAcV.accountNumber}"
+                       dropdown="true">
+          <p:column >
+           <h:outputText value="#{bnkAcV.accountNumber}"/>
+          </p:column>
+          <p:column>
+           <h:outputText value="#{bnkAcV.accountName}"/>
+          </p:column>
+          <p:ajax event="itemSelect" listener="#{apMast.onBankAccountSelect}" />
+         </p:autoComplete>
+         <p:outputLabel for="addApBankAcBnkAc" value="#{formText.bnkAccNum}"/>
+        </h:panelGroup>
+        <p:commandButton 
+         id="addNewBranchBtn" value="#{formText.bnkAccNew}"
+                        process="@this" partialSubmit="true" 
+                        onclick="PF('trBnkAcntDlgWv').show()"
+                        icon="fa fa-file" />
+        <p:commandButton id="addBnkAcntAutoBtn" value="#{formText.bnkCreateAcntAutoBtn}"
+                        process="@this" partialSubmit="true" 
+                        icon="fa fa-file" actionListener="#{apMast.onBankAccountAutoCrDlg}"/>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="newBnkAcntNm" value="#{apMast.bankAcApNew.accountName}"
+                    required="true" requiredMessage="bank acnt req"/>
+         <p:outputLabel for="newBnkAcntNm" value="#{formText.bnkAccName}" />
+        </h:panelGroup>
+        <h:panelGroup />
+        <h:panelGroup />
+        <h:panelGroup />
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="bnkKey" value="#{apMast.bankAcApNew.bankKey}"/>
+         <p:outputLabel for="bnkKey" value="#{formText.bnkKey}"/>
+        </h:panelGroup> 
+        <h:panelGroup >
+         <p:selectBooleanCheckbox id="bnkCol"  
+                                value="#{apMast.bankAcApNew.collectionAuthorisation}" 
+                                valueChangeListener="#{apMast.onBacsCollectAuthChange}">
+          <p:ajax event="change" />
+         </p:selectBooleanCheckbox>
+         <p:outputLabel for="bnkCol" value="#{formText.bnkCollectAuth}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="ddRef" value="#{apMast.bankAcApNew.ddRef}"/>
+         <p:outputLabel for="ddRef" value="#{formTextAp.apBankDdref}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:calendar id="bnkMdtFr"   value="#{apMast.bankAcApNew.collValidFrom}" 
+                     navigator="true"  pattern="dd/MMM/yyyy" 
+                    showOtherMonths="true" maxlength="11" size="12"/>
+         <p:outputLabel for="bnkMdtFr" value="#{formTextAp.apBnkMandtFr}"/>
+        </h:panelGroup>
+        <h:panelGroup >
+         <p:outputLabel for="ddFile" value="#{formTextAp.apBankMandt}"/>
+         <p:fileUpload id="ddFile" fileUploadListener="#{apMast.onDdUpload}" auto="true"
+                     dragDropSupport="true" messageTemplate="{name}"
+                     label="#{formTextAp.apBnkDdSelF}"
+                     allowTypes="/(\.|\/)(gif|jpe?g|png|pdf|doc?x)$/"
+                     update="ddUploadMsg"/>
+         
+        </h:panelGroup>
+        <h:panelGroup id="ddFilenamePg" >
+         <h:outputText value="#{apMast.bankAcApNew.ddFileName}"/>
+        </h:panelGroup>
+        <h:panelGroup />
+        <h:panelGroup />
+        <p:commandButton id="trfBnkAcnt" value="#{formText.transfer}" 
+                        icon="ui-icon-arrowthick-1-w" 
+                        actionListener="#{apMast.onBankAccountSubLedTrf}"/>
+        <p:commandButton id="closeBnkAcnt" type="button" value="#{formText.close}" 
+                        icon="fa fa-close"
+                        onclick="PF('addBnkAcntApWv').hide();" />
+       </p:panelGrid>
+       <f:facet name="footer">
+        <h:outputText value="#{formTextAp.apComplBnk}"/>
+       </f:facet>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form>
+  
+  <h:form id="trBnkAcntCrWs" prependId="false">
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:dialog id="trBnkAcntCrWsDlg" dynamic="true" modal="true"  
+             widgetVar="trBnkAcntWsDlgWv">
+       <f:facet name="header">
+        <h:outputText value="#{pageTitle.trBankAcntValCr}"/>
+       </f:facet>
+       <p:messages id="bnkValMsg" />
+       <p:panelGrid id="bnkAcntCrWs" layout="grid" columns="1" styleClass="ui-noborder">
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBnkSortCdVal" 
+                      value="#{apMast.bnkAcntNumWs}" >
+          <p:keyFilter mask="int" for="trBnkSortCdVal"/>
+         </p:inputText>
+         <p:outputLabel for="trBnkSortCdVal" value="#{formText.bnkSortCd}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBnkAcntNumNewVal" 
+                    value="#{apMast.bnkAcntNumWs}" />
+         <p:keyFilter mask="int" for="trBnkAcntNumNewVal"/>
+         <p:outputLabel for="trBnkAcntNumNewVal" value="#{formText.bnkAccNum}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+       <p:panelGrid layout="grid" columns="2" styleClass="ui-noborder">
+        <p:commandButton id="trfValidAcntBtn" icon="fa fa-long-arrow-left" 
+                        value="#{formText.transfer}"
+                        actionListener="#{apMast.onNewBankAcntValidTrf}"/>
+        <p:commandButton value="#{formText.close}" icon="fa fa-close"
+                        type="button" onclick="PF('trBnkAcntWsDlgWv').hide();"/>
+       </p:panelGrid>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form>
+  
+  <h:form id="trBnkAcntFrm" >
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:dialog id="trBnkAcntDlg" dynamic="true" modal="true"  widgetVar="trBnkAcntDlgWv">
+       <f:facet name="header">
+        <h:outputText value="#{pageTitle.trBankAcntCr}"/>
+       </f:facet>
+       <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-3" 
+                    styleClass="ui-noborder" >
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete id="trBnkSortCd" value="#{apMast.bankAcApNew.bankAccount.accountForBranch}"
+                       converter="com.rationem.util.converter.BankBranch" dropdown="true"
+                      completeMethod="#{apMast.onBankBranchComplete}" var="trBnkBrV"
+                      required="true" 
+                      itemValue="#{trBnkBrV}" itemLabel="#{trBnkBrV.sortCode}">
+          <p:column width="25%">
+           <h:outputText value="#{trBnkBrV.sortCode}"/>
+          </p:column>
+          <p:column width="25%">
+           <h:outputText value="#{trBnkBrV.bank.bankOrganisation.name}"/>
+           
+          </p:column>
+          <p:column width="50%">
+           <h:outputText value="#{trBnkBrV.branchName}"/>
+          </p:column>
+         </p:autoComplete>
+         <p:outputLabel for="trBnkSortCd" value="#{formText.bnkSortCd}"/>
+        </h:panelGroup>
+        <p:commandButton icon="fa fa-file" value="#{formText.bnkBrNew}"
+                        actionListener="#{apMast.onBankBranchNewBtn}" process="@this"/>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBnkAcntNumNew" required="true"
+                      value="#{apMast.bankAcApNew.bankAccount.accountNumber}">
+          <p:keyFilter mask="int" for="trBnkAcntNumNew"/>
+         </p:inputText>
+         <p:outputLabel for="trBnkAcntNumNew" value="#{formText.bnkAccNum}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText  id="trBnkAcntNameNew"  size="30"
+                    value="#{apMast.bankAcApNew.bankAccount.accountName}" />
+         <p:outputLabel for="trBnkAcntNameNew" value="#{formText.bnkAccName}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText  id="trBnkAcntRefNew"  
+                     value="#{apMast.bankAcApNew.bankAccount.accountRef}" />
+         <p:outputLabel for="trBnkAcntRefNew" value="#{formText.bnkAccRef}"/>
+        </h:panelGroup>
+        <h:panelGroup />
+        <p:commandButton id="trBnkAcntTrfBtn" icon="fa fa-long-arrow-left" 
+                        value="#{formText.transfer}"
+                        actionListener="#{apMast.onNewBankAcntTrTransfer}"/>
+        <p:commandButton type="button" value="#{formText.close}" icon="fa fa-close" 
+                        onclick="PF('trBnkAcntDlgWv').hide()"/>
+       </p:panelGrid> 
+       <f:facet name="footer">
+        <p:messages />
+       </f:facet>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form>
+  
+  <h:form id="trBnkBrNewFrm">
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:dialog id="trBnkBrNewDlg" dynamic="true" widgetVar="trBnkBrNewDlg" >
+       <f:facet name="header">
+        <h:outputText value="#{pageTitle.trBankBrCr}"/>
+       </f:facet>
+       <p:messages id="msgs" autoUpdate="true" closable="true"/>
+       <p:tooltip  trackMouse="true"  showEffect="clip" position="right" />
+       <p:panelGrid id="trBnkBrNewPg" layout="grid" columns="5" styleClass="ui-noborder">
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete id="trBnkBrBank" required="true" requiredMessage="#{validationText.bnkSelReq}" 
+                      value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank}"
+                      converter="com.rationem.util.converter.Bank" var="bnkBrBnk" cache="false"
+                      completeMethod="#{apMast.onBankComplete}" dropdown="true"
+                      itemValue="#{bnkBrBnk}" itemLabel="#{bnkBrBnk.bankCode}">
+          <f:facet name="itemtip">
+           <p:panelGrid layout="grid" columns="1">
+            <h:outputText value="#{bnkBrBnk.bankOrganisation.name}"/>
+           </p:panelGrid>
+          </f:facet>
+         </p:autoComplete>
+         <p:outputLabel for="trBnkBrBank" value="#{formText.bnkBank}"/>
+        </h:panelGroup>
+        <p:commandButton id="trBnkOrgNewBtn" value="#{pageTitle.trCrbankOrg}" 
+                        icon="fa fa-file" process="@this" 
+                        actionListener="#{apMast.onBankOrgNewBtn}"/>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBnkBrSort"  
+                    value="#{apMast.bankAcApNew.bankAccount.accountForBranch.sortCode}"
+                    required="true" validator="#{apMast.onNewBankBranchSortCdValidate}" 
+                    >
+          <p:ajax event="blur" />
+         </p:inputText>
+         <p:outputLabel for="trBnkBrSort" value="#{formText.bnkSortCd}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBnkBrSwift" size="11" maxlength="11" 
+                    value="#{apMast.bankAcApNew.bankAccount.accountForBranch.swiftCode}"/>
+         <p:outputLabel for="trBnkBrSwift" value="#{formText.bnkBankBrSwift}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBnkBrName" size="30"
+                    value="#{apMast.bankAcApNew.bankAccount.accountForBranch.branchName}"/>
+         <p:outputLabel for="trBnkBrName" value="#{formText.bnkBrName}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+       <p:panelGrid id="bnkBranchAddrPg" layout="grid" columns="1" columnClasses="ui-grid-col-3"
+                    styleClass="ui-noborder">
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBrNewAddrHse" size="5"
+                       value="#{apMast.addrEdit.houseNumber}"/>
+         <p:spacer width="5"/> 
+           <p:inputText value="#{apMast.addrEdit.houseName}" size="10"/>
+           <p:outputLabel for="trBrNewAddrHse" value="#{formText.addrHouseNumName}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBrNewAddrStr1" 
+                        value="#{apMast.addrEdit.street}"/>
+         <p:outputLabel for="trBrNewAddrStr1" value="#{formText.addrStr1}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBrNewAddrStr2" 
+                        value="#{apMast.addrEdit.street2}"/>
+         <p:outputLabel for="trBrNewAddrStr2" value="#{formText.addrStr2}"/>
+        </h:panelGroup>
+        
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBrNewAddrTown" 
+                 value="#{apMast.addrEdit.town}"/>
+         <p:outputLabel for="trBrNewAddrTown" value="#{formText.addrTown}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBrNewAddrCounty" 
+                        value="#{apMast.addrEdit.countyName}"/>
+         <p:outputLabel for="trBrNewAddrCounty" value="#{formText.addrCounty}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete id="trBrNewAddrCountry" converter="com.rationem.util.converter.country"
+                           value="#{apMast.addrEdit.country}"
+                           completeMethod="#{apMast.onCountryComplete}" var="trBrNewAddrV"
+                           itemValue="#{trBrNewAddrV}"  dropdown="true"
+                           itemLabel="#{trBrNewAddrV.countryName}" />
+         <p:outputLabel for="trBrNewAddrCountry" value="#{formText.addrCountry}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBrNewAddrPstCd" value="#{apMast.addrEdit.postCode}" size="10"/>
+         
+         <p:outputLabel for="trBrNewAddrPstCd" value="#{formText.addrPostCd}"/>
+         <p:spacer width="2"/>
+         <p:commandButton icon="fa fa-search" title="#{formText.addrSrchByPostCd}"
+                          actionListener="#{apMast.onApAcntAddrFind}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText  size="6"
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.phoneArea}"/>
+           <h:outputText value=" - "/>
+           <p:inputText id="trBrNewTel"  size="10"
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.phoneNumber}"/>
+           <p:outputLabel for="trBrNewTel" value="#{formText.ptnrTelephone}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+       <p:panelGrid layout="grid" columns="2" styleClass="ui-noborder" columnClasses="ui-grid-col-2,ui-grid-col-2">
+        <p:commandButton 
+          id="trBnkBrTrfBtn" value="#{formText.transfer}" process="trBnkBrNewFrm"
+          actionListener="#{apMast.onNewBankBranchTransfer}" 
+          icon="fa fa-long-arrow-left"  />
+         <p:commandButton type="button" value="#{formText.close}" icon="fa fa-close"
+                        onclick="PF('trBnkBrNewDlg').hide()" />
+       </p:panelGrid>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form>
+  
+  <h:form id="trBnkNewFrm" >
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:dialog id="trBnkNewDlg" dynamic="true" widgetVar="trBnkNewDlg" modal="true" position="top" >
+       <f:facet name="header">
+        <h:outputText value="#{formText.bnkBankAdd}"/>
+       </f:facet>
+       <p:messages id="errMsg" severity="error, warn" closable="true" autoUpdate="true"/>
+       
+       <p:panelGrid id="addrPg" layout="grid" columns="3" styleClass="ui-noborder">
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBnkCode" required="true"  requiredMessage="#{validationText.bnkCode}" 
+                    value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankCode}"
+                    validator="#{apMast.onBankCodeValidate}"/>
+         <p:outputLabel for="trBnkCode" value="#{formText.bnkBankCode}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete id="trBnkOrg" var="bnkOrgV" itemValue="#{bnkOrgV}" 
+                       itemLabel="#{bnkOrgV.tradingName}" dropdown="true"  
+          value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankOrganisation}"
+          completeMethod="#{apMast.onBankOrgComplete}" forceSelection="true"
+          converter="com.rationem.util.converter.PartnerCorporate"
+          required="true" requiredMessage="#{validationText.bnkOrg}">
+          <p:ajax event="itemSelect" listener="#{apMast.onNewBankOrgSel}" update="trBnkNewFrm:trBnkOrg" />
+         </p:autoComplete>
+         <p:outputLabel for="trBnkOrg" value="#{formText.bnkBankOrg}"/>
+        </h:panelGroup>
+        <p:commandButton value="#{formText.new}" type="button" icon="fa fa-file-o"
+                       onclick="PF('newBnkOrgWv').show();" />
+       </p:panelGrid>
+       <p:fieldset legend="#{formText.bnkAddress}" toggleable="true" collapsed="true"   >
+        <p:ajax event="toggle" listener="#{apMast.onBankAddressToggle}" update="trBnkNewFrm:bnkAddrPg" />
+        <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-4,ui-grid-col-3">
+         <p:commandButton id="selBnkAddr" icon="fa fa-search" value="#{formText.find}"
+                          actionListener="#{apMast.onApAcntAddrFind}"  />
+         <p:commandButton id="newBnkAddr" icon="fa fa-file-o" value="#{formText.new}"
+                          type="button" onclick="PF('trBnkNewDlgWv').show();"/>
+         
+        </p:panelGrid>
+        <p:panelGrid id="bnkAddrPg" layout="grid" columns="2" styleClass="ui-noborder"
+                     columnClasses="ui-grid-col-3,ui-grid-col-6">
+         <p:outputLabel for="trBankNewAddrHse" value="#{formText.addrHouseNumName}"/>
+         <h:panelGroup >
+          <h:outputText id="trBankNewAddrHse" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.houseNumber}"/>
+          <h:outputText value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.houseName}"/>
+         </h:panelGroup>
+         <p:outputLabel for="trBankNewAddrStr1" value="#{formText.addrStr1}"/>
+         <h:outputText id="trBankNewAddrStr1" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.street}"/>
+         <p:outputLabel for="trBankNewAddrStr2" value="#{formText.addrStr2}"/>
+         <h:outputText id="trBankNewAddrStr2" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.street2}"/>
+         <p:outputLabel for="trBankNewAddrTown" value="#{formText.addrTown}"/>
+         <h:outputText id="trBankNewAddrTown"
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.town}"/>
+         <p:outputLabel for="trBankNewAddrCounty" value="#{formText.addrCounty}"/>
+         <h:outputText id="trBankNewAddrCounty" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.countyName}"/>
+         <p:outputLabel for="trBankNewAddrCountry" value="#{formText.addrCountry}"/>
+         <h:outputText id="trBankNewAddrCountry" 
+                       value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.country.countryName}"/>
+         <p:outputLabel for="trBankNewAddrPstCd" value="#{formText.addrPostCd}"/>
+         <h:outputText id="trBankNewAddrPstCd" 
+                       value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.postCode}"/>
+        </p:panelGrid>
+        
+       </p:fieldset>
+       <p:panelGrid layout="grid" columns="2" styleClass="ui-noborder" 
+                    columnClasses="ui-grid-col-3,ui-grid-col-3">
+        <p:commandButton value="#{formText.transfer}" icon="fa fa-long-arrow-left" 
+                         actionListener="#{apMast.onBankOrgTransfer}" process="trBnkNewFrm" />
+         <p:commandButton value="#{formText.close}" icon="fa fa-close" type="button"
+                            onclick="PF('trBnkNewDlg').hide()" />
+       </p:panelGrid>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form>
+  
+  <h:form id="trNewBnkOrgFrm" >
+   <p:dialog id="newBnkOrgDlg" widgetVar="newBnkOrgWv" dynamic="true" modal="true">
+    <f:facet name="header">
+     <h:outputText value="#{formText.bnkBankOrgNew}"/>
+    </f:facet>
+    <p:messages id="errMsg" severity="warn,error" closable="true"/>
+    <p:panelGrid layout="grid" columns="1" styleClass="ui-noborder">
+     <h:panelGroup class="md-inputfield">
+      <p:inputText id="newBnkOrgLegName" required="true" requiredMessage="#{validationText.ptnrLegalname}" 
+                   value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankOrganisation.legalName}" 
+                   validator="#{apMast.onPartnerBylegalValidate}">
+       <p:ajax event="blur" update="@this" />
+      </p:inputText>
+      <p:outputLabel for="newBnkOrgLegName" value="#{formText.ptnrLegalName}"/>
+     </h:panelGroup>
+     <h:panelGroup class="md-inputfield">
+      <p:inputText id="newBnkOrgTrName" 
+        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankOrganisation.tradingName}"/>
+      <p:outputLabel for="newBnkOrgTrName" value="#{formText.ptnrTradingName}"/>
+     </h:panelGroup>
+    </p:panelGrid>
+    <p:panelGrid layout="grid" columns="2" styleClass="ui-noborder" >
+     <p:commandButton value="#{formText.transfer}" icon="fa fa-long-arrow-left"
+                        actionListener="#{apMast.onBankOrgPtnrTransf}" />
+     <p:commandButton value="#{formText.close}" icon="fa fa-close" type="button"
+                        onclick="PF('newBnkOrgWv').hide();"  />
+    </p:panelGrid>
+    
+    
+   </p:dialog>
+  </h:form> 
+  <h:form id="newBnkAddr"  >
+   <div class="ui-fluid ">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:dialog id="trBnkNewDlg" dynamic="true" widgetVar="trBnkNewDlgWv" modal="true" 
+                header="#{formText.addrNew}"  >
+       <p:messages id="errMsg"  closable="true"  autoUpdate="true"/>
+       <p:panelGrid id="bnkAddrNewPg" layout="grid" columns="1" styleClass="ui-noborder">
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBankNewAddrHse" size="5" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.houseNumber}"/>
+         <p:spacer width="5"/>
+         <p:inputText size="50" 
+                      value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.houseName}"/>
+         <p:outputLabel for="trBankNewAddrHse" value="#{formText.addrHouseNumName}"/>
+         
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBankNewAddrStr1" required="true" requiredMessage="#{validationText.addStreet}" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.street}"/>
+         <p:outputLabel for="trBankNewAddrStr1" value="#{formText.addrStr1}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBankNewAddrStr2" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.street2}"/>
+         <p:outputLabel for="trBankNewAddrStr2" value="#{formText.addrStr2}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBankNewAddrTown"
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.town}"/>
+         <p:outputLabel for="trBankNewAddrTown" value="#{formText.addrTown}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBankNewAddrCounty" 
+                        value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.countyName}"/>
+         <p:outputLabel for="trBankNewAddrCounty" value="#{formText.addrCounty}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete 
+          id="trBankNewAddrCountry" dropdown="true" converter="com.rationem.util.converter.country"
+          value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.country}"
+          var="cntryV" completeMethod="#{apMast.onCountryComplete}" itemValue="#{cntryV}"
+          itemLabel="#{cntryV.countryName}"/>
+         
+         <p:outputLabel for="trBankNewAddrCountry" value="#{formText.addrCountry}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="trBankNewAddrPstCd" required="true" requiredMessage="#{validationText.addPostCd}" 
+                       value="#{apMast.bankAcApNew.bankAccount.accountForBranch.bank.bankAddress.postCode}"/>
+                       
+          <p:outputLabel for="trBankNewAddrPstCd" value="#{formText.addrPostCd}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+       <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-3" 
+                    styleClass="ui-noborder">
+        <p:commandButton value="#{formText.transfer}" icon="fa fa-long-arrow-left" 
+                         actionListener="#{apMast.onBankAddrTransf}" process="newBnkAddr"/> 
+        <p:commandButton value="#{formText.close}" icon="fa fa-close" type="button"
+                         onclick="PF('trBnkNewDlgWv').hide();"/>
+       </p:panelGrid>
+      </p:dialog>
+     </div>
+    </div>
+   </div>
+  </h:form>
+ </ui:define>
+ 
+</ui:composition>
+

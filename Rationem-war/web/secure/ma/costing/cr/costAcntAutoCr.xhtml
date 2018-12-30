@@ -1,0 +1,109 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.maCstAcntAutoCr}</ui:define>
+ <ui:define name="header">#{pageTitle.maCstAcntAutoCr}</ui:define>
+ <ui:define name="content">
+  <h:form id="cstAcntAutoFrm" prependId="false" >
+   <p:messages autoUpdate="true" closable="true"/>
+   <p:panelGrid styleClass="ui-noborder" >
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{costAcnt.compSel}" converter="com.rationem.util.converter.CompanyBasic"
+                     >
+       <f:selectItems value="#{costAcnt.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText value="#{costAcnt.compSel.name}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column >
+      <p:outputLabel for="cstAcntS1m" value="#{formText.maCostCent}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="cstAcntS1m" var="#{costAcnt.costCentSel}" 
+                       converter="com.rationem.util.converter.CostCentre">
+       <f:selectItems value="#{costAcnt.costCentList}" var="cstCentV" itemValue="#{cstCentV}"
+                      itemLabel="#{cstCentV.refrence}"/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText value="#{costAcnt.costCentSel.costCentreName}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column colspan="2">
+      <p:commandButton id="procAuroCr" value="#{formText.autoCr}" icon="fa fa-cogs" 
+                       actionListener="#{costAcnt.onCreateAcntsBtn}"/>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   <p:dataTable id="acsDt" value="#{costAcnt.costCentSel.costAccountDirectAcs}" var="costAcntDtV"
+                emptyMessage="#{validationText.maCostAcntNone}"
+                rows="#{costAcnt.usrBuff.tblRows}"
+                paginator="true" paginatorAlwaysVisible="true"
+         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.maCostAcntAvail4CC}"/>
+     <p:spacer width="4"/>
+     <h:outputText value="#{costAcnt.costCentSel.costCentreName}"/>
+    </f:facet>
+    <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="acsDt" fileName="#{formText.maCostAcnt_fn}" 
+                        postProcessor="#{costAcnt.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="acsDt" fileName="#{formText.maCostAcnt_fn}" />
+      </h:commandLink>
+      
+     </f:facet>
+    <p:column sortBy="#{costAcntDtV.ref}" width="90">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.maCostAcntRef}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.ref}"/>
+    </p:column>
+    <p:column sortBy="#{costAcntDtV.name}" width="200">
+     <f:facet  name="header">
+      <h:outputText value="#{listHeading.name}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.name}"/>
+    </p:column>
+    <p:column sortBy="#{costAcntDtV.description}" >
+     <f:facet name="header" >
+      <h:outputText value="#{listHeading.descrip}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.description}"/> 
+    </p:column>
+    <p:column sortBy="#{costAcntDtV.validFrom}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.fromDate}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.validFrom}">
+      <f:convertDateTime type="date" dateStyle="medium" locale="#{costAcnt.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column sortBy="#{costAcntDtV.validTo}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.toDate}"/>
+     </f:facet>
+     <h:outputText value="#{costAcntDtV.validTo}">
+      <f:convertDateTime type="date" dateStyle="medium" locale="#{costAcnt.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    
+   </p:dataTable>
+  </h:form>
+ </ui:define>
+</ui:composition>

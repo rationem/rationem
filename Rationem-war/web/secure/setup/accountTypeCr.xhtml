@@ -1,0 +1,78 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_acntTypeCr}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_acntTypeCr}" styleClass="panelHeader" /> 
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="actTypFrm" prependId="false" >
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="saveledgr" value="#{formText.save}" 
+                       actionListener="#{accountType.createAcType}"   />
+     
+    </f:facet >
+   </p:toolbar>
+   <p:panelGrid id="acntTypPG" columns="2" styleClass="panelNoBorders">
+    <p:outputLabel for="ref" value="#{formText.actTyRef}"/>
+    <p:inputText id="ref" value="#{accountType.acType.name}"
+                             title="#{formHelpText.actTyRef}" required="true"/>
+    <p:outputLabel for="descr" value="#{formText.actTyDescr}"/>
+    <p:inputText id="descr" value="#{accountType.acType.description}"
+                             title="#{formHelpText.actTyDescr}" required="true"/>
+    <p:outputLabel for="moduleSel" value="#{formText.actTyMod}"/>
+    <p:selectOneMenu id="moduleSel" value="#{accountType.acType.module}" filter="true" filterMatchMode="contains"
+                                     required="true" requiredMessage="#{errorText.actType_NumRng}"
+                                     converter="com.rationem.util.converter.Module"
+                                     valueChangeListener="#{accountType.onModuleChange}" >
+     <f:selectItems var="modSi" value="#{accountType.modules}" itemValue="#{modSi}"
+                    itemLabel="#{modSi.moduleCode} #{modSi.description}" />
+     <p:ajax event="change" />
+    </p:selectOneMenu>
+    <p:outputLabel for="code" value="#{formText.actTyCode}" />
+    <p:selectOneMenu id="code" value="#{accountType.acType.processCode}" converter="com.rationem.util.converter.ProcessCode"
+                     required="true" filter="true" >
+     <f:selectItems value="#{accountType.processCodes}" var="prCdV" itemValue="#{prCdV}" itemLabel="#{prCdV.name}"  />
+    </p:selectOneMenu>
+    
+    <p:outputLabel for="numCntrlSel" value="#{formText.actTypeNumRng}"/>
+    <p:selectOneMenu id="numCntrlSel" value="#{accountType.acType.numberRange}" filter="true" filterMatchMode="contains"
+                                     required="true" requiredMessage="#{errorText.actType_NumRng}"
+                                     converter="com.rationem.util.converter.NumberControl"
+                                     valueChangeListener="#{accountType.onNumCntrlChanged}" >
+     <f:selectItems var="numCntrl" value="#{accountType.numControls}" itemValue="#{numCntrl}"
+                                    itemLabel="#{numCntrl.shortDescr} #{numCntrl.longDescr}" />
+     <p:ajax event="change" />
+    </p:selectOneMenu>
+    <p:outputLabel for="plAc" value="#{formText.actTyPl}"/>
+    <p:selectBooleanCheckbox id="plAc" value="#{accountType.acType.profitAndLossAccount}"
+                             valueChangeListener="#{accountType.onPlChanged}" >
+     <p:ajax update="subLed" event="change"/>
+    </p:selectBooleanCheckbox>
+    <p:outputLabel for="dr" value="#{formText.actTyDebit}"/>
+    <p:selectBooleanCheckbox id="dr" value="#{accountType.acType.debit}"/>
+    <p:outputLabel for="subLed" value="#{formText.actTypLedger}"/>
+    <p:selectOneMenu id="subLed" value="#{accountType.acType.subLedger}"
+                       disabled="#{accountType.subLedAllowed}"
+                                     converter="com.rationem.util.converter.Ledger"
+                                     valueChangeListener="#{accountType.onSubLedgerChanged}" >
+     <f:selectItems var="ldr" value="#{accountType.ledgers}" itemValue="#{ldr}" 
+                                    itemLabel="#{ldr.descr}"/>
+     <p:ajax event="change"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="sysPost" value="#{formText.actTySysPst}"/>
+    <p:selectBooleanCheckbox id="sysPost"  
+                               value="#{accountType.acType.systemPost}" />
+    <p:outputLabel for="retEarn" value="#{formText.actTyRetEran}"/>
+    <p:selectBooleanCheckbox id="retEarn" 
+                               value="#{accountType.acType.retainedEarn}"/>
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>
+ 
+

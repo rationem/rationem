@@ -1,0 +1,100 @@
+#compTitle{
+ position: relative;
+    background-color: #036fab;
+    color: white;
+    padding: 5px;
+    margin: 0px 0px 10px 0px;
+}
+
+#restFnds_itemtip{
+ width: auto !important;
+}
+
+#costCent_itemtip{
+ width: auto !important;
+}
+
+#prog_itemtip{
+ width: auto !important;
+ 
+}
+
+#top {
+    position: relative;
+    background-color: #036fab;
+    color: white;
+    padding: 5px;
+    margin: 0px 0px 10px 0px;
+}
+
+#bottom {
+    position: relative;
+    background-color: #c2dfef;
+    padding: 5px;
+    margin: 10px 0px 0px 0px;
+}
+
+#left {
+    float: left;
+    background-color: #ece3a5;
+    padding: 5px;
+    width: 150px;
+}
+
+#right {
+    float: right;
+    background-color: #ece3a5;
+    padding: 5px;
+    width: 150px;
+}
+
+
+.center_content {
+    position: relative;
+    padding: 5px;
+}
+
+.left_content {
+    padding: 5px;
+    margin-left: 170px;
+}
+/*//background-color: #dddddd;*/
+.right_content {
+    
+    padding: 5px;
+    margin: 0px 170px 0px 170px;
+}
+
+.toggler_width{
+ width: 16px;
+}
+
+.panel_centre{
+ text-align: center;
+}
+.txt-no-wrap{
+ white-space: nowrap;
+}
+.panel_jnl_edit{
+ min-width: 80% !important;
+}
+#top a:link, #top a:visited {
+  color: white;
+  font-weight : bold;
+  text-decoration: none;
+}
+
+#top a:link:hover, #top a:visited:hover  {
+  color: black;
+  font-weight : bold;
+  text-decoration : underline;
+}
+.notificationBar {
+
+ opacity:0.1;
+ padding:50px 0 0 50px;
+}
+
+.glaccnt-comp .ui-menuitem-link{
+ width: 200px !important;
+}

@@ -1,0 +1,80 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_lineTtpUpdt}</ui:define>
+ <ui:define name="header"><p:panel header="#{pageTitle.cfg_lineTtpUpdt}"  /></ui:define>
+ <ui:define name="content">
+   <h:form id="lineTypeFrm">
+    <p:contextMenu for="lineTyTblId">
+     <p:menuitem icon="ui-icon-pencil" value="#{formText.edit}" actionListener="#{lineType.onLineTypeEditDlg}"/>
+    </p:contextMenu>
+    <p:dataTable id="lineTyTblId" value="#{lineType.lineTypes}" var="lineTy" rowKey="#{lineTy.id}"
+       paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+       selection="#{lineType.lineTypeSelected}" selectionMode="single" paginator="true">
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="lineTyTblId" fileName="#{formText.ltyp_fn}" 
+                        postProcessor="#{lineType.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="lineTyTblId" fileName="#{formText.ltyp_fn}" />
+      </h:commandLink>
+     </f:facet>
+     <f:facet name="header">
+      <h:outputText value="#{formText.ltypes}"/>
+     </f:facet>
+     <p:column width="90">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.lnTypCode}"/>
+      </f:facet>
+      <h:outputText value="#{lineTy.lineCode}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.lnTypDescr}"/>
+      </f:facet>
+      <h:outputText value="#{lineTy.description}" />
+     </p:column>
+     <p:column width="90">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.lnTypMod}"/>
+      </f:facet>
+      <h:outputText value="#{lineTy.module.name}"/>
+     </p:column>
+    </p:dataTable>
+   </h:form> 
+   
+  <p:dialog dynamic="true" widgetVar="lineTypeEditDlg" modal="true" closable="false">
+    <f:facet name="header">
+     <h:outputText value="#{formText.ltypEd}"/>
+    </f:facet>
+    <h:form id="editLineTyFrm" prependId="false">
+    <p:panelGrid id="linrFrmTbl" columns="2">
+     <p:outputLabel for="lineTyCode" value="#{formText.ltypCd}"/>
+     <p:inputText id="lineTyCode" value="#{lineType.lineTypeSelected.lineCode}" size="10" />
+     <p:outputLabel for="modMnu" value="#{formText.ltypMod}" />
+     <p:inplace label="#{lineType.lineTypeSelected.module.name}" editor="true">
+     <p:selectOneMenu id="modMnu" value="#{lineType.lineTypeSelected.module}" 
+                      converter="com.rationem.util.converter.Module">
+      <f:selectItems  value="#{lineType.modules}" var="modItem" itemValue="#{modItem}" 
+                      itemLabel="#{modItem.name}" />
+     </p:selectOneMenu>
+     </p:inplace>
+     <p:outputLabel for="lineDescr" value="#{formText.ltypDescr}"/>
+     <p:inputText id="lineDescr" value="#{lineType.lineTypeSelected.description}" size="50" />
+     <p:commandButton id="linTyTrf" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"
+                      actionListener="#{lineType.onLineTypeEditTrf}"  />
+     <p:commandButton id="linTyClose" value="#{formText.close}" icon="ui-icon-close"
+                      actionListener="#{lineType.onLineTypeEditClose}"  />
+    </p:panelGrid>
+    </h:form>
+   </p:dialog>
+  </ui:define>
+</ui:composition>
+
+

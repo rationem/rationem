@@ -1,0 +1,77 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.maCostCentBud}</ui:define>
+ <ui:define name="header">#{pageTitle.maCostCentBud}</ui:define>
+ <ui:define name="content">
+  <h:form id="costCentBudFrm" prependId="false" >
+   <p:toolbar >
+    <f:facet name="left">
+     <p:commandButton icon="fa fa-floppy-o" title="#{formText.save}" 
+                      actionListener="#{budgetCostCent.onCostCentBudSave}"/>
+     <p:commandButton icon="fa fa-arrows" title="Even Spread" 
+                      actionListener="#{budgetCostCent.onBudSpread}"/>
+     <span class="ui-separator">
+      <span class="ui-icon ui-icon-grip-dotted-vertical" />
+     </span>
+     <h:outputText value="#{formText.budAnnual}"/>
+     <p:spacer width="4"/>
+     <p:inputText id="annTotal" value="#{budgetCostCent.annualTotal}" styleClass="budTotal">
+      <f:convertNumber type="number" locale="#{budgetCostCent.compSel.locale}" 
+                       minIntegerDigits="1"
+                       minFractionDigits="#{budgetCostCent.compSel.currency.minorUnit}"
+                       maxFractionDigits="#{budgetCostCent.compSel.currency.minorUnit}"/>
+     </p:inputText>
+    </f:facet>
+   </p:toolbar>
+   <p:messages autoUpdate="true" closable="true"/>
+   <p:panelGrid id="selOpt"  >
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+     </p:column> 
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{budgetCostCent.compSel}" var="compSmV" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{budgetCostCent.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+       <p:column>
+        <h:outputText value="#{compSmV.reference}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{compSmV.name}"/>
+       </p:column>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText id="compName" value="#{budgetCostCent.compSel.name}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="costCent" value="#{formText.maCostCent}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="costCent" value="#{budgetCostCent.costCentSel}" 
+                       converter="com.rationem.util.converter.CostCentre" >
+       <f:selectItems var="ccV" value="#{budgetCostCent.costCentList}" itemValue="#{ccV}"
+                      itemLabel="#{ccV.refrence}"/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="costAcnt" value="#{formText.maCostAcnt}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="costAcnt" value="#{budgetCostCent.costAcnt}" converter="com.rationem.util.converter.CostAccountDirect"
+                       >
+       <f:selectItems var="cstAcnt" value="#{budgetCostCent.costAcntList}" itemValue="#{cstAcnt}" 
+                      itemLabel="#{cstAcnt.refrence}"/>
+      </p:selectOneMenu>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>

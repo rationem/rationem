@@ -1,0 +1,266 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_acntTypeUp}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_acntTypeUp}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="glActTyEd" prependId="false">
+   <p:contextMenu for="actTypeTbl">
+    <p:menuitem value="#{formText.edit}" actionListener="#{accountType.onEditActTyMnu}"/>
+   </p:contextMenu>
+   <p:dataTable id="actTypeTbl" value="#{accountType.acTypes}" rows="5" 
+                         paginator="true" var="actType"
+                         emptyMessage="#{validationText.actTypeListNone}"
+                         rowKey="#{actType.id}" sortBy="#{actType.name}" sortOrder="ascending"
+                         selection="#{accountType.selectedAcType}"
+                         selectionMode="single">
+                
+             
+    <f:facet name="header">
+     <h:outputText value="#{formText.actTypes}"/>
+     <h:commandLink style="float:right;">
+       <h:graphicImage library="images" name="Excel-48.gif" width="24"/>
+       <p:dataExporter type="xls" target="actTypeTbl" fileName="#{formText.actTyFn}" postProcessor="#{accountType.postProcessXLS}"  />
+       </h:commandLink>
+      <h:commandLink style="float:right;">
+       <h:graphicImage library="images" name="csv_text.png" width="24"/>
+       <p:dataExporter type="csv" target="actTypeTbl" fileName="#{formText.actTyFn}"  />
+       </h:commandLink>
+    </f:facet>
+    <p:column width="10" exportable="false">
+     <p:rowToggler />
+    </p:column>
+    <p:column sortBy="#{actType.name}" width="80">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTypName}"/>
+     </f:facet>
+     <h:outputText value="#{actType.name}"/>
+    </p:column>
+    <p:column sortBy="#{actType.description}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTyDescr}"/>
+     </f:facet>
+     <h:outputText value="#{actType.description}"/>
+    </p:column>
+    
+    <p:column sortBy="#{actType.numberRange.shortDescr}" width="90">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTypeNumRng}"/>
+     </f:facet>
+     <h:outputText value="#{actType.numberRange.shortDescr} "/>
+    </p:column>
+    <p:column sortBy="#{actType.processCode.name}" width="60" >
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTyCode}"/>
+     </f:facet>
+     <h:outputText value="#{actType.processCode.name}"/>
+    </p:column>
+    <p:column sortBy="#{actType.subLedger.code}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTypLedger}"/>
+     </f:facet>
+     <h:outputText  value="#{actType.subLedger.code}"/> 
+    </p:column>
+    <p:column width="70" sortBy="#{actType.module.moduleCode}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTyMod}"/>
+     </f:facet>
+     <h:outputText value="#{actType.module.moduleCode}"/>
+    </p:column>
+    <p:column sortBy="#{actType.profitAndLossAccount}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTyPlHdr}"/>
+     </f:facet>
+     <p:selectBooleanCheckbox disabled="true" value="#{actType.profitAndLossAccount}"/> 
+    </p:column>
+    <p:column width="70" sortBy="#{actType.debit}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTyDebitHdr}"/>
+     </f:facet>
+     <p:selectBooleanCheckbox disabled="true" value="#{actType.debit}"/> 
+    </p:column>
+    <p:column sortBy="#{actType.controlAccount}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTypReconAct}"/>
+     </f:facet>
+     <p:selectBooleanCheckbox disabled="true" value="#{actType.controlAccount}"/> 
+    </p:column>
+      
+    <p:column sortBy="#{actType.systemPost}" width="90">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTySysPsHdr}"/>
+     </f:facet>
+     <p:selectBooleanCheckbox disabled="true" value="#{actType.systemPost}"/> 
+    </p:column>
+    <p:column sortBy="#{actType.retainedEarn}" width="70">
+     <f:facet name="header">
+      <h:outputText value="#{formText.actTyRetEarnHdr}"/>
+     </f:facet>
+     <p:selectBooleanCheckbox disabled="true" value="#{actType.retainedEarn}"/> 
+    </p:column>
+    
+    
+    <p:rowExpansion>
+     <h:panelGrid columns="2" styleClass="panelNoBorders" style="width: 300px;">
+      <f:facet name="header">
+       <h:outputText value="#{formText.actTypeNumRngDet}" styleClass="sect-header"/>
+      </f:facet>
+      <h:outputLabel for="expNumRngSDescr" value="#{formText.actTypeNumRng}"  />
+      <h:outputText id="expNumRngSDescr" value="#{actType.numberRange.shortDescr}" 
+                            />
+      <h:outputLabel for="exNumRngFrNum" value="#{formText.numRngFrNum}" />
+      <h:outputText id="exNumRngFrNum" value="#{actType.numberRange.fromNum}" 
+                            />
+      <h:outputLabel for="exNumRngToNum" value="#{formText.numRngEndNum}" />
+      <h:outputText id="exNumRngToNum" value="#{actType.numberRange.toNum}" 
+                             />
+     </h:panelGrid>
+               
+    </p:rowExpansion> 
+   </p:dataTable>
+  </h:form>
+ 
+  <h:form id="actTyEdFrmId" prependId="false">
+   <p:dialog id="dlg" widgetVar="editAcntGrpWvar"  dynamic="true"  
+                      header="#{formText.actTyEdUpdateDlgHdr}" >
+    <p:growl  autoUpdate="true"/>
+    <p:panelGrid  styleClass="panelNoBorders">
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edActTyCode" value="#{formText.actTypName}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="edActTyCode" value="#{accountType.selectedAcType.name}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="editDescr" value="#{formText.actTyDescr}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="editDescr" value="#{accountType.selectedAcType.description}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edNumRngSel"  value="#{formText.actTypeNumRng} "/>
+      </p:column>
+      <p:column>
+       <p:selectOneMenu id="edNumRngSel" value="#{accountType.selectedAcType.numberRange}" 
+                        converter="com.rationem.util.converter.NumberControl" filter="true">
+        <f:selectItems value="#{accountType.numControls}" var="numRng" itemValue="#{numRng}" 
+                              itemLabel="#{numRng.shortDescr} #{numRng.fromNum} #{numRng.toNum}"/>
+       </p:selectOneMenu>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edProcCode" value="#{formText.actTyCode}"/>
+      </p:column>
+      <p:column>
+       <p:selectOneMenu id="edProcCode" value="#{accountType.selectedAcType.processCode}" filter="true" 
+                        converter="com.rationem.util.converter.ProcessCode" required="true">
+        <f:selectItems value="#{accountType.processCodes}" var="prCdV" itemValue="#{prCdV}" itemLabel="#{prCdV.name}" />
+       </p:selectOneMenu>
+       
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edpl" value="#{formText.actTyPlHdr}"/>
+      </p:column>
+      <p:column>
+       <p:selectBooleanCheckbox id="edpl" value="#{accountType.selectedAcType.profitAndLossAccount}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edReconcilAc" value="#{formText.actTypReconAct}"/>
+      </p:column>
+      <p:column>
+       <p:selectBooleanCheckbox id="edReconcilAc" valueChangeListener="#{accountType.onCntrlAcntEdChange}" 
+                                value="#{accountType.selectedAcType.controlAccount}">
+        <p:ajax event="change" />
+       </p:selectBooleanCheckbox>
+      </p:column> 
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edMod1m" value="#{formText.actTyMod}"/>
+      </p:column>
+      <p:column>
+       <p:selectOneMenu id="edMod1m" value="#{accountType.selectedAcType.module}" 
+                       converter="com.rationem.util.converter.Module" required="true" >
+        <f:selectItems value="#{accountType.modules}" var="edMod" itemValue="#{edMod}" 
+                      itemLabel="#{edMod.name}"/>
+       </p:selectOneMenu>
+      </p:column>
+     </p:row>
+     
+     <p:row  > 
+      
+      <p:column>
+      <p:outputPanel id="edCntrlActOl"> 
+       <p:outputLabel for="edLedger" value="#{formText.actTypLedger}" 
+                     rendered="#{accountType.selectedAcType.controlAccount}"/>
+      </p:outputPanel>
+
+      </p:column>
+      
+      <p:column>
+       <p:outputPanel id="edCntrlAct1m">
+       <p:selectOneMenu id="edLedger" rendered="#{accountType.selectedAcType.controlAccount}"  
+                        value="#{accountType.selectedAcType.subLedger}" 
+                        converter="com.rationem.util.converter.Ledger" >
+        
+        <f:selectItems  value="#{accountType.ledgers}" var="ledgerVar" itemValue="#{ledgerVar}" 
+                             itemLabel="#{ledgerVar.code} #{ledgerVar.descr}"/>
+       </p:selectOneMenu>
+       </p:outputPanel>
+      </p:column>
+     </p:row>
+     
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edDebit" value="#{formText.actTyDebit}"/>
+      </p:column>
+      <p:column>
+       <p:selectBooleanCheckbox id="edDebit" value="#{accountType.selectedAcType.debit}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edSysPost" value="#{formText.actTySysPst}"/>
+      </p:column>
+      <p:column>
+       <p:selectBooleanCheckbox id="edSysPost" value="#{accountType.selectedAcType.systemPost}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="edRetEarn" value="#{formText.actTyRetEran}"/>
+      </p:column>
+      <p:column>
+       <p:selectBooleanCheckbox id="edRetEarn" value="#{accountType.selectedAcType.retainedEarn}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="2">
+       <p:commandButton id="editCheck" icon="ui-icon-arrowthick-1-w" value="#{formText.transfer}"
+                        actionListener="#{accountType.onActTypeUpdate}"   />
+       <p:commandButton id="editCancel" type="button" icon="ui-icon-close" value="#{formText.close}" 
+                              onclick="PF('editAcntGrpWvar').hide();"/>
+      </p:column>
+     </p:row>
+    </p:panelGrid>
+   </p:dialog> 
+         
+  </h:form>
+ </ui:define>
+</ui:composition>
+

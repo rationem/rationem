@@ -1,0 +1,196 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ 
+ <ui:define name="title" >#{pageTitle.cfg_home}</ui:define>
+ <ui:define name="header">#{pageTitle.cfg_home} </ui:define>
+ <ui:define name="content">
+  <p:growl autoUpdate="true" showDetail="true"/>
+  <h:form id="configMnuFrm" prependId="false">
+   
+   
+   
+   <p:panelMenu style="width: 300px;"  >
+    <p:submenu label="#{menuText.mL1_Cfg_Default}"   >
+     <p:menuitem value="#{menuText.mi_def_load}"  action="loadDefaults" icon="fa fa-gear"
+                ajax="false"/>
+    </p:submenu>
+    <p:submenu label="#{menuText.mL1_Cfg_Basic}"   >
+     <p:submenu label="#{menuText.mL2_uom}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"   action="uomCr" ajax="false"
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"   action="uomUpdt" ajax="false"
+                  icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+     <p:menuitem value="#{menuText.mL2_cntry}" action="country"  ajax="false" 
+                 icon="fa fa-globe"/>
+     <p:submenu label="#{menuText.mL2_module}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="moduleCr" ajax="false" 
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  action="moduleUpdt" ajax="false"
+                  icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_procCd}"  >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="procCodeCr" ajax="false" 
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  action="procCodeUpdt" ajax="false"
+                  icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_numRng}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="numRngCr" ajax="false"
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  ajax="false" action="numRngEd"
+                  icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_lineTyp}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="lineTypCr" ajax="false" />
+      <p:menuitem value="#{menuText.mi_gen_updt}"  ajax="false" 
+                  action="lineTypUpdt"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_docType}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="docTypCr" ajax="false"
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  ajax="false" 
+                  action="docTypUpdt" icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_transTy}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="transTypCr" ajax="false"
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  ajax="false" 
+                  action="transTypUpdt" icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_sortOrder}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="sortOrderCr" ajax="false"
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  ajax="false" 
+                  action="sortOrderUpdt"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_cal}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="calCr" ajax="false" 
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  ajax="false" 
+                  action="calUpdt" icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_fund_cat}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="fndCatCr" ajax="false"
+                  icon="fa fa-file-o"/>
+      <p:menuitem value="#{menuText.mi_gen_updt}"  ajax="false" 
+                  action="fndCatUpdt" icon="fa fa-pencil-square-o"/>
+     </p:submenu>
+    </p:submenu>
+    
+    <p:submenu label="#{menuText.mL1_cfg_finAc}"   >
+     <p:submenu label="#{menuText.mL2_CommonSett}"  >
+      <p:submenu label="#{menuText.mL3_ledger}" >
+       <p:menuitem value="#{menuText.mi_gen_cr}"  action="ledgerCr" ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="ledgerEd" ajax="false" 
+                   icon="fa fa-pencil-square-o"/>
+      </p:submenu>
+      <p:submenu label="#{menuText.mL3_acntType}" >
+       <p:menuitem value="#{menuText.mi_gen_cr}"  action="actTypeCr" ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="actTypeEd" ajax="false"
+                   icon="fa fa-pencil-square-o"/>
+      </p:submenu>
+      <p:submenu label="#{menuText.mL3_fisPer}" >
+       <p:menuitem value="#{menuText.mi_gen_cr}" action="fisRuleCr"  ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="fisRuleUpdt" ajax="false"
+                   icon="fa fa-pencil-square-o"/>
+       
+       
+      </p:submenu> 
+      <p:submenu label="#{menuText.mL3_coa}"  >
+       <p:menuitem value="#{menuText.mi_gen_cr}"  action="coaCr" ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="coaUpdt" ajax="false"
+                   icon="fa fa-pencil-square-o"/>
+      </p:submenu>
+      <p:submenu label="#{menuText.mL3_postType}"  >
+       <p:menuitem value="#{menuText.mi_gen_cr}"  action="postTypCr" ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="postTypUpdt" 
+                  ajax="false" icon="fa fa-pencil-square-o"/>
+      </p:submenu>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_cfg_comp}" >
+      <p:menuitem value="#{menuText.mi_gen_cr}"  action="compCr" 
+                  ajax="false" icon="fa fa-file-o" />
+      <p:menuitem value="#{menuText.mi_gen_updt}"  action="compUpdt" 
+                  ajax="false" icon="fa fa-pencil-square-o" />
+      <p:submenu label="#{menuText.mL3_cfg_comp_bnk}">
+       <p:submenu label="#{menuText.mi_tr_bnk_home}">
+        <p:menuitem value="#{menuText.mi_gen_cr}" outcome="ownBnkAcCr" icon="fa fa-file-o"/>
+        <p:menuitem value="#{menuText.mi_gen_updt}" outcome="ownBnkAcUpdt" icon="fa fa-edit"/>
+       </p:submenu>
+       <p:submenu label="#{menuText.mi_tr_bnk_chqBk}">
+        <p:menuitem value="#{menuText.mi_gen_cr}" outcome="chqBkCr" icon="fa fa-file-o"/>
+        <p:menuitem value="#{menuText.mi_gen_updt}" outcome="chqBkUpdt" icon="fa fa-edit"/>
+       </p:submenu>
+       <p:submenu label="#{menuText.mi_tr_bnk_pay_ty}">
+        <p:menuitem value="#{menuText.mi_gen_cr}"  outcome="payTypeCr" icon="fa fa-file-o"/>
+        <p:menuitem value="#{menuText.mi_gen_updt}"  outcome="payTypeUpdt" icon="fa fa-pencil-square-o"/>
+       </p:submenu>
+      </p:submenu>
+     </p:submenu>
+     <p:submenu label="#{menuText.mL2_cfg_ap_ar}">
+      <p:submenu label="#{menuText.mL3_cfg_payType}">
+       <p:menuitem value="#{menuText.mi_ac_cr}"  outcome="payTypeCr" 
+                  ajax="false" icon="fa fa-file-o" />
+       <p:menuitem value="#{menuText.mi_ac_updt}"  outcome="payTypeUpdt" 
+                  ajax="false" icon="fa fa-pencil-square-o" />
+      </p:submenu>
+     </p:submenu>
+    </p:submenu>
+    <p:submenu label="#{menuText.mL1_cfg_tr}"   >
+     <p:submenu label="#{menuText.mL2_cfg_tr_pay_med}">
+      <p:submenu label="#{menuText.mL3_cfg_chqTempl}">
+       <p:menuitem value="#{menuText.mi_gen_cr}" outcome="chqTemplCr" icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}" outcome="chqTemplUpdt" icon="fa fa-pencil-square-o"/>
+      </p:submenu>
+      <p:submenu label="#{menuText.mL3_cfg_ddCode}">
+       <p:menuitem value="#{menuText.mi_gen_cr}" outcome="bacsTransCdCr" icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}" outcome="bacsTransCdUpdt" icon="fa fa-pencil-square-o"/>
+      </p:submenu> 
+     </p:submenu>
+     
+    </p:submenu>
+    <p:submenu label="#{menuText.ml_cfg_Vat}" >
+     <p:submenu label="#{menuText.mL2_Basic}" >
+      <p:submenu label="#{menuText.mL2_VatCd}" >
+       <p:menuitem value="#{menuText.mi_gen_cr}" action="vatCodeCr" ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="vatCodeUpdt" ajax="false"
+                   icon="fa fa-pencil-square-o"/>
+       <p:menuitem value="#{menuText.mi_vatcd_psting}"  action="vatCodePst" ajax="false" />
+      </p:submenu>
+      <p:submenu label="#{menuText.mL2_Vat_sch}" >
+       <p:menuitem value="#{menuText.mi_gen_cr}"  action="vatSchemeCr" ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="vatSchemeUpdt" ajax="false"
+                   icon="fa fa-pencil-square-o"/>
+      </p:submenu>
+      <p:submenu label="#{menuText.mL2_Vat_Ind_rate_cr}" >
+       <p:menuitem value="#{menuText.mi_gen_cr}"  action="vatIndRateCr" ajax="false"
+                   icon="fa fa-file-o"/>
+       <p:menuitem value="#{menuText.mi_gen_updt}"  action="vatIndRateUpdt" ajax="false"
+                   icon="fa fa-pencil-square-o"/>
+      </p:submenu>
+      </p:submenu>
+      <p:submenu label="#{menuText.mL2_cfg_comp}" >
+       <p:menuitem value="#{menuText.mL2_Vat_Reg}" 
+                  action="vatReg" ajax="false" icon="fa fa-pencil-square-o" />
+       <p:menuitem value="#{menuText.mL2_Vat_Reg_Scheme}" 
+                  action="vatRegScheme" ajax="false" icon="fa fa-pencil-square-o" />
+      </p:submenu>
+     </p:submenu>
+    
+   </p:panelMenu>
+  </h:form>
+
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,92 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_uomUpt}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_uomUpt}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="uom" prependId="false">
+   <p:fieldset >
+    
+    <p:contextMenu for="uomTblId">
+     <p:menuitem value="#{formText.edit}" actionListener="#{unitOfmeasureBean.onEdit}"/>
+    </p:contextMenu>
+    <p:dataTable var="uom" id="uomTblId" value="#{unitOfmeasureBean.uomList}"  rowKey="#{uom.id}" 
+                 selectionMode="single" selection="#{unitOfmeasureBean.uomSelected}"
+                 paginator="true" filteredValue="#{unitOfmeasureBean.uomListFiltered}" 
+                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                 emptyMessage="#{validationText.uomListEmpty}" >
+     <f:facet name="{Exporters}">
+     
+     <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="uomTblId" fileName="#{formText.uom_fn}" 
+                        postProcessor="#{unitOfmeasureBean.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="uomTblId" fileName="#{formText.uom_fn}" />
+     </h:commandLink>
+    
+    </f:facet>
+     <f:facet name="header">
+      <h:outputText value="#{formText.uom_list}"/>
+      
+      </f:facet>
+        <p:column width="100" sortBy="#{uom.uomCode}" filterBy="#{uom.uomCode}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.uom_code}"/>
+      </f:facet>
+      
+      <h:outputText value="#{uom.uomCode}"/>
+     </p:column>
+     <p:column width="120" sortBy="#{uom.name}" filterBy="#{uom.name}" filterMatchMode="contains">
+      <f:facet name="header" >
+       <h:outputText value="#{formText.uom_name}"/>
+      </f:facet>
+      <h:outputText value="#{uom.name}"/>
+     </p:column>
+     <p:column sortBy="#{uom.description}" filterBy="#{uom.description}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.uom_descr}"/>
+      </f:facet>
+      <h:outputText value="#{uom.description}"/>
+     </p:column>
+     <p:column width="100" sortBy="#{uom.name}" filterBy="#{uom.name}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.uom_processCode}"/>
+      </f:facet>
+      <h:outputText value="#{uom.processCode}"/>
+     </p:column>
+      
+    </p:dataTable>
+    
+    
+    
+   </p:fieldset>
+  </h:form>
+  <p:dialog id="editUomDlgId" widgetVar="editUomWv">
+     <f:facet name="header">
+      <h:outputText value="#{formText.uom_edit_dlg}"/>
+     </f:facet>
+   <h:form id="editDlgFrm" prependId="false">
+      <p:panelGrid id="editPgId" columns="2">
+       <p:outputLabel for="editCode" value="#{formText.uom_code}"/>
+       <p:inputText id="editCode" value="#{unitOfmeasureBean.uomSelected.uomCode}"/>
+       <p:outputLabel for="editName" value="#{formText.uom_name}"/>
+       <p:inputText id="editName" value="#{unitOfmeasureBean.uomSelected.name}"/>
+       <p:outputLabel for="editDescr" value="#{formText.uom_descr}"/>
+       <p:inputText id="editDescr" value="#{unitOfmeasureBean.uomSelected.description}"/>
+       <h:outputText value="#{formText.uom_processCode}"/>
+       <h:outputText value="#{unitOfmeasureBean.uomSelected.processCode}"/>
+       <p:commandButton value="#{formText.uom_update}" actionListener="#{unitOfmeasureBean.onUpdateUom}"/>
+      </p:panelGrid>
+    </h:form>
+     
+    </p:dialog>
+ </ui:define>
+</ui:composition>

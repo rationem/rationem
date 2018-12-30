@@ -1,0 +1,647 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/invoice.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.slCrnNew}</ui:define>
+ <ui:define name="header">#{pageTitle.slCrnNew} </ui:define>
+ <ui:define name="content">
+ 
+  <h:form id="salesCrnFrm" prependId="false">
+   <p:growl autoUpdate="true"  showDetail="true"/>
+   <p:tooltip />
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="newDocBtn" icon="fa fa-file-o" value="#{formText.new}" 
+                      title="#{formHelpText.arDocNew}"
+                        actionListener="#{arDocPost.onDocNew}" update="@(form)"/>
+     <p:commandButton id="crnPostBtn" icon="fa  fa-save" value="#{formText.save}" 
+                        actionListener="#{arDocPost.onPostSlCreditNote}" disabled="#{!arDocPost.canPostInv}"  
+                          title="#{formHelpText.arDocPostCrn}" ajax="true" 
+                          update=":salesCrnFrm:invPrntBtnId"
+                       /> 
+     <p:commandButton id="invPrntBtnId" value="#{formText.download}"  ajax="false"
+                      icon="fa fa-download"
+                      disabled="#{!arDocPost.invPosted}" title="#{formHelpText.arDocPrntInv}" >
+      <p:fileDownload value="#{arDocPost.creditNotePDF}"/>
+     </p:commandButton> 
+    </f:facet >
+   </p:toolbar>
+   <p:focus for="custNum"/>    
+   <h:panelGrid columns="2" width="100%"> 
+    <h:panelGrid columns="8" id="docHdrGrid">
+     <p:outputLabel for="custNum" value="#{formTextSl.slDocCustNum}"/>
+     <p:autoComplete id="custNum" value="#{arDocPost.docLineAr.arAccount}"
+                     completeMethod="#{arDocPost.onArAcntComplete}" 
+                     converter="com.rationem.util.converter.ArAccount" dropdown="true"
+                     var="arAcntV" itemValue="#{arAcntV}" itemLabel="#{arAcntV.arAccountCode}"
+                  size="10" title="#{formHelpText.arActCode}"   required="true" >
+       <p:column width="25%">
+       <h:outputText value="#{arAcntV.arAccountCode}"/>
+      </p:column>
+      <p:column width="75%">
+       <h:outputText value="#{arAcntV.arAccountFor.name}"/>
+      </p:column>
+      
+      <p:ajax event="itemSelect" listener="#{arDocPost.onArAcntSelect}"  />
+     </p:autoComplete>
+     
+     <h:outputText id="custName" value="#{arDocPost.docLineAr.arAccount.arAccountFor.name}"/>
+     <p:spacer width="5em"/>
+     <h:outputLabel for="docComp" value="#{formText.docCompany}"/>
+     <p:selectOneMenu id="docComp" value="#{arDocPost.docCompany}" title="#{formHelpText.docCompany}" 
+                        converter="com.rationem.util.converter.CompanyBasic"  >
+      <f:selectItems var="compVar" value="#{arDocPost.compList}"
+                     itemLabel="#{compVar.reference}" itemValue="#{compVar}" />
+      
+     </p:selectOneMenu>
+     <h:outputText id="compName" value="#{arDocPost.docCompany.name}"/>
+    </h:panelGrid>
+    <h:panelGrid id="docTotalsPG" columns="2"> 
+     <h:outputLabel for="docAmount" value="#{formTextSl.slDocTotal}"/> 
+     <h:outputText id="docAmount" value="#{arDocPost.invoice.totalAmount}" >
+      <f:convertNumber type="currency" currencySymbol="#{arDocPost.docCompany.currencySymbol}"/>
+     </h:outputText>
+     <h:outputLabel for="docVat" value="#{formText.arDocVatTotal}" rendered="#{arDocPost.vatablePeriod}" />
+     <h:outputText id="docVat" value="#{arDocPost.invoice.vatAmount}" rendered="#{arDocPost.vatablePeriod}">
+      <f:convertNumber type="currency" currencySymbol="#{arDocPost.docCompany.currencySymbol}"/>
+     </h:outputText>
+     
+    </h:panelGrid>
+    </h:panelGrid>
+    
+    <h:panelGrid id="mainGrid" columns="2" >
+    <h:panelGroup>
+    <p:tabView id="invHeaderTab"  dynamic="true" cache="false" >
+     <p:tab title="#{formTextSl.slDocHdrTab}" titletip="#{!formHelpText.arDocBasicTab}" 
+                 disabled="#{!arDocPost.custEntered}"  >
+      <h:panelGrid id="basicDocDet" columns="6">
+       <h:outputLabel for="invDate" value="#{formText.docDocDate}"/>
+       <p:calendar id="invDate" value="#{arDocPost.fiDocument.documentDate}" 
+                   title="#{formHelpText.arDocInvDate}"  
+                    mode="popup" required="true" disabled="#{!arDocPost.custEntered}"
+                    requiredMessage="#{validationText.fiDocDocDate}" valueChangeListener="#{arDocPost.onInvDateChange}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" size="12"  >
+        <p:ajax event="change" update="invDate taxDate dueDate" />
+        <p:ajax event="dateSelect" listener="#{arDocPost.onInvDateSelect}" update="taxDate" />
+       </p:calendar>
+       <h:outputLabel for="postDate" value="#{formText.docPostDate}"/>
+       <p:calendar id="postDate" value="#{arDocPost.fiDocument.postingDate}" 
+                    mode="popup" required="true" disabled="#{!arDocPost.custEntered}"
+                    requiredMessage="#{validationText.fiDocPostDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                    maxlength="10" size="12">
+           
+        <p:ajax event="dateSelect" listener="#{arDocPost.onInvDateSelect}" update="period" />
+       </p:calendar>
+       <h:outputLabel for="taxDate" value="#{formText.docTaxDate}" rendered="#{arDocPost.docCompany.vatReg}"/>
+       <p:calendar id="taxDate" value="#{arDocPost.fiDocument.taxDate}" rendered="#{arDocPost.docCompany.vatReg}"
+                    mode="popup" required="true" disabled="#{!arDocPost.custEntered}"
+                    requiredMessage="#{validationText.fiDocTaxDate}"  
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="12" readonlyInput="true">
+            
+        <p:ajax event="dateSelect" listener="#{arDocPost.onTaxDateSelect}" update=":salesCrnFrm"/>
+       </p:calendar>
+       <h:panelGroup rendered="#{!arDocPost.docCompany.vatReg}"/>
+       <h:panelGroup rendered="#{!arDocPost.docCompany.vatReg}"/>
+       <h:outputLabel for="docType" value="#{formText.docType}"/>
+       <p:selectOneMenu id="docType" value="#{arDocPost.fiDocument.docType}" 
+                        converter="com.rationem.util.converter.DocType" title="#{formHelpText.docType}"
+                            disabled="#{!arDocPost.custEntered}">
+         <f:selectItems value="#{arDocPost.documentTypes}" var="docType" itemValue="#{docType}" 
+                           itemLabel="#{docType.code}"/>
+       </p:selectOneMenu>
+       <p:outputLabel for="period" value="Period"/>
+       <p:inputText id="period" size="8" disabled="true"
+                        value="#{arDocPost.fiDocument.fisYear} / #{arDocPost.fiDocument.fisPeriod}"/>
+        <p:tooltip for="period" value="Year/period"/>
+       </h:panelGrid>
+       <h:panelGrid columns="2">
+       <h:outputLabel for="payTerms" value="#{formText.docPayTerms}"/>
+       <p:selectOneMenu id="payTerms" value="#{arDocPost.docLineAr.payTerms}"
+                            converter="com.rationem.util.converter.PaymentTerms" 
+                            valueChangeListener="#{arDocPost.onPaymentTermsChange}"
+                            disabled="#{!arDocPost.custEntered}">
+        <f:selectItems value="#{arDocPost.paymentTermslist}" var="payTerm" 
+                           itemValue="#{payTerm}" itemLabel="#{payTerm.description}"/>
+        <p:ajax update="dueDate"/> 
+       </p:selectOneMenu>
+       <h:outputLabel for="dueDate" value="#{formText.docDueDate}"/>
+       <p:calendar id="dueDate" value="#{arDocPost.docLineAr.dueDate}"
+                       mode="popup" required="true" disabled="#{!arDocPost.custEntered}"
+                       requiredMessage="#{validationText.fiDocTaxDate}"
+                       navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                       maxlength="11" size="12" title="#{formHelpText.docDueDate}"/>
+       <h:outputLabel for="docHdrTxt" value="#{formText.docHdrTxt}"/>
+       <p:inputText id="docHdrTxt" value="#{arDocPost.fiDocument.docHdrText}" size="30"
+                    disabled="#{!arDocPost.custEntered}" title="#{formHelpText.docHdrTxt}"/>
+       <h:panelGroup>
+        
+        <p:tooltip for="postDate" value="#{formHelpText.docPostDate}"/>
+        <p:tooltip for="taxDate" value="#{formHelpText.docTaxDate}"/>
+        <p:tooltip for="payTerms" value="#{formHelpText.docPayTerms}"/>
+        
+        
+       </h:panelGroup>
+      </h:panelGrid>           
+     </p:tab>
+     <p:tab title="#{formTextSl.slDocPayTab}" 
+            titletip="#{formHelpText.arDocPayTab}" disabled="#{!arDocPost.custEntered}">
+      <h:panelGrid columns="2" style="text-align:top">
+       <h:panelGroup >
+        <h:panelGrid columns="2" >
+         <h:outputLabel for="payType" value="#{formText.docPayType}" />
+         <p:selectOneMenu id="payType" value="#{arDocPost.docLineAr.payType}" 
+                             converter="com.rationem.util.converter.PaymentType"
+                              >
+          <f:selectItems value="#{arDocPost.paymentTypes}" var="pType" itemValue="#{pType}" 
+                            itemLabel="#{pType.description}"/>
+         </p:selectOneMenu>
+         <h:outputLabel for="actBankAc" value="#{formTextSl.slDocBank}"/>
+         <p:selectOneMenu id="actBankAc" value="#{arDocPost.docLineAr.bankAc.bankAccount}" 
+                          converter="com.rationem.util.converter.ArBank" title="#{formHelpText.arDocBank}">
+          <f:selectItems value="#{arDocPost.arBanks}" var="arBnk" itemValue="#{arBnk}"
+                         itemLabel="#{arBnk.bankAccount.accountForBranch.sortCode} #{arBnk.bankAccount.accountNumber}"/>
+          <p:column width="25%">
+           <h:outputText value="#{arBnk.bankAccount.accountForBranch.sortCode}"/>
+          </p:column>
+          <p:column width="25%">
+           <h:outputText value="#{arBnk.bankAccount.accountNumber}"/>
+          </p:column>
+          <p:column width="25%">
+           <h:outputText value="#{arBnk.bankAccount.accountNumber}"/>
+          </p:column>
+         </p:selectOneMenu>
+        </h:panelGrid>
+       </h:panelGroup>
+      </h:panelGrid>
+     </p:tab>
+     <p:tab title="#{formTextSl.slDocCrAlloc}" titletip="#{formHelpText.arDocCrnAllocPanel}"
+            disabled="#{arDocPost.invoice.goodsAmount eq 0.0}">
+      <h:panelGroup>
+       <h:panelGrid id="allocPG" columns="2">
+        <h:outputLabel for="unallocCr" value="#{formTextSl.slDocUnlocCr}" 
+                             rendered="#{arDocPost.crnAmntUnalloc ge 0.00}"/>
+        <h:outputText id="unallocCr" value="#{arDocPost.crnAmntUnalloc}" 
+                            rendered="#{arDocPost.crnAmntUnalloc ge 0.00}">
+         <f:convertNumber minFractionDigits="#{arDocPost.docCompany.currency.minorUnit}" 
+                          minIntegerDigits="1" type="number" />
+        </h:outputText>
+        <h:outputLabel for="overAlloc" value="Over allocated" class="slCrn-overAlloc"
+                             rendered="#{arDocPost.crnAmntUnalloc lt 0.00}"/>
+        <h:outputText id="overAlloc" value="#{arDocPost.crnAmntUnalloc}" class="slCrn-overAlloc"
+                            rendered="#{arDocPost.crnAmntUnalloc lt 0.00}">
+         <f:convertNumber minFractionDigits="#{arDocPost.docCompany.currency.minorUnit}" 
+                          minIntegerDigits="1" type="number" />
+        </h:outputText>
+        <h:outputLabel for="pickInvs" value="Select Invoices"/>
+        <p:pickList id="pickInvs" value="#{arDocPost.crnInvAllocList}" var="inv"
+                    converter="com.rationem.util.converter.DocLineAr" itemValue="#{inv}"
+                    itemLabel="#{inv.docHeaderBase.partnerRef}"
+         showSourceControls="true" showTargetControls="true" 
+         showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains"
+         responsive="true">
+         <p:column width="25%">
+          <h:outputText value="#{inv.docHeaderBase.partnerRef}"/>
+         </p:column>
+         <p:column width="25%">
+          <h:outputText value="#{inv.docHeaderBase.documentDate}">
+           <f:convertDateTime type="date" dateStyle="medium" />
+          </h:outputText>
+         </p:column>
+         <p:column width="50%%">
+          <h:outputText value="#{inv.paidAmount}">
+           <f:convertNumber  type="currency" 
+                            currencySymbol="#{arDocPost.fiDocument.company.currency.currSymbol}"
+                            />
+          </h:outputText>
+         </p:column>
+               
+         <f:facet name="sourceCaption">#{formTextSl.slDocPickAvail}</f:facet>
+         <f:facet name="targetCaption">#{formTextSl.slDocPickAlloc}</f:facet>
+         <p:ajax event="transfer" listener="#{arDocPost.onCrnInvAllocTrf}" />
+        </p:pickList>
+       </h:panelGrid>
+      </h:panelGroup>
+     </p:tab>
+     <p:tab title="#{formTextSl.slDocNotesTab}" titletip="#{formHelpText.arDocNotesPanel}"
+                 disabled="#{!arDocPost.custEntered}">
+      <h:panelGrid columns="2">
+       <h:outputLabel for="invNotes" value="#{formText.docNote}"/>
+       <p:editor id="invNotes" value="#{arDocPost.invoice.notes}" height="100" width="600"
+            controls="bold underline italic strikethrough  copy cut pastetext rule font size style color highlight bullets
+            numbering alignleft center alignright justify outdent indent link unlink print"/>
+       <h:outputLabel for="docNotes" value="#{formText.docNoteInt}"/>
+       <p:editor id="docNotes" value="#{arDocPost.docLineAr.notes}" height="100" width="600" controls="bold underline italic strikethrough  copy cut pastetext rule font size style color highlight bullets
+            numbering alignleft center alignright justify outdent indent link unlink print"/>
+      </h:panelGrid>
+      <p:tooltip for="invNotes" value="#{formHelpText.arDocInvNote}"/>
+      <p:tooltip for="docNotes" value="#{formHelpText.arDocFiNote}"/>
+     </p:tab>
+    </p:tabView>
+   </h:panelGroup>
+  </h:panelGrid>
+  
+  <p:contextMenu for="lines">
+   <p:menuitem value="#{formText.docLineAdd}" disabled="#{!arDocPost.custEntered}" 
+               title="#{formHelpText.docLnAdd}"
+               actionListener="#{arDocPost.onAddSaleInvLine}" icon="fa fa-file-o"/>
+   <p:menuitem value="#{formText.delete}" icon="fa fa-trash-o"  
+               disabled="#{fn:length(arDocPost.salesInvLines) lt 1}"
+               actionListener="#{arDocPost.onInvLineDelete}" title="#{formHelpText.docLnDel}"/>
+  </p:contextMenu>
+  <p:dataTable id="lines" var="item" value="#{arDocPost.salesInvLines}" paginator="true"  
+               emptyMessage="#{validationText.docEntryNoLines}" selectionMode="single"  
+               selection="#{arDocPost.selectedSalesInvLine}" widgetVar="linesWv" 
+               rows="#{arDocPost.slLinesInptMax}"  rowKey="#{item.lineNum}"
+               paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+               >
+   <p:ajax event="contextMenu" listener="#{arDocPost.onDocInvLineCtxMnu}" />
+   <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="lines" fileName="#{listHeading.docLns_FN}" 
+                          postProcessor="#{arAccntListBean.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="lines" 
+                      fileName="#{listHeading.docLns_FN}" />
+     </h:commandLink>
+    </f:facet>
+   <f:facet name="header">
+    <h:outputText value="#{listHeading.docLns}"/>
+   </f:facet>
+   <p:column styleClass="column-partCode" headerText="#{formTextSl.partCode}" 
+             sortBy="#{item.partComp.part.partCode}">
+    <h:outputText value="#{item.partComp.part.partCode}"/>
+   </p:column>
+   <p:column sortBy="#{item.description}">
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.partShortDescr}"/>
+    </f:facet>
+    <h:outputText value="#{item.description}"/>
+   </p:column>
+   <p:column sortBy="#{item.qty}" >
+    <f:facet name="header" >
+     <h:outputText value="#{formTextSl.slQty}" title="Quantity"/>
+    </f:facet>
+    <h:outputText value="#{item.qty}"/>
+   </p:column>
+   <p:column styleClass="column-UOM" sortBy="#{item.uom.name}">
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.uom}"/>
+    </f:facet>
+    <h:outputText value="#{item.uom.name}"/>
+   </p:column>
+   <p:column styleClass="column-financialValue">
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.slUnitPrice}"/>
+    </f:facet>
+    <h:outputText value="#{item.unitPrice}"/>
+   </p:column>
+   <p:column styleClass="amount" sortBy="#{item.lineTotal}" >
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.slDocTotal}"/>
+    </f:facet>
+    <h:outputText value="#{item.lineTotal}">
+     <f:convertNumber type="number" minFractionDigits="#{arDocPost.docCompany.currency.minorUnit}" 
+                      minIntegerDigits="1"/>
+    </h:outputText>
+   </p:column>
+   <p:column styleClass="column-GlAccount">
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.docLineSaleAcnt}"/>
+    </f:facet>
+    <h:outputText value="#{item.glaccount.coaAccount.ref}"/>
+   </p:column>
+   <p:column styleClass="column-partName" sortBy="#{item.vatCode.code}" rendered="#{arDocPost.vatablePeriod}">
+    <f:facet name="header">
+     <h:outputText value="#{formText.tabVat}"/>
+    </f:facet>
+    <h:outputText value="#{item.vatCode.code}"/>
+   </p:column>
+   <p:column>
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.partRestrFund}" />
+    </f:facet>
+    <h:outputText value="#{item.fund.name}" />
+   </p:column>
+   <p:column styleClass="column-CostCent" sortBy="#{item.costCent.refrence}">
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.slDocCostCent}" />
+    </f:facet>
+    <h:outputText value="#{item.costCent.refrence}" />
+   </p:column>
+   <p:column sortBy="#{item.prog.name}">
+    <f:facet name="header">
+     <h:outputText value="#{formTextSl.slDocProg}" />
+    </f:facet>
+    <h:outputText value="#{item.prog.name}" />
+   </p:column>
+   <p:columnGroup type="footer">
+    <p:row>
+     <p:column colspan="5" footerText="#{formTextSl.slDocTotal}" style="text-align: right;"/>
+     <p:column footerText="#{arDocPost.invoice.goodsAmount}" style="text-align: right;" >
+      
+      <f:facet name="footer">
+       <h:outputText value="#{arDocPost.invoice.goodsAmount}" >
+        <f:convertNumber type="number" minFractionDigits="#{arDocPost.docCompany.currency.minorUnit}" 
+                         minIntegerDigits="1"/>
+       </h:outputText>
+       
+      </f:facet>
+     </p:column>
+    </p:row>
+   </p:columnGroup>
+  </p:dataTable>
+  <p:media id="pdfViwer" player="pdf" value="#{arDocPost.invoice.invoicePdf}" width="400" height="500" rendered="#{arDocPost.invoice.invoicePdf != null}"/>       
+ </h:form>
+  
+  
+  
+  
+ <h:form id="addLineFrm" >
+  <p:dialog id="addLineDlg" header="#{formTextSl.docLineAdd}" widgetVar="addLineDlgWv" modal="true"
+                dynamic="true" closable="false"     >
+   <p:growl autoUpdate="true" />
+   <p:focus for="slPartCompCode"/>
+   <h:panelGrid id="addLineGrid" columns="2" >
+    <p:outputLabel for="slPartCompCode" value="#{formTextSl.partCode}"/>
+    <p:autoComplete id="slPartCompCode" value="#{arDocPost.salesInvLineNew.partComp}" 
+                    completeMethod="#{arDocPost.onPartComplete}" forceSelection="true"
+                         converter="com.rationem.util.converter.SalesPartCompany"  
+                         requiredMessage="#{validationText.arDocPart}"
+                         var="slPartComp" itemValue="#{slPartComp}" itemLabel="#{slPartComp.part.partCode}"
+                         dropdown="true"   >
+     <p:ajax event="itemSelect" listener="#{arDocPost.onSlPartCompSelect}" update="addLineGrid"   />
+     <p:column width="25%">
+      <h:outputText value="#{slPartComp.part.partCode}"/>
+     </p:column>
+     <p:column width="75%">
+      <h:outputText value="#{slPartComp.part.shortDescription}"/>
+     </p:column>
+     
+   </p:autoComplete>
+          
+    <p:outputLabel for="invLineDescr" value="#{formTextSl.partExtDescr}"/>
+   <p:inputText id="invLineDescr" value="#{arDocPost.salesInvLineNew.description}"
+                disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}"/>
+   <p:outputLabel for="invLineQty" value="#{formTextSl.slQty}"/>
+   <p:inputNumber id="invLineQty" decimalPlaces="0" value="#{arDocPost.salesInvLineNew.qty}"
+                  disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}">
+    <p:ajax event="blur" listener="#{arDocPost.onSaleLineNewQty}" />
+   </p:inputNumber>
+                  
+   
+   <p:outputLabel for="invLineUom" value="#{formTextSl.uom}"/>
+   <p:autoComplete id="invLineUom"  value="#{arDocPost.salesInvLineNew.uom}" var="uomV" 
+                    converter="com.rationem.util.converter.UnitOfMeasure" dropdown="true"
+                    completeMethod="#{arDocPost.onUomComplete}" itemValue="#{uomV}"
+                    itemLabel="#{uomV.name}" 
+                    disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}">
+    
+   </p:autoComplete>
+   <p:outputLabel for="invLinePrice" value="#{formTextSl.slUnitPrice}"/>
+   <p:inputText id="invLinePrice" value="#{arDocPost.salesInvLineNew.unitPrice}" 
+                valueChangeListener="#{arDocPost.onSlUnitPriceValueChange}" 
+                disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}">
+          
+    <p:ajax event="keyup" update="invLineTotal"/>
+   </p:inputText>
+         
+   <h:outputText value="#{formTextSl.slDocTotal}"/>
+   <h:outputText id="invLineTotal" value="#{arDocPost.salesInvLineNew.lineTotal}">
+    <f:convertNumber minIntegerDigits="1"   
+                           minFractionDigits="#{arDocPost.docCompany.currency.minorUnit}" />
+   </h:outputText> 
+   <p:outputLabel for="invLineArAcnt" value="#{formTextSl.partSaleGlAc}"/>
+   <p:autoComplete id="invLineArAcnt" value="#{arDocPost.salesInvLineNew.glaccount}" 
+                   converter="com.rationem.util.converter.FiGlAccountComp" dropdown="true"
+                   disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}"
+                   completeMethod="#{arDocPost.onGlAccountComplete}" var="slAcntV"
+                   itemValue="#{slAcntV}" itemLabel="#{slAcntV.coaAccount.ref}">
+    <p:column width="25%">
+     <h:outputText value="#{slAcntV.coaAccount.ref}"/>
+    </p:column>
+    <p:column width="75%">
+     <h:outputText value="#{slAcntV.coaAccount.name}"/>
+    </p:column>
+   </p:autoComplete>
+                      
+  <p:outputLabel for="invLineFund" value="#{formTextSl.partRestrFund}"/>
+   <p:autoComplete id="invLineFund" value="#{arDocPost.salesInvLineNew.fund}" var="fndV" 
+                   itemValue="#{fndV}" 
+                   converter="com.rationem.util.converter.RestrictedFund" itemLabel="#{fndV.fndCode}"
+                   disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}"
+                   completeMethod="#{arDocPost.onRestrictedFundComplete}" dropdown="true">
+    <p:column width="25%">
+     <h:outputText value="#{fndV.fndCode}"/>
+    </p:column>
+    <p:column width="25%">
+     <h:outputText value="#{fndV.name}"/>
+    </p:column>
+    
+   </p:autoComplete>
+   <p:outputLabel for="invLineVatCode" value="#{formTextSl.docSalesTaxCd}" rendered="#{arDocPost.vatablePeriod}"/>
+   <p:autoComplete id="invLineVatCode" value="#{arDocPost.salesInvLineNew.vatCode}"
+                         converter="com.rationem.util.converter.VatCode" dropdown="true" 
+                         var="vatCodeV" itemLabel="#{vatCodeV.code}" 
+                         validator="#{arDocPost.validateAddInvLine}"
+                         disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}"
+                         itemValue="#{vatCodeV}" rendered="#{arDocPost.vatablePeriod}"
+                         completeMethod="#{arDocPost.glAccVatCodeComplete}" />
+   <p:outputLabel for="costCent" value="#{formTextSl.slDocCostCent}"/>
+   <p:autoComplete id="costCent" value="#{arDocPost.salesInvLineNew.costCent}" 
+                         converter="com.rationem.util.converter.CostCentre" forceSelection="true"  dropdown="true"
+                         completeMethod="#{arDocPost.onCostCentComplete}" 
+                         var="costCentComp" itemValue="#{costCentComp}" 
+                         itemLabel="#{costCentComp.refrence}" 
+                         disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}"/>
+   <p:outputLabel for="prog" value="#{formTextSl.slDocProg}"/>
+   <p:autoComplete id="prog" value="#{arDocPost.salesInvLine.prog}" 
+                         converter="com.rationem.util.converter.Programme" forceSelection="true"  
+                         dropdown="true"
+                         disabled="#{arDocPost.salesInvLineNew.partComp.id eq null}"
+                         completeMethod="#{arDocPost.onProgrameComplete}" 
+                         var="progCompl" itemValue="#{progCompl}" itemLabel="#{progCompl.name}"/>
+   <p:commandButton id="trfLineNew" icon="fa fa-long-arrow-left" actionListener="#{arDocPost.onAddLineBtn}"
+                    disabled="#{!arDocPost.addLineMinEntry}" process="@form" 
+                          value="#{formText.transfer}"          />
+         
+   <p:commandButton  icon="fa fa-close" actionListener="#{arDocPost.onCloseAddLineBtn}"
+                   value="#{formText.close}" >
+           <p:resetInput target="addLineGrid" />
+   </p:commandButton>
+   </h:panelGrid>
+  </p:dialog>
+ </h:form>     
+      
+    
+    
+ <h:form id="editLnDlgFrm">
+  <p:growl autoUpdate="true" />
+  <p:dialog id="editLineDlg" header="#{formTextSl.docLineEdit}" widgetVar="editLineDlgWv" modal="true"
+                dynamic="true" width="500" resizable="false" closable="false"         showEffect="clip" hideEffect="fold"    >
+   <h:panelGrid id="editLineGrid" columns="2" >
+    <p:outputLabel for="slPartCompCodeEdit" value="#{formTextSl.partCode}"/>
+    <p:autoComplete id="slPartCompCodeEdit" value="#{arDocPost.selectedSalesInvLine.partComp}" 
+                         completeMethod="#{arDocPost.slPartCompComplete}" forceSelection="true"
+                         converter="com.rationem.util.converter.SalesPartCompany" required="true" 
+                         requiredMessage="#{validationText.arDocPart}"
+                         var="slPartCompEditV" itemValue="#{slPartCompEditV}" itemLabel="#{slPartCompEditV.part.partCode}"
+                         dropdown="true" >
+     <p:ajax event="itemSelect" listener="#{arDocPost.onSlPartCompSelect}" update="editLineGrid"   />
+     <f:facet name="itemtip">
+      <h:panelGrid columns ="2">
+       <h:outputText value="Part Code:"/>
+       <h:outputText value="#{slPartCompEditV.part.partCode}"/>
+       <h:outputText value="Descr:"/>
+       <h:outputText value="#{slPartCompEditV.part.shortDescription}"/>
+      </h:panelGrid>
+     </f:facet>
+    </p:autoComplete>
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:outputLabel for="invLineDescrEdit" value="#{formTextSl.partExtDescr}"/>
+   <p:inputText id="invLineDescrEdit" value="#{arDocPost.selectedSalesInvLine.description}"/>
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:outputLabel for="invLineQtyEdit" value="#{formTextSl.slQty}"/>
+   <p:inputText id="invLineQtyEdit" value="#{arDocPost.selectedSalesInvLine.qtyString}" 
+                      valueChangeListener="#{arDocPost.onSlQuantityEdValueChange}">
+    <p:ajax event="blur" update="editLineGrid" />
+   </p:inputText>
+   <p:outputLabel for="invLineUomEdit" value="#{formTextSl.uom}"/>
+   <p:autoComplete id="invLineUomEdit" value="#{arDocPost.selectedSalesInvLine.uom}"
+                   converter="com.rationem.util.converter.UnitOfMeasure"
+                   completeMethod="#{arDocPost.onUomComplete}" dropdown="true"
+                   var="uomV" itemValue="#{uomV}" itemLabel="#{uomV.name}"/>
+  
+   <p:outputLabel for="invLinePriceEdit" value="#{formTextSl.partUnitPr}"/>
+   <p:inputText id="invLinePriceEdit" value="#{arDocPost.selectedSalesInvLine.unitPrice}" 
+                      valueChangeListener="#{arDocPost.onSlUnitPriceValueChange}" >
+    <f:convertNumber minIntegerDigits="1"  minFractionDigits="#{arDocPost.docCompany.currency.minorUnit}"/>
+    <p:ajax event="keyup" update="invLineTotalEdit"/>
+   </p:inputText>
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <h:outputText value="#{formTextSl.slDocTotal}"/>
+   <h:outputText id="invLineTotalEdit" value="#{arDocPost.selectedSalesInvLine.lineTotal}">
+    <f:convertNumber minIntegerDigits="1"   minFractionDigits="#{arDocPost.docCompany.currency.minorUnit}" />
+   </h:outputText> 
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:outputLabel for="invLineArAcntEdit" value="#{formTextSl.partSaleGlAc}"/>
+   <p:autoComplete id="invLineArAcntEdit" value="#{arDocPost.selectedSalesInvLine.partComp.salesAccount}"
+                   converter="com.rationem.util.converter.FiGlAccountComp" dropdown="true"
+                   completeMethod="#{arDocPost.onGlAccountComplete}"  var="slAcntV"
+                   itemValue="#{slAcntV}" itemLabel="#{slAcntV.coaAccount.ref}" >
+    <p:column width="25%">
+     <h:outputText value="#{slAcntV.coaAccount.ref}"/>
+    </p:column>
+    <p:column width="75%">
+     <h:outputText value="#{slAcntV.coaAccount.name}"/>
+    </p:column>
+   </p:autoComplete>
+   
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:outputLabel for="invLineFundEdit" value="#{formTextSl.partRestrFund}"/>
+   <p:autoComplete id="invLineFundEdit" value="#{arDocPost.selectedSalesInvLine.fund}" 
+                   converter="com.rationem.util.converter.RestrictedFund" dropdown="true"
+                   completeMethod="#{arDocPost.onRestrictedFundComplete}" var="fndV"
+                   itemValue="#{fndV}" itemLabel="#{fndV.fndCode}">
+    <p:column width="25%">
+     <h:outputText value="#{fndV.fndCode}"/>
+    </p:column>
+    <p:column width="25%">
+     <h:outputText value="#{fndV.name}"/>
+    </p:column>
+   </p:autoComplete>
+                   
+                          
+  
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:outputLabel for="invLineVatCodeEdit" value="#{formText.vatCd}"/>
+   <p:selectOneMenu id="invLineVatCodeEdit" value="#{arDocPost.selectedSalesInvLine.vatCode}"
+                          converter="com.rationem.util.converter.VatCodeCompany">
+    <f:selectItems value="#{arDocPost.vatCodeCompList}" var="vatCd" itemValue="#{vatCd}" 
+                         itemLabel="#{vatCd.vatCode.code}"/>
+    
+   </p:selectOneMenu>
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:outputLabel for="costCentEdit" value="#{formTextSl.slDocCostCent}"/>
+   <p:autoComplete id="costCentEdit" value="#{arDocPost.selectedSalesInvLine.costCent}" 
+                         converter="com.rationem.util.converter.CostCentre" forceSelection="true"  dropdown="true"
+                         completeMethod="#{arDocPost.onCostCentComplete}" 
+                         var="costCentComp" itemValue="#{costCentComp}" itemLabel="#{costCentComp.refrence}"/>
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:outputLabel for="progEdit" value="#{formTextSl.slDocProg}"/>
+   <p:autoComplete id="progEdit" value="#{arDocPost.selectedSalesInvLine.prog}" 
+                         converter="com.rationem.util.converter.Programme" forceSelection="true"  
+                         dropdown="true"
+                         completeMethod="#{arDocPost.onProgrameComplete}" 
+                         var="progCompl" itemValue="#{progCompl}" itemLabel="#{progCompl.name}"/>
+   <h:panelGroup/>
+   <h:panelGroup/>
+   <p:commandButton id="editLineBtnid" value="#{formText.transfer}" icon="fa fa-long-arrow-left" 
+                        actionListener="#{arDocPost.onInvLineUpdateBtn}" 
+                        oncomplete="PF('editLineDlgWv').hide()"  />
+   <p:commandButton  value="#{formText.transfer}" icon="fa fa-close" type="button" 
+                     onclick="PF('editLineDlgWv').hide()" />
+   </h:panelGrid>
+  </p:dialog>
+ </h:form>
+    
+     <h:form id="prntInvFrm">
+      <p:dialog widgetVar="prntInvWVar" dynamic="true">
+       <p:media rendered="#{arDocPost.invPosted}" value="#{arDocPost.invoicePDF}" player="pdf"/>
+       
+      </p:dialog>
+     </h:form>   
+    <h:form id="addPersonId" prependId="false">
+     <p:dialog id="newPersDlgId" header="#{formText.ptnrCreate}" widgetVar="crOrderPtnrDlg" 
+               dynamic="true">
+      <h:panelGrid columns="2">
+       <p:outputLabel for="crPersPtnrRef" value="#{formText.ptnrRef}"/>
+       <h:panelGroup>
+        <p:inputText id="crPersPtnrRef" value="#{arDocPost.invoice.orderedBy.ref}"
+                             title="#{formHelpText.ptnrRef}"  />
+        <p:tooltip for="crPersPtnrRef"/>
+       </h:panelGroup>
+       <p:outputLabel for="crPersPtnrFamName" value="#{formText.ptnrFamilyName}"/>
+       <h:panelGroup>
+        <p:inputText id="crPersPtnrFamName" value="#{arDocPost.invoice.orderedBy.familyName}"
+                                />
+        <p:tooltip for="crPersPtnrFamName" value="#{formHelpText.ptnrFamilyName}"/>
+        </h:panelGroup>
+        <p:outputLabel for="crPersPtnrFirstName" value="#{formText.ptnrFirstName}"/>
+       <h:panelGroup>
+        <p:inputText id="crPersPtnrFirstName" value="#{arDocPost.invoice.orderedBy.firstName}"
+                               title="#{formHelpText.ptnrFirstName}" />
+        <p:tooltip for="crPersPtnrFirstName"/>
+       </h:panelGroup>
+       
+       <p:commandButton id="crPerPtnrBtn" value="#{formText.genOkBtn}"
+                        actionListener="#{arDocPost.onCreateOrderedByPersonBtnListener}"
+                        update=":salesCrnFrm:invHeaderTab:orderedBy" oncomplete="crOrderPtnrDlg.hide()" 
+                        process="newPersDlgId" />
+       <p:commandButton id="persResetBtn" value="#{formText.genResetBtn}"  type="reset"/>
+
+      </h:panelGrid>
+
+     </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>
+

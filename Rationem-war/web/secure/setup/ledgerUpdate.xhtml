@@ -1,0 +1,70 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_ledgerUpdt}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_ledgerUpdt}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+ 
+  <h:form id="ledgerListFrm" prependId="false">
+   <p:contextMenu for="ldgrlstId">
+    <p:menuitem value="#{menuText.mi_gen_updt}" update="dialogContent" 
+                actionListener="#{ledgerBean.onUpdtFrmDisp}" />
+   </p:contextMenu>
+   <p:dataTable id="ldgrlstId"  var="ldgr" value="#{ledgerBean.ledgers}" paginator="true"
+                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                widgetVar="ledgerTable" selectionMode="single" selection="#{ledgerBean.editLedger}" 
+                 rowKey="#{ldgr.id}" >
+    <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="ldgrlstId" fileName="#{formText.ldgr_fn}" 
+                        postProcessor="#{countryBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="ldgrlstId" fileName="#{formText.ldgr_fn}" />
+      </h:commandLink>
+     </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{formText.ldgrAvail}"/>
+     
+    </f:facet>
+    <p:column headerText="#{formText.ldgrName}" width="40"  >
+     <h:outputText value="#{ldgr.name}" />
+    </p:column> 
+    <p:column headerText="#{formText.ldgrDescr}"   >
+     <h:outputText value="#{ldgr.descr}" />
+    </p:column>
+    <p:column headerText="#{formText.ldrUsgCd}" width="90"     >
+     <h:outputText value="#{ldgr.code}"  />
+    </p:column>
+   </p:dataTable>
+   
+   <p:dialog widgetVar="ledgerDgWv" header="#{formText.ldgrDtls}" modal="true"  minWidth="400" dynamic="true"  >
+    <p:outputPanel id="dialogContent" autoUpdate="true">
+    <h:panelGrid id="editPGId" columns="2">
+     <p:outputLabel for="nameDlg" title="#{formHelpText.ldgrName}" value="#{formText.ldgrName}" />
+     <p:inputText id="nameDlg" value="#{ledgerBean.editLedger.name}" title="#{formHelpText.ldgrName}"/>
+     <p:outputLabel for="descrDlg" title="#{formHelpText.ldgrDtls}" value="#{formText.ldgrDescr}"/>
+     <p:inputText id="descrDlg" value="#{ledgerBean.editLedger.descr}" title="#{formHelpText.ldgrDescr}"/>
+     <p:outputLabel for="codeDlg" title="#{formHelpText.ldrUsgCd}" value="#{formText.ldrUsgCd}"/>
+     <h:outputText id="codeDlg" value="#{ledgerBean.editLedger.code}" title="#{formHelpText.ldrUsgCd}"/>
+    </h:panelGrid>
+    <h:panelGrid columns="3">
+    <p:commandButton id="updtBtn" value="#{formText.ldgr_update}"
+                                         actionListener="#{ledgerBean.updateLedger}" />
+    
+    <p:commandButton id="resetBtn" value="Reset" type="reset" />
+   </h:panelGrid>
+  </p:outputPanel>
+ </p:dialog>
+</h:form>
+</ui:define>
+</ui:composition>
+
+

@@ -1,0 +1,361 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:po="http://primefaces.org/omega"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+ <h:head>
+  <f:facet name="first">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+   <meta name="apple-mobile-web-app-capable" content="yes" />
+  </f:facet>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <h:outputStylesheet library="css" name="default.css" />
+  <h:outputStylesheet library="css" name="cssLayout.css" />
+  <h:outputStylesheet library="css" name="blacFormat.css" />
+  <ui:insert name="meta">  </ui:insert>
+  <title>
+   <ui:insert name="title"> login </ui:insert>
+  </title>
+  <h:outputScript name="js/nanoscroller.js" library="omega-layout" />
+  <h:outputScript name="js/layout.js" library="omega-layout" />
+  <ui:insert name="head"/>
+ </h:head>
+
+ <h:body>
+  <script type="text/javascript">
+   PrimeFaces.validator['com.bac.util.helper.emailValidator'] = {
+ 
+        pattern: /\S+@\S+/,
+ 
+        validate: function(element, value) {
+            if(!this.pattern.test(value)) {
+                throw {
+                    summary: 'Validation Error',
+                    detail: value + ' is not a valid email.'
+                }
+            }
+        }
+    };
+    
+    PrimeFaces.validator['Email'] = {
+ 
+        pattern: /\S+@\S+/,
+ 
+        MESSAGE_ID: 'org.primefaces.examples.validate.email.message',
+ 
+        validate: function(element, value) {
+            var vc = PrimeFaces.util.ValidationContext;
+ 
+            if(!this.pattern.test(value)) {
+                var msgStr = element.data('p-email-msg'),
+                msg = msgStr ? {summary:msgStr, detail: msgStr} : vc.getMessage(this.MESSAGE_ID);
+ 
+                throw msg;
+            }
+        }
+    };
+  </script>
+  <style type="text/css">
+            .ui-panelmenu .ui-panelmenu-content.ui-widget-content .ui-menuitem-icon {
+                margin: auto 0 !important;
+            }
+           
+            .ui-panelmenu .ui-panelmenu-content.ui-widget-content .ui-menuitem-link {
+                padding: 0.3em 0.3em 0.3em 2em !important;
+                box-sizing: border-box;
+            }
+            .ui-panelmenu .ui-panelmenu-content.ui-widget-content .ui-menuitem-text {
+                margin-left: 0px;
+            }
+           
+            .ui-panelmenu .ui-menu-parent > .ui-menuitem-link > .ui-menuitem-text {
+                margin-left: 10px;
+            }
+ </style>
+  
+  <div id="compTitle">
+   <h:outputText value="#{formText.appName}"/>
+  </div>
+  <div id="top">
+   <ui:insert name="top">
+    
+    <h:form id="menuFrm" prependId="false">
+     
+     <p:menubar toggleEvent="click" >
+      
+      <p:submenu  label="#{menuText.mH1_ap}" icon="fa fa-folder-open white">
+       <p:submenu label="#{menuText.mL1_ac}" icon="fa fa-folder-open black" >
+        <p:menuitem value="#{menuText.mi_ac_cr}" icon="fa fa-gear"
+                          ajax="false"  action="apActCr" />
+        <p:menuitem value="#{menuText.mi_ac_updt}" icon="fa fa-gear"
+                          ajax="false"  action="apActUpdt" />
+        <p:menuitem value="#{menuText.mi_ac_lst}" icon="fa fa-gear"
+                          ajax="false"  action="apActLst" />
+       </p:submenu>
+      </p:submenu>
+      <p:submenu label="#{menuText.mH1_ar}" icon="fa fa-folder-open white">
+       <p:submenu label="#{menuText.mL1_ac}" icon="fa fa-folder-open black" >
+        <p:menuitem value="#{menuText.mi_ac_cr}" icon="fa fa-cog  black"
+                          ajax="false"  action="arActCr" />
+        <p:menuitem value="#{menuText.mi_ac_updt}" icon="fa fa-cog black"
+                          ajax="false"  action="arActUpdt" />
+        <p:menuitem value="#{menuText.mi_ac_lst}" icon="fa fa-cog black"
+                    
+                          ajax="false"  action="arActlist"
+                          immediate="true"/>
+        
+        
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_bal}" icon="fa fa-folder-open black" >
+        <p:menuitem value="#{menuText.mi_ac_bal_Lst}" icon="fa fa-cog black"
+                          ajax="false"  action="arActBalList"/>
+        <p:menuitem value="#{menuText.mi_ac_bal_per}" icon="fa fa-cog black"
+                          ajax="false" action="arActPerBal"/>
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_doc}" icon="fa fa-folder-open black">
+        <p:menuitem value="#{menuText.mi_ar_sales_inv}" icon="fa fa-cog  black"
+                          ajax="false"  action="arInvPst"/>
+        <p:menuitem value="#{menuText.mi_ar_recpt_sngle}" icon="fa fa-cog fa-spin black"
+                                  ajax="false"   action="arSingleReceipt"/>
+        <p:menuitem value="#{menuText.mi_ar_recpt_run}" icon="fa fa-cog fa-spin black"
+                                  ajax="false"   action="arBacsReceipt"/>
+       </p:submenu>
+      </p:submenu>
+      <p:submenu label="#{menuText.mH1_sales}" icon="fa fa-folder-open white">
+       <p:submenu label="#{menuText.mL1_mast}" icon="fa fa-folder-open black">
+        <p:submenu label="#{menuText.mL2_create}" icon="fa fa-folder-open black">
+         <p:menuitem value="#{menuText.mi_sl_part}" icon="fa fa-cog  black"
+                       ajax="false" action="salesPartCr"/>
+         <p:menuitem value="#{menuText.mi_gen_cat}" icon="fa fa-cog  black"
+                       ajax="false" action="slCatCr"/>
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_Maint}" icon="fa fa-folder-open black">
+         <p:menuitem value="#{menuText.mi_sl_part}" icon="fa fa-cog  black"
+                       ajax="false" action="slPartUpd"/>
+         <p:menuitem value="#{menuText.mi_gen_cat}" icon="fa fa-cog  black"
+                       ajax="false" action="slCatUpd"/>
+        </p:submenu>
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_doc}" icon="fa fa-folder-open black">
+        <p:menuitem value="#{menuText.mi_sl_inv}" icon="fa fa-cog  black"
+                       ajax="false" action="slInvCr"/>
+        <p:menuitem value="#{menuText.mi_sl_crn}" icon="fa fa-cog  black"
+                       ajax="false" action="slCrnCr"/>
+        <p:menuitem value="#{menuText.mi_gen_doc_disp}" icon="fa fa-cog  black"
+                       ajax="false" action="docDispl"/>
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_rept}" icon="fa fa-folder-open black" >
+        <p:menuitem value="#{menuText.mi_sl_dayBk}" icon="fa fa-cog  black"
+                       ajax="false" action="slDayBk"/>
+       </p:submenu>
+       
+      </p:submenu>
+      <p:submenu label="#{menuText.mH1_gl}" icon="fa fa-folder-open white">
+       
+       <p:submenu label="#{menuText.mL1_mast}" icon="fa fa-folder-open white">
+        <p:submenu label="#{menuText.mL2_gl_acnt}" icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_ac_cr}" icon="fa fa-cog fa-spin black"
+                                ajax="false" action="glActCr"/>
+         <p:menuitem value="#{menuText.mi_gl_coa_ac_updt}" icon="fa fa-cog fa-spin black"
+                                ajax="false" action="glCoaActUpdt"/>
+         <p:menuitem value="#{menuText.mi_gl_comp_ac_updt}" icon="fa fa-cog fa-spin black"
+                                ajax="false" action="glCompActUpdt"/>
+         
+        </p:submenu>
+        
+        <p:submenu label="#{menuText.mL2_rest_fnd}" icon="fa fa-folder-open black" 
+                             style="font-size: 12px">
+         <p:menuitem value="#{menuText.mi_gen_cr}" icon="fa fa-cog fa-spin black" 
+                      ajax="false" action="glRestrFndCr"/>
+         <p:menuitem value="#{menuText.mi_gen_updt}" icon="fa fa-cog fa-spin black" 
+                      ajax="false" action="glRestrFndUpdt"/>
+         
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_cost}" icon="fa fa-folder-open black">
+         <p:submenu label="#{menuText.mL3_cost_cent}" icon="fa fa-folder-open black"
+                            >
+          <p:menuitem value="#{menuText.mi_gen_cr}" icon="fa fa-cog fa-spin black" 
+                               ajax="false" action="costCentCr"/>
+          <p:menuitem value="#{menuText.mi_gen_updt}" icon="fa fa-cog fa-spin black" 
+                              ajax="false" action="costCentUpdt"/>
+         </p:submenu>
+         <p:submenu label="#{menuText.mL3_cstAcnt}" icon="fa fa-folder-open black"
+                            >
+          <p:menuitem value="#{menuText.mi_ma_acnt_Auto_cr}" icon="fa fa-cogs  black" 
+                               ajax="false" action="costAcntAutoCr"/>
+          <p:menuitem value="#{menuText.mi_ma_acnt_maint}" icon="fa fa-cog black" 
+                               ajax="false" action="costAcntMaint"/>
+         </p:submenu>
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_prog}" icon="fa fa-folder-open black" 
+                             >
+         <p:menuitem value="#{menuText.mi_gen_cr}" icon="fa fa-cog fa-spin black" 
+                                ajax="false" action="programmeCr"/>
+         <p:menuitem value="#{menuText.mi_gen_updt}" icon="fa fa-cog fa-spin black" 
+                                ajax="false" action="programmeUpdt"/>
+        </p:submenu> 
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_doc}" icon=" fa fa-folder-open ">
+        <p:submenu label="#{menuText.mL2_post}" icon="fa fa-folder-open ">
+         <p:menuitem value="#{menuText.mi_gl_stdJnl}" icon=" fa fa-cog fa-spin black" 
+                     ajax="false" action="glStdJnlPost"/>
+         <p:menuitem value="#{menuText.mi_gl_partJnl}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="glJnlPart"/>
+         <p:menuitem value="#{menuText.mi_gl_templJnl}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="glJnlTempl"/>
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_updtDispl}" icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_gl_stdJnlRec}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="glStdJnlRev"/>
+         <p:menuitem value="#{menuText.mi_gl_templJnl}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="glJnlTemplUpdt"/>
+        </p:submenu>
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_perProc}" icon="fa fa-folder-open white">
+        <p:submenu label="#{menuText.mL2_tmplJnl}" icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_gl_revJnl}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="glAccrRev"/>
+         <p:menuitem value="#{menuText.mi_gl_recurProv}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="glJnlRecur"/>
+        </p:submenu>
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_glBud}" icon="fa fa-folder-open white">
+        <p:menuitem value="#{menuText.mi_gl_bud_acnt}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="budGlAcnt"/>
+        <p:menuitem value="#{menuText.mi_gl_bud_fnd}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="budFund"/>
+        <p:menuitem value="#{menuText.mi_gl_bud_cc}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="budCostCent"/>
+        <p:menuitem value="#{menuText.mi_gl_bud_prog}" icon="fa fa-cog fa-spin black" 
+                     ajax="false" action="glAccrRev"/>
+       </p:submenu>
+       <p:submenu label="#{menuText.mL1_rept}" icon="fa fa-folder-open white">
+        <p:submenu label="#{menuText.mL2_gl_acnt}" icon="fa fa-folder-open white"  >
+         <p:menuitem value="#{menuText.mi_gl_rpt_tb}" icon="fa fa-cog fa-spin black"
+                                  ajax="false" action="glTb"/>
+         <p:menuitem value="#{menuText.mi_gl_acnt_chgs}" icon="fa fa-cog fa-spin black"
+                                  ajax="false" action="glActChanges"/>
+         <p:menuitem value="#{menuText.mi_gl_acnt_list_comp}" action="glActListComp" ajax="false"   
+                    icon="fa fa-cog fa-spin black"/> 
+          
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_gl_tax}" icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_gl_gift_aid}" icon="fa fa-cog fa-spin black"
+                   ajax="false"   action="glGiftAid"/>
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_cost_cent}" icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_ma_cstCentres}"  
+                     icon="fa fa-cog fa-spin black"
+                     action="costCentLst" ajax="false" immediate="true"/>    
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_prog}" icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_ma_progs}"   icon="fa fa-cog fa-spin black"
+                     action="programmeList" ajax="false" immediate="true"/>    
+
+        </p:submenu>
+       </p:submenu>
+      </p:submenu>
+      
+      
+      <p:submenu label="#{menuText.mH1_mdm}" icon="fa fa-folder-open white" >
+       <p:submenu label="#{menuText.mL1_addr}" icon="fa fa-folder-open white">
+        <p:menuitem value="#{menuText.mi_mdm_addr}" action="addrMgt" ajax="false" 
+                    icon="fa fa-cog fa-spin black"  />
+       </p:submenu>
+       
+       <p:submenu label="#{menuText.mL1_ptnr}"   
+                    icon="fa fa-folder-open white">
+        <p:menuitem value="#{menuText.mi_gen_cr}" action="ptnrCr" ajax="false" 
+                    icon="fa fa-cog fa-spin black"  />
+        <p:menuitem value="#{menuText.mi_gen_updt}" action="ptnrUpdt" ajax="false" 
+                    icon="fa fa-cog fa-spin black"  />
+        <p:menuitem value="#{menuText.mi_gen_list}" action="ptnrLst" ajax="false" 
+                    icon="fa fa-cog fa-spin black"  />
+        <p:menuitem value="#{menuText.mi_ptnr_acts}" action="ptnrAcntsSum" ajax="false" 
+                    icon="fa fa-cog fa-spin black"  />
+       </p:submenu>         
+       <p:submenu label="#{menuText.mL1_bank}"   
+                       icon="fa fa-folder-open white">
+        <p:submenu label="#{menuText.mL2_create}"   
+                        icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_tr_bnk}"   ajax="false"
+                icon="fa fa-cog fa-spin black" action="bnkOrgCr"/>
+         <p:menuitem value="#{menuText.mi_tr_bnk_br}"   ajax="false"
+                icon="fa fa-cog fa-spin black" action="bnkBrCr"/>
+         
+         
+         
+        </p:submenu> 
+        <p:submenu label="#{menuText.mL2_rept}"   
+                        icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_tr_bnk_list}"   ajax="false"
+                icon="fa fa-cog fa-spin black" action="bnkOrgLst"/>
+        </p:submenu>
+        <p:submenu label="#{menuText.mL2_Maint}"   
+                        icon="fa fa-folder-open white">
+         <p:menuitem value="#{menuText.mi_tr_bnk_pay_ty}"   ajax="false"
+                icon="fa fa-cog fa-spin black" action="payTypeUpdt"/>
+        </p:submenu>
+       </p:submenu>
+      </p:submenu>
+      
+      <p:submenu label="#{menuText.mH1_auth}" icon="fa fa-folder-open white">
+       <p:submenu label="#{menuText.mL1_usr}" icon="fa fa-folder-open white">
+        <p:submenu label="#{menuText.mL2_create}" icon="fa fa-folder-open white">
+         <p:menuitem icon="fa fa-cog fa-spin black" ajax="false" action="userCr"
+                                value="#{menuText.mi_auth_usr}"/>
+        </p:submenu>
+       </p:submenu>
+      </p:submenu>
+      <p:menuitem value="#{menuText.mi_config}" icon="fa fa-wrench white" ajax="false"
+                  action="configHome" async="false" immediate="true"/>  
+      <p:menuitem value="Logout" immediate="true" action="#{authManBean.onLogout}"
+                  icon="fa fa-sign-out white" ajax="false" />             
+            
+            <f:facet name="options">
+             <p:inputText value="#{menuBean.shortCutCode}" size="9">
+              <p:ajax event="blur"/>
+             </p:inputText>
+             <p:commandButton icon="fa fa-tasks"  action="#{menuBean.onShortCutAction}" 
+                              ajax="false"/>
+            </f:facet>
+     </p:menubar>
+    </h:form>
+   </ui:insert>
+  </div>
+  <div id="header" class="pageHeader">
+   <ui:insert name="header" ></ui:insert>
+  </div>
+  <div id="breadCrumb" class="pageHeader">
+   <ui:insert name="breadCrumb" ></ui:insert>
+  </div>
+  
+  <div id="content" class="center_content">
+   <ui:insert name="content">Content</ui:insert>
+  </div>
+
+  <div id="bottom" >
+   <ui:insert name="bottom" >
+    <p:spacer width="1" height="20"/>
+    <p:messages autoUpdate="true" showSummary="true" showDetail="true" severity="info" globalOnly="true"/>
+   </ui:insert>
+   
+  </div>
+  <p:ajaxStatus style="display:block;margin-bottom:2em;height:24px;">
+    <f:facet name="start">
+     <p:graphicImage name="images/preloader.gif" library="omega-layout" style="width: 32px;"/>
+
+    </f:facet>
+   </p:ajaxStatus>
+  <h:outputStylesheet name="css/nanoscroller.css" library="omega-layout" />
+  <h:outputStylesheet name="css/layout.css" library="omega-layout" />
+ </h:body>
+
+</html>

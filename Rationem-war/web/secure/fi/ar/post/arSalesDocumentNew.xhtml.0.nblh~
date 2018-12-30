@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+>
+  <style type="text/css">
+        .disk{
+          background-image: url("${request.contextPath}/resources/images/disk.png") !important;
+        }
+      </style>
+  <style type="text/css" >
+    .required-input{
+  background-color: #ffff33;
+}
+  </style>
+<ui:composition template="/template/common.xhtml">
+  <ui:define name="title">#{menuOption.mnuArSalesDoc}</ui:define>
+    <ui:define name="header"> </ui:define>
+    <ui:define name="content">
+      <h:form id="arInvoiceNewFrm" prependId="false">
+       <p:growl autoUpdate="true" />
+       <h:outputLabel for="transDescr" value="#{formText.transaction}"/>
+       <p:spacer width="2"/>
+       <p:selectOneMenu id="transDescr" value="#{arDocPost.fiDocument.transactionType}" 
+                        converter="accounts.Util.converter.TransactionType"  >
+        <f:selectItems value="#{arDocPost.arSalesDocTransTypes}" var="tt" itemValue="#{tt}" itemLabel="#{tt.description}"/>
+       </p:selectOneMenu>
+       <h:outputLabel for="docComp" value="#{formText.docCompany}"/>
+       <p:selectOneMenu id="docComp" value="#{arDocPost.docCompany}" 
+                        converter="accounts.Util.converter.CompanyBasic"  >
+        <f:selectItems var="compVar" value="#{arDocPost.companies}"
+                       itemLabel="#{compVar.reference}" >
+                   
+        </f:selectItems>  
+
+       </p:selectOneMenu>
+       <p:tabView>
+        <p:tab
+       </p:tabView>
+       
+      </h:form>
+    </ui:define>
+    </ui:composition>
+    </html>

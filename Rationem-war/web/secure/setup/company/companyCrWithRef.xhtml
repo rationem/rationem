@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.arAcntCr}</ui:define>
+ <ui:define name="header">#{pageTitle.arAcntCr}</ui:define>
+ <ui:define name="content">
+  <h:form id="compCrRef">
+   <p:tooltip trackMouse="true"  showEffect="clip" hideEffect="explode" />
+   <div class="ui-fluid">
+    <div class="ui-g">
+     <div class="ui-g-12">
+      <p:toolbar>
+       <f:facet name="left">
+        <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                         styleClass="secondary" actionListener="#{companyBean.onCreateCompWithRef}"/>
+       </f:facet>
+      </p:toolbar>
+      <p:messages id="errMsg" closable="true" />
+      <p:growl id="grl" />
+      <div class="card card-w-title">
+       <h1><h:outputText value="#{formText.cfgCompCrWrefNew}"  /> </h1>
+       <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-3">
+        <h:panelGroup styleClass="md-inputfield">
+         <p:inputText id="compNewRef" value="#{companyBean.companyNew.reference}" 
+                      required="true"/>
+         <p:outputLabel for="compNewRef" value="#{formText.compRef}"/>
+        </h:panelGroup>
+        <h:panelGroup styleClass="md-inputfield">
+         <p:inputText id="compNewName" value="#{companyBean.companyNew.name}" 
+                      required="true"/>
+         <p:outputLabel for="compNewName" value="#{formText.compName}"/>
+        </h:panelGroup>
+        <h:panelGroup />
+        <h:panelGroup styleClass="md-inputfield">
+         <p:inputText id="compNewLegName" value="#{companyBean.companyNew.legalName}" 
+                      required="true"/>
+         <p:outputLabel for="compNewName" value="#{formText.compLegalName}"/>
+        </h:panelGroup>
+        
+       </p:panelGrid>
+      </div>
+      <div class="card card-w-title">
+       <h1><h:outputText value="#{formText.cfgCompCrWrefSource}" />  </h1>
+       <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-3">
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete 
+          id="compOld" value="#{companyBean.companySource}" required="true" dropdown="true"
+          converter="com.rationem.util.converter.CompanyBasic" var="compS" 
+          itemValue="#{compS}" itemLabel="#{compS.reference}" forceSelection="true"
+          completeMethod="#{companyBean.onCompComplete}">
+          <p:ajax event="itemSelect" listener="#{companyBean.onCompSourceSel}"/>
+         </p:autoComplete>
+         <p:outputLabel for="compOld" value="#{formText.cfgCompCrWrefSource}" >
+          
+         </p:outputLabel>
+        </h:panelGroup>
+        <h:outputText id="compOldName" value="#{companyBean.companySource.name}"/>
+       </p:panelGrid>
+      </div>
+      <div class="card card-w-title">
+       <h1><h:outputText value="#{formText.cfgCompCrWrefAct}" />  </h1>
+       <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-1">
+        <p:outputLabel for="copyGl" value="#{formText.cfgCompCrWrefCpGl}"/>
+        <p:selectBooleanButton 
+         id="copyGl" offLabel="#{formText.no}" onLabel="#{formText.yes}" 
+         value="#{companyBean.copyGlAcnts}" onIcon="fa fa-check" offIcon="fa fa-times"/>
+        
+       </p:panelGrid>
+      </div>
+     </div>
+    </div> 
+   </div>
+  </h:form>
+  
+ </ui:define>
+</ui:composition>

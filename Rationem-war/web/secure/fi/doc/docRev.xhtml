@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+    
+>
+ <ui:composition template="/WEB-INF/template.xhtml">
+  <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/Modify.png" type="image/png"/>
+  </ui:define>
+  <ui:define name="title">#{menuOption.mnuDocRev}</ui:define>
+  <ui:define name="header"> </ui:define>
+  <ui:define name="content">
+   <h:form id="docRevFrm" prependId="false" >
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="docRecBtn" icon="fa fa-floppy-o" value="#{formText.docRev}"
+                       actionListener="#{docRev.onRevDoc}" ajax="false" 
+                        disabled="#{!docRev.docSelected}" >
+      </p:commandButton>
+     </f:facet>
+    </p:toolbar>
+    <p:growl autoUpdate="true"/>
+    <p:fieldset legend="#{formText.docSelCriteria}" toggleable="true">
+     <h:panelGrid id="selGd" columns="2">
+      <p:outputLabel for="docCompMnu" value="#{formText.docCompany}"/>
+      <p:selectOneMenu id="docCompMnu" value="#{docRev.docComp}" 
+                     converter="accounts.Util.converter.CompanyBasic">
+       <f:selectItems value="#{docRev.compList}" var="compV" itemValue="#{compV}" 
+                    itemLabel="#{compV.reference}" />
+      </p:selectOneMenu>
+      <p:outputLabel for="docNumAc" value="#{formText.docNum}"/>
+      <p:autoComplete id="docNumAc" value="#{docRev.docSel}"   completeMethod="#{docRev.docComplete}" 
+                    converter="accounts.Util.converter.DocFi" dropdown="true" var="docVar" 
+                    forceSelection="true" 
+                    itemValue="#{docVar}" itemLabel="#{docVar.docNumber}"  >
+       <p:ajax event="itemSelect" listener="#{docRev.onDocSelectCompl}" process="@this" update="docRecBtn"  />
+       <f:facet name="itemtip">
+        <h:panelGrid columns="2" cellpadding="1">
+         <f:facet name="header">
+          <h:outputText value="#{formText.docHdr}"/>
+         </f:facet>
+         <h:outputText value="#{formText.docDocDate}" />
+         <h:outputText value="#{docVar.documentDate}" >
+          <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+         <h:outputText value="#{formText.docPostDate}" />
+         <h:outputText value="#{docVar.postingDate}" >
+          <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+         <h:outputText value="#{formText.docPeriod}" />
+         <h:outputText value="#{docVar.fisYear} /  #{docVar.fisPeriod}" />
+        </h:panelGrid>
+       </f:facet>
+      </p:autoComplete>
+     </h:panelGrid>
+    </p:fieldset>
+    <p:outputPanel id="docHdrFs" autoUpdate="true">
+     <p:panel header="#{formText.docHdr}" toggleable="true" rendered="#{docRev.docSelected}"    >
+      
+      <p:tabView id="docHdrTv" orientation="top"  >
+       <p:tab title="Basic details">
+        <p:panelGrid styleClass="panelNoBorders" >
+         <p:row>
+          <p:column>
+           <p:outputLabel for="docDate" value="#{formText.docDocDate}"/>
+          </p:column>
+          <p:column>
+           <p:calendar id="docDate" value="#{docRev.fiDocument.documentDate}" 
+                    mode="popup" required="true" 
+                    disabled="#{!docRev.companySelected}"
+                    requiredMessage="#{validationText.fiDocDocDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="13"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
+          </p:column>
+          <p:column>
+           <p:calendar id="postDate" value="#{docRev.fiDocument.postingDate}" 
+                    mode="popup" required="true" 
+                    disabled="#{!docRev.companySelected}"
+                    requiredMessage="#{validationText.fiDocDocDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="13">
+            <p:ajax event="dateSelect" listener="#{docRev.onPostDateSelect}" update="postPeriod" />
+           </p:calendar>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="postPeriod" value="#{formText.docPeriod}"/>
+          </p:column>
+          <p:column >
+           <h:outputText id="postPeriod" styleClass="docDispl-txt" 
+                         value="#{docRev.fiDocument.fisYear} / #{docRev.fiDocument.fisPeriod}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="docType" value="#{formText.docType}"/>
+          </p:column>
+          <p:column colspan="5">
+           <h:outputText id="docType" styleClass="docDispl-txt" 
+                         value="#{docRev.fiDocument.docType.name}"/>
+          </p:column>
+         </p:row>
+         <p:row>
+          <p:column>
+           <p:outputLabel for="extDocRef" value="#{formText.docPtnrTxt}"/>
+          </p:column>
+          <p:column>
+           <p:inputText id="extDocRef" styleClass="docDispl-txt" 
+                         value="#{docRev.fiDocument.partnerRef}"/>
+          </p:column>
+          <p:column>
+           <p:outputLabel for="hdrText" value="#{formText.docHdrTxt}"/>
+          </p:column>
+          <p:column colspan="3" >
+           <p:inputText id="hdrText" styleClass="docDispl-txt" value="#{docRev.fiDocument.docHdrText}"/>
+          </p:column>
+         </p:row>
+        </p:panelGrid>
+       </p:tab>
+       <p:tab title="Notes">
+        <p:outputLabel styleClass="docDisp-Notes" for="docNotes" value="#{formText.docNotes}"/>
+        <p:inputTextarea style="width:100%;" id="docNotes" autoResize="true" value="#{docRev.fiDocument.notes}" />
+       </p:tab>
+      </p:tabView>
+     </p:panel>
+    </p:outputPanel>
+   </h:form>
+  </ui:define>
+ </ui:composition>
+</html>
+

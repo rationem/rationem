@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    
+    
+>
+ <ui:composition template="/WEB-INF/template.xhtml">
+  <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/newDoc.png" type="image/png"/>
+ </ui:define>
+  <ui:define name="title" >#{menuOption.mnuArSingleReceipt}</ui:define>
+  <ui:define name="header"></ui:define>
+  <ui:define name="content">
+   <h:form id="arSingleReceiptHdrFrm" prependId="false">
+    <p:growl autoUpdate="true"/>
+    <p:focus for="comp" />
+    <p:toolbar>
+     <f:facet name="left">
+       
+       <p:commandButton id="receiptPostBtn" icon="fa fa-floppy-o" value="#{formText.arReceiptPost}" 
+                        disabled="#{!arReceiptBean.receiptAmntEntered}" 
+                        actionListener="#{arReceiptBean.onReceiptSave}"  
+                        ajax="false" update="arSingleReceiptHdrFrm">
+        <p:resetInput target="arSingleReceiptHdrFrm"/>
+       </p:commandButton>
+        
+         
+        
+     </f:facet>
+     </p:toolbar>
+    <h:panelGrid columns="9">
+     <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+     <p:autoComplete id="comp" value="#{arReceiptBean.selectedCompany}" completeMethod="#{arReceiptBean.companyComplete}"
+                     forceSelection="true" dropdown="true" size="10" required="true" 
+                     requiredMessage="#{validationText.arRecComp}"
+                     converter="accounts.Util.converter.CompanyBasic"
+                     var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}">
+      <p:ajax event="itemSelect" listener="#{arReceiptBean.onCompanySelect}" 
+              update="arAcnt payType postDate compText" 
+              partialSubmit="true" process="comp"  />
+      <f:facet name="itemtip">
+        <h:panelGrid columns="2" cellpadding="5">
+         <p:outputLabel for="itemTipCompName" value="#{formText.docCompany}"/>
+         <h:outputText id="itemTipCompName" value="#{compV.name}"/>
+        </h:panelGrid>
+       </f:facet>
+     </p:autoComplete>
+     <p:inputText id="compText" value="#{arReceiptBean.selectedCompany.name}" disabled="true" size="10"/>
+     <p:outputLabel for="arAcnt" value="#{formText.arAccount}"/>
+     
+      <p:autoComplete id="arAcnt" value="#{arReceiptBean.selectedArAccount}" forceSelection="true"
+                     dropdown="true" converter="accounts.util.converter.ArAccount" size="10"
+                     completeMethod="#{arReceiptBean.arAccountComplete}" var="arAcntV" 
+                     disabled="#{!arReceiptBean.companySelected}" itemValue="#{arAcntV}"
+                     itemLabel="#{arAcntV.arAccountCode}">
+       <f:facet name="itemtip">
+        <h:panelGrid columns="2" cellpadding="5">
+         <p:outputLabel for="itemTipArAcCode" value="#{formText.arAccount}"/>
+         <h:outputText id="itemTipArAcCode" value="#{arAcntV.arAccountCode}"/>
+         <p:outputLabel for="itemTipArAcName" value="#{formText.arCust}"/>
+         <h:outputText id="itemTipArAcName" value="#{arAcntV.arAccountName}"/>
+        </h:panelGrid>
+       </f:facet>
+       <p:ajax event="itemSelect" listener="#{arReceiptBean.onArAccountSelect}"  
+               process="arAcnt" partialSubmit="true" update="arAcntName osInvs"/>
+      </p:autoComplete>
+      
+      <p:inputText id="arAcntName" value="#{arReceiptBean.selectedArAccount.arAccountName}"
+                   disabled="true" size="10"/>     
+      <h:panelGroup/>
+     <p:outputLabel for="unallocated" value="#{formText.arDocUnallocated}"/>
+     <h:outputText id="unallocated" value="#{arReceiptBean.unallocated}" 
+                   styleClass="arReceipt-unalloc"/>
+    
+     <p:outputLabel for="docDate" value="#{formText.docDocDate}" />
+     <p:calendar id="docDate" value="#{arReceiptBean.fiDocument.documentDate}" 
+                    mode="popup" required="true" 
+                    requiredMessage="#{validationText.fiDocDocDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="12">
+      
+     </p:calendar>
+     <h:panelGroup/>
+     <p:outputLabel for="postDate" value="#{formText.docPostDate}" />
+     
+     <p:calendar id="postDate" value="#{arReceiptBean.fiDocument.postingDate}" 
+                    mode="popup" required="true"
+                    disabled="#{!arReceiptBean.companySelected}"
+                    requiredMessage="#{validationText.fiDocDocDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="12">
+      <p:ajax event="dateSelect" listener="#{arReceiptBean.onPostDateSelect}" update="period" 
+              partialSubmit="true" />
+     </p:calendar>
+     
+     <p:outputLabel for="period" value="#{formText.docPeriod}"/>
+     
+     <p:inputText id="period" value="#{arReceiptBean.fiscPeriodStr}" disabled="true" size="10"/>
+     <h:panelGroup/>
+     <h:panelGroup/>
+     <p:outputLabel for="docType" value="#{formText.docType}"/>
+     <p:selectOneMenu id="docType" value="#{arReceiptBean.fiDocument.docType}" 
+                      converter="accounts.Util.converter.DocType">
+      <f:selectItems value="#{arReceiptBean.docTypeList}" var="docTypeSiVar" itemValue="#{docTypeSiVar}"
+                     itemLabel="#{docTypeSiVar.code}"/>
+     </p:selectOneMenu>
+     <h:panelGroup/>
+     <p:outputLabel for="payType" value="#{formText.docPayType}"/>
+     <p:selectOneMenu id="payType" value="#{arReceiptBean.payType}" disabled="#{!arReceiptBean.companySelected}" 
+                      converter="accounts.Util.converter.PaymentType">
+      <f:selectItems value="#{arReceiptBean.payTypeList}" var="payTySiVar" itemValue="#{payTySiVar}"
+                     itemLabel="#{payTySiVar.payTypeCode}"/>
+     </p:selectOneMenu>
+     
+     </h:panelGrid>
+    <h:panelGrid columns="2">
+     <p:outputLabel for="docHdrText" value="#{formText.docHdrTxt}"/>
+     <p:inputText id="docHdrText" value="#{arReceiptBean.fiDocument.docHdrText}"  size="50"/>
+    </h:panelGrid>
+    <h:panelGrid columns="4">
+     <p:outputLabel for="amount" value="#{formText.arDocReceiptAmnt}"/>
+     <p:inputText id="amount" value="#{arReceiptBean.receiptAmnt}" 
+                  validatorMessage="Must enter number" required="true">
+      <f:validateDoubleRange  />
+      <p:ajax event="blur" listener="#{arReceiptBean.onReceiptAmountKeyup}"
+              update="unallocated receiptPostBtn"/>
+      
+     </p:inputText>
+     <p:outputLabel for="payRef" value="#{formText.arDocReceiptRef}"/>
+     <p:inputText id="payRef" value="#{arReceiptBean.fiDocument.partnerRef}"/>
+    </h:panelGrid> 
+     
+     
+    
+    <p:dataTable id="osInvs" var="doc" value="#{arReceiptBean.outstandingDocs}" paginator="true" 
+                 paginatorAlwaysVisible="false" editable="true"  editMode="cell"
+                 sortMode="multiple"  
+                 rows="#{arReceiptBean.completeResultSize}" rowKey="#{doc.id}" 
+                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                 emptyMessage="No outstanding invoices for customer"
+                 >
+     <p:ajax event="cellEdit" listener="#{arReceiptBean.onPayEntry}" 
+             update=":arSingleReceiptHdrFrm:unallocated osInvs :arSingleReceiptHdrFrm:amount" />
+     <f:facet name="header">
+      <h:outputText value="#{formText.arDocOpenDoc}"/>
+     </f:facet>
+     <p:column sortBy="#{doc.businessKey}"  >
+      <f:facet name="header">
+       <h:outputText value="#{formText.docSort}"/>
+      </f:facet>
+      <h:outputText value="#{doc.businessKey}"/>
+     </p:column>
+     
+     <p:column sortBy="#{doc.docNumber}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.docNum}"/>
+      </f:facet>
+      <h:outputText value="#{doc.docNumber}"/>
+     </p:column>
+     <p:column sortBy="#{doc.extDocNumber}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.arDocInv}"/>
+      </f:facet>
+      <h:outputText value="#{doc.extDocNumber}"/>
+     </p:column> 
+     <p:column sortBy="#{doc.docDate}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.docDocDate}"/>
+      </f:facet>
+      <h:outputText value="#{doc.docDate}">
+       <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+      </h:outputText>
+      
+     </p:column>
+     
+     <p:column sortBy="#{doc.dueDate}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.docDueDate}"/>
+      </f:facet>
+      <h:outputText value="#{doc.dueDate}">
+       <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+      </h:outputText>
+     </p:column>
+     <p:column  headerText="description" sortBy="#{doc.descr}" >
+     <h:outputText value="#{doc.descr}"/>
+     </p:column>
+     <p:column headerText="Doc Type" sortBy="#{doc.postType}">
+      <h:outputText value="#{doc.postType}"/>
+     </p:column>
+     <p:column headerText="Trans Type" sortBy="#{doc.transType}">
+      <h:outputText value="#{doc.transType}"/>
+     </p:column>
+     <p:column sortBy="#{doc.amount}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.docAmnt}"/>
+      </f:facet>
+      <h:outputText value="#{doc.amount}"/>
+     </p:column>
+     <p:column sortBy="#{doc.payment}" >
+      <f:facet name="header">
+       <h:panelGroup>
+        
+        <h:outputText  styleClass="ui-icon ui-icon-pencil"/><h:outputText value="paid" />
+       </h:panelGroup>
+      </f:facet>
+      <p:cellEditor>
+       <f:facet name="output">
+        <h:outputText value="#{doc.payment}" />
+       </f:facet>
+       <f:facet name="input">
+        <p:inputText value="#{doc.payment}"   >
+         <f:convertNumber type="number" />
+        </p:inputText>
+         
+       </f:facet>
+      </p:cellEditor>
+      
+     </p:column>
+     <p:column sortBy="#{doc.unpaid}" headerText="Remaining"  >
+      
+      <h:outputText value="#{doc.unpaid}"/>
+     </p:column>
+     
+    <f:facet name="footer">
+     <h:outputText value="#{formText.arDocReceiptNumOs}"/> #{fn:length(arReceiptBean.outstandingDocs)}.
+     </f:facet>
+    </p:dataTable>
+       
+    
+   </h:form>
+  </ui:define>
+ </ui:composition>
+</html>
+
+

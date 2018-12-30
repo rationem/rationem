@@ -1,0 +1,578 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.ptnrList}</ui:define>
+ <ui:define name="header">#{pageTitle.ptnrList} </ui:define>
+ <ui:define name="content">
+  
+  <h:form id="ptnrListFrm" prependId="false">
+   <div class="ui-fluid">
+   <p:fieldset id="ptnrSelFs" toggleable="true" >
+     <f:facet name="legend">
+      <h:outputText value="#{formText.ptnrSelOpt}"/>
+     </f:facet>
+     <p:panelGrid columns="2" layout="grid" styleClass="ui-noborder" columnClasses="ui-grid-col-2,ui-grid-col-2" >
+      <h:panelGroup>
+       <p:outputLabel for="selPtnrTy" value="#{formText.ptnrType}"/>
+       <p:selectOneMenu id="selPtnrTy" value="#{partnerBean.ptnrSelOpt.ptnrType}">
+        <f:selectItem itemValue="noSelect" itemLabel="#{formText.select}" noSelectionOption="true"/>
+        <f:selectItem itemValue="corp" itemLabel="#{formText.ptnrCorp}"/>
+        <f:selectItem itemValue="pers" itemLabel="#{formText.ptnrIndiv}"/>
+       </p:selectOneMenu>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="ptnrCat" value="#{partnerBean.ptnrSelOpt.category}"/>
+       <p:outputLabel for="ptnrCat" value="#{formText.ptnrCat}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="ptnrRef" value="#{partnerBean.ptnrSelOpt.reference}"/>
+       <p:outputLabel for="ptnrRef" value="#{formText.ptnrRef}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="ptnrName" value="#{partnerBean.ptnrSelOpt.name}"/>
+       <p:outputLabel for="ptnrName" value="#{formText.ptnrName}"/>
+      </h:panelGroup>
+      <p:commandButton id="getPtnrs" value="#{formText.ptnrFnd}" icon="ui-icon-search" 
+                       actionListener="#{partnerBean.onFindPartners}"/>
+     </p:panelGrid>
+     
+    </p:fieldset>
+   
+   <p:dataTable 
+    id="partnerListId" var="ptnr" value="#{partnerBean.ptnrList}" rowKey="#{ptnr.id}" 
+    selection="#{partnerBean.ptnrBase}" selectionMode="single"  reflow="true"
+    emptyMessage="#{blacResponse.ptnrNone}" rows="#{partnerBean.usrBuff.tblRows}" paginator="true"
+    paginatorAlwaysVisible="true" paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}" >
+    
+    <p:ajax event="contextMenu" listener="#{partnerBean.onPtnrListContextMenu}"/>
+    <f:facet name="{Exporters}">
+     
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24" />
+      <p:dataExporter type="xls" target="partnerListId" fileName="#{listHeading.ptnrs_FN}"  
+                          postProcessor="#{partnerAccounts.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="partnerListId" 
+                      fileName="#{listHeading.ptnrs_FN}" />
+     </h:commandLink>
+    </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.partners}"/>
+     
+    </f:facet>
+    <p:column sortBy="#{ptnr.ref}" filterBy="#{ptnr.ref}" filterMatchMode="contains" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.ptnrRef}"/>
+     </f:facet>
+     <h:outputText value="#{ptnr.ref}"/>
+    </p:column>
+    <p:column sortBy="#{ptnr.ptnrType}" >
+     <f:facet name="header">
+      <h:outputText value="#{formText.ptnrType}"/>
+     </f:facet>
+     <h:outputText value="#{formText.ptnrCorp}" 
+                    rendered="#{ptnr.ptnrType.equalsIgnoreCase('PartnerCorporateRec')}" />
+      <h:outputText value="#{formText.ptnrIndiv}"
+                    rendered="#{!ptnr.ptnrType.equalsIgnoreCase('PartnerCorporateRec')}" />
+    </p:column>
+    <p:column sortBy="#{ptnr.displayName}" filterBy="#{ptnr.displayName}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.ptnrName}"/>
+     </f:facet>
+     <h:outputText value="#{ptnr.displayName}"/>
+    </p:column>
+    <p:column sortBy="#{ptnr.category}" filterBy="#{ptnr.category}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.ptnrCat}"/>
+     </f:facet>
+     <h:outputText value="#{ptnr.category}"/>
+    </p:column>
+    <p:column sortBy="#{ptnr.email}" filterBy="#{ptnr.category}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.ptnrEmail}"/>
+     </f:facet>
+     <h:outputText value="#{ptnr.email}"/>
+    </p:column>
+    <p:column sortBy="#{ptnr.telephone}" filterBy="#{ptnr.telephone}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.ptnrPhone}"/>
+     </f:facet>
+     <h:outputText value="#{ptnr.telephone}"/>
+    </p:column>
+    
+   </p:dataTable>
+    <p:contextMenu for="partnerListId">
+     <p:menuitem value="#{formTextAr.arAcntDisplay}" actionListener="#{partnerBean.onPtnrListMItemDispl}" />
+    </p:contextMenu>
+    
+    </div>
+   
+  </h:form>
+  
+  
+  <h:form id="dispPtnrFm">
+   <div class="ui-fluid">
+   
+    
+    <p:dialog 
+     id="dispPersPtnrDlg" widgetVar="dispPersPtnrDlgWv"  modal="true" 
+     resizable="true" position="top"  width="940" >
+     <f:facet name="header">
+      <h:outputFormat value="#{formText.ptnrDisp}">
+       <f:param value="#{partnerBean.ptnrBase.displayName}"/>
+      </h:outputFormat>
+     </f:facet>
+     
+     <p:tabView id="dispPersTabV"  prependId="true" widgetVar="disPersTabWv"  dynamic="true" >
+      <p:tab title="#{formText.ptnrBasicTab}" >
+       <p:panelGrid 
+          id="ptnrBasicPnl" layout="grid"  columns="4" styleClass="ui-noborder" 
+          columnClasses="ui-grid-col-2,ui-grid-col-3,ui-grid-col-2,ui-grid-col-5"  >
+        <h:outputText value="#{listHeading.ptnrRef}"/>
+        <h:outputText value="#{partnerBean.ptnrBase.ref}"/>
+        <h:outputText value="#{formText.ptnrName}"/>
+        <h:outputText value="#{partnerBean.ptnrBase.displayName} "/>
+        <h:outputText value="#{formText.ptnrType}"/>
+        <h:outputText value="#{formText.ptnrIndiv}" rendered="#{partnerBean.ptnrType eq 'pers'}"/>
+        <h:outputText value="#{formText.ptnrRole}"/>
+        <h:outputText value="#{partnerBean.ptnrRolesOutput}"/>
+       </p:panelGrid>
+      </p:tab>
+      <p:tab id="persDetTab"  title="#{formText.ptnrDetTab}"  >
+       <p:panelGrid 
+         id="persDetPg" styleClass="ui-noborder" layout="grid" columns="6" 
+           columnClasses="ui-grid-col-2,ui-grid-col-5,ui-grid-col-2,ui-grid-col-5,
+           ui-grid-col-6,ui-grid-col-2"            >
+        <h:outputText value="#{formText.ptnrTitle}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.title}"/>
+        <h:outputText value="#{formText.ptnrFirstName}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.firstName}"/>
+        <h:outputText value="#{formText.ptnrFamilyName}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.familyName}"/>
+         
+        <h:outputText value="#{formText.ptnrTelephone}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.telephone}"/>
+        <h:outputText value="#{formText.ptnrMobile}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.mobileTelephone}"/>
+        <h:outputText value="#{formText.ptnrEmail}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.email}"/>
+        <h:outputText value="#{formText.ptnrWeb}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.webAddress}"/>
+        <h:outputText value="#{formText.ptnrVatNum}" rendered="#{partnerBean.ptnrVatable}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.vatNumber}" rendered="#{partnerBean.ptnrVatable}"/>
+        <h:outputText value="#{formText.addrCountry}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.country.countryName}"/>
+        <h:outputText value="#{formText.ptnrCat}"/>
+        <h:outputText value="#{partnerBean.ptnrPerson.category}"/>
+            
+       </p:panelGrid>
+      </p:tab>
+      <p:tab id="ptnrAddrPnl" title="#{formText.ptnrAddrTab}" >
+       <p:accordionPanel id="addrPnl" >
+        <p:tab id="addDefTab" title="#{formText.ptnrAddDefTab}"  >
+         <p:panelGrid
+          id="ptnrDefAddrPnl" layout="grid"  columns="6" styleClass="ui-noborder" 
+          columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-1,ui-grid-col-6,ui-grid-col-1,ui-grid-col-3,ui-grid-col-1,ui-grid-col-3" >
+          <h:outputText value="#{formText.addrRef}"/>
+          <h:outputText  value="#{partnerBean.ptnrPerson.defaultAddress.addrRef}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrRoom}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.room}"/>
+          <h:outputText value="#{formText.addrFloor}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.floor}"/>
+          <h:outputText value="#{formText.addrBuild}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.building}"/>
+          
+          <h:outputText value="#{formText.addrHseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.houseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{formText.addrHseNum}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.houseNumber}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{formText.addrStr1}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.street}"/>
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrStr2}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.street2}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrTown}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.town}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCounty}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.countyName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCountry}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.countryName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrPostCd}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.defaultAddress.postCode}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          
+         </p:panelGrid>
+        </p:tab>
+        <p:tab id="addrHeadOffTab" title="#{formText.ptnrAddHoTab}"  >
+         <p:panelGrid
+          id="ptnrHoAddrPnl" layout="grid"  columns="6" styleClass="ui-noborder" 
+          columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-1,ui-grid-col-6,ui-grid-col-1,ui-grid-col-3,ui-grid-col-1,ui-grid-col-3" >
+          <h:outputText value="#{formText.addrRef}"/>
+          <h:outputText  value="#{partnerBean.ptnrPerson.headOfficeAddress.addrRef}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrRoom}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.room}"/>
+          <h:outputText value="#{formText.addrFloor}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.floor}"/>
+          <h:outputText value="#{formText.addrBuild}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.building}"/>
+          
+          <h:outputText value="#{formText.addrHseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.houseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{formText.addrHseNum}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.houseNumber}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{formText.addrStr1}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.street}"/>
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrStr2}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.street2}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrTown}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.town}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCounty}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.countyName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCountry}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.countryName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrPostCd}"/>
+          <h:outputText value="#{partnerBean.ptnrPerson.headOfficeAddress.postCode}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+         </p:panelGrid>
+        </p:tab>
+       </p:accordionPanel>
+      </p:tab>
+     </p:tabView>
+    </p:dialog>
+    
+    
+    <p:dialog id="dispCorpPtnrDlg" widgetVar="dispCorpPtnrDlgWv"   modal="true" 
+              resizable="true" position="top"  width="940">
+      <f:facet name="header">
+       <h:outputFormat value="#{formText.ptnrDisp}">
+        <f:param value="#{partnerBean.ptnrBase.displayName}"/>
+       </h:outputFormat>
+      </f:facet>
+       <p:tabView id="dispCorpTab"  prependId="true" widgetVar="disCorpTabWv" 
+                  activeIndex="0" 
+                  >
+        <p:tab id="ptnrBasicTab" title="#{formText.ptnrBasicTab}"   >
+         <p:panelGrid 
+          id="ptnrBasicPnl" layout="grid"  columns="4" styleClass="ui-noborder" 
+          columnClasses="ui-grid-col-1,ui-grid-col-3,ui-grid-col-2,ui-grid-col-5"  >
+          <h:outputText value="#{listHeading.ptnrRef}"/>
+          <h:outputText value="#{partnerBean.ptnrBase.ref}"/>
+          <h:outputText value="#{formText.ptnrName}"/>
+          <h:outputText value="#{partnerBean.ptnrBase.displayName}"/>
+          <h:outputText value="#{formText.ptnrType}"/>
+          <h:panelGroup>
+           <h:outputText value="#{formText.ptnrIndiv}" rendered="#{partnerBean.ptnrType eq 'pers'}"/>
+           <h:outputText value="#{formText.ptnrCorp}" rendered="#{partnerBean.ptnrType eq 'corp'}"/>
+          </h:panelGroup>
+          <h:outputText value="#{formText.ptnrRole}"/>
+          <h:outputText value="#{partnerBean.ptnrRolesOutput}"/>
+          
+         </p:panelGrid>
+        </p:tab>
+        <p:tab id="ptnrDetTab"  title="#{formText.ptnrDetTab}"  >
+         <p:panelGrid 
+          id="corpDetPg" styleClass="ui-noborder" layout="grid" columns="6" 
+           columnClasses="ui-grid-col-3,ui-grid-col-6,ui-grid-col-2,ui-grid-col-5,
+           ui-grid-col-6,ui-grid-col-5"            >
+           <h:outputText value="#{formText.ptnrLegalName}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.legalName}"/>
+           <h:outputText value="#{formText.ptnrTradingName}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.tradingName}"/>
+           <h:outputText />
+           <h:outputText />
+           
+           <h:outputText value="#{formText.ptnrCompNum}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.companyNumber}"/>
+           <h:outputText value="#{formText.ptnrRegDate}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.compRegistrationDate}">
+            <f:convertDateTime type="date" dateStyle="medium"/>
+           </h:outputText>
+           <h:outputText value="#{formText.ptnrAcntsLastFiled}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.accountsFilingDate}">
+            <f:convertDateTime type="date" dateStyle="medium"/>
+           </h:outputText>
+           
+           <h:outputText value="#{formText.ptnrTelephone}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.telephone}"/>
+           <h:outputText value="#{formText.ptnrEmail}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.email}"/>
+           <h:outputText />
+           <h:outputText />
+           
+           <h:outputText value="#{formText.ptnrVatNum}" rendered="#{partnerBean.ptnrVatable}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.vatNumber}" rendered="#{partnerBean.ptnrVatable}"/>
+           <h:outputText value="#{formText.addrCountry}"/>
+           <h:outputText value="#{partnerBean.ptnrCorp.country.countryName}"/>
+         </p:panelGrid>
+         
+         </p:tab>
+        <p:tab id="ptnrAddrPnl" title="#{formText.ptnrAddrTab}" >
+       <p:accordionPanel id="addrPnl" >
+        <p:tab id="addDefTab" title="#{formText.ptnrAddDefTab}"  >
+         <p:panelGrid
+          id="ptnrDefAddrPnl" layout="grid"  columns="6" styleClass="ui-noborder" 
+          columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-1,ui-grid-col-6,ui-grid-col-1,ui-grid-col-3,ui-grid-col-1,ui-grid-col-3" >
+          <h:outputText value="#{formText.addrRef}"/>
+          <h:outputText  value="#{partnerBean.ptnrCorp.defaultAddress.addrRef}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrRoom}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.room}"/>
+          <h:outputText value="#{formText.addrFloor}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.floor}"/>
+          <h:outputText value="#{formText.addrBuild}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.building}"/>
+          
+          <h:outputText value="#{formText.addrHseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.houseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{formText.addrHseNum}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.houseNumber}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{formText.addrStr1}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.street}"/>
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrStr2}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.street2}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrTown}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.town}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCounty}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.countyName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCountry}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.countryName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrPostCd}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.defaultAddress.postCode}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+         </p:panelGrid>
+        </p:tab>
+        <p:tab id="addrRegTab" title="#{formText.ptnrAddrRegOffTab}">
+         <p:panelGrid
+          id="ptnrRegAddrPnl" layout="grid"  columns="6" styleClass="ui-noborder" 
+          columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-1,ui-grid-col-6,ui-grid-col-1,ui-grid-col-3,ui-grid-col-1,ui-grid-col-3" >
+          <h:outputText value="#{formText.addrRef}"/>
+          <h:outputText  value="#{partnerBean.ptnrCorp.registeredOfficeAddress.addrRef}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrRoom}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.room}"/>
+          <h:outputText value="#{formText.addrFloor}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.floor}"/>
+          <h:outputText value="#{formText.addrBuild}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.building}"/>
+          
+          <h:outputText value="#{formText.addrHseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.houseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{formText.addrHseNum}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.houseNumber}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{formText.addrStr1}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.street}"/>
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrStr2}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.street2}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrTown}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.town}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCounty}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.countyName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCountry}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.countryName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrPostCd}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.registeredOfficeAddress.postCode}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+         </p:panelGrid>
+        </p:tab>
+        
+        <p:tab id="addrHeadOffTab" title="#{formText.ptnrAddHoTab}"  >
+         <p:panelGrid
+          id="ptnrHoAddrPnl" layout="grid"  columns="6" styleClass="ui-noborder" 
+          columnClasses="ui-grid-col-2,ui-grid-col-10,ui-grid-col-1,ui-grid-col-6,ui-grid-col-1,ui-grid-col-3,ui-grid-col-1,ui-grid-col-3" >
+          <h:outputText value="#{formText.addrRef}"/>
+          <h:outputText  value="#{partnerBean.ptnrCorp.headOfficeAddress.addrRef}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrRoom}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.room}"/>
+          <h:outputText value="#{formText.addrFloor}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.floor}"/>
+          <h:outputText value="#{formText.addrBuild}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.building}"/>
+          
+          <h:outputText value="#{formText.addrHseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.houseName}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName ne null}" />
+          <h:outputText value="#{formText.addrHseNum}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.houseNumber}" rendered="#{partnerBean.ptnrPerson.defaultAddress.houseName eq null}" />
+          <h:outputText value="#{formText.addrStr1}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.street}"/>
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrStr2}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.street2}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrTown}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.town}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCounty}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.countyName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrCountry}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.countryName}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          
+          <h:outputText value="#{formText.addrPostCd}"/>
+          <h:outputText value="#{partnerBean.ptnrCorp.headOfficeAddress.postCode}"/>
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+          <h:outputText />
+         </p:panelGrid>
+        </p:tab>
+       </p:accordionPanel>
+      </p:tab>
+       </p:tabView>
+      
+     </p:dialog>
+    
+   </div>
+  </h:form>
+  
+ </ui:define>
+</ui:composition>

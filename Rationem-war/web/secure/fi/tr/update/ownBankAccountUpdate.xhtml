@@ -1,0 +1,152 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.trOwnBankUptd}</ui:define>
+ <ui:define name="header">#{pageTitle.trOwnBankUptd}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="chqTemplUptFrm">
+    <div class="card">
+     <p:growl id="bnkUpdated" />
+     <p:dataTable 
+      id="bnkAcList" value="#{companyBankAcntUpdateBean.bnkAcntCompList}" var="bnkAcnt" 
+      rowKey="#{bnkAcnt.id}"  sortBy="#{bnkAcnt.accountNumber}" paginatorAlwaysVisible="true" 
+      rows="#{companyBankAcntUpdateBean.usrBuff.tblRows}" paginator="true"
+      selection="#{companyBankAcntUpdateBean.bnkAcntCompSel}" selectionMode="single"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+      <p:ajax event="contextMenu" listener="#{companyBankAcntUpdateBean.onContextMenuEdit}"/>
+      <f:facet name="{Exporters}">
+           <h:commandLink style="float:right;"  >
+            <p:graphicImage name="/images/Excel-48.gif" width="24" />
+            <p:dataExporter type="xls" target="bnkAcList" fileName="#{listHeading.bnkComp_FN}"  
+                          postProcessor="#{companyBankAcntUpdateBean.postProcessXLS}" />
+           </h:commandLink>
+           <h:commandLink style="float:right;">
+            <p:graphicImage name="/images/csv_text.png" width="24" />
+            <p:dataExporter type="csv" target="bnkAcList" 
+                      fileName="#{listHeading.bnkComp_FN}" />
+           </h:commandLink>
+          </f:facet>
+      
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.bnkCompAvail}"/>
+      </f:facet>
+      <p:column sortBy="#{bnkAcnt.comp.reference}"  width="80">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.compCode}"/>
+       </f:facet>
+       <h:outputText value="#{bnkAcnt.comp.reference}"/>
+      </p:column>
+      <p:column sortBy="#{bnkAcnt.accountNumber}"  width="80">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bnkAcntNum}"/>
+       </f:facet>
+       <h:outputText value="#{bnkAcnt.accountNumber}"/>
+      </p:column>
+      <p:column sortBy="#{bnkAcnt.accountName}"   width="80">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bnkAcntSort}"/>
+       </f:facet>
+       <h:outputFormat value="{0}-{1}-{2}">
+        <f:param value="#{fn:substring(bnkAcnt.accountForBranch.sortCode,0,2)}"/>
+        <f:param value="#{fn:substring(bnkAcnt.accountForBranch.sortCode,2,4)}"/>
+        <f:param value="#{fn:substring(bnkAcnt.accountForBranch.sortCode,4,6)}"/>
+       </h:outputFormat>
+       
+       
+      </p:column>
+      <p:column sortBy="#{bnkAcnt.accountName}"  >
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bnkAcntDescr}"/>
+       </f:facet>
+       <h:outputText value="#{bnkAcnt.accountName}"/>
+      </p:column>
+     </p:dataTable>
+     <p:contextMenu for="bnkAcList">
+      <p:menuitem icon="fa fa-edit" value="#{formText.edit}" onclick="PF('updtDlgWv').show();" 
+                  />
+     </p:contextMenu>
+    </div>
+   </h:form>
+   
+   <h:form id="updateBnkAc">
+    <p:dialog id="updtDlgId" dynamic="true" widgetVar="updtDlgWv" maximizable="true" draggable="true" >
+     <f:facet name="header">
+      <h:outputFormat value="#{formText.trOwnBankAcUpt}">
+       <f:param value="#{companyBankAcntUpdateBean.bnkAcntCompSel.accountNumber}"/>
+       <f:param value="#{companyBankAcntUpdateBean.bnkAcntCompSel.accountName}"/>
+      </h:outputFormat>
+      
+      <p:messages autoUpdate="true"/>
+      <p:panelGrid id="editAcPnl" columns="2" columnClasses="ui-grid-col-7,ui-grid-col-5" layout="grid" >
+       <p:outputLabel for="comp" value="#{formText.comp}"/>
+       <h:outputText id="comp" value="#{companyBankAcntUpdateBean.bnkAcntCompSel.comp.reference}"/>
+       
+       
+       <p:outputLabel for="branch" value="#{formText.bnkBankBr}"/>
+       
+       <h:outputText id="branch" value="#{companyBankAcntUpdateBean.bnkAcntCompSel.accountForBranch.sortCode }"/>
+       <h:outputText value="#{companyBankAcntUpdateBean.bnkAcntCompSel.accountForBranch.bank.bankOrganisation.name}"/>
+       <h:outputText value="#{companyBankAcntUpdateBean.bnkAcntCompSel.accountForBranch.branchName}"/>
+       
+       <p:outputLabel for="clearedGlAc" value="#{formText.bnkGlCleared}"/>
+       <p:autoComplete id="clearedGlAc" value="#{companyBankAcntUpdateBean.bnkAcntCompSel.clearedGlAccount}" 
+                       forceSelection="true"
+                      converter="com.rationem.util.converter.FiGlAccountComp" 
+                      completeMethod="#{companyBankAcntUpdateBean.onGlAccountBankCompl}"
+                      var="clearedGlAcV" itemValue="#{clearedGlAcV}" itemLabel="#{clearedGlAcV.coaAccount.ref}"
+                      dropdown="true" required="true" 
+                       >
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2" cellpadding="5">
+          <p:outputLabel for="itemTipClearedGlAcRef" value="#{formText.glAccountRef}"/>
+          <h:outputText id="itemTipClearedGlAcRef" value="#{clearedGlAcV.coaAccount.ref}"/>
+          <p:outputLabel for="itemTipClearedGlAcName" value="#{formText.glAccountName}"/>
+          <h:outputText id="itemTipClearedGlAcName" value="#{clearedGlAcV.coaAccount.name}"/>
+         </h:panelGrid>
+        </f:facet>
+        <p:ajax event="itemSelect"  process="clearedGlAc" />
+       </p:autoComplete>
+       
+       <p:outputLabel for="unClearedGlAcs" value="#{formText.bnkGlUncleared}"/>
+       <p:autoComplete 
+        id="unClearedGlAcs" value="#{companyBankAcntUpdateBean.bnkAcntCompSel.unclearedGlAccounts}"
+        forceSelection="true" converter="com.rationem.util.converter.FiGlAccountComp" var="unClearedGlAcV" 
+        completeMethod="#{companyBankAcntUpdateBean.onGlAccountBankCompl}" dropdown="true" required="true"
+        itemValue="#{unClearedGlAcV}" itemLabel="#{unClearedGlAcV.coaAccount.ref}" multiple="true" >
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2" cellpadding="5">
+          <p:outputLabel for="itemTipUnClearedGlAcRef" value="#{formText.glAccountRef}"/>
+          <h:outputText id="itemTipUnClearedGlAcRef" value="#{unClearedGlAcV.coaAccount.ref}"/>
+          <p:outputLabel for="itemTipUnClearedGlAcName" value="#{formText.glAccountName}"/>
+          <h:outputText id="itemTipUnClearedGlAcName" value="#{unClearedGlAcV.coaAccount.name}"/>
+         </h:panelGrid>
+        </f:facet>
+        <p:ajax event="itemSelect"   />
+       </p:autoComplete>
+       <p:outputLabel for="chqTempl" value="#{formText.trChqTempl}"/>
+       <p:autoComplete 
+        id="chqTempl" value="#{companyBankAcntUpdateBean.bnkAcntCompSel.chequeTemplate}" var="templV" dropdown="true"
+        converter="com.rationem.util.converter.ChequeTemplate" itemValue="#{templV}" itemLabel="#{templV.reference}"
+        completeMethod="#{companyBankAcntUpdateBean.onChequeTemplateComplete}"/>
+      
+       
+      </p:panelGrid>
+      <p:panelGrid columns="2" columnClasses="ui-grid-col-3, ui-grid-col-3" layout="grid" styleClass="ui-noborder">
+       <p:commandButton id="trf" icon="fa fa-long-arrow-left" value="#{formText.transfer}"  
+                        actionListener="#{companyBankAcntUpdateBean.onEditTransfer}"/>
+       <p:commandButton type="button" value="#{formText.close}" icon="fa fa-close" 
+                        onclick="PF('updtDlgWv').hide()"/>
+      </p:panelGrid>
+     </f:facet>
+    </p:dialog>
+   </h:form>
+  </div>
+  
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+>
+    
+    <ui:composition template="/WEB-INF/template.xhtml">
+        <ui:define name="title">#{formText.coa_update}</ui:define>
+        <ui:define name="header"> </ui:define>
+        <ui:define name="content">
+            <p:panel header="#{formText.coa_update}">
+            <h:form id="coaBasicCrId">
+                <p:growl id="messages" />
+                
+                <h:panelGrid columns="2">
+                    <h:outputLabel for="selCoa" value="#{menuOption.coaOpt}"/>
+                    <h:selectOneMenu id="selCoa" required="true" requiredMessage="#{formText.coa_coaRequired}"
+                                     title="#{formHelpText.coa_coaRequired}" value="#{chartOfAccountsBean.selectedCoa}">
+                        <f:selectItems value="#{chartOfAccountsBean.selCoas}"/>
+                        <p:ajax event="change" update="coaDetail"
+                                listener="#{chartOfAccountsBean.selectChartAction}" process="@this"/>
+                    </h:selectOneMenu>
+                </h:panelGrid>
+                <p:outputPanel id="coaDetail">
+                    <h:panelGrid columns="2" rendered="#{chartOfAccountsBean.showChartDetail}" >
+                    <h:outputLabel for="coaRef" value="#{formText.coa_ref}" title="#{formHelpText.coa_ref}"/>
+                    <p:inputText id="coaRef" value="#{chartOfAccountsBean.coa.reference}"
+                                 title="#{formHelpText.coa_ref}" required="true" />
+
+                    <h:outputLabel for="coaName" value="#{formText.coa_name}" title="#{formHelpText.coa_name}"/>
+                    <p:inputText id="coaName" value="#{chartOfAccountsBean.coa.name}" title="#{formHelpText.coa_name}"
+                                 required="true"/>
+
+                    <h:outputLabel for="coaCurrCd" value="#{formText.coa_hmCurrCd}" title="#{formHelpText.coa_hmCurrCd}"/>
+                    <p:inputText id="coaCurrCd" value="#{chartOfAccountsBean.coa.homeCurrCode}" title="#{formHelpText.coa_hmCurrCd}"
+                                 required="true"/>
+
+                    <h:outputLabel for="coaCurrISO" value="#{formText.coa_hmCurrISO}" title="#{formHelpText.coa_hmCurrISO}"/>
+                    <p:inputText id="coaCurrISO" value="#{chartOfAccountsBean.coa.homeCurrISO}" title="#{formHelpText.coa_hmCurrISO}"
+                                 required="true"/>
+
+                    <h:outputLabel for="coaDeflt" value="#{formText.coa_defaultCoa}" title="#{formHelpText.coa_defaultCoa}"/>
+                    <h:selectBooleanCheckbox id="coaDeflt" value="#{chartOfAccountsBean.coa.defaultChart}"
+                                             title="#{formHelpText.coa_defaultCoa}"/>
+
+                    <h:outputLabel for="coaOIBalBwfd" value="#{formText.coa_oiDfltBalBfwd}" title="#{formHelpText.coa_oiDfltBalBfwd}"/>
+
+                    <h:selectBooleanCheckbox id="coaOIBalBwfd"
+                                             value="#{chartOfAccountsBean.coa.oibalFwd}"
+                                             title="#{formHelpText.coa_defaultCoa}"/>
+
+                    <h:selectOneMenu id="perCntrl" value="#{chartOfAccountsBean.selectPerCntrlId}"
+                                     title="#{formHelpText.fisCal}" required="true" requiredMessage="#{formText.coa_perCntrlReq}">
+                        <f:selectItems value="#{chartOfAccountsBean.selPerCntrl}"/>
+                        <h:outputLabel for="crCoa" value="#{formText.fisCal}"/>
+                    </h:selectOneMenu>
+                    <p:commandButton id="crCoa"
+                                     actionListener="#{chartOfAccountsBean.updateChartAction}"
+                                     update="messages" value="#{formText.genSaveBtn}" title="#{formHelpText.coa_saveBtn}"/>
+
+                </h:panelGrid>
+                </p:outputPanel>
+
+            </h:form>
+
+            </p:panel>
+        </ui:define>
+    </ui:composition>
+    </html>
+

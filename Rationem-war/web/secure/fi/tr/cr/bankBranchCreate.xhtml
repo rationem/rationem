@@ -1,0 +1,211 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.trBankBrCr}</ui:define>
+  <ui:define name="header">#{pageTitle.trBankBrCr}</ui:define>
+  <ui:define name="content">
+   <h:form id="bnkBrCr" prependId="false">
+    <p:growl autoUpdate="true"/>
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton value="#{formText.save}" ajax="false"
+                       actionListener="#{bankOrganisationBean.onCreateBankBranch}">
+       
+      </p:commandButton>
+      
+     </f:facet >
+   </p:toolbar>
+    <p:panelGrid id="bnkBrGrd" styleClass="panelNoBorders" >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="bankList" value="#{formText.bnkBank}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="bankList" value="#{bankOrganisationBean.bankBranch.bank}"
+                     forceSelection="true" converter="com.rationem.util.converter.Bank"
+                     var="bankV" completeMethod="#{bankOrganisationBean.bankComplete}" 
+                     itemValue="#{bankV}" itemLabel="#{bankV.bankCode}" 
+                     maxResults="#{bankOrganisationBean.completeResultSize}" required="true"
+                     requiredMessage="#{errorText.bnkBrBank}">
+      <f:facet name="itemtip">
+       <h:panelGrid columns="2" cellpadding="5">
+        <p:outputLabel for="tipBnkCd" value="#{formText.bnkBankCode}"/>
+        <h:outputText id="tipBnkCd" value="#{bankV.bankCode}"/>
+        <p:outputLabel for="tipBnkName" value="#{formText.bnkName}"/>
+        <h:outputText id="tipBnkName" value="#{bankV.bankOrganisation.tradingName}"/>
+       </h:panelGrid>
+      </f:facet>
+      <p:ajax event="itemSelect" listener="#{bankOrganisationBean.onBankSelect}" 
+              process="bankList" update="bnkNameTxt" partialSubmit="true"/>
+     </p:autoComplete>
+      </p:column>
+      <p:column>
+       <h:outputText id="bnkNameTxt" value="#{bankOrganisationBean.bankBranch.bank.bankOrganisation.tradingName}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="sortCode" value="#{formText.bnkSortCd}"/>
+      </p:column>
+      <p:column  colspan="2">
+       <p:inputText id="sortCode" value="#{bankOrganisationBean.bankBranch.sortCode}" required="true"
+                   requiredMessage="#{errorText.bnkBrSortCode}"  />
+     
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="branchName" value="#{formText.bnkBrName}"/>
+      </p:column>
+      <p:column colspan="2">
+       <p:inputText id="branchName" required="true" requiredMessage="#{errorText.bnkBrName}" 
+                  value="#{bankOrganisationBean.bankBranch.branchName}" size="40"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="addressGrd" value="#{formText.bnkBrAddr}"/>
+      </p:column>
+      <p:column colspan="2">
+       
+      <p:panelGrid id="addressGrd">
+       <p:row>
+        <p:column>
+         <p:outputLabel for="addrRef" value="#{formText.addrRef}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="addrRef" value="#{bankOrganisationBean.bankBranchAddr.addrRef}" size="10"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText  value="#{formText.addrHouseNumName}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="hseNum" value="#{bankOrganisationBean.bankBranchAddr.houseNumber}" 
+                     size="5">
+         <f:convertNumber maxFractionDigits="0"/>
+        </p:inputText>
+         <h:outputText value=" / "/>
+        <p:inputText id="hseName" value="#{bankOrganisationBean.bankBranchAddr.houseName}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="street" value="#{formText.addrStr1}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="street" value="#{bankOrganisationBean.bankBranchAddr.street}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="town" value="#{formText.addrTown}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="town" value="#{bankOrganisationBean.bankBranchAddr.town}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="county" value="#{formText.addrCounty}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="county" value="#{bankOrganisationBean.bankBranchAddr.countyName}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="postCode" value="#{formText.addrPostCd}"/>
+        </p:column>
+        <p:column>
+         <p:inputText id="postCode" value="#{bankOrganisationBean.bankBranchAddr.postCode}"/>
+        </p:column>
+        <p:column>
+         
+         <p:commandButton title="#{formText.addrSrchByPostCd}" icon="ui-icon-search" 
+                          actionListener="#{bankOrganisationBean.onBranchAddressDlg()}"/>
+         <p:spacer width="5"/>
+         <p:commandButton title="#{formText.bnkBankBrAddrCl}" icon="ui-icon-document" 
+                          actionListener="#{bankOrganisationBean.onBranchAddressClear}"/>
+        </p:column>
+        
+       </p:row>
+       
+      </p:panelGrid>
+       
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="phoneNum" value="#{formText.bnkPhone}"/>
+      </p:column>
+      <p:column colspan="2">
+       <p:inputText id="phoneNum" value="#{bankOrganisationBean.bankBranch.phoneNumber}" size="10"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="chapsCode" value="#{formText.bnkBrSwift}"/>
+      </p:column>
+      <p:column colspan="2">
+       <p:inputText id="chapsCode" value="#{bankOrganisationBean.bankBranch.swiftCode}"/>
+      </p:column>
+      </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="subBr" value="#{formText.bnkBrSubBr}"/>
+      </p:column>
+      <p:column colspan="2">
+       <p:selectBooleanCheckbox id="subBr" value="#{bankOrganisationBean.bankBranch.subBranch}"/>
+      </p:column>
+     </p:row>
+   </p:panelGrid>
+  </h:form>
+  
+  <h:form id="addRSchFrm" prependId="false">
+    <p:dialog dynamic="true" widgetVar="addrSrchWv" width="50%" modal="true" >
+    <f:facet name="header">
+     <h:outputText value="#{formText.addrSrchByPostCd}"/>
+     </f:facet>
+    <p:dataTable id="srchAddrLst" var="addrSrch" value="#{bankOrganisationBean.bankAddrList}" 
+                 emptyMessage="#{validationText.addrNoAddrPc}" selection="#{bankOrganisationBean.bankAddrSel}"
+                 rowKey="#{addrSrch.id}" rows="#{bankOrganisationBean.usrBuff.tblRows}" paginator="true" 
+                 paginatorAlwaysVisible="false" >
+     <p:ajax event="rowSelectRadio" listener="#{bankOrganisationBean.onBranchAddressSelect}"/>
+     <p:column width="20" selectionMode="single">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.select}"/>
+      </f:facet>
+     </p:column>
+     <p:column width="100">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.addrHseNumName}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.houseNumber}"/>
+      <h:outputText value="#{addrSrch.houseName}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrStr1}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.street}"/>
+     </p:column>
+     <p:column width="90">
+      <f:facet name="header">
+       <h:outputText value="#{formText.addrPostCd}"/>
+      </f:facet>
+      <h:outputText value="#{addrSrch.postCode}"/>
+     </p:column>
+     
+    </p:dataTable>
+   </p:dialog>
+   </h:form>
+   
+ </ui:define>
+</ui:composition>
+
+

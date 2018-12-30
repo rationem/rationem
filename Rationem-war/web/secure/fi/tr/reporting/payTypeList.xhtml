@@ -1,0 +1,124 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/List.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.cfg_pay_type_Lst}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <div class="ui-g">
+    <div class="ui-g-12">
+     <h:form id="payTypeUpdt" prependId="false">
+      <p:dataTable 
+       id="payTyTbl" value="#{paymentTypeBean.payTypes}" var="payTyV" rowKey="#{payTyV.id}"
+       rows="#{paymentTypeBean.usrBuff.tblRows}" reflow="true" widgetVar="payTypeTblWv"
+       paginatorAlwaysVisible="true" paginator="true" filteredValue="#{paymentTypeBean.payTypesFiltered}"
+       paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+       <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="payTyTbl" fileName="#{listHeading.payTypeLst_FN}" 
+                          postProcessor="#{paymentTypeBean.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="payTyTbl" fileName="#{listHeading.payTypeLst_FN}" />
+       </h:commandLink>
+      </f:facet>
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.payTypeAvail}"/>
+       </f:facet>
+       <p:column sortBy="#{payTyV.payTypeCode}">
+        <f:facet name="header" >
+         <h:outputText value="#{listHeading.payTypeRef}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.payTypeCode}"/>
+       </p:column>
+       <p:column sortBy="#{payTyV.description}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeDescr}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.description}"/>
+       </p:column>
+       <p:column width="60" sortBy="#{payTyV.company.reference}" filterBy="#{payTyV.company.reference}"
+                 filterMatchMode="startsWith">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.compCode}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.company.reference}"/>
+       </p:column>
+       <p:column width="60" sortBy="#{payTyV.ledger.name}" filterBy="#{payTyV.ledger.name}" 
+                 filterMatchMode="startsWith">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeLed}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.ledger.name}"/>
+       </p:column>
+       <p:column width="60" sortBy="#{payTyV.inbound}" filterBy="#{payTyV.inbound}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeRec}"/>
+        </f:facet>
+        <f:facet name="filter">
+         <p:selectOneMenu onchange="PF('payTypeTblWv').filter()">
+          <f:converter converterId="javax.faces.Boolean" />
+          <f:selectItem itemLabel="#{formText.all}" itemValue=" " noSelectionOption="true" />
+          <f:selectItem itemLabel="#{formText.yes}" itemValue="true" />
+          <f:selectItem itemLabel="#{formText.no}" itemValue="false" />
+         </p:selectOneMenu>
+        </f:facet>
+        <h:outputText value="#{payTyV.inbound ? formText.yes: formText.no}"/>
+       </p:column>
+       <p:column sortBy="#{payTyV.summLevel}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeSumLevel}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.summLevel eq 1 ? listHeading.payTypeSumDoc : listHeading.payTypeSumAcnt}"/>
+       </p:column>
+       <p:column sortBy="#{payTyV.mediumUom.description}" filterBy="#{payTyV.mediumUom.description}"
+                 filterMatchMode="startsWith">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeMedium}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.mediumUom.description}"/>
+       </p:column>
+       <p:column width="60" sortBy="#{payTyV.payTypeForBankAccount.accountNumber}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeBnkAcnt}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.payTypeForBankAccount.accountNumber}"/>
+       </p:column>
+       <p:column width="60" sortBy="#{payTyV.glBankAccount.coaAccount.ref}" 
+                 filterBy="#{payTyV.glBankAccount.coaAccount.ref}" filterMatchMode="startsWith">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeGlAcnt}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.glBankAccount.coaAccount.ref}"/>
+       </p:column>
+       <p:column width="40" sortBy="#{payTyV.bacsTransCode.ptnrBnkTransCode}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeBACS}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.bacsTransCode.ptnrBnkTransCode}"/>
+       </p:column>
+       <p:column width="100" sortBy="#{payTyV.chqTemplate.reference}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.payTypeChqTempl}"/>
+        </f:facet>
+        <h:outputText value="#{payTyV.chqTemplate.reference}"/>
+       </p:column>
+      </p:dataTable>
+                  
+     </h:form>
+    </div>
+    
+   </div>
+  </div>
+ </ui:define>
+</ui:composition>   
+    

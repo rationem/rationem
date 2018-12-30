@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/resources/template/errorTemplate.xhtml">
+
+ <ui:define name="title" >Unexpected error</ui:define>
+ <ui:define name="top"><h:outputText value="#{formText.bookkeeper}"/></ui:define>
+ <ui:define name="header"><h:outputText value="General Error"/></ui:define>
+ <ui:define name="content">
+  
+  <p:panelGrid  styleClass="ui-noborder">
+   <p:row>
+    <p:column colspan="2">
+     <h:outputText value="Please contact support with the details shown below" 
+                   styleClass="textHeaderB"/>
+    </p:column>
+   </p:row>
+   <p:row>
+    <p:column>
+     <h:outputText value="Message"/>
+    </p:column>
+    <p:column>
+     <h:outputText value="#{pfExceptionHandler.message}"/>
+    </p:column>
+   </p:row>
+   <p:row>
+    <p:column>
+     <h:outputText value="Type"/>
+    </p:column>
+    <p:column>
+     <h:outputText value="#{pfExceptionHandler.type}"/>
+    </p:column>
+   </p:row>
+   
+   
+  </p:panelGrid>
+  
+  
+ </ui:define>
+</ui:composition>
+

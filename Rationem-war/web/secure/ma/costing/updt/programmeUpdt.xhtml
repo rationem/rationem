@@ -1,0 +1,97 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.maProgrammeUpdt}</ui:define>
+ <ui:define name="header">#{pageTitle.maProgrammeUpdt} </ui:define>
+ <ui:define name="content">
+  <h:form id="programmeUpdt" prependId="false" >
+   <p:growl autoUpdate="true" />
+   <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="costCntreCrBtn" icon="fa fa-floppy-o" value="#{formText.save}" 
+                       actionListener="#{programmeBean.onSaveUpdateProgramme}"  
+                       title="#{formHelpText.maProgSave}"/>
+      <p:commandButton type="reset" value="#{formText.reset}" />
+      </f:facet >
+   </p:toolbar>
+   <h:panelGrid columns="2">
+    <p:outputLabel for="compMnu" value="#{formText.maProgComp}"/>
+    <p:selectOneMenu id="compMnu" value="#{programmeBean.programme.programmeForCompany}" 
+                     converter="com.rationem.util.converter.CompanyBasic" required="true" >
+     <f:selectItems value="#{programmeBean.compList}" var="comp" itemValue="#{comp}" 
+                    itemLabel="#{comp.reference} #{comp.name}"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="ref" value="#{formText.maProgRef}"/>
+    <p:autoComplete id="ref" value="#{programmeBean.programme}" required="true"
+                    completeMethod="#{programmeBean.onProgComplete}"
+                    requiredMessage="#{validationText.maProgRef}" dropdown="true"
+                    converter="com.rationem.util.converter.Programme" var="prog"
+                    itemValue="#{prog}" itemLabel="#{prog.reference}" >
+     <p:ajax event="itemSelect" listener="#{programmeBean.onProgSelect}" />
+    </p:autoComplete>
+    
+    <p:outputLabel for="name" value="#{formText.maProgName}"/>
+    <p:inputText id="name" value="#{programmeBean.programme.name}"/>
+    <p:outputLabel for="resp" value="#{formText.maProgResp}"/>
+    <h:panelGroup>
+      <p:autoComplete id="resp" value="#{programmeBean.programme.responsibilityOf}" dropdown="true" 
+                     converter="com.rationem.util.converter.PartnerIndividual" forceSelection="true"
+                     var="pers" itemValue="#{pers}" itemLabel="#{pers.familyName} #{pers.firstName}"
+                     completeMethod="#{costCenreBean.respPersComplete}" 
+                     maxlength="#{costCenreBean.completeResultSize}" />
+      <p:commandButton icon="ui-icon-document"   actionListener="#{programmeBean.onAddRespPersDlg}"/>
+     </h:panelGroup>
+    <p:outputLabel for="fromDate" value="#{formText.maProgValidFr}" />
+    <p:calendar id="fromDate" value="#{programmeBean.programme.validFrom}" 
+                    mode="popup" required="true"
+                    requiredMessage="#{validationText.maProgValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="10"/>
+   
+    <p:outputLabel for="toDate" value="#{formText.maProgValidTo}" />
+    <p:calendar id="toDate" value="#{programmeBean.programme.validTo}" 
+                    mode="popup" required="true"
+                    requiredMessage="#{validationText.maProgValidTo}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="10"/>
+    <p:outputLabel for="budget"  value="#{formText.maProgBuget}"/>
+    <p:inputText id="budget" value="#{programmeBean.programme.budget}">
+     <f:convertNumber minFractionDigits="2" minIntegerDigits="1"/>
+    </p:inputText>
+   </h:panelGrid>
+   <p:tooltip for="compMnu" value="#{formHelpText.maProgComp}"/>
+   <p:tooltip for="ref" value="#{formHelpText.maProgRef}"/>
+   <p:tooltip for="name" value="#{formHelpText.maProgName}"/>
+   <p:tooltip for="resp" value="#{formHelpText.maProgResp}"/>
+   <p:tooltip for="fromDate" value="#{formHelpText.maProgValidFr}"/>
+   <p:tooltip for="toDate" value="#{formHelpText.maProgValidTo}"/>
+   <p:tooltip for="budget" value="#{formHelpText.maProgBudget}"/>
+  </h:form>
+  
+  <h:form id="addRespPersDlg">
+   <p:dialog  header="#{formText.maProgResponsiblePersonCr}" widgetVar="crPersDlg" 
+             modal="true">
+    <h:panelGrid id="indivCrGrid" columns="2">
+     <p:outputLabel for="title" value="#{formText.ptnrTitle}"/>
+     <p:inputText id="title" value="#{programmeBean.respPerson.title}"/>
+     <p:outputLabel for="firstName" value="#{formText.ptnrFirstName}"/>
+     <p:inputText id="firstName" value="#{programmeBean.respPerson.firstName}" required="true"/>
+     <p:outputLabel for="middleName" value="#{formText.ptnrMiddleName}"/>
+     <p:inputText id="middleName" value="#{programmeBean.respPerson.middleName}"/>
+     <p:outputLabel for="familyName" value="#{formText.ptnrFamilyName}"/>
+     <p:inputText id="familyName" value="#{programmeBean.respPerson.familyName}" required="true"/>
+     <p:commandButton actionListener="#{programmeBean.onSaveNewRespPerson}" 
+                      icon="ui-icon-arrowthick-1-w" value="#{formText.transfer}" 
+                       />
+     <p:commandButton  oncomplete="PF('crPersDlg').hide()"
+                       icon="ui-icon-close" value="#{formText.close}"/>
+    </h:panelGrid>
+   </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

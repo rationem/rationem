@@ -1,0 +1,202 @@
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:po="http://primefaces.org/omega">
+
+    <div class="sidebar">
+     <div class="nano">
+      <div class="nano-content sidebar-scroll-content">
+       <div class="logo">
+        <h:outputText value="#{formText.appName}" style="color: white;"/>
+       </div>
+
+       <div class="profile">
+        <p:graphicImage name="images/profile.png" library="omega-layout" />
+        <a id="profile-button" href="#">
+         <span class="username">User1</span>
+         <i class="fa fa-fw fa-cog"></i>
+        </a>
+        <ul>
+         <li><a href="#"><i class="fa fa-fw fa-sliders"></i><span>Account</span></a></li>
+         <li><a href="#"><i class="fa fa-fw fa-bell"></i><span>Notifications</span><span class="menu-badge">2</span></a></li>
+         <li><a href="#"><i class="fa fa-fw fa-sign-out"></i><span>Logout</span></a></li>
+        </ul>
+       </div>
+
+       <div class="menu">
+        <h:form id="menuFrm">
+         <po:menu>
+          <p:submenu id="ro_ap" label="#{menuText.mH1_ap}" icon="fa fa-arrow-circle-left">
+           <p:submenu id="ro_ap_acnt" label="#{menuText.mL1_ac}">
+            <p:menuitem value="#{menuText.mi_ac_cr}"    outcome="apActCr" />
+            <p:menuitem value="#{menuText.mi_ac_updt}" outcome="apActUpdt" />
+            <p:menuitem value="#{menuText.mi_ac_lst}" outcome="apActLst" />
+           </p:submenu>
+           <p:submenu id="ro_ap_doc" label="#{menuText.mL1_doc}">
+            <p:menuitem id="ro_ap_inv" value="#{menuText.mi_ap_inv}" outcome="apInvCr"/>
+            <p:menuitem id="ro_ap_crn" value="#{menuText.mi_ap_crn}" outcome="apCrnCr"/>
+            <p:menuitem value="#{menuText.mi_ap_payS}" outcome="apPaySingle"/>
+            <p:menuitem value="#{menuText.mi_ap_payR}" action="some"/>
+            <p:menuitem id="ro_ap_doc_disp" value="#{menuText.mi_gen_doc_disp}" outcome="docDispl"/>
+           </p:submenu>
+          </p:submenu>
+          <p:submenu label="#{menuText.mH1_ar}" icon="fa fa-arrow-circle-right" >
+           <p:submenu label="#{menuText.mL1_ac}"  >
+            <p:menuitem value="#{menuText.mi_ac_cr}" outcome="arActCr" />
+            <p:menuitem value="#{menuText.mi_ac_updt}" outcome="arActUpdt" />
+            <p:menuitem value="#{menuText.mi_ac_lst}" outcome="arActlist" />
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_bal}"  >
+            <p:menuitem value="#{menuText.mi_ac_bal_Lst}" outcome="arActBalList"/>
+            <p:menuitem value="#{menuText.mi_ac_bal_per}" outcome="arActPerBal"/>
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_doc}" >
+            <p:menuitem value="#{menuText.mi_ar_sales_inv}" outcome="arInvPst"/>
+            <p:menuitem value="#{menuText.mi_ar_recpt_sngle}" action="arSingleReceipt"/>
+            <p:menuitem value="#{menuText.mi_ar_recpt_run}" action="arBacsReceipt"/>
+           </p:submenu>
+          </p:submenu>
+          
+          <p:submenu label="#{menuText.mH1_sales}"  icon="fa fa-shopping-basket">
+           <p:submenu label="#{menuText.mL1_mast}" >
+            <p:submenu label="#{menuText.mL2_create}" >
+             <p:menuitem value="#{menuText.mi_sl_part}"  action="salesPartCr"/>
+             <p:menuitem value="#{menuText.mi_gen_cat}"  action="slCatCr"/>
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_Maint}" >
+             <p:menuitem value="#{menuText.mi_sl_part}" action="slPartUpd"/>
+             <p:menuitem value="#{menuText.mi_gen_cat}"  action="slCatUpd"/>
+            </p:submenu>
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_doc}" >
+            <p:menuitem value="#{menuText.mi_sl_inv}"  outcome="slInvCr"/>
+            <p:menuitem value="#{menuText.mi_sl_crn}"  outcome="slCrnCr"/>
+            <p:menuitem value="#{menuText.mi_gen_doc_disp}"  action="docDispl"/>
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_rept}"  >
+            <p:menuitem value="#{menuText.mi_sl_dayBk}" outcome="slDayBk"/>
+           </p:submenu>
+          </p:submenu>
+          
+          <p:submenu label="#{menuText.mH1_gl}"  icon="fa fa-balance-scale">
+           <p:submenu label="#{menuText.mL1_mast}" >
+            <p:submenu label="#{menuText.mL2_gl_acnt}" >
+             <p:menuitem value="#{menuText.mi_ac_cr}"  outcome="glActCr"/>
+             <p:menuitem value="#{menuText.mi_ac_cr_ref}"  outcome="glActCrRef"/>
+             <p:menuitem value="#{menuText.mi_ac_cr_comp}"  outcome="glActCrComp"/>
+             <p:menuitem value="#{menuText.mi_gl_coa_ac_updt}" action="glCoaActUpdt"/>
+             <p:menuitem value="#{menuText.mi_gl_comp_ac_updt}" action="glCompActUpdt"/>
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_rest_fnd}" >
+              <p:menuitem value="#{menuText.mi_gen_cr}" action="glRestrFndCr"/>
+              <p:menuitem value="#{menuText.mi_gen_updt}" action="glRestrFndUpdt"/>
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_cost}">
+             <p:submenu label="#{menuText.mL3_cost_cent}" >
+              <p:menuitem value="#{menuText.mi_gen_cr}"  action="costCentCr"/>
+              <p:menuitem value="#{menuText.mi_gen_updt}"  action="costCentUpdt"/>
+             </p:submenu>
+            <p:submenu label="#{menuText.mL3_cstAcnt}" >
+             <p:menuitem value="#{menuText.mi_ma_acnt_Auto_cr}"  action="costAcntAutoCr"/>
+             <p:menuitem value="#{menuText.mi_ma_acnt_maint}"  action="costAcntMaint"/>
+            </p:submenu>
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_prog}" >
+             <p:menuitem value="#{menuText.mi_gen_cr}" action="programmeCr"/>
+             <p:menuitem value="#{menuText.mi_gen_updt}" action="programmeUpdt"/>
+            </p:submenu> 
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_doc}" >
+            <p:submenu label="#{menuText.mL2_post}" >
+             <p:menuitem value="#{menuText.mi_gl_stdJnl}"  action="glStdJnlPost"/>
+             <p:menuitem value="#{menuText.mi_gl_partJnl}"  action="glJnlPart"/>
+             <p:menuitem value="#{menuText.mi_gl_templJnl}"  action="glJnlTempl"/>
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_updtDispl}" >
+             <p:menuitem value="#{menuText.mi_gl_stdJnlRec}"  action="glStdJnlRev"/>
+             <p:menuitem value="#{menuText.mi_gl_templJnl}" action="glJnlTemplUpdt"/>
+            </p:submenu>
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_perProc}" >
+            <p:submenu label="#{menuText.mL2_tmplJnl}" >
+             <p:menuitem value="#{menuText.mi_gl_revJnl}"  action="glAccrRev"/>
+             <p:menuitem value="#{menuText.mi_gl_recurProv}"  action="glJnlRecur"/>
+            </p:submenu>
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_glBud}" >
+            <p:menuitem value="#{menuText.mi_gl_bud_acnt}"  action="budGlAcnt"/>
+            <p:menuitem value="#{menuText.mi_gl_bud_fnd}" action="budFund"/>
+            <p:menuitem value="#{menuText.mi_gl_bud_cc}" action="budCostCent"/>
+            <p:menuitem value="#{menuText.mi_gl_bud_prog}"  action="glAccrRev"/>
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_rept}" >
+            <p:submenu label="#{menuText.mL2_gl_acnt}"   >
+             <p:menuitem value="#{menuText.mi_gl_rpt_tb}" action="glTb"/>
+             <p:menuitem value="#{menuText.mi_gl_acnt_chgs}"  action="glActChanges"/>
+             <p:menuitem value="#{menuText.mi_gl_acnt_list_comp}" outcome="glActListComp" /> 
+             <p:menuitem value="#{menuText.mi_gl_acnt_chart}" outcome="glActListChart" />
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_gl_tax}" >
+             <p:menuitem value="#{menuText.mi_gl_gift_aid}"   action="glGiftAid"/>
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_cost_cent}" >
+             <p:menuitem value="#{menuText.mi_ma_cstCentres}" action="costCentLst" />    
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_prog}" >
+             <p:menuitem value="#{menuText.mi_ma_progs}" action="programmeList"/>    
+            </p:submenu>
+           </p:submenu>
+          </p:submenu>
+          
+          <p:submenu label="#{menuText.mH1_bnk}" icon="fa fa-money">
+           <p:submenu label="#{menuText.mL1_chq}">
+            <p:menuitem value="#{menuText.mi_tr_chq_indiv}" outcome="chqSingleCr"/>
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_rept}">
+            <p:menuitem value="#{menuText.mi_tr_chq_list}" outcome="chqBkLst"/>
+           </p:submenu>
+          </p:submenu>
+          
+          <p:submenu label="#{menuText.mH1_mdm}"  >
+           <p:submenu label="#{menuText.mL1_addr}" >
+            <p:menuitem value="#{menuText.mi_mdm_addr}" action="addrMgt" />
+           </p:submenu>
+           <p:submenu label="#{menuText.mL1_ptnr}"  >
+            <p:menuitem value="#{menuText.mi_gen_cr}" />
+            <p:menuitem value="#{menuText.mi_gen_updt}" action="ptnrUpdt" />
+            <p:menuitem value="#{menuText.mi_gen_list}" action="ptnrLst" />
+            <p:menuitem value="#{menuText.mi_ptnr_acts}" action="ptnrAcntsSum"   />
+           </p:submenu>         
+           <p:submenu label="#{menuText.mL1_bank}"   >
+            <p:submenu label="#{menuText.mL2_create}" >
+             <p:menuitem value="#{menuText.mi_tr_bnk}"  action="bnkOrgCr"/>
+             <p:menuitem value="#{menuText.mi_tr_bnk_br}"  action="bnkBrCr"/>
+            </p:submenu> 
+            <p:submenu label="#{menuText.mL2_rept}"  >
+             <p:menuitem value="#{menuText.mi_tr_bnk_list}"  action="bnkOrgLst"/>
+            </p:submenu>
+            <p:submenu label="#{menuText.mL2_Maint}">
+             <p:menuitem value="#{menuText.mi_tr_bnk_pay_ty}"  action="payTypeUpdt"/>
+            </p:submenu>
+           </p:submenu>
+          </p:submenu>
+          
+          <p:submenu label="#{menuText.mH1_auth}" icon="fa fa-user-secret" >
+           <p:submenu label="#{menuText.mL1_usr}" >
+            <p:submenu label="#{menuText.mL2_create}" >
+             <p:menuitem value="#{menuText.mi_auth_usr}" action="userCr"  />
+            </p:submenu>
+           </p:submenu>
+          </p:submenu>
+          <p:menuitem value="#{menuText.mi_config}" outcome="configHome" icon="fa fa-wrench" />  
+          <p:menuitem value="Logout" action="#{authManBean.onLogout}"/>
+      
+     </h:form>
+    </div>
+   </div>
+  </div>
+ </div>
+</ui:composition>

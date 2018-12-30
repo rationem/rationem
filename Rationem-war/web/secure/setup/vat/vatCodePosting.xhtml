@@ -1,0 +1,263 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_vatCd_pst}</ui:define>
+  <ui:define name="header"></ui:define>
+  <ui:define name="content">
+   <p:growl autoUpdate="true"  />
+   <h:form id="vatCodePostFrm">
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="addVatCodeSave" icon="fa fa-floppy-o" value="#{formText.save}" 
+                       actionListener="#{vatCodePostingBean.onSave}" 
+                       title="#{formHelpText.actTySave}"   />
+      <p:commandButton type="reset" value="#{formText.reset}" />
+     </f:facet >
+    </p:toolbar>
+    <h:panelGrid columns="2">
+     <p:outputLabel for="vatCdlst" value="#{formText.vatCd}"/>
+     <p:selectOneMenu id="vatCdlst" value="#{vatCodePostingBean.vatPosting.vatCode}" 
+                      converter="com.rationem.util.converter.VatCode" required="true" 
+                      valueChangeListener="#{vatCodePostingBean.onSelectVatCode}" >
+      <f:selectItems var="vatCdSel" value="#{vatCodePostingBean.vatCodeList}" 
+                     itemValue="#{vatCdSel}" itemLabel="#{vatCdSel.code} #{vatCdSel.description}"/>
+      <p:ajax />
+     </p:selectOneMenu>
+     
+    </h:panelGrid>
+     <p:commandButton value="#{formText.vatAdd}"  actionListener="#{vatCodePostingBean.onAddVatPostingDlg}" 
+                        icon="ui-icon-document"/>
+     <p:outputPanel id="vatCompListOp">
+     <p:contextMenu for="vatComp">
+      <p:menuitem value="#{formText.vatCompEdit}" actionListener="#{vatCodePostingBean.onCompVatRateEditListener()}"/>
+     </p:contextMenu>
+     <p:dataTable id="vatComp" var="compVatTbleVar" value="#{vatCodePostingBean.selectedVatCode.vatCodeCompanies}" 
+                  rowKey="#{compVatTbleVar.company.id}" 
+                  selection="#{vatCodePostingBean.selectedVatPosting}" 
+                  selectionMode="single"
+                  emptyMessage="#{validationText.vatCompPostSett}">
+      
+      <f:facet name="header">
+       <h:outputText value="#{formText.vatAccountAssignments}"/>
+      </f:facet>
+      <p:column width="90" headerText="#{formText.comp}">
+       <h:outputText value="#{compVatTbleVar.company.reference} #{compVatTbleVar.company.name} "/>
+      </p:column>
+      <p:column headerText="#{formText.vatCompVatLiabilityGL}">
+       <h:outputText value="#{compVatTbleVar.rateGlAccount.coaAccount.ref} #{compVatTbleVar.rateGlAccount.coaAccount.name}"/>
+      </p:column>
+      <p:column headerText="#{formText.vatCompIrrecovrableRate}">
+       <h:outputText value="#{compVatTbleVar.irrecoverRate}">
+        <f:convertNumber type="percent" maxFractionDigits="2" minFractionDigits="2" minIntegerDigits="1"/>
+       </h:outputText>
+      </p:column> 
+      <p:column headerText="#{formText.vatCompWoffIrrecoverable}">
+       <p:selectBooleanCheckbox disabled="true" value="#{compVatTbleVar.woffIrrecoverable}"/>
+      </p:column>
+      <p:column headerText="#{formText.vatNoIrrecLine}">
+       <p:selectBooleanCheckbox disabled="true" value="#{compVatTbleVar.noIrrecoverableLine}"/>
+      </p:column>
+      <p:column headerText="#{formText.vatCompWoGlAccount}">
+       <h:outputText rendered="#{compVatTbleVar.woffIrrecoverable}" value="#{compVatTbleVar.chargeGlAccount.coaAccount.ref} #{compVatTbleVar.chargeGlAccount.coaAccount.name}"/>
+      </p:column>
+      
+      <p:column headerText="#{formText.vatCompAccrualGlAccount}">
+       <h:outputText value="#{compVatTbleVar.accrualGlAccount.coaAccount.ref} #{compVatTbleVar.accrualGlAccount.coaAccount.name}"/>
+      </p:column>
+       
+     </p:dataTable>
+    </p:outputPanel>
+    </h:form>
+    <p:dialog header="#{formText.vatCompAddActAssignment} #{vatCodePostingBean.selectedVatCode.code}" 
+              id="addDlg" widgetVar="addDlgWv" dynamic="true" modal="true" >
+     <h:form id="addVatPosting" prependId="false">
+      <p:panelGrid  styleClass="panelNoBorders">
+      <p:row>
+       <p:column>
+        <p:outputLabel for="addVatCompMnu" value="#{formText.comp}"/>
+       </p:column>
+       <p:column>
+        <p:selectOneMenu id="addVatCompMnu" value="#{vatCodePostingBean.addVatPosting.company}" 
+                       converter="com.rationem.util.converter.CompanyBasic" validator="#{vatCodePostingBean.validateAddComp()}" >
+         <f:selectItems value="#{vatCodePostingBean.compList}" var="addCompSel" itemValue="#{addCompSel}"
+                      itemLabel="#{addCompSel.reference} #{addCompSel.name}"/>
+        </p:selectOneMenu>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="addVatLiabilGlAc" value="#{formText.vatCompVatLiabilityGL}"/>
+       </p:column>
+       <p:column>
+        <p:selectOneMenu id="addVatLiabilGlAc" value="#{vatCodePostingBean.addVatPosting.rateGlAccount}"
+                       converter="com.rationem.util.converter.FiGlAccountComp" >
+       <f:selectItems value="#{vatCodePostingBean.bsGlAccountList}" var="addRateGlActVar" 
+                      itemValue="#{addRateGlActVar}"
+                      itemLabel="#{addRateGlActVar.coaAccount.ref} #{addRateGlActVar.coaAccount.name}"/>
+      </p:selectOneMenu>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="addProvnActSel" value="#{formText.vatCompAccrualGlAccount}"/>
+       </p:column>
+       <p:column>
+        <p:selectOneMenu id="addProvnActSel" value="#{vatCodePostingBean.addVatPosting.accrualGlAccount}"
+                       converter="com.rationem.util.converter.FiGlAccountComp" 
+                       >
+       
+          <f:selectItems value="#{vatCodePostingBean.bsGlAccountList}" var="addProvGlActVar" 
+                      itemValue="#{addProvGlActVar}"
+                      itemLabel="#{addProvGlActVar.coaAccount.ref} #{addProvGlActVar.coaAccount.name}"/>
+         </p:selectOneMenu>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="addIrrRate" value="#{formText.vatCompIrrecovrableRate}"/>
+       </p:column>
+       <p:column>
+        <p:inputText id="addIrrRate" value="#{vatCodePostingBean.addVatPosting.irrecoverRate}">
+         <f:convertNumber type="percent"/>
+        </p:inputText>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="addWoIrr" value="#{formText.vatCompWoffIrrecoverable}"/>  
+       </p:column>
+       <p:column>
+        <p:selectBooleanCheckbox id="addWoIrr" value="#{vatCodePostingBean.addVatPosting.woffIrrecoverable}">
+         <p:ajax listener="#{vatCodePostingBean.onWoAcntCBListener}" />
+        </p:selectBooleanCheckbox>
+       </p:column>
+      </p:row>
+      <p:row>
+       
+       <p:column>
+        <p:outputLabel for="addWoAct" value="#{formText.vatCompWoGlAccount}"/> 
+                      
+       </p:column>
+       <p:column>
+        <p:selectOneMenu id="addWoAct" value="#{vatCodePostingBean.addVatPosting.chargeGlAccount}"
+                         disabled="#{!vatCodePostingBean.addVatPosting.woffIrrecoverable}"
+                       var="addWoAct" converter="com.rationem.util.converter.FiGlAccountComp">
+         <f:selectItem  itemValue="#{vatCodePostingBean.noWoActSelect}" 
+                      itemLabel="#{vatCodePostingBean.noWoActSelect.coaAccount.name}" />
+         <f:selectItems var="addWoActSe" value="#{vatCodePostingBean.woGlAccountList}" itemValue="#{addWoActSe}"
+                      itemLabel="#{addWoActSe.coaAccount.ref} #{addWoActSe.coaAccount.name}"/>
+        </p:selectOneMenu>
+       </p:column>
+      </p:row>
+      
+      <p:row>
+       <p:column colspan="2">
+        <p:commandButton value="#{formText.vatAdd}" icon="ui-icon-check" 
+                       action="#{vatCodePostingBean.onAddVatPosting}"  />
+        <p:spacer width="5" height="10"/>
+        <p:commandButton value="#{formText.close}"  icon="ui-icon-close"  actionListener="#{vatCodePostingBean.onAddVatPstCloseDlg}"/>
+       </p:column>
+      </p:row>
+     </p:panelGrid>
+     </h:form>
+    </p:dialog>
+    
+    <p:dialog header="#{formText.vatCompEditActAssignment}" id="editDlg" widgetVar="editDlgWv" 
+              >
+     <h:form id="editVatPosting" prependId="false">
+     <h:panelGrid id="editPG" columns="2">
+      <p:outputLabel for="editVatCompMnu" value="#{formText.comp}"/>
+      <p:selectOneMenu id="editVatCompMnu" value="#{vatCodePostingBean.selectedVatPosting.company}" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{vatCodePostingBean.compList}" var="editCompSel" itemValue="#{editCompSel}"
+                      itemLabel="#{editCompSel.reference} #{editCompSel.name}"/>
+      </p:selectOneMenu>
+      <p:outputLabel for="editVatLiabilGlAc" value="#{formText.vatCompVatLiabilityGL}"/>
+      <p:selectOneMenu id="editVatLiabilGlAc" value="#{vatCodePostingBean.selectedVatPosting.rateGlAccount}"
+                       converter="com.rationem.util.converter.FiGlAccountComp" 
+                       valueChangeListener="#{vatCodePostingBean.onVatRateChangeListener}">
+       <p:ajax />
+       <f:selectItems value="#{vatCodePostingBean.bsGlAccountList}" var="editRateGlActVar" 
+                      itemValue="#{editRateGlActVar}"
+                      itemLabel="#{editRateGlActVar.coaAccount.ref} 
+                      #{editRateGlActVar.coaAccount.name}"/>
+      </p:selectOneMenu>
+      <p:outputLabel for="editIrrRate" value="#{formText.vatCompIrrecovrableRate}"/>
+      <p:inputText id="editIrrRate" value="#{vatCodePostingBean.selectedVatPosting.irrecoverRate}">
+       <f:convertNumber type="percent"/>
+      </p:inputText>
+      <p:outputLabel for="editWoIrr" value="#{formText.vatCompWoffIrrecoverable}"/>
+      <p:selectBooleanCheckbox id="editWoIrr" value="#{vatCodePostingBean.selectedVatPosting.woffIrrecoverable}">
+       <p:ajax listener="#{vatCodePostingBean.onWoAcntCBListener}" />
+      </p:selectBooleanCheckbox>
+      <p:outputPanel id="editNoIrrLineLbl">
+       <p:outputLabel for="editNoIrrLine" value="#{formText.vatNoIrrecLine}"
+                      rendered="#{vatCodePostingBean.selectedVatPosting.woffIrrecoverable}"/>
+      </p:outputPanel>
+      <p:outputPanel id="editNoIrrLineCb">
+       <p:selectBooleanCheckbox id="editNoIrrLine" 
+                                rendered="#{vatCodePostingBean.selectedVatPosting.woffIrrecoverable}"
+                                value="#{vatCodePostingBean.selectedVatPosting.noIrrecoverableLine}"/>
+      </p:outputPanel>
+      <h:panelGroup>
+      <p:outputPanel id="editWoGlActOp">
+       <p:outputLabel for="editWoAct" value="#{formText.vatCompWoGlAccount}" 
+                      rendered="#{vatCodePostingBean.selectedVatPosting.woffIrrecoverable}"/>
+      </p:outputPanel>
+      </h:panelGroup>
+      <h:panelGroup>
+       <p:outputPanel id="editWoGlActInptOp">
+      <p:selectOneMenu id="editWoAct" value="#{vatCodePostingBean.selectedVatPosting.chargeGlAccount}"
+                       rendered="#{vatCodePostingBean.selectedVatPosting.woffIrrecoverable}"
+                       var="editWoAct" converter="com.rationem.util.converter.FiGlAccountComp">
+       <f:selectItem  itemValue="#{vatCodePostingBean.noWoActSelect}" 
+                      itemLabel="#{vatCodePostingBean.noWoActSelect.coaAccount.name}" />
+       <f:selectItems var="editWoActSe" value="#{vatCodePostingBean.woGlAccountList}" 
+                      itemValue="#{addWoActSe}"
+                      itemLabel="#{addWoActSe.coaAccount.ref} #{addWoActSe.coaAccount.name}"/>
+      </p:selectOneMenu>
+      </p:outputPanel>
+      </h:panelGroup>
+      
+      <p:outputLabel for="editProvnActSel" value="#{formText.vatCompAccrualGlAccount}"/>
+      <p:selectOneMenu id="editProvnActSel" value="#{vatCodePostingBean.selectedVatPosting.accrualGlAccount}"
+                       converter="com.rationem.util.converter.FiGlAccountComp" 
+                       >
+       
+       <f:selectItems value="#{vatCodePostingBean.bsGlAccountList}" var="editProvGlActVar" 
+                      itemValue="#{editProvGlActVar}"
+                      itemLabel="#{editProvGlActVar.coaAccount.ref} #{editProvGlActVar.coaAccount.name}"/>
+      </p:selectOneMenu>
+      </h:panelGrid>
+     <h:panelGrid columns="3">
+      <p:commandButton value="#{formText.save}" icon="ui-icon-check"
+                       action="#{vatCodePostingBean.onUpdateVatPosting}" />
+      <p:commandButton value="#{formText.close}" type="button" />
+     </h:panelGrid>
+     </h:form>
+    </p:dialog>
+    <p:confirmDialog id="delDlg" widgetVar="delConfVar"  severity="alert" 
+                     header="#{formText.vatCompDelHdr}" 
+                     message="#{formText.vatCompDelMsg} #{vatCodePostingBean.selectedVatPosting.company.reference}">
+     <h:form id="delVatPosting" prependId="false">
+     <p:commandButton  id="EditDelBtn" value="#{formText.genDelBtn}" icon="ui-icon-trash"
+                       actionListener="#{vatCodePostingBean.onDeleteVatPosting}"
+                        
+                        />
+     <p:commandButton value="#{formText.genCloseBtn}" icon="ui-icon-close" 
+                      />
+     </h:form>
+    </p:confirmDialog>
+   
+    
+    
+    
+    
+   
+  </ui:define>
+</ui:composition>
+
+

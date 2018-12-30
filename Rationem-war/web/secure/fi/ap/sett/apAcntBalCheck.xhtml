@@ -1,0 +1,96 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.apSettAcBalChk}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <div class="ui-g">
+    <div class="ui-g-12">
+   <h:form id="acntBalChkFrm" >
+    <p:growl autoUpdate="true" severity="info"  />
+    <p:messages id="errMsg" severity="fatal,error,warn" closable="true"/> 
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="exec" value="#{formText.exec}" icon="fa fa-cog" 
+                       actionListener="#{apAcntBalChk.onUpdateBals}"/>  
+     </f:facet>
+    </p:toolbar>
+    <div class="card card-w-title" >
+     <h1>#{formText.selOpt}</h1>
+     <p:panelGrid columns="3" layout="grid" columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-2">
+      <p:outputLabel for="comp" value="#{formText.comp}"/>
+      <p:selectOneMenu 
+       id="comp" value="#{apAcntBalChk.compSel}" converter="com.rationem.util.converter.CompanyBasic" >
+       <f:selectItems value="#{apAcntBalChk.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+      <h:outputText id="compNameTxt" value="#{apAcntBalChk.compSel.name}"/>
+      <p:outputLabel for="apAcnt" value="#{formTextAp.apAcnt}"/>
+      <p:autoComplete 
+       id="apAcnt"  value="#{apAcntBalChk.apAccount}" var="apAcntV" dropdown="true" 
+       converter="com.rationem.util.converter.ApAccount" completeMethod="#{apAcntBalChk.onApAccountComplete}"
+       itemValue="#{apAcntV}" itemLabel="#{apAcntV.accountCode}">
+      </p:autoComplete>
+      <h:outputText id="acntFor" value="#{apAcntBalChk.apAccount.apAccountFor.name}"/>
+      
+     </p:panelGrid>
+     
+    </div>
+    <div class="card card-w-title">
+     <h1>#{formTextAp.apAcntBalUpdt}</h1>
+     <p:dataTable 
+      id="acntUpdtTbl" value="#{apAcntBalChk.apAccountUpdates}" var="apAcntTblV"  paginator="true"  
+      rows="#{apAcntBalChk.usrBuff.tblRows}" rowKey="#{apAcntTblV.apAcnt.id}" paginatorAlwaysVisible="true" 
+      emptyMessage="#{listHeading.apAcntBalUpdtN}" sortMode="single" sortBy="#{apAcntTblV.apAcnt.accountCode}"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+     
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24" />
+        <p:dataExporter type="xls" target="acntUpdtTbl" fileName="#{listHeading.apAcntBalUpdt_FN}"  
+                          postProcessor="#{apAcntBalChk.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="acntUpdtTbl" 
+                      fileName="#{apAcntBalUpdt_FN}" />
+       </h:commandLink>
+      </f:facet>
+      
+      <p:column width="170" sortBy="#{apAcntTblV.apAcnt.accountCode}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.apAcntCd}"/>
+       </f:facet>
+       <h:outputText value="#{apAcntTblV.apAcnt.accountCode}"/>
+      </p:column>
+      <p:column sortBy="#{apAcntTblV.apAcnt.apAccountFor.name}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.apAcntName}"/>
+       </f:facet>
+       <h:outputText value="#{apAcntTblV.apAcnt.apAccountFor.name}"/>
+      </p:column>
+      <p:column width="170" sortBy="#{apAcntTblV.acntBalUpdate}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.apAcntBalUpd}"/>
+       </f:facet>
+       <h:outputText value="#{formText.yes}" rendered="#{apAcntTblV.acntBalUpdate}"/>
+       <h:outputText value="#{formText.no}" rendered="#{!apAcntTblV.acntBalUpdate}"/>
+      </p:column>
+      <p:column width="170" sortBy="#{apAcntTblV.perBalUpdate}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.apPerBalUpd}"/>
+       </f:facet>
+       <h:outputText value="#{formText.yes}" rendered="#{apAcntTblV.perBalUpdate}"/>
+       <h:outputText value="#{formText.no}" rendered="#{!apAcntTblV.perBalUpdate}"/>
+      </p:column>
+     </p:dataTable>
+    </div>
+   </h:form>
+    </div>
+   </div>
+  </div>
+ </ui:define>
+</ui:composition>

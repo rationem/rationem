@@ -1,0 +1,232 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiGlTrialBal}</ui:define>
+ <ui:define name="header">#{pageTitle.fiGlTrialBal}</ui:define>
+ <ui:define name="content">
+  <h:form id="trialBal" prependId="false">
+   <p:growl id="tbGenGr"/>
+   <p:accordionPanel dynamic="true" id="accordPnl" widgetVar="accordWv" >
+    <p:tab id="criteriaTab" >
+     <f:facet name="title">
+      <h:outputText value="#{formText.rptSelCrit}"/>
+     </f:facet>
+   <p:panelGrid styleClass="panelNoBorders" >
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.comp}"/>
+     </p:column>
+     <p:column>
+      <p:watermark for="comp" value="#{watermark.comp}"/>
+      <p:autoComplete id="comp" completeMethod="#{glTrialBalance.compComplete}" dropdown="true"
+                      converter="com.rationem.util.converter.CompanyBasic"  required="true"
+                      requiredMessage="#{validationText.glCompSelReq}" forceSelection="true"
+                     var="compV" itemValue="#{compV}" 
+                     emptyMessage="#{validationText.glCompNf}"
+                    itemLabel="#{compV.reference}" cache="true" 
+                    >
+       <p:ajax event="itemSelect" listener="#{glTrialBalance.onCompSelect}"/>
+      </p:autoComplete>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="fiscYr" value="#{formText.fiscYrPer}"/>
+     </p:column>
+     <p:column >
+      <p:spinner id="fiscYr" value="#{glTrialBalance.fiscYrPer.year}" min="2001"
+                 size="4" maxlength="4" disabled="#{!glTrialBalance.compSel}"/>
+      <p:spacer width="3" />
+      <p:spinner id="fiscPer" value="#{glTrialBalance.fiscYrPer.period}" min="1" max="12"
+                 disabled="#{!glTrialBalance.compSel}"
+                 size="2" maxlength="2"/>
+     </p:column>
+    </p:row>
+    
+    <p:row>
+     <p:column>
+      <p:outputLabel for="fndCat" value="#{formText.restFndCat}"/>
+     </p:column>
+     <p:column>
+      <p:autoComplete id="fndCat" completeMethod="#{glTrialBalance.fundCatComplete}"
+                      converter="com.rationem.util.converter.FundCategory" dropdown="true"
+                      var="fndCatV" emptyMessage="#{validationText.restFundCatNf}"
+                      itemValue="#{fndCatV}" itemLabel="#{fndCatV.description}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="fnd" value="#{formText.restFnd}"/>
+     </p:column>
+     <p:column>
+      <p:autoComplete id="fnd" disabled="#{!glTrialBalance.compSel}"  dropdown="true"
+                      completeMethod="#{glTrialBalance.fundComplete}" dropdownMode="current"
+                      converter="com.rationem.util.converter.Fund" var="fundV"
+                      emptyMessage="#{validationText.restFundNf}"
+                      itemValue="#{fundV}" itemLabel="#{fundV.name}" />
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="zeroBal" value="#{formText.glReptZeroBalAcntIncl}"/>
+     </p:column>
+     <p:column>
+      <p:selectBooleanButton id="zeroBal" offLabel="#{formText.no}" 
+                             onLabel="#{formText.yes}" 
+                             value="#{glTrialBalance.incZeroBal}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:commandButton id="getReport" actionListener="#{glTrialBalance.onBuildTbReport}" 
+        value="#{formText.glReptGen}" disabled="#{!glTrialBalance.compSel}"
+        />
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+    </p:tab>
+    <p:tab id="reptTab" disabled="#{!glTrialBalance.compSel}">
+     <f:facet name="title">
+      <h:outputText value="#{formText.glReptTbList}"/>
+     </f:facet>
+     <p:dataTable id="tbList" value="#{glTrialBalance.acntBalList}" var="balV" 
+                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                  paginator="true" paginatorAlwaysVisible="true" rows="#{glTrialBalance.usrBuff.tblRows}"
+                  emptyMessage="No Accounts found" sortOrder="#{balV.fiGlAccountComp.coaAccount.ref}" >
+      <f:facet name="header">
+       <h:outputText value="Company"/>
+      </f:facet>
+      <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="tbList" fileName="#{formText.glReptTb_fn}" 
+                        postProcessor="#{glTrialBalance.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="tbList" fileName="#{formText.glReptTb_fn}" />
+      </h:commandLink>
+      
+     </f:facet>
+      <p:column width="120" sortBy="#{balV.fiGlAccountComp.coaAccount.ref}" 
+                filterable="true" filterMatchMode="contains"
+                filterBy="#{balV.fiGlAccountComp.coaAccount.ref}" >
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glAcRef}"/>
+       </f:facet>
+       <h:outputText value="#{balV.fiGlAccountComp.coaAccount.ref}"/>
+      </p:column>
+      <p:column sortBy="#{balV.fiGlAccountComp.coaAccount.name}" 
+                filterable="true" filterMatchMode="contains"
+                filterBy="#{balV.fiGlAccountComp.coaAccount.name}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glAcName}" />
+       </f:facet>
+       <h:outputText value="#{balV.fiGlAccountComp.coaAccount.name}"/>
+      </p:column>
+      <p:column styleClass="column-financialValue" width="120"
+                sortBy="#{balV.fiGlAccountComp.coaAccount.name}" 
+                filterable="true" filterMatchMode="contains"
+                filterBy="#{balV.fiGlAccountComp.coaAccount.name}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glRptBfwd}"/>
+       </f:facet>
+       <h:outputText value="#{balV.bfwdDocAmount}">
+        <f:convertNumber maxFractionDigits="2"
+                         minFractionDigits="2"
+                         minIntegerDigits="1"/>
+       </h:outputText>
+      </p:column>
+      <p:column styleClass="column-financialValue" width="120"
+                sortBy="#{balV.periodDebitAmount}" 
+                filterable="true" filterMatchMode="contains"
+                filterBy="#{balV.periodDebitAmount}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glRptDebit}"/>
+       </f:facet>
+       <h:outputText value="#{balV.periodDebitAmount}">
+        <f:convertNumber maxFractionDigits="#{glTrialBalance.minorUnit}"
+                         minFractionDigits="#{glTrialBalance.minorUnit}"
+                         minIntegerDigits="1"/>
+       </h:outputText>
+      </p:column>
+      <p:column styleClass="column-financialValue" width="120"
+                sortBy="#{balV.periodCreditAmount}" 
+                filterable="true" filterMatchMode="contains"
+                filterBy="#{balV.periodCreditAmount}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glRptCredit}"/>
+       </f:facet>
+       <h:outputText value="#{balV.periodCreditAmount}">
+        <f:convertNumber maxFractionDigits="#{glTrialBalance.minorUnit}"
+                         minFractionDigits="#{glTrialBalance.minorUnit}"
+                         minIntegerDigits="1"/>
+       </h:outputText>
+      </p:column>
+      <p:column styleClass="column-financialValue" width="120"
+                sortBy="#{balV.cfwdDocAmount}" 
+                filterable="true" filterMatchMode="contains"
+                filterBy="#{balV.cfwdDocAmount}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glRptBal}"/>
+       </f:facet>
+       <h:outputText value="#{balV.cfwdDocAmount}">
+        <f:convertNumber maxFractionDigits="#{glTrialBalance.minorUnit}"
+                         minFractionDigits="#{glTrialBalance.minorUnit}"
+                         minIntegerDigits="1"/>
+       </h:outputText>
+      </p:column>
+      <p:columnGroup type="footer">
+       <p:row>
+        <p:column colspan="2" styleClass="tblColGrpRight">
+         <f:facet name="footer">
+          <h:outputText  value="#{formText.totalFooter}" />
+         </f:facet>
+        </p:column>
+        <p:column  styleClass="amount">
+         <f:facet name="footer">
+          <h:outputText  value="#{glTrialBalance.bfwdAmnt}">
+           <f:convertNumber type="number" maxFractionDigits="#{glTrialBalance.minorUnit}" 
+                            minIntegerDigits="1" 
+                            minFractionDigits="#{glTrialBalance.minorUnit}" />
+          </h:outputText>
+         </f:facet>
+        </p:column>
+        <p:column  styleClass="amount">
+         <f:facet name="footer">
+          <h:outputText  value="#{glTrialBalance.periodDebitAmnt}">
+           <f:convertNumber type="number" 
+                            maxFractionDigits="#{glTrialBalance.minorUnit}" 
+                            minIntegerDigits="1" 
+                            minFractionDigits="#{glTrialBalance.minorUnit}" />
+          </h:outputText>
+         </f:facet>
+        </p:column>
+        <p:column  styleClass="amount">
+         <f:facet name="footer">
+          <h:outputText  value="#{glTrialBalance.periodCreditAmnt}">
+           <f:convertNumber type="number" maxFractionDigits="#{glTrialBalance.minorUnit}" 
+                            minIntegerDigits="1"
+                            minFractionDigits="#{glTrialBalance.minorUnit}"  />
+          </h:outputText>
+         </f:facet>
+        </p:column>
+        <p:column  styleClass="amount">
+         <f:facet name="footer">
+          <h:outputText  value="#{glTrialBalance.balanceAmnt}">
+           <f:convertNumber type="number" maxFractionDigits="#{glTrialBalance.company.country.fractionalLength}" maxIntegerDigits="1" 
+                            minFractionDigits="#{glTrialBalance.minorUnit}" />
+          </h:outputText>
+         </f:facet>
+        </p:column>
+       </p:row>
+      </p:columnGroup>
+     </p:dataTable>
+    </p:tab>
+   </p:accordionPanel>
+  </h:form>
+ </ui:define>
+</ui:composition>

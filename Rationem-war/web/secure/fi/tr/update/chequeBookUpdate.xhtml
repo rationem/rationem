@@ -1,0 +1,146 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.trChqBkUpdt}</ui:define>
+ <ui:define name="header">#{pageTitle.trChqBkUpdt} </ui:define>
+ <ui:define name="content">
+  <h:form id="chqBkUpdt" prependId="true">
+   <p:dataTable 
+    id="chqBkTbl" value="#{chequeBookBean.chequeBooks}" var="cbVar" rowKey="#{cbVar.numberControlId}" paginator="true"
+    selection="#{chequeBookBean.chequeBkSel}" selectionMode="single" rows="#{chequeBookBean.usrBuff.tblRows}"
+    emptyMessage="#{validationText.chkBkNone}"  paginatorAlwaysVisible="true"
+    paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+    <p:ajax event="contextMenu"/>
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24" />
+      <p:dataExporter type="xls" target="lines" fileName="#{listHeading.docLns_FN}"  
+                          postProcessor="#{apDocDisplay.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="lines" 
+                      fileName="#{listHeading.docLns_FN}" />
+     </h:commandLink>
+    </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.chqBkList}"/>
+    </f:facet> 
+    <p:column width="50" sortBy="#{cbVar.bankAccountComp.accountNumber}" >
+     <f:facet name="header" >
+      <h:outputText value="#{listHeading.chqBkAcnt}" />
+     </f:facet>
+     <h:outputText value="#{cbVar.bankAccountComp.accountNumber}"/>
+    </p:column>
+    <p:column width="100" sortBy="#{cbVar.shortDescr}" >
+     <f:facet name="header" >
+      <h:outputText value="#{listHeading.chqBkRef}" />
+     </f:facet>
+     <h:outputText value="#{cbVar.shortDescr}"/>
+    </p:column>
+    <p:column sortBy="#{cbVar.longDescr}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.chqBDescr}" />
+     </f:facet>
+     <h:outputText value="#{cbVar.longDescr}"/>
+    </p:column>
+    <p:column width="50" sortBy="#{cbVar.fromNum}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.chqBkFr}" />
+     </f:facet>
+     <h:outputText value="#{cbVar.fromNum}"/>
+    </p:column>
+    <p:column width="50" sortBy="#{cbVar.toNum}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.chqBkTo}" />
+     </f:facet>
+     <h:outputText value="#{cbVar.toNum}"/>
+    </p:column>
+    <p:column width="70" sortBy="#{cbVar.nextNum}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.chqBkNext}" />
+     </f:facet>
+     <h:outputText value="#{cbVar.nextNum}"/>
+    </p:column>
+    <p:column  width="50" sortBy="#{cbVar.autoNum}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.chqBkAuto}" />
+     </f:facet>
+     
+     <h:outputText value="#{formText.yes}" rendered="#{cbVar.autoNum eq true}"/>
+     <h:outputText value="#{formText.no}" rendered="#{cbVar.autoNum eq false}"/>
+    </p:column>
+    
+    <p:column width="100" sortBy="#{cbVar.nextNumRange.shortDescr}" >
+     
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.chqBkPost}" />
+     </f:facet>
+     <h:outputText value="#{cbVar.nextNumRange.shortDescr}"/>
+    </p:column>
+   </p:dataTable>
+   <p:contextMenu for="chqBkTbl" selectionMode="single" >
+    <p:menuitem icon="fa fa-pencil-square-o" value="#{menuText.mi_gen_updt}" update="editDlgFrm"
+                oncomplete="PF('updtDlgWv').show();"/>
+   </p:contextMenu>
+   
+  </h:form>
+  <h:form id="editDlgFrm" prependId="true">
+   <p:dialog id="updtDlg" dynamic="true" draggable="true" fitViewport="true" 
+             widgetVar="updtDlgWv" maximizable="true" modal="true">
+    <f:facet name="header">
+     <h:outputText value="#{formText.trChqBkEditHdr}"/>
+     <p:spacer width="5" />
+     <h:outputText value="#{chequeBookBean.chequeBkSel.shortDescr}"/>
+    </f:facet>
+    <p:toolbar >
+     <f:facet name="left">
+      <p:commandButton value="#{formText.transfer}" icon="fa fa-long-arrow-left"
+                       actionListener="#{chequeBookBean.onEditChqBkTrf}"/>
+      <p:commandButton value="#{formText.reset}" icon="fa fa-refresh">
+       <p:ajax update="editDlgFrm:chqBkUpdtPnl" resetValues="true"/>
+      </p:commandButton>
+      <p:commandButton value="#{formText.close}" type="button" icon="fa fa-window-close-o"
+                       onclick="PF('updtDlgWv').hide();" />
+     </f:facet>
+    </p:toolbar>
+    <p:messages autoUpdate="true" severity="error"/>
+    <p:panelGrid id="chqBkUpdtPnl" columns="2" columnClasses="ui-grid-col-5, ui-grid-col-2" layout="grid">
+     <f:facet name="header">
+      <h:outputText  value="#{formText.trChqBkCrDet}"/>
+     </f:facet>
+     <p:outputLabel for="bnkAcnt" value="#{formText.trChqBkBnkAcnt}"/>
+     <h:outputText id="bnkAcnt" value="#{chequeBookBean.chequeBkSel.bankAccountComp.accountNumber}"/>
+     <p:outputLabel for="name" value="#{formText.trChqBkName}"/>
+     <p:inputText id="name" value="#{chequeBookBean.chequeBkSel.shortDescr}" size="10"/>
+     <p:outputLabel for="descr" value="#{formText.trChqBkDescr}" />
+     <p:inputText id="descr" value="#{chequeBookBean.chequeBkSel.longDescr}"/>
+     <p:outputLabel for='frNum' value="#{formText.trChqBkFr}"/>
+     <p:inputText id="frNum" value="#{chequeBookBean.chequeBkSel.fromNum}">
+      <p:keyFilter mask="pint"/>
+     </p:inputText>
+     <p:outputLabel for='toNum' value="#{formText.trChqBkTo}"/>
+     <p:inputText id="toNum" value="#{chequeBookBean.chequeBkSel.toNum}" >
+      <p:keyFilter mask="pint"/>
+     </p:inputText>
+     <p:outputLabel for='currNum' value="#{formText.trChqBkCurr}"/>
+     <p:inputText id="currNum" value="#{chequeBookBean.chequeBkSel.nextNum}" >
+      <p:keyFilter mask="pint"/>
+     </p:inputText>
+     <p:outputLabel for='nextChqBk' value="#{formText.trChqBkNextBk}"/>
+     <p:autoComplete 
+      id="nextChqBk" value="#{chequeBookBean.chequeBkSel.nextNumRange}" dropdown="true"
+      converter="com.rationem.util.converter.NumberRangeCheque" itemLabel="#{chqBkV.shortDescr}"
+      completeMethod="#{chequeBookBean.onChqBkComplete}" var="chqBkV" itemValue="#{chqBkV}"
+      validator="#{chequeBookBean.validateNextChqBk}">
+      <p:ajax event="itemSelect" listener="#{chequeBookBean.onEditChqBkSel}"/>
+     </p:autoComplete>
+    </p:panelGrid>
+   </p:dialog>
+  </h:form>
+   
+ </ui:define>
+</ui:composition>

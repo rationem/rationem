@@ -1,0 +1,135 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/List.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.fiGlAcntListComp}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="glAcntLstCompFrm"  >
+
+   <p:panelGrid>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.glAccountComp}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{glAccountList.comp}"  
+                       converter="com.rationem.util.converter.CompanyBasic"  >
+       <f:selectItems value="#{glAccountList.compList}" var="compV" itemValue="#{compV}"
+                      itemLabel="#{compV.reference}" />
+       <p:ajax event="itemSelect" listener="#{glAccountList.onCompSel}"/>
+      </p:selectOneMenu>
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   <p:dataTable 
+    id="glAcslst" value="#{glAccountList.glcompAcs}" var='glactV' sortBy="#{glactV.coaAccount.ref}"
+    paginator="true" paginatorAlwaysVisible="true" rowKey="#{glactV.id}"  reflow="true"
+    rows="#{glAccountList.usrBuff.tblRows}" filteredValue="#{glAccountList.glcompAcsFiltered}"
+    paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">               
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="glAcslst" fileName="#{formText.glAccounts}" 
+                      postProcessor="#{glAccountList.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="glAcslst" fileName="#{formText.glAccounts}" />
+     </h:commandLink>
+    </f:facet>              
+                  
+    <p:ajax event="rowToggle" listener="#{glAccountList.onGlAcExpand}"/>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.glAcListComp}"/>
+     <p:spacer width="5"/>
+     <h:outputText value="#{glAccountList.comp.name}"/>
+    </f:facet>
+    <p:column exportable="false" width="10">
+     <p:rowToggler  />
+    </p:column>
+    <p:column  sortBy="#{glactV.coaAccount.ref}" filterBy="#{glactV.coaAccount.ref}" width="150">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.glAcRef}"/>
+     </f:facet>
+     <h:outputText value="#{glactV.coaAccount.ref}"/>
+    </p:column>
+    <p:column sortBy="#{glactV.coaAccount.name}" filterBy="#{glactV.coaAccount.name}" width="400">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.glAcName}"/>
+     </f:facet>
+     <h:outputText value="#{glactV.coaAccount.name}"/>
+    </p:column>
+    <p:column sortBy="#{glactV.coaAccount.description}" filterBy="#{glactV.coaAccount.description}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.glAcDescr}"/>
+       </f:facet>
+       <h:outputText value="#{glactV.coaAccount.description}"/>
+      </p:column>
+    <p:column sortBy="#{glactV.coaAccount.accountType.profitAndLossAccount}" width="50" >
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glAcPl}"/>
+       </f:facet>
+       <p:selectBooleanButton value="#{glactV.coaAccount.accountType.profitAndLossAccount}" 
+                              onLabel="#{formText.yes}" offLabel="#{formText.no}"/>
+      </p:column>
+    <p:column sortBy="#{glactV.coaAccount.accountType.name}" 
+                filterBy="#{glactV.coaAccount.accountType.name}" width="200">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.glAcType}"/>
+       </f:facet>
+     <h:outputText value="#{glactV.coaAccount.accountType.description}"/>
+      </p:column>
+      <p:rowExpansion>
+       <p:panelGrid styleClass="panelNoBorders" style="width:600px;"  >
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.glAccountSort}"/>
+         </p:column>
+         <p:column colspan="3">
+          <h:outputText value="#{glAccountList.glAcExpanded.sortOrder.description}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.glAccountAnalysis1}" />
+         </p:column>
+         <p:column>
+          <h:outputText value="#{glAccountList.glAcExpanded.analysis1}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{formText.glAccountAnalysis2}"/>
+         </p:column>
+         <p:column>
+          <h:outputText value="#{glAccountList.glAcExpanded.analysis2}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.glAccountVatCode}"/>
+         </p:column>
+         <p:column colspan="3">
+          <h:outputText value="#{glAccountList.glAcExpanded.vatCode.vatCode.code}"/>
+         </p:column>
+        </p:row>
+        <p:row>
+         <p:column>
+          <h:outputText value="#{formText.glAccountActCat}"/>
+         </p:column>
+         <p:column colspan="3">
+          <h:outputText value="#{glAccountList.glAcExpanded.repCategory}"/>
+         </p:column>
+        </p:row>
+       </p:panelGrid>
+      </p:rowExpansion>
+    </p:dataTable>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

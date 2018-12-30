@@ -1,0 +1,67 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.arAgedDebt}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <div class="ui-g">
+    <div class="ui-g-12">
+     <h:form id="agedDebt" >
+      <p:growl id="okMsg" severity="info"  />
+      <p:messages id="errMsg" severity="fatal,error,warn" closable="true"/> 
+      <p:toolbar >
+       <f:facet name="left">
+        <p:commandButton id="updateBtn" actionListener="#{apAgeDebtSplit.onUpdate}" value="#{formText.save}"
+                         icon="fa fa-floppy-o" styleClass="secondary"/>
+       </f:facet>
+      </p:toolbar>
+      <div class="card card-w-title">
+       <h1><h:outputText value="#{formText.compSel}" /></h1>
+       <p:panelGrid columns="3" layout="grid" columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-2">
+        <p:outputLabel for="comp" value="#{formText.comp}"/>
+        <p:selectOneMenu id="comp" value="#{apAgeDebtSplit.compSel}" converter="com.rationem.util.converter.CompanyBasic">
+         <f:selectItems value="#{apAgeDebtSplit.compList}" var="compV" 
+                        itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+        </p:selectOneMenu>
+        <h:outputText id="compNameTxt" value="#{apAgeDebtSplit.compSel.name}"/>
+        
+       </p:panelGrid>
+       <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-1,ui-grid-col-1">
+        <f:facet name="header">
+         <h:outputText value="#{formText.agingBucket}"/>
+        </f:facet>
+        <h:outputText value="#{formText.ageDay1}"/>
+        <p:spinner id="age1" value="#{apAgeDebtSplit.compSel.compApAr.arBucket1}" 
+                   max="#{apAgeDebtSplit.compSel.compApAr.apBucket2}" >
+         <p:ajax event="change"/>
+        </p:spinner>
+        
+        <p:outputLabel for="age2" value="#{formText.ageDay2}"/>
+        <p:spinner id="age2" value="#{apAgeDebtSplit.compSel.compApAr.arBucket2}" 
+                   max="#{apAgeDebtSplit.compSel.compApAr.apBucket3}"  decimalPlaces="0" >
+         <p:ajax update="agedDebt:age1"/>
+        </p:spinner>
+        
+        <p:outputLabel for="age3" value="#{formText.ageDay3}"/>
+        <p:spinner id="age3" value="#{apAgeDebtSplit.compSel.compApAr.arBucket3}" 
+                   max="#{apAgeDebtSplit.compSel.compApAr.apBucket4}"  decimalPlaces="0" >
+         <p:ajax update="agedDebt:age2"/>
+        </p:spinner>
+        <p:outputLabel for="age4" value="#{formText.ageDay4}"/>
+        <p:spinner id="age4" value="#{apAgeDebtSplit.compSel.compApAr.arBucket4}" 
+                     decimalPlaces="0" >
+         <p:ajax update="agedDebt:age3"/>
+        </p:spinner>
+       </p:panelGrid>
+       
+      </div>
+     </h:form>
+    </div>
+   </div>
+  </div>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,149 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/List.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.arAcntPerBal}</ui:define>
+ <ui:define name="header">#{pageTitle.arAcntPerBal}</ui:define>
+ <ui:define name="content">
+  <h:form id="arAcntBalance" prependId="false">
+   <p:panelGrid>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.comp}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{arAccntListBean.compSel}" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{arAccntListBean.compList}" var="compV" itemValue="#{compV}"
+                      itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="arAcnt" value="#{formTextAr.arAcntCode}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="arAcnt" value="#{arAccntListBean.acntSel}"
+                       converter="com.rationem.util.converter.ArAccount"
+                       var="acnt1m">
+       <f:selectItems var="acntV" value="#{arAccntListBean.acntList}" itemValue="#{acntV}"
+                      itemLabel="#{acntV.arAccountCode} "/>
+      
+       <p:column style="width: 30%">
+        <h:outputText value="#{acnt1m.arAccountCode}"/>
+       </p:column>
+       <p:column style="width: 70%">
+        <h:outputText value="#{acnt1m.arAccountName}"/>
+       </p:column>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="yr" value="#{formText.fiscYear}"/>
+     </p:column>
+     <p:column>
+      <p:spinner id="yr"  value="#{arAccntListBean.yrSel}" stepFactor="1" 
+                 valueChangeListener="#{arAccntListBean.onYearChange}">
+       <p:ajax />
+      </p:spinner>
+     </p:column>
+    </p:row>
+   </p:panelGrid> 
+   <p:spacer height="2"/>
+   <p:dataTable id="balsTbl" value="#{arAccntListBean.perBalanceList}" var="balTblV"
+      rows="#{arAccntListBean.usrBuff.tblRows}"
+      paginatorAlwaysVisible="true" paginator="true"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="balsTbl" fileName="#{listHeading.arAcntPerBalFn}" 
+                          postProcessor="#{arAccntListBean.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="balsTbl" fileName="#{listHeading.arAcntPerBalFn}" />
+     </h:commandLink>
+    </f:facet>>
+    <f:facet name="header">
+     <h:outputText value="Period Balances for account: "/>
+     <h:outputText value="#{arAccntListBean.acntSel.arAccountName}"/>
+    </f:facet>
+    <p:column sortBy="#{balTblV.balPeriod}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.fiscPer}"/>
+     </f:facet>
+     <h:outputText value="#{balTblV.balPeriod}">
+      <f:convertNumber type="number" groupingUsed="false" minFractionDigits="0" maxIntegerDigits="2"
+                        integerOnly="true"/>
+     </h:outputText>
+    </p:column>
+    <p:column styleClass="column-financialValue" sortBy="#{balTblV.bfwdLocalAmount}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.balOpen}"/>
+     </f:facet>
+     <h:outputText value="#{balTblV.bfwdLocalAmount}">
+      <f:convertNumber type="number" maxFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minIntegerDigits="1" locale="#{arAccntListBean.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column styleClass="column-financialValue" sortBy="#{balTblV.periodDebitAmount}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.balPerDr}"/>
+     </f:facet>
+     <h:outputText value="#{balTblV.periodDebitAmount}">
+      <f:convertNumber type="number" maxFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minIntegerDigits="1" locale="#{arAccntListBean.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column styleClass="column-financialValue" sortBy="#{balTblV.periodCreditAmount}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.balPerCr}"/>
+     </f:facet>
+     <h:outputText value="#{balTblV.periodCreditAmount}">
+      <f:convertNumber type="number" maxFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minIntegerDigits="1" locale="#{arAccntListBean.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column styleClass="column-financialValue" sortBy="#{balTblV.periodLocalAmount}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.balPer}"/>
+     </f:facet>
+     <h:outputText value="#{balTblV.periodLocalAmount}">
+      <f:convertNumber type="number" maxFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minIntegerDigits="1" locale="#{arAccntListBean.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column styleClass="column-financialValue" sortBy="#{balTblV.cfwdLocalAmount}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.balCls}"/>
+     </f:facet>
+     <h:outputText value="#{balTblV.cfwdLocalAmount}">
+      <f:convertNumber type="number" maxFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minIntegerDigits="1" locale="#{arAccntListBean.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column styleClass="column-financialValue" sortBy="#{balTblV.periodTurnover}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.balTo}"/>
+     </f:facet>
+     <h:outputText value="#{balTblV.periodTurnover}">
+      <f:convertNumber type="number" maxFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minFractionDigits="#{arAccntListBean.compSel.currency.minorUnit}"
+                       minIntegerDigits="1" locale="#{arAccntListBean.compSel.locale}"/>
+     </h:outputText>
+    </p:column>
+   </p:dataTable>
+   
+  </h:form>
+ </ui:define>
+</ui:composition>
+ 

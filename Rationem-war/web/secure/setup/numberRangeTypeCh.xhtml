@@ -1,0 +1,95 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{formText.numRngTyEdTitle}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="listFrm" >
+   <p:messages id="msg"  />  
+   <p:dataTable id="numRngTyList" value="#{numberRange.numRangeTypeList}"
+                 var="numRngTy" selection="#{numberRange.numRangeTypeSelected}"
+                 selectionMode="single" sortBy="#{numCntrl.shortDescr}"
+                 emptyMessage="#{formText.numRngTyNone}" rowKey="#{numRngTy.id}"
+                 filteredValue="#{numberRange.numberControlsFiltered}"
+                 paginator="true" rows="#{numberRange.usrBuff.tblRows}"
+                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+    >
+    <p:ajax event="contextMenu" listener="#{numberRange.onNumRngeTyContext}" />
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;" >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="numRngTyList" fileName="#{formText.numRng_Fn}" 
+                        postProcessor="#{numberRange.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24"/>
+      <p:dataExporter type="csv" target="numRngTyList" fileName="#{formText.numRng_Fn}" />
+     </h:commandLink>
+    </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{formText.numRngs}"/>
+    </f:facet>
+                    
+    <p:column sortBy="#{numRngTy.numRangeTypeCode}" width="150" 
+               filterBy="#{numRngTy.numRangeTypeCode}" filterMatchMode="contains"
+              >
+     <f:facet name="header">
+      <h:outputText value="#{formText.numRngTyCode}" />
+     </f:facet>
+     <h:outputText value="#{numRngTy.numRangeTypeCode}"/>
+    </p:column>
+    <p:column sortBy="#{numRngTy.numRangeTypeName}" 
+               filterBy="#{numRngTy.numRangeTypeName}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{formText.numRngTyDescr}" />
+     </f:facet>
+     <h:outputText value="#{numRngTy.numRangeTypeName}"/>
+    </p:column>
+   </p:dataTable>
+   <p:contextMenu for="numRngTyList">
+    <p:menuitem value="#{formText.edit}" actionListener="#{numberRange.onEditNumTyDlg}"/>
+    <p:menuitem value="#{formText.delete}" actionListener="#{numberRange.onDeleteDlg}" />
+   </p:contextMenu>
+
+   <p:confirmDialog id="delRngConfDlg" widgetVar="delRngConfWv" 
+                     message="#{formText.numRngDelMsg}"
+                            header="#{pageTitle.cfg_numRngDelDlg}">
+    <p:commandButton id="delNumRngCBY" value="#{formText.yes}" 
+                             actionListener="#{numberRange.onDeleteAction}"  />
+    <p:commandButton id="delNumRngCBN" value="#{formText.no}" 
+                             type="button"
+                             oncomplete="delRngConfWv.hide()"/>
+   </p:confirmDialog>
+    
+   
+  </h:form>
+  <h:form id="edTyDlgFrm"> 
+   <p:dialog id="editNumRngTyDlgId" widgetVar="editNumRngTyWVar" modal="true" dynamic="true"
+             closable="false ">
+     <f:facet name="header">
+      <h:outputText value="#{pageTitle.cfg_numRngTypeEdit}"/>
+      <p:spacer width="2"/>
+      <h:outputText value="#{numberRange.numRangeTypeSelected.numRangeTypeCode}"/>
+     </f:facet>
+     <h:panelGrid columns="2">
+      <h:outputLabel for="edTyCode" value="#{formText.numRngTyCode}"/>
+      <h:outputText id="edTyCode" value="#{numberRange.numRangeTypeSelected.numRangeTypeCode}"
+                            title="#{formHelpText.numRngTyCode}"  />
+      <h:outputLabel for="edLdescr" value="#{formText.numRngTyDescr}"/>
+      <p:inputText id="edLdescr" value="#{numberRange.numRangeTypeSelected.numRangeTypeName}"
+                   title="#{formHelpText.numRngTyDescr}" size="50" />
+      
+      <p:commandButton value="#{formText.save}" icon="fa fa-long-arrow-left"
+                       actionListener="#{numberRange.onEditTySaveAction}"  />
+      <p:commandButton value="#{formText.close}" icon="fa fa-times" type="button"
+                       onclick="PF('editNumRngTyWVar').hide();" />
+   </h:panelGrid>
+   </p:dialog>   
+  </h:form>
+
+ </ui:define>
+</ui:composition>

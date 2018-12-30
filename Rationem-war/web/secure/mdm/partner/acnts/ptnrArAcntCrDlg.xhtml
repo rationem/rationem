@@ -1,0 +1,50 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/templateDialog.xhtml">
+ <ui:define name="title">
+  <h:outputFormat value="#{pageTitle.ptnrAcntCr}">
+   <f:param value="#{partnerArAccountCr.ptnrBase.displayName}" />
+  </h:outputFormat>
+ </ui:define> 
+  
+ <ui:define name="header">#{pageTitle.ptnrDisp}</ui:define>
+ <ui:define name="content">
+  <h:form id="ptnrAcntCrFrm">
+   <p:tooltip globalSelector="true" />
+   <p:messages id="msgs" closable="true"/>
+   <p:panelGrid 
+    id="acntCompPg" layout="grid" columns="4" 
+    columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-1,ui-grid-col-1">
+    <p:outputLabel for="compNum" value="#{formText.comp}"/>
+    <p:selectOneMenu 
+     id="compNum" converter="com.rationem.util.converter.CompanyBasic"  
+     value="#{partnerArAccountCr.arAccount.company}" var="c">
+     <f:selectItems value="#{partnerArAccountCr.compList}" var="compV" itemValue="#{compV}"
+                    itemLabel="#{compV.reference}"/>
+     <p:column >
+      <h:outputText value="#{c.reference}"/>
+     </p:column>
+     <p:column >
+      <h:outputText value="#{c.name}"/>
+     </p:column>
+    </p:selectOneMenu>
+    <h:outputText id="compName" value="#{partnerArAccountCr.arAccount.company.name}"/>
+    <h:panelGroup class="md-inputfield">
+     <p:inputText 
+      id="acntNum" value="#{partnerArAccountCr.arAccount.arAccountCode}" required="true"
+      validator="#{partnerArAccountCr.onAcntNumValidate}"
+      requiredMessage="#{validationText.arActNum}"  >
+      <p:ajax  event="blur" />
+     </p:inputText>
+     <p:outputLabel for="acntNum" value="#{formTextAr.arAcntCode}"/>
+    </h:panelGroup>
+                     
+   </p:panelGrid>
+   
+  </h:form>
+ </ui:define>
+</ui:composition>
+ 

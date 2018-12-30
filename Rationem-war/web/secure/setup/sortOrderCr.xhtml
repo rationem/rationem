@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    template="/WEB-INF/template.xhtml"
+>
+    
+ <ui:define name="title"><h:outputText value="#{pageTitle.cfg_sortOrderCr}" /></ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_sortOrderCr}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  
+  <h:form id="sortOrderFrm" prependId="false" >
+   <h:panelGrid columns="2">
+    
+    <p:outputLabel for="code" value="#{formText.sortOrderCd}"/>
+    <p:inputText id="code" value="#{sortOrderBean.sortOrder.sortCode}" maxlength="10"
+                                 size="12" required="true"
+                                 />
+    <p:outputLabel for="name" value="#{formText.sortOrderName}"/>
+    <p:inputText id="name" value="#{sortOrderBean.sortOrder.name}" 
+                                  />
+    <p:outputLabel for="descr" value="#{formText.sortOrderDescr}"  />
+    <p:inputText id="descr" value="#{sortOrderBean.sortOrder.description}" size="50"/>               
+    
+    
+    <p:commandButton value="#{formText.save}"  actionListener="#{sortOrderBean.onSaveNewSortOrder}"
+                     icon="fa fa-floppy-o"/>
+   </h:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

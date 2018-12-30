@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/newDoc.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.cfg_postTyCr}</ui:define>
+  <ui:define name="header"> </ui:define>
+   <ui:define name="content">
+    <h:form id="postTyCrFrm" prependId="false" >
+     <p:growl autoUpdate="true" />
+     <p:toolbar>
+      <f:facet name="left" >
+       <p:commandButton value="#{formText.save}" actionListener="#{postCode.onCreatePostType}"
+                        ajax="false"/>
+      </f:facet >
+      
+     </p:toolbar>
+     <p:focus for="postCd"/>
+     <p:panelGrid columns="2">
+      <p:outputLabel for="postCd" value="#{formText.docPostCode}"/>
+      <p:inputText id="postCd" value="#{postCode.postType.postTypeCode}" size="9" maxlength="10"
+                   required="true" requiredMessage="#{validationText.postTyCode}" 
+                   validator="#{postCode.validatePostTypeCode}">
+       <p:ajax event="blur"/>
+      </p:inputText>
+      <p:outputLabel for="descr" value="#{formText.pstTyDescr}"/>
+      <p:inputText id="descr" value="#{postCode.postType.description}" size="40"/>
+      <p:outputLabel for="ledger" value="#{formText.pstTyLed}"/>
+      <p:selectOneMenu id="ledger" value="#{postCode.postType.ledger}" 
+                       converter="com.rationem.util.converter.Ledger" var="ledSM" required="true"
+                       requiredMessage="#{validationText.postTyLed}">
+       <f:selectItems value="#{postCode.ledgers}" var="ledVar" itemValue="#{ledVar}" 
+                      itemLabel="#{ledVar.name}" />
+       <p:column>
+        #{ledSM.name} - #{ledSM.descr}
+       </p:column>
+      </p:selectOneMenu>
+      <p:outputLabel for="module" value="#{formText.procCd_mod}"/>
+      <p:selectOneMenu id="module" value="#{postCode.postType.module}" 
+                       converter="com.rationem.util.converter.Module">
+       <f:selectItem  itemValue="#{postCode.moduleNone}" itemLabel="#{postCode.moduleNone.name}" noSelectionOption="true"/>
+       <f:selectItems value="#{postCode.modules}" var="modV" itemValue="#{modV}" itemLabel="#{modV.name}"/>
+      </p:selectOneMenu>
+      <p:outputLabel for="debit" value="#{formText.docDebit}"/>
+      <p:selectBooleanCheckbox id="debit" value="#{postCode.postType.debit}" />
+      <p:outputLabel for="revTy" value="#{formText.pstTyRev}"/>
+      <p:selectOneMenu id="revTy" value="#{postCode.postType.revPostType}" converter="com.rationem.util.converter.PostType">
+       <f:selectItem itemLabel="#{postCode.postTypeNone.description}" noSelectionOption="true"/>
+       <f:selectItems value="#{postCode.postTypes}" var="revPstTy" itemValue="#{revPstTy}" 
+                      itemLabel="#{revPstTy.postTypeCode}"/>
+      </p:selectOneMenu>
+                       
+     </p:panelGrid>
+    </h:form>
+   </ui:define>
+</ui:composition>

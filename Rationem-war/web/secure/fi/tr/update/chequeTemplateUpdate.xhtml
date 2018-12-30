@@ -1,0 +1,141 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.cfg_chq_tmpl_updt}</ui:define>
+ <ui:define name="header">#{pageTitle.cfg_chq_tmpl_updt}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="chqTemplUptFrm">
+    <p:focus for="templateList" />
+    <p:messages autoUpdate="true"  severity="warn, error"/>
+    <p:growl autoUpdate="true" severity="info"/>
+    
+    <p:confirmDialog id="confDlg" message="#{formText.trChqTemplDelMsg}" 
+                     widgetVar="templDelDlg" severity="alert">
+     <f:facet name="header">
+      <h:outputText value="#{formText.trChqTemplDelHdr}"/>
+      <p:spacer width="2"/>
+      <h:outputText value="#{chequeTemplateBean.templateSelected.reference}"/>
+     </f:facet>
+     <p:panelGrid layout="grid" columnClasses="ui-grid-col-3,ui-ui-grid-col-2" columns="3" >
+      <p:commandButton value="#{formText.delete}" icon="fa fa-trash-o" disabled="#{chequeTemplateBean.templateSelected eq null}" 
+                       action="#{chequeTemplateBean.onDeleteTemplate}" ajax="false" />
+     <p:commandButton value="#{formText.cancel}" type="button" onclick="PF('templDelDlg').hide();"
+                      update="chqTemplUptFrm:editDlg"/>
+     </p:panelGrid>
+    </p:confirmDialog>
+    
+    <p:dataTable 
+     id="templateList" value="#{chequeTemplateBean.templates}" var="templ" selectionMode="single"
+     rowKey="#{templ.id}" sortBy="#{templ.reference}"
+     emptyMessage="#{validationText.chqTemplNone}"  rows="#{chequeTemplateBean.usrBuff.tblRows}"
+     paginatorAlwaysVisible="true" paginator="true" selection="#{chequeTemplateBean.templateSelected}"
+     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}" >
+     <p:ajax event="contextMenu" listener="#{chequeTemplateBean.onTemplateRowSelect}" 
+              update="chqTemplUptFrm:confDlg, chqTemplUptFrm:editDlg"/>
+     <f:facet name="header">
+      
+      
+      <h:outputText value="#{formText.chqTemplAvail}"/>
+     </f:facet>
+     <f:facet name="{Exporters}">
+           <h:commandLink style="float:right;"  >
+            <p:graphicImage name="/images/Excel-48.gif" width="24" />
+            <p:dataExporter type="xls" target="lines" fileName="#{listHeading.docLns_FN}"  
+                          postProcessor="#{apDocDisplay.postProcessXLS}" />
+           </h:commandLink>
+           <h:commandLink style="float:right;">
+            <p:graphicImage name="/images/csv_text.png" width="24" />
+            <p:dataExporter type="csv" target="lines" 
+                      fileName="#{listHeading.docLns_FN}" />
+           </h:commandLink>
+          </f:facet>
+     <p:column exportable="true" width="90" sortBy="#{templ.reference}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqRef}"/>
+      </f:facet>
+      <h:outputText value="#{templ.reference}"/>
+     </p:column>
+     <p:column exportable="true" sortBy="#{templ.description}" >
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqDescr}"/>
+      </f:facet>
+      <h:outputText value="#{templ.description}"/>
+     </p:column>
+     <p:column exportable="true" width="200" sortBy="#{templ.originalFileName}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqOrigFn}"/>
+      </f:facet>
+      <h:outputText value="#{templ.originalFileName}"/>
+     </p:column>
+     <p:column exportable="true" width="200" sortBy="#{templ.pdfFileName}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.chqPdfFn}"/>
+      </f:facet>
+      <h:outputText value="#{templ.pdfFileName}"/>
+     </p:column>
+    </p:dataTable>
+   <p:contextMenu for="templateList" selectionMode="single">
+     <p:menuitem value="#{menuText.mi_gen_updt}"  icon="fa fa-pencil-square-o" 
+                 onclick="PF('editDlgWv').show();"/>
+     <p:menuitem value="#{menuText.mi_gen_del}" icon="fa fa-trash-o" onclick="PF('templDelDlg').show();" />
+    </p:contextMenu> 
+    
+    <p:dialog id="editDlg" dynamic="true"  widgetVar="editDlgWv" styleClass="chequeTemplDlg"  >
+     <f:facet name="header">
+      <h:outputText value="#{formText.trChqTemplEdHdr}"/>
+      <p:spacer width="2"/>
+      <h:outputText value="#{chequeTemplateBean.templateSelected.reference}"/>
+     </f:facet>
+     <p:panelGrid id="editPnlGr" columns="4" 
+                  columnClasses="ui-grid-col-2,ui-grid-col-4,ui-grid-col-3,ui-grid-col-3" layout="grid" >
+      <p:outputLabel for="ref" value="#{formText.chqTemplRef}"/>
+      <p:inputText id="ref" value="#{chequeTemplateBean.templateSelected.reference}"/>
+      <h:panelGroup />
+      <h:panelGroup />
+      <p:outputLabel for="descr" value="#{formText.chqTemplDescr}"/>
+      <p:inputText id="descr" value="#{chequeTemplateBean.templateSelected.description}"/>
+      <h:panelGroup />
+      <h:panelGroup />
+      <p:outputLabel for="prntChqLn" value="#{formText.chqTemplPrntBnkLn}"/>
+      <p:inputSwitch id="prntChqLn" value="#{chequeTemplateBean.templateSelected.printChqNumLine}" 
+                     onLabel="#{formText.yes}" offLabel="#{formText.no}"/>
+      <h:panelGroup />
+      <h:panelGroup />
+      <p:outputLabel for="baseFile" value="#{formText.chqTemplFile}"/>
+      <h:outputText id="baseFile" value="#{chequeTemplateBean.templateSelected.originalFileName}"/>
+      <p:fileUpload id="baseFileUpload"  mode="advanced" auto="true"
+                    invalidFileMessage="#{validationText.chqOthFileType}"
+                    fileUploadListener="#{chequeTemplateBean.onUploadEditBaseFile}" 
+                     label="#{formText.chqTemplFlSel}"
+                     update="chqTemplUptFrm:baseFile" allowTypes="/(\.|\/)(doc?|odt)$/" />
+      <p:commandButton id="bseFileDownLd" value="#{formText.download}" ajax="false" >
+       <p:fileDownload value="#{chequeTemplateBean.baseFile}"/>
+      </p:commandButton>
+      <p:outputLabel for="pdfFile" value="#{formText.chqTemplPdf}"/>
+      <h:outputText id="pdfFile" value="#{chequeTemplateBean.templateSelected.pdfFileName}"/>
+      <p:fileUpload id="pdfFileUpload"  mode="advanced" auto="true" allowTypes="/(\.|\/)(pdf)$/"
+                    invalidFileMessage="#{validationText.chqPdfFileType}"
+                    label="#{formText.chqTemplFlSel}" 
+                    fileUploadListener="#{chequeTemplateBean.onUploadEditPdfFormFile}" 
+                    update="chqTemplUptFrm:pdfFile" />
+      <p:commandButton id="pdfFileDownLd" value="#{formText.download}" ajax="false" >
+       <p:fileDownload value="#{chequeTemplateBean.pdfFile}"/>
+      </p:commandButton>
+     </p:panelGrid>
+     <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-3,ui-grid-col-3">
+      <p:commandButton id="trfBtn" value="#{formText.transfer}" icon="fa fa-long-arrow-left fa-lg"
+                       actionListener="#{chequeTemplateBean.onTemplateTransfer}"/>
+      <p:commandButton id="cancelBtn" value="#{formText.cancel}" icon="fa fa-trash" type="button"
+                       onclick="PF('editDlgWv').hide();"/>
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

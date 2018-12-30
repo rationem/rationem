@@ -1,0 +1,83 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.slCatCr}</ui:define>
+ <ui:define name="header">#{pageTitle.slCatCr} </ui:define>
+ <ui:define name="content">
+  <h:form id="salesCatCrFrm" prependId="false">
+    <p:growl autoUpdate="true" />
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="actTypeSave" icon="fa fa-floppy-o" value="#{formText.save}" 
+                       action="#{salesCategory.onAddSalesCategory}" 
+                            title="#{formHelpText.actTySave}"  />
+      <p:commandButton type="reset" value="#{formText.reset}" >
+       <p:resetInput target="salesCatCrFrm" clearModel="true"/>
+      </p:commandButton>
+           
+     </f:facet >
+    </p:toolbar> 
+    <p:panelGrid   >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="compId" value="#{formText.comp}"/>
+      </p:column>
+      <p:column>
+       <p:selectOneMenu id="compId" value="#{salesCategory.cat.company}" var="compMnuV" 
+                      converter="com.rationem.util.converter.CompanyBasic" >
+        <f:selectItems value="#{salesCategory.compList}" var="comp" itemValue="#{comp}" 
+                     itemLabel="#{comp.reference}" />
+        <p:column width="20%">
+         <h:outputText value="#{compMnuV.reference}"/>
+        </p:column>
+        <p:column width="80%">
+         <h:outputText value="#{compMnuV.name}"/>
+        </p:column>
+       </p:selectOneMenu>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="code" value="#{formTextSl.slCatCode}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="code" value="#{salesCategory.cat.code}" required="true"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="sDescr"  value="#{formTextSl.slCatSrtDescr}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="sDescr" value="#{salesCategory.cat.sortDescr}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="lDescr" value="#{formTextSl.slCatLngDescr}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="lDescr" value="#{salesCategory.cat.longDescr}"/>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column>
+       <p:outputLabel for="childCat" value="#{formTextSl.slCatSubCat}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="childCat" value="#{salesCategory.cat.subCategories}" 
+                     converter="com.rationem.util.converter.SalesCategory" var="subCatV"
+                     completeMethod="#{salesCategory.onSubCatComplete}"
+                     itemValue="#{subCatV}" itemLabel="#{subCatV.code}"
+                     multiple="true" cache="true" emptyMessage="#{validationText.slCatNone}" 
+                     forceSelection="true" >
+       </p:autoComplete>
+      </p:column>
+     </p:row>
+    </p:panelGrid> 
+  </h:form>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_docTypCr}</ui:define>
+  <ui:define name="header">#{pageTitle.cfg_docTypCr} </ui:define>
+  <ui:define name="content">
+    
+   <h:form id="docTypeCrFrm" prependId="false">
+    <p:outputPanel id="toolBar">
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="saveBtn" icon="fa fa-floppy-o" value="#{formText.save}" actionListener="#{documentTypeBean.onDocTyNewSave}"/>
+     </f:facet>
+    </p:toolbar>
+   </p:outputPanel>
+    <p:panelGrid columns="2">
+     <p:outputLabel for="docCode" value="#{formText.docTyCode}"/>
+     <p:inputText id="docCode" value="#{documentTypeBean.docType.code}" validator="#{documentTypeBean.onDocTyCodeValidate}"/>
+     <p:outputLabel for="docTypeName" value="#{formText.docTyName}"/>
+     <p:inputText id="docTypeName" value="#{documentTypeBean.docType.name}"/>
+     <p:outputLabel for="docTypeGl" value="#{formText.docTyGl}"/>
+     <p:selectBooleanCheckbox id="docTypeGl" value="#{documentTypeBean.docType.glAllowed}"/>
+     <p:outputLabel for="docTypeAr" value="#{formText.docTyAr}"/>
+     <p:selectBooleanCheckbox id="docTypeAr" value="#{documentTypeBean.docType.arAllowed}"/>
+     <p:outputLabel for="docTypeAp" value="#{formText.docTyAp}"/>
+     <p:selectBooleanCheckbox id="docTypeAp" value="#{documentTypeBean.docType.apAllowed}"/>
+     <p:outputLabel for="docTypeTr" value="#{formText.docTyTr}"/>
+     <p:selectBooleanCheckbox id="docTypeTr" value="#{documentTypeBean.docType.trAllowed}"/>
+
+    </p:panelGrid>
+    
+   </h:form>
+  </ui:define>
+</ui:composition>

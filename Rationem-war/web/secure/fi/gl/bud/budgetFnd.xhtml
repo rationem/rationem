@@ -1,0 +1,208 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiBudFnd}</ui:define>
+ <ui:define name="header">#{pageTitle.fiBudFnd}</ui:define>
+ <ui:define name="content">
+  <h:form id="fundBudFrm" prependId="false" >
+   <p:toolbar >
+    <f:facet name="left">
+     <p:commandButton icon="fa fa-floppy-o" title="#{formText.save}" 
+                      actionListener="#{budgetFund.onFundBudSave}"/>
+     <p:commandButton icon="fa fa-arrows" title="Even Spread" 
+                      actionListener="#{budgetFund.onBudSpread}"/>
+     <span class="ui-separator">
+      <span class="ui-icon ui-icon-grip-dotted-vertical" />
+     </span>
+     <h:outputText value="#{formText.budAnnual}"/>
+     <p:spacer width="4"/>
+     <p:inputText id="annTotal" value="#{budgetFund.annualTotal}" styleClass="budTotal">
+      <f:convertNumber type="number" locale="#{budgetFund.compSel.locale}" 
+                       minIntegerDigits="1"
+                       minFractionDigits="#{budgetFund.compSel.currency.minorUnit}"
+                       maxFractionDigits="#{budgetFund.compSel.currency.minorUnit}"/>
+     </p:inputText>
+    </f:facet>
+   </p:toolbar>
+   <p:messages autoUpdate="true" closable="true"/>
+   <p:panelGrid id="selOpt" styleClass="ui-noborder"  >
+    <p:row>
+     <p:column>
+      <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="comp" value="#{budgetFund.compSel}" var="compSmV" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{budgetGlAccount.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+       <p:column>
+        <h:outputText value="#{compSmV.reference}"/>
+       </p:column>
+       <p:column>
+        <h:outputText value="#{compSmV.name}"/>
+       </p:column>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText id="compName" value="#{budgetFund.compSel.name}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <h:outputText value="#{formText.docAcntRef}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="glAcnt" value="#{budgetFund.glAcntSel}" 
+                       converter="com.rationem.util.converter.FiGlAccountComp" var="glAcntSmV"
+                       filter="true" filterMatchMode="contains" syncTooltip="true"
+                       valueChangeListener="#{budgetFund.onAccountChange}"
+                       >
+       <f:selectItems value="#{budgetFund.glAcntList}" var="glAcntV" itemValue="#{glAcntV}"
+                      itemLabel="#{glAcntV.coaAccount.ref}"/>
+       <p:ajax event="itemSelect"/>
+       <p:column>
+        <h:outputText value="#{glAcntSmV.coaAccount.ref}"/>
+        <p:spacer width="1"/> <h:outputText value="-"/> <p:spacer width="1"/>
+        <h:outputText value="#{glAcntSmV.coaAccount.name}"/>
+       </p:column>
+       </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <h:outputText id="glAcntName" value="#{budgetFund.glAcntSel.coaAccount.name}"/>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="fnd" value="#{formText.docLineRestrFnd}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="fnd" value="#{budgetFund.fundSel}" converter="com.rationem.util.converter.Fund">
+       <f:selectItems value="#{budgetFund.fundList}" var="fnd" itemValue="#{fnd}" itemLabel="#{fnd.fndCode}"/>
+      </p:selectOneMenu>
+     </p:column>
+     <p:column>
+      <p:outputLabel for="budYr" value="#{formText.fisYear}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="budYr" value="#{budgetFund.budYearSel}" 
+                       disabled="#{budgetFund.budgetYears eq null}"
+                       valueChangeListener="#{budgetFund.onBudgetYearChange}">
+       <f:selectItems var="budYr" value="#{budgetFund.budgetYears}" itemValue="#{budYr}" 
+                      itemLabel="#{budYr}"/>
+       <p:ajax event="change"/>
+       <p:ajax event="itemSelect" listener="#{budgetFund.onBudYearClick}" />
+     
+      </p:selectOneMenu>
+     </p:column>
+     
+     <p:column>
+      <p:commandButton id="addBudYrBtn" value="#{formText.budFndAdd}" icon="fa fa-file-o"
+                       type="button" onclick="PF('addFndYrWv').show();" />
+     </p:column>
+    </p:row>
+   </p:panelGrid>
+   <p:dataTable id="budTblId" var="budPer" value="#{budgetFund.budgetList}" 
+                emptyMessage="#{validationText.glBudRecNone}" style="width: 40%;" editable="true"
+         paginator="true" paginatorAlwaysVisible="true"
+         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+         rows="#{budgetFund.usrBuff.tblRows}"        editMode="row">
+    <p:ajax event="rowEdit" listener="#{budgetFund.onBudPerValEdit}"/>
+    <p:ajax event="rowEditInit" listener="#{budgetFund.onBudPerValEditInit}"/>
+    <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="budTblId" fileName="#{formText.budPers_fn}" 
+                        postProcessor="#{budgetFund.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="budTblId" fileName="#{formText.budPers_fn}" />
+      </h:commandLink>
+      
+     </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{formText.budPers}" rendered="#{budgetFund.budYearSel  eq 0}"/>
+     <h:outputText value="#{formText.budPer4Yr}" rendered="#{budgetFund.budYearSel  gt 0}"/>
+     <p:spacer width="3"/>
+     <h:outputText value="#{budgetFund.budYearSel}" rendered="#{budgetFund.budYearSel  gt 0}">
+      <f:convertNumber type="number" integerOnly="true" groupingUsed="false"/>
+     </h:outputText>
+    </f:facet>
+    <p:column width="50">
+     <f:facet name="header">
+      <h:outputText value="#{formText.budPer}"/>
+     </f:facet>
+     <h:outputText value="#{budPer.balPeriod}"/>
+    </p:column>
+    <p:column styleClass="column-financialValue">
+     <f:facet name="header">
+      <h:outputText value="#{formText.docAmnt}"/>
+     </f:facet>
+     <p:cellEditor>
+      <f:facet name="output">
+       <h:outputText value="#{budPer.periodBudgetAmount}">
+        <f:convertNumber type="number" locale="#{budgetFund.glAcntSel.company.locale}" minIntegerDigits="1"
+                       maxFractionDigits="#{budgetFund.glAcntSel.company.currency.minorUnit}"
+                       minFractionDigits="#{budgetFund.glAcntSel.company.currency.minorUnit}"/>
+       </h:outputText>
+      </f:facet>
+      <f:facet name="input">
+       <p:inputText value="#{budPer.periodBudgetAmount}">
+        <f:convertNumber type="number" locale="#{budgetFund.glAcntSel.company.locale}" minIntegerDigits="1"
+                       maxFractionDigits="#{budgetFund.glAcntSel.company.currency.minorUnit}"
+                       minFractionDigits="#{budgetFund.glAcntSel.company.currency.minorUnit}"/>
+       </p:inputText>
+      </f:facet>
+     </p:cellEditor>
+    </p:column>
+    <p:column exportable="false" width="20">
+     <f:facet name="header">
+      <h:outputText value="#{formText.edit}"/>
+     </f:facet>
+     <p:rowEditor/>
+    </p:column>
+   </p:dataTable>
+  </h:form>
+  <h:form id="addFndYr" prependId="false">
+   <p:dialog id="addFndYrDlgId" widgetVar="addFndYrWv" modal="true" closable="false">
+    <f:facet name="header">
+     <h:outputText value="#{formText.budFndNew}"/>
+     <p:spacer width="4"/>
+     <h:outputText value="#{formText.budFndGlAcnt}"/>
+     <p:spacer width="2"/>
+     <h:outputText value="#{budgetFund.glAcntSel.coaAccount.ref}"/>
+     <p:spacer width="4"/>
+     <h:outputText value="#{formText.budFndName}"/>
+     <p:spacer width="2"/>
+     <h:outputText value="#{budgetFund.fundSel.fndCode}"/>
+    </f:facet>
+    <p:messages closable="true"/>
+    <p:panelGrid id="fndTrf" >
+     <p:row>
+      <p:column>
+       <p:outputLabel for="fndYr" value="#{formText.budYr}"/>
+      </p:column>
+      <p:column>
+       <p:inputText id="fndYr" value="#{budgetFund.budYearNew}" maxlength="4" 
+                    validatorMessage="#{validationText.glFndYrRng}">
+        <f:convertNumber type="number" integerOnly="true" groupingUsed="false"/>
+        <f:validateDoubleRange minimum="1960" maximum="9999"/>
+       </p:inputText>
+      </p:column>
+     </p:row>
+     <p:row>
+      <p:column colspan="2">
+       <p:commandButton id="fndYrTrf" value="#{formText.transfer}" icon="ui ui-icon-arrowthick-1-w"
+                        actionListener="#{budgetFund.onYearTrf}"/>
+       <p:spacer width="5"/>
+       <p:commandButton type="button" value="#{formText.close}" icon="ui ui-icon-circle-close" 
+                        onclick="PF('addFndYrWv').hide();" />
+      </p:column>
+      
+     </p:row>
+    </p:panelGrid>
+    
+   </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>

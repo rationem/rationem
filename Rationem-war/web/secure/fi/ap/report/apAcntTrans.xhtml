@@ -1,0 +1,311 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.apRptTrans}</ui:define>
+ <ui:define name="content">
+  <h:form id="acntTransFrm" >
+   <p:steps id="steps" activeIndex="#{apAcntTransListBean.step}">
+    <p:menuitem value="#{menuText.mi_gen_sel}"/>
+    <p:menuitem value="#{menuText.mi_ap_ac_trans}" />
+   </p:steps>
+   <p:outputPanel id="stepOp">
+    <div class="card card-w-title" >
+     <h1>#{apAcntTransListBean.stepName}</h1>
+     <p:messages id="errMsg" autoUpdate="true" severity="warn, error, fatal" closable="true"/>
+     <p:growl id="okMsg"  autoUpdate="true" severity="info"/>
+     <p:panelGrid id="selPg" columns="2"  
+                styleClass="ui-noborder" layout="grid" rendered="#{apAcntTransListBean.step eq 0}" >
+      <h:panelGroup styleClass="md-inputfield">
+       <p:autoComplete 
+        id="compSel" value="#{apAcntTransListBean.selOpt.comp}" var="compListV" itemValue="#{compListV}"
+        itemLabel="#{compListV.reference}" converter="com.rationem.util.converter.CompanyBasic"
+        completeMethod="#{apAcntTransListBean.onCompComplete}" forceSelection="true" size="5" 
+        dropdown="true" required="true">
+        
+        <p:ajax event="itemSelect" listener="#{apAcntTransListBean.onCompSel}" update="acntTransFrm:acCode"/>
+        <p:ajax event="itemUnselect" listener="#{apAcntTransListBean.onCompSel}" update="acntTransFrm:acCode"/>
+        <p:column width="25%">
+         <h:outputText value="#{compListV.reference}"/>
+        </p:column>
+        <p:column width="75%">
+         <h:outputText value="#{compListV.name}"/>
+        </p:column>
+        
+       </p:autoComplete>
+       <p:outputLabel for="compSel" value="#{formText.comp}"/>               
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:autoComplete 
+        id="acCode" value="#{apAcntTransListBean.selOpt.apAcnt}" dropdown="true" required="true"
+        converter="com.rationem.util.converter.ApAccount" var="acntV" itemValue="#{acntV}" 
+        completeMethod="#{apAcntTransListBean.onApAccountComplete}" itemLabel="#{acntV.accountCode}"
+        disabled="#{apAcntTransListBean.selOpt.comp.id eq null}">
+        
+       </p:autoComplete>
+       <p:outputLabel for="acCode" value="#{formTextAp.apAcnt}"/>
+                       
+      </h:panelGroup>
+     
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="fiscYrFr" value="#{apAcntTransListBean.selOpt.fiscYearFr}" size="4"  
+                    maxlength="4" 
+                    validator="#{apAcntTransListBean.onFiscalYearFromValidate}"
+                    >
+        <f:convertNumber integerOnly="true" groupingUsed="false"/>
+        <p:ajax event="blur" process="@this" partialSubmit="true"/>
+       </p:inputText>
+       <p:outputLabel for="fiscYrFr" value="#{formText.fisYearFr}" />
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="fiscYrTo" value="#{apAcntTransListBean.selOpt.fiscYearTo}" size="4"  maxlength="4"
+                    validator="#{apAcntTransListBean.onFiscalYearToValidate}">
+        <f:convertNumber integerOnly="true" groupingUsed="false"/>
+        <p:ajax event="blur" process="@this,fiscYrFr"/>
+        <p:keyFilter mask="pint"/> 
+       </p:inputText>
+       <p:outputLabel for="fiscYrFr" value="#{formText.fisYearTo}" />
+      </h:panelGroup>
+      
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="fiscPerFr" value="#{apAcntTransListBean.selOpt.fiscPerFr}" size="4" maxlength="4"
+                    validator="#{apAcntTransListBean.onFiscalPeriodFromValidate}">
+        <f:convertNumber integerOnly="true" groupingUsed="false"/>
+        <p:keyFilter mask="pint"/>
+         <p:ajax event="blur" process="@this" partialSubmit="true"/>
+       </p:inputText>
+       <p:outputLabel for="fiscPerFr" value="#{formText.fisPerFr}" />
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="fiscPerTo" value="#{apAcntTransListBean.selOpt.fiscPerTo}" size="4" maxlength="4" 
+                    validator="#{apAcntTransListBean.onFiscalPeriodToValidate}">
+        <f:convertNumber integerOnly="true" groupingUsed="false"/>
+        <p:ajax event="blur" process="@this,fiscPerFr "/>
+       </p:inputText>
+       <p:outputLabel for="fiscPerTo" value="#{formText.fisPerTo}" />
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:calendar id="docDateFr" value="#{apAcntTransListBean.selOpt.docDateFr}" 
+                locale="#{apAcntTransListBean.selOpt.comp.locale}" navigator="true" 
+                pattern="dd/MMM/yyyy" maxdate="#{apAcntTransListBean.selOpt.docDateTo}" 
+                showOtherMonths="true" maxlength="11" size="12" 
+                validator="#{apAcntTransListBean.onDocDateFromValidate}"   >
+        <p:ajax event="dateSelect"/>
+       </p:calendar>
+       <p:outputLabel for="docDateFr" value="#{formText.docDateFr}">
+       </p:outputLabel>
+       
+               
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:calendar id="docDateTo" value="#{apAcntTransListBean.selOpt.docDateTo}" widgetVar="docDateToWv" 
+                locale="#{apAcntTransListBean.selOpt.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                validator="#{apAcntTransListBean.onDocDateToValidate}" 
+                showOtherMonths="true" maxlength="11" size="12" mindate="#{apAcntTransListBean.selOpt.docDateFr}" >
+        <p:ajax event="dateSelect"/>
+       </p:calendar>
+       
+                         
+                         
+       <p:outputLabel for="docDateTo" value="#{formText.docDateTo}"/>
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:calendar id="postDateFr" value="#{apAcntTransListBean.selOpt.postDateFr}" 
+         locale="#{apAcntTransListBean.selOpt.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+         showOtherMonths="true" maxlength="11" size="12" maxdate="#{apAcntTransListBean.selOpt.postDateTo}" 
+         validator="#{apAcntTransListBean.onDocPostDateFrValidate}">
+        <p:ajax event="dateSelect"/>
+        <p:ajax event="blur"/>
+       </p:calendar>
+       <p:outputLabel for="postDateFr" value="#{formText.postDateFr}"/>
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:calendar id="postDateTo" value="#{apAcntTransListBean.selOpt.postDateTo}" 
+         locale="#{apAcntTransListBean.selOpt.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+         showOtherMonths="true" maxlength="11" size="12" mindate="#{apAcntTransListBean.selOpt.postDateFr}"
+         validator="#{apAcntTransListBean.onDocPostDateToValidate}"
+         >
+        <p:ajax event="dateSelect" process="postDateFr, postDateTo" />
+        <p:ajax event="blur" process="postDateFr, postDateTo"/>
+       </p:calendar>
+       
+       <p:outputLabel for="postDateTo" value="#{formText.postDateTo}"/>
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:autoComplete 
+        id="docTy" value="#{apAcntTransListBean.selOpt.docTypeList}" converter="com.rationem.util.converter.DocType"
+        completeMethod="#{apAcntTransListBean.onDocTypeComplete}" multiple="true"
+        var="docTyV" itemValue="#{docTyV}" itemLabel="#{docTyV.name}" dropdown="true"/>
+       <p:outputLabel for="docTy" value="#{formText.docType}"/>
+      </h:panelGroup>
+      <h:panelGroup >
+       
+        <p:outputLabel for="payStat" value="#{formTextAp.apDocLinePayStat}" style="text-align: left !important;"/>
+        <p:selectOneRadio id="payStat" layout="responsive" columns="3" label="radio lable" 
+                          value="#{apAcntTransListBean.selOpt.payStatus}">
+         <f:selectItem itemLabel="#{formText.docLinePyStatOs}" itemValue="0"/>
+         <f:selectItem itemLabel="#{formText.docLinePyStatPd}" itemValue="1"/>
+         <f:selectItem itemLabel="#{formText.docLinePyStatAll}" itemValue="2"/>
+        </p:selectOneRadio>
+        
+       
+      </h:panelGroup>
+      <p:commandButton id="getList" value="#{formText.next}" icon="fa fa-gear" 
+                      actionListener="#{apAcntTransListBean.onGetTrans}" update="acntTransFrm" />
+     </p:panelGrid>
+     <p:panelGrid id="listPg" columns="1" layout="grid" styleClass="ui-noborder" 
+                  rendered="#{apAcntTransListBean.step eq 1}" >
+      <p:dataTable 
+       id="linesDt" value="#{apAcntTransListBean.apLines}" var="lineV" rowKey="#{lineV.id}" 
+       rowExpandMode="single"
+       emptyMessage="#{validationText.apAcntLinesNone}" rows="#{apAcntTransListBean.usrBuff.tblRows}"
+       paginator="true" paginatorAlwaysVisible="true" filteredValue="#{apAcntTransListBean.apLinesFiltered}"
+       paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+       <f:facet name="{Exporters}">
+        <h:commandLink style="float:right;"  >
+         <p:graphicImage name="/images/Excel-48.gif" width="24" />
+         <p:dataExporter type="xls" target="linesDt" fileName="#{listHeading.apTransLine_FN}"  
+                          postProcessor="#{apAcntTransListBean.postProcessXLS}" />
+        </h:commandLink>
+        <h:commandLink style="float:right;">
+         <p:graphicImage name="/images/csv_text.png" width="24" />
+         <p:dataExporter type="csv" target="linesDt" 
+                      fileName="#{listHeading.apTransLine_FN}" />
+        </h:commandLink>
+       </f:facet>
+       <p:ajax event="rowToggle" listener="#{apAcntTransListBean.onApLineToggle}"/>
+       <p:column style="width:16px">
+        <p:rowToggler/>
+       </p:column>
+       <p:column width="50" sortable="true" sortBy="#{lineV.docFi.docNumber}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docNumber}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.docFi.docNumber}"/>
+       </p:column>
+       <p:column width="50" sortable="true" sortBy="#{lineV.apAccount.accountCode}"
+                 filterBy="#{lineV.apAccount.accountCode}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docAcnt}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.apAccount.accountCode}"/>
+       </p:column>
+       <p:column width="50" sortable="true" sortBy="#{lineV.comp.reference}" 
+                 filterBy="#{lineV.comp.reference}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.compCode}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.comp.reference}">
+         <f:convertDateTime type="date" dateStyle="medium" locale="#{apAcntTransListBean.usrBuff.loc}"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="90" sortable="true" sortBy="#{lineV.docFi.postingDate}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docPstDate}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.docFi.postingDate}">
+         <f:convertDateTime type="date" dateStyle="medium" locale="#{apAcntTransListBean.usrBuff.loc}"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="90" sortable="true" sortBy="#{lineV.dueDate}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLnDueDt}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.dueDate}">
+         <f:convertDateTime type="date" dateStyle="medium" locale="#{apAcntTransListBean.usrBuff.loc}"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="50" sortable="true" sortBy="#{lineV.clearedLine eq false and lineV.clearingLine eq false}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLnAmntOs}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.unpaidAmount}">
+         
+        </h:outputText>
+       </p:column>
+       <p:column width="50" sortable="true" sortBy="#{lineV.postType.postTypeCode}" 
+                 filterBy="#{lineV.postType.postTypeCode}" >
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docPstTy}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.postType.postTypeCode}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLnText}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.lineText}"/>
+       </p:column>
+       <p:column  sortable="true" sortBy="#{lineV.docAmount}" styleClass="column-financialValue" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.docDebit}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.docAmount}" rendered="#{lineV.postType.debit}" >
+         <f:convertNumber type="number" locale="#{apAcntTransListBean.selOpt.comp.locale}"
+                          maxFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+        </h:outputText>
+       </p:column> 
+       <p:column  sortable="true" sortBy="#{lineV.docAmount}" styleClass="column-financialValue" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.docCredit}"/>
+        </f:facet>
+        <h:outputText value="#{lineV.docAmount}" rendered="#{ not lineV.postType.debit}">
+         <f:convertNumber type="number" locale="#{apAcntTransListBean.selOpt.comp.locale}"
+                          maxFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+        </h:outputText>
+       </p:column>
+       <p:rowExpansion>
+        <p:panelGrid columns="2" layout="grid" >
+         <p:panelGrid layout="grid" columns="2">
+          <f:facet name="header">
+           <h:outputText value="Header" />
+          </f:facet>
+          <h:outputText value="#{formText.docType}"/>
+          <h:outputText value="#{lineV.docFi.docType.name}"/>
+          <h:outputText value="#{formText.docPeriod}"/>
+          <h:outputText value="#{lineV.docFi.fisYearPeriod}"/>
+          <h:outputText value="#{formText.docHdrTxt}"/>
+          <h:outputText value="#{lineV.docFi.docHdrText}"/>
+         </p:panelGrid>
+         <p:panelGrid layout="grid" columns="2">
+          <f:facet name="header">
+           <h:outputText value="#{listHeading.docLnNum}"/>
+          </f:facet>
+          <h:outputText value="#{formText.docPayType}"/>
+          <h:outputText value="#{lineV.payType.description}"/>
+          <h:outputText value="#{formText.docPayTerms}"/>
+          <h:outputText value="#{lineV.payTerms.payTermsCode}"/>
+          <h:outputText value="#{formText.docLineClrdBy}" rendered="#{lineV.clearedLine}"/>
+          <h:outputText value="#{lineV.clearedByLine.docNumber}" rendered="#{lineV.clearedLine}"/>
+          <h:outputText value="#{formText.docLineClr4Doc}" rendered="#{lineV.clearingLine}"/>
+          <p:dataTable value="#{lineV.clearingLineForLines}" var="clrdLn" rendered="#{lineV.clearingLine}">
+           <p:column>
+            <f:facet name="header">
+             <h:outputText value="#{listHeading.docNumber}"/>
+            </f:facet>
+            <h:outputText value="#{clrdLn.docNumber}"/>
+           </p:column>
+          </p:dataTable>
+         </p:panelGrid>
+          
+         
+        </p:panelGrid>
+        
+       </p:rowExpansion>
+      </p:dataTable>
+     </p:panelGrid>
+     <p:commandButton id="backBtn" value="#{formText.back}" icon="fa fa-arrow-left"
+                      actionListener="#{apAcntTransListBean.onBackBtn()}" update="acntTransFrm"/>
+     
+     
+    </div>
+   </p:outputPanel>
+  </h:form>
+ </ui:define>
+</ui:composition>

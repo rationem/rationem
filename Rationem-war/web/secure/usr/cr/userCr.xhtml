@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+>
+    
+    <ui:composition template="/WEB-INF/template.xhtml">
+        <ui:define name="title">#{menuOption.usrCr}</ui:define>
+        <ui:define name="header"> </ui:define>
+        <ui:define name="content">
+            
+
+            <p:fieldset id="actTypeFs" legend="#{menuOption.usrCr}">
+             
+            <h:form id="actTypFrm" prependId="false" >
+                <p:wizard showNavBar="true" showStepStatus="true" >
+                    <p:tab id="person" title="#{formText.usrPersonal}"  >
+                        <p:panel header="#{formText.usrPersonalDet}">
+                            <p:messages id="adrMess"/>
+                            <h:panelGrid columns="2">
+
+                                <h:outputLabel for="firstName" value="#{formText.usrFirstName}"/>
+                                <p:inputText id="firstName" value="#{userBean.user.firstName}"
+                                             title="#{formHelpText.usrFirstName}"/>
+                                <h:outputLabel for="middleName" value="#{formText.usrMiddleName}"/>
+                                <p:inputText id="middleName" value="#{userBean.user.middleName}"
+                                             title="#{formHelpText.usrMiddleName}"/>
+                                <h:outputLabel for="lastName" value="#{formText.usrLastName}"/>
+                                <p:inputText id="lastName" value="#{userBean.user.familyName}" required="true"
+                                             requiredMessage="#{errorText.usrLastName}" 
+                                             title="#{formHelpText.usrLastName}"/>
+                                <h:outputLabel for="startDT" value="#{formText.usrStarted}"/>
+                                <p:calendar id="startDT" value="#{userBean.user.startDate}"
+                                            title="#{formHelpText.usrStarted}" showOn="both" pattern="dd/MMM/yyyy" />
+                                <h:outputLabel for="endDT" value="#{formText.usrEnd}"/>
+                                <p:calendar id="endDT" value="#{userBean.user.endDate}"
+                                            title="#{formHelpText.usrStarted}" showOn="both" pattern="dd/MMM/yyyy" />
+
+                            </h:panelGrid>
+                        </p:panel>
+
+                    </p:tab>
+                    <p:tab title="#{formText.usrAddr}">
+                        <p:panel header="#{formText.usrAddrDet}">
+                            <h:panelGrid columns="2">
+                                <h:outputLabel for="addrRef" value="#{formText.addrRef}"/>
+                                <p:inputText id="addrRef" value="#{userBean.user.defaultAddress.addrRef}"
+                                             title="#{formHelpText.addrRef}" />
+                                <h:outputLabel for="street" value="#{formText.addrStr}"/>
+                                <p:inputText id="street" value="#{userBean.user.defaultAddress.street}"
+                                             title="#{formHelpText.addrStr}"/>
+                                <h:outputLabel for="town" value="#{formText.addrTown}"/>
+                                <p:inputText id="town" value="#{userBean.user.defaultAddress.town}"
+                                             title="#{formHelpText.addrTown}"/>
+                                <h:outputLabel for="pstcd" value="#{formText.addrPostCd}"/>
+                                <p:inputText id="pstcd" value="#{userBean.user.defaultAddress.postCode}"
+                                             title="#{formHelpText.addrPostCd}"/>
+                            </h:panelGrid>
+                        </p:panel>
+                    </p:tab>
+                    <p:tab title="#{formText.usrLgn}">
+                        <p:panel header="#{formText.usrLgnDt}">
+                            <p:messages id="pwMess"/>
+                            <h:panelGrid columns="2">
+                            <h:outputLabel for="loginName" value="#{formText.usrLgnName}"/>
+                            <p:inputText id="loginName" value="#{userBean.user.loginDetails.loginName}"
+                                         title="#{formHelpText.usrLgnName}"/>
+
+                            <h:outputLabel for="pwd" value="#{formText.usrLgnPw}"/>
+                            <p:password  id="pwd" feedback="true"  value="#{userBean.user.loginDetails.password}"
+                                         promptLabel="#{formText.usrPwPrompt}" required="true"
+                                         inline="true"
+                                         requiredMessage="#{errorText.usrPassword}" weakLabel="#{formText.usrPwWeak}"
+                                         goodLabel="#{formText.usrPwGood}" strongLabel="#{formText.usrPwStrong}" 
+                                         valueChangeListener="#{userBean.pwEntryValueChange}"
+                                         >
+                                <p:ajax event="blur" update="pwMess" />
+                                
+                            </p:password>
+                            <h:outputLabel for="pw2" value="#{formText.usrLgnPw2}"/>
+                            <p:password id="pw2" feedback="true"  value="#{userBean.password2}"
+                                         promptLabel="#{formHelpText.usrLgnPw2}" weakLabel="#{formText.usrPwWeak}"
+                                         valueChangeListener="#{userBean.pwRentryValueChange}"
+                                         required="true" inline="true" requiredMessage="#{errorText.usrPassword2}"
+                                         goodLabel="#{formText.usrPwGood}" strongLabel="#{formText.usrPwStrong}">
+                                <p:ajax event="blur" update="pwMess" />
+                            </p:password>
+                            <h:outputLabel for="sysUsr" value="#{formText.usrSysUsr}"/>
+                            <h:selectBooleanCheckbox id="sysUsr" value="#{userBean.user.systemUser}"/>
+                            <p:commandButton id="saveUsr" value="#{formText.genSaveBtn}" 
+                                             actionListener="#{userBean.saveBtn}" update="pwMess"  />
+                            <p:commandButton id="reset" value="#{formText.genResetBtn}" type="reset"/>
+                            </h:panelGrid>
+                        </p:panel>
+                    </p:tab>
+
+                </p:wizard>
+                
+            </h:form>
+          </p:fieldset>
+        </ui:define>
+    </ui:composition>
+    </html>
+
+

@@ -1,0 +1,80 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{formText.numRngCrTitle}</ui:define>
+ <ui:define name="header">#{formText.numRngCrTitle} </ui:define>
+ <ui:define name="content">
+  <h:form id="numRngCr">
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="saveNumRng" styleClass="secondary" value="#{formText.save}" icon="fa fa-floppy-o"
+                      actionListener="#{numberRange.onAddSave}"/>
+    </f:facet>
+   </p:toolbar>
+   <p:messages id="msgs" closable="true"/> 
+   <p:panelGrid layout="grid" columns="4" 
+                columnClasses="ui-grid-col-2, ui-grid-col-3,ui-grid-col-2, ui-grid-col-3">
+    <p:outputLabel for="sDescr" value="#{formText.numRngSdescr}"/>
+    <p:inputText id="sDescr" value="#{numberRange.numRange.shortDescr}" required="true"/>
+    <p:outputLabel for="lDescr" value="#{formText.numRngLdescr}" />
+    <p:inputText id="lDescr" value="#{numberRange.numRange.longDescr}" required="true"/>
+    <p:outputLabel for="modSel" value="#{formText.numRngModule}"/>
+    <p:autoComplete 
+     id="modSel" value="#{numberRange.numRange.module}" var="modVar" required="true" itemValue="#{modVar}"
+     itemLabel="#{modVar.description}" cache="true" completeMethod="#{numberRange.onModuleComplete}"
+     converter="com.rationem.util.converter.Module" forceSelection="true" dropdown="true"/>
+    
+    <p:outputLabel for="forTypeSel" value="#{formText.numRng4}" />
+    <p:autoComplete 
+     id="forTypeSel" value="#{numberRange.numRange.numberRangeForType}" required="true" var="tyV"
+     converter="com.rationem.util.converter.NumberRangeType" itemValue="#{tyV}" forceSelection="true"
+     itemLabel="#{tyV.numRangeTypeCode}" completeMethod="#{numberRange.onNumRngTypeComplete}" dropdown="true">
+     <f:facet name="itemtip">
+      <p:panelGrid layout="grid" columns="1" columnClasses="ui-grid-col-3">
+       
+       <h:outputText value="#{tyV.numRangeTypeName}"/>
+      </p:panelGrid>
+     </f:facet>
+    </p:autoComplete>
+    
+    <p:outputLabel for="fromNum" value="#{formText.numRngFrNum}"/>
+    <p:inputText id="fromNum" value="#{numberRange.numRange.fromNum}"  required="true">
+     <p:keyFilter mask="pint"/>
+    </p:inputText>
+    <p:outputLabel for="toNum" value="#{formText.numRngEndNum}" />
+    <p:inputText id="toNum" value="#{numberRange.numRange.toNum}" required="true">
+     <p:keyFilter mask="pint"/>
+    </p:inputText>
+    <p:outputLabel for="autoNum" value="#{formText.numRngAuto}"/>
+    <p:selectBooleanButton id="autoNum" value="#{numberRange.numRange.autoNum}" offLabel="#{formText.no}" onLabel="#{formText.yes}"
+                           onIcon="fa fa-check" offIcon="fa fa-times"  >
+     <p:ajax  update="numRngCr:nextNum"  />
+    </p:selectBooleanButton>
+    <p:outputLabel for="nextNum" value="#{formText.numRngNext}"/>
+    <p:inputText id="nextNum" value="#{numberRange.numRange.nextNum}" disabled="#{numberRange.numRange.autoNum }">
+     <p:keyFilter mask="pint"/>
+    </p:inputText>
+    <p:outputLabel for="priorNr" value="#{formText.numRngPrior}"/>
+    <p:autoComplete id="priorNr" value="#{numberRange.numRange.priorNumRange}" 
+                    converter="com.rationem.util.converter.NumberControl" cache="true" 
+                    dropdown="true" dynamic="true" emptyMessage="#{blacResponse.numRange4TypeNone}"
+                    completeMethod="#{numberRange.onAddNumRngComplete}" var="priorNrV" 
+                    itemLabel="#{priorNrV.shortDescr}" itemValue="#{priorNrV}">
+     
+    </p:autoComplete>
+    <p:outputLabel for="nextNr" value="#{formText.numRngPost}"/>
+    <p:autoComplete id="nextNr" value="#{numberRange.numRange.nextNumRange}" 
+                    converter="com.rationem.util.converter.NumberControl" cache="true" 
+                    dropdown="true" dynamic="true" emptyMessage="#{blacResponse.numRange4TypeNone}"
+                    completeMethod="#{numberRange.onAddNumRngComplete}" var="priorNrV" 
+                    itemLabel="#{priorNrV.shortDescr}" itemValue="#{priorNrV}">
+     
+    </p:autoComplete>
+   </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>

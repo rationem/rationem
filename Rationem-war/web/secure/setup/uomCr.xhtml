@@ -1,0 +1,40 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_uomCr}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_uomCr}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="uom" prependId="false">
+   <p:growl id="msg"  showDetail="true" showSummary="true">
+    <p:autoUpdate/>
+   </p:growl>
+   <p:fieldset >
+    <h:panelGrid columns="2">
+     <h:outputLabel for="uomCd" value="#{formText.uomCd}"/>
+     <p:inputText id="uomCd" value="#{unitOfmeasureBean.uom.uomCode}" size="3"
+                                 maxlength="3" title="#{formHelpText.uomCode}"/>
+     <h:outputLabel for="uomName" value="#{formText.uom_name}"/>
+     <p:inputText id="uomName" value="#{unitOfmeasureBean.uom.name}"
+                                 title="#{formHelpText.uom_name}" />
+     <h:outputLabel for="uomDescr" value="#{formText.uom_descr}"/>
+     <p:inputText id="uomDescr" value="#{unitOfmeasureBean.uom.description}"
+                                 title="#{formHelpText.uom_descr}"/>
+     <h:outputLabel for="uomPrCd" value="#{formText.uom_processCode}"/>
+     <p:inputText id="uomPrCd" value="#{unitOfmeasureBean.uom.processCode}"
+                                 title="#{formHelpText.uom_processCode}"/>
+     <p:commandButton id="uomCrBtn" value="#{formText.uom_createButton}"
+                                     title="#{formHelpText.uom_createButton}" 
+                                     actionListener="#{unitOfmeasureBean.createUomAction}"
+                                     />
+
+    </h:panelGrid>
+   </p:fieldset>
+  </h:form>
+ </ui:define>
+</ui:composition>
+

@@ -1,0 +1,99 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_docTypUpdt}</ui:define>
+  <ui:define name="header">#{pageTitle.cfg_docTypUpdt} </ui:define>
+  <ui:define name="content">
+    
+   <h:form id="docTypeCrFrm" prependId="false">
+    
+    <p:contextMenu for="docsTbl">
+     <p:menuitem icon="ui-icon-pencil" value="#{formText.edit}" actionListener="#{documentTypeBean.onShowEditDlg}"/>
+    </p:contextMenu>
+    <p:dataTable id="docsTbl" emptyMessage="#{blacResponse.docTyNone}" value="#{documentTypeBean.docTypes}"
+           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+           selection="#{documentTypeBean.docTypeSelected}" rowKey="#{docTy.id}" rows="#{documentTypeBean.usrBuff.tblRows}"
+           selectionMode="single" var="docTy" paginator="true">
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="docsTbl" fileName="#{formText.docTy_fn}" 
+                        postProcessor="#{countryBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="docsTbl" fileName="#{formText.docTy_fn}" />
+      </h:commandLink>
+     </f:facet>
+     <f:facet name="header">
+      <h:outputText value="#{formText.docTypes}"/>
+     </f:facet>
+     <p:column width="100" sortBy="#{docTy.code}" filterBy="#{docTy.code}">
+      <f:facet name="header">
+       <h:outputText value="#{formText.docTyCode}"/>
+      </f:facet>
+      <h:outputText value="#{docTy.code}"/>
+     </p:column>
+     <p:column sortBy="#{docTy.name}" filterBy="#{docTy.name}">
+      <f:facet name="header">
+       <h:outputText value="#{formText.docTyName}"/>
+      </f:facet>
+      <h:outputText value="#{docTy.name}"/>
+     </p:column>
+     <p:column width="100"  sortBy="#{docTy.apAllowed}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docTyAp}"/>
+      </f:facet>
+      <p:selectBooleanCheckbox disabled="true" value="#{docTy.apAllowed}"/>
+     </p:column>
+     <p:column width="100" sortBy="#{docTy.arAllowed}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docTyAr}"/>
+      </f:facet>
+      <p:selectBooleanCheckbox disabled="true" value="#{docTy.arAllowed}"/>
+     </p:column>
+     <p:column width="100" sortBy="#{docTy.glAllowed}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docTyGl}"/>
+      </f:facet>
+      <p:selectBooleanCheckbox disabled="true" value="#{docTy.glAllowed}"/>
+     </p:column>
+     <p:column width="100" sortBy="#{docTy.trAllowed}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docTyTr}"/>
+      </f:facet>
+      <p:selectBooleanCheckbox disabled="true" value="#{docTy.trAllowed}"/>
+     </p:column>
+    </p:dataTable> 
+    
+   </h:form>
+   <h:form id="editDocTyFrm" prependId="false">
+    <p:dialog dynamic="true" widgetVar="editDocTyWv">
+     <f:facet name="header">
+      <h:outputText value="#{formText.docTyEdDlg}"/>
+     </f:facet>
+     <p:panelGrid columns="2" styleClass="panelNoBorders">
+     <p:outputLabel for="docCode" value="#{formText.docTyCode}"/>
+     <h:outputText id="docCode" value="#{documentTypeBean.docTypeSelected.code}" />
+     <p:outputLabel for="docTypeName" value="#{formText.docTyName}"/>
+     <p:inputText id="docTypeName" value="#{documentTypeBean.docTypeSelected.name}"/>
+     <p:outputLabel for="docTypeGl" value="#{formText.docTyGl}"/>
+     <p:selectBooleanCheckbox id="docTypeGl" value="#{documentTypeBean.docTypeSelected.glAllowed}"/>
+     <p:outputLabel for="docTypeAr" value="#{formText.docTyAr}"/>
+     <p:selectBooleanCheckbox id="docTypeAr" value="#{documentTypeBean.docTypeSelected.arAllowed}"/>
+     <p:outputLabel for="docTypeAp" value="#{formText.docTyAp}"/>
+     <p:selectBooleanCheckbox id="docTypeAp" value="#{documentTypeBean.docTypeSelected.apAllowed}"/>
+     <p:outputLabel for="docTypeTr" value="#{formText.docTyTr}"/>
+     <p:selectBooleanCheckbox id="docTypeTr" value="#{documentTypeBean.docTypeSelected.trAllowed}"/>
+     <h:panelGroup layout="block">
+      <p:commandButton icon="ui-icon-arrowthick-1-w" value="#{formText.transfer}" 
+                       actionListener="#{documentTypeBean.onDocTypeUpdateSave}" />
+     </h:panelGroup>
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+  </ui:define>
+</ui:composition> 

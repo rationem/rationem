@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+    
+>
+  
+
+<ui:composition template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/newDoc.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{menuOption.mnuSlCreditNote}</ui:define>
+  <ui:define name="header"> </ui:define>
+   <ui:define name="content">
+    <h:form id="valueDateCrFrm" prependId="false">
+     <p:growl autoUpdate="true"  />
+     <p:toolbar>
+      <f:facet name="left">
+       <p:commandButton id="newDocBtn" icon="ui-icon-document" value="#{formText.genNewBtn}" 
+                        actionListener="#{valueDateBean.onResetValueDate()}" ajax="false" >
+        
+       </p:commandButton>
+       <p:commandButton id="valueDatePostBtn" icon="fa fa-floppy-o" value="#{formText.genSaveBtn}" 
+                        actionListener="#{valueDateBean.onSaveValueDate}" process="valueDateCrFrm"
+                        update="valueDateCrFrm" partialSubmit="true"
+                        title="#{formHelpText.arDocPostCrn}" ajax="false"   /> 
+       </f:facet >
+         
+     </p:toolbar>
+     <p:panelGrid styleClass="panelNoBorders" columns="2">
+      <p:outputLabel for="num" value="#{formText.valueDtNumber}" />
+      <p:inputText id="num" value="#{valueDateBean.valueDate.number}" disabled="true">
+       <f:convertNumber type="number" integerOnly="true"/>
+      </p:inputText>
+      <p:outputLabel for="code" value="#{formText.valueDtCode}"/>
+      <p:inputText id="code" value="#{valueDateBean.valueDate.code}" size="10" maxlength="10"
+                   required="true" requiredMessage="#{validationText.valueDtCode}"/>
+      <p:outputLabel for="descr" value="#{formText.valueDtDescr}"/>
+      <p:inputText id="descr" value="#{valueDateBean.valueDate.description}" size="40" maxlength="50"/>
+      <p:outputLabel for="offset" value="#{formText.valueDtOffset}" />
+      <p:inputText id ="offset" value="#{valueDateBean.valueDate.offset}" size="5" 
+                   validatorMessage="Offset must be between 0 and 365" required="true">
+       <f:convertNumber type="number" integerOnly="true"/>
+      </p:inputText>
+      <p:outputLabel for="uom" value="#{formText.genUom}"/>
+      <p:autoComplete id="uom" value="#{valueDateBean.valueDate.uom}" size="5"
+                      
+                      converter="accounts.Util.converter.UnitOfMeasure" 
+                      required="true" requiredMessage="#{validationText.valueDtUom}"
+                      completeMethod="#{valueDateBean.uomComplete}" dropdown="true"
+                      var="uomV" itemValue="#{uomV}" itemLabel="#{uomV.uomCode}">
+       <f:facet name="itemtip">
+        <h:panelGrid columns="2" cellpadding="2">
+         <p:outputLabel for="uomCode" value="#{formText.uomCd}"/>
+         <h:outputText id="uomCode" value="#{uomV.uomCode}"/>
+         <p:outputLabel for="uomDescr" value="#{formText.uom_name}"/>
+         <h:outputText id="uomDescr" value="#{uomV.name}"/>
+        </h:panelGrid>
+       </f:facet>
+      </p:autoComplete>
+      
+     </p:panelGrid>
+    </h:form>
+   </ui:define>
+ </ui:composition>
+</html>
+
+
+

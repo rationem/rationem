@@ -1,0 +1,33 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_fund_cat_cr}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_fund_cat_cr}" styleClass="panelHeader" /> 
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="fndCatCrFrm" prependId="false">
+  <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="saveledgr" value="#{formText.save}" 
+                      icon="ui-icon-document"  actionListener="#{fundTypeBean.onSaveNewCategory}" />
+     
+    </f:facet >
+   </p:toolbar>
+  <p:panelGrid columns="2" styleClass="panelNoBorders">
+   <p:outputLabel for="fndRef" value="#{formText.fndCatRef}"/>
+   <p:inputText id="fndRef" value="#{fundTypeBean.fndCat.catRef}" required="true" size="5"/>
+   <p:outputLabel for="fndDescr" value="#{formText.fndCatDescr}"/>
+   <p:inputText id="fndDescr" value="#{fundTypeBean.fndCat.description}" />
+   <p:outputLabel for="fndRestr" value="#{formText.fndCatRestrict}" />
+   <p:selectBooleanButton id="fndRestr" offLabel="#{formText.no}" onLabel="#{formText.yes}"
+                          value="#{fundTypeBean.fndCat.restricted}" />
+   <p:outputLabel for="fndProcessCd" value="#{formText.fndCatProcessCd}"  />
+   <p:inputText id="fndProcessCd" value="#{fundTypeBean.fndCat.processCode}" size="5"/>
+  </p:panelGrid>
+  </h:form>
+ </ui:define>
+</ui:composition>

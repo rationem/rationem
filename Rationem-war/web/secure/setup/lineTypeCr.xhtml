@@ -1,0 +1,29 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_lineTtpCr}</ui:define>
+  <ui:define name="header"><p:panel header="#{pageTitle.cfg_lineTtpCr}"  /></ui:define>
+  <ui:define name="content">
+   <h:form id="lineTypeFrm">
+    <p:panelGrid id="linrFrmTbl" columns="2">
+     <p:outputLabel for="lineTyCode" value="#{formText.ltypCd}"/>
+     <p:inputText id="lineTyCode" value="#{lineType.lineType.lineCode}" size="3" />
+     <p:outputLabel for="modMnu" value="#{formText.ltypMod}" />
+     <p:selectOneMenu id="modMnu" value="#{lineType.lineType.module}" 
+                      converter="com.rationem.util.converter.Module">
+      <f:selectItems  value="#{lineType.modules}" var="modItem" itemValue="#{modItem}" 
+                      itemLabel="#{modItem.description}" />
+     </p:selectOneMenu>
+     <p:outputLabel for="lineDescr" value="#{formText.ltypDescr}"/>
+     <p:inputText id="lineDescr" value="#{lineType.lineType.description}" size="50" />
+     <p:commandButton id="modCrBtn" value="#{formText.save}" icon="fa fa-floppy-o"
+                      actionListener="#{lineType.onCreateLineTypeSave}"  />
+    </p:panelGrid>
+   </h:form>
+  </ui:define>
+</ui:composition>
+
+

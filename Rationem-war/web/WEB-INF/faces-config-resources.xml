@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!-- =========== FULL CONFIGURATION FILE ================================== -->
+
+<faces-config version="2.1"
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_1.xsd">
+
+ <application>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.formTexMa</base-name>
+   <var>formMa</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.formTextAr</base-name>
+   <var>formTextAr</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.formTextAp</base-name>
+   <var>formTextAp</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.formTextMdm</base-name>
+   <var>formTextMdm</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.formTextSl</base-name>
+   <var>formTextSl</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.formText</base-name>
+   <var>formText</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.formHelpText</base-name>
+   <var>formHelpText</var>
+  </resource-bundle>
+  
+  <resource-bundle>
+   <base-name>com.rationem.localisation.errorText</base-name>
+   <var>errorText</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.ValidationText</base-name>
+   <var>validationText</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.serverErrorText</base-name>
+   <var>serverErrorText</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.menu</base-name>
+   <var>menuText</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.pageTitle</base-name>
+   <var>pageTitle</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.auditText</base-name>
+   <var>auditText</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.responses</base-name> 
+   <var>blacResponse</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.listHeading</base-name>
+   <var>listHeading</var>
+  </resource-bundle>
+  <resource-bundle>
+   <base-name>com.rationem.localisation.watermark</base-name>
+   <var>watermark</var>
+  </resource-bundle>
+  
+ </application>
+    
+    
+</faces-config>

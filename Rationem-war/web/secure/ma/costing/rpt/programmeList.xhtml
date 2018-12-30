@@ -1,0 +1,71 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.maProgrammeList}</ui:define>
+ <ui:define name="header">#{pageTitle.maProgrammeList} </ui:define>
+ <ui:define name="content">
+  <h:form id="programmeLst" prependId="false" >
+   <p:growl autoUpdate="true" />
+   <p:toolbar>
+     <f:facet name="left">
+      <h:commandButton id="downloadBtnExcel" value="#{formText.genExcelDownload}" 
+                      image="/resources/images/Excel-48.gif" >
+      <p:dataExporter type="xls" fileName="#{formText.maProgDpenLdFn}" target="prgTbl"/>
+     </h:commandButton>
+      <h:commandButton id="downloadBtnCsv" value="#{formText.genCsvDownload}" 
+                      image="/resources/images/csv_text.png" >
+      <p:dataExporter type="csv" fileName="#{formText.maProgDpenLdFn}" target="prgTbl"/>
+     </h:commandButton>
+      </f:facet >
+   </p:toolbar>
+   <p:panelGrid columns="2" styleClass="panelNoBorders">
+    <h:outputText value="#{formText.comp}"/>
+    <p:selectOneMenu id="compMnu" value="#{programmeBean.compSelected}" converter="com.rationem.util.converter.CompanyBasic" 
+                     required="true" >
+     <f:selectItems var="cmp" value="#{programmeBean.compList}" itemValue="#{cmp}" itemLabel="#{cmp.reference}"/>
+    </p:selectOneMenu>
+   </p:panelGrid>
+   <p:dataTable id="prgTbl" value="#{programmeBean.programmes}" paginator="true" paginatorAlwaysVisible="false" 
+                emptyMessage="#{validationText.maProgFoundNone}" rows="#{programmeBean.usrBuff.tblRows}" var="prog" 
+                filteredValue="#{programmeBean.programmesFiltered}">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.maProgs}"/>
+    </f:facet>
+    <p:column width="110" filterPosition="bottom"  filterBy="#{prog.reference}" sortBy="#{prog.reference}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.maProgRef}"/>
+     </f:facet>
+     <h:outputText value="#{prog.reference}"/>
+    </p:column>
+    <p:column filterPosition="bottom" filterBy="#{prog.name}" sortBy="#{prog.name}">
+     <f:facet name="header">
+      <h:outputText value="#{formText.maProgName}" />
+     </f:facet>
+     <h:outputText value="#{prog.name}"/>
+    </p:column>
+    <p:column width="110"  sortBy="#{prog.validFrom}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.maProgFrom}" />
+     </f:facet>
+     <h:outputText value="#{prog.validFrom}">
+      <f:convertDateTime type="date" dateStyle="medium"/>
+     </h:outputText>
+    </p:column>
+    <p:column width="110"  sortBy="#{prog.validTo}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.maProgTo}"/>
+     </f:facet>
+     <h:outputText value="#{prog.validTo}">
+      <f:convertDateTime type="date" dateStyle="medium"/>
+     </h:outputText>
+    </p:column>
+   </p:dataTable>
+   
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

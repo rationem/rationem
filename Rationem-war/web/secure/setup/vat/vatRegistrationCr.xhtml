@@ -1,0 +1,179 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_vat_reg}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="vatRegistrationFrm">
+   <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="regSave" icon="fa fa-floppy-o" value="#{formText.save}" 
+                       actionListener="#{companyBean.saveCompVatRegistration}" 
+                       title="#{formHelpText.actTySave}"  />
+      <p:commandButton type="reset" value="#{formText.reset}" />
+      <span class="ui-separator">
+       <span class="ui-icon ui-icon-grip-dotted-vertical" />
+      </span>
+       <p:commandButton id="addReg" icon="ui-icon-document" value="#{formText.vatRegNew}"
+                        actionListener="#{companyBean.onNewCompVatRegistration}"/>
+     </f:facet >
+    </p:toolbar>
+    <p:panelGrid columns="2">
+     <p:outputLabel for="comp" value="#{formText.compRef}"/>
+     <p:selectOneMenu id="comp" value="#{companyBean.company.vatRegDetails.comp}" 
+                      converter="com.rationem.util.converter.CompanyBasic">
+      <f:selectItems value="#{companyBean.compList}" var="compVar" itemValue="#{compVar}" 
+                     itemLabel="#{compVar.reference} #{compVar.name}"/>
+     </p:selectOneMenu>
+    </p:panelGrid>
+   
+   <p:dataTable id="vatRegs" var="compVatReg" value="#{companyBean.company.vatRegistrations}" 
+                emptyMessage="#{formText.vatNoCompRegs}" >
+    <f:facet name="header">
+     <h:outputText value="#{formText.vatCompRegs}"/>
+    </f:facet>
+    <p:column >
+     <h:outputText value="#{compVatReg.vatNumber}"/>  
+    </p:column>
+   </p:dataTable>
+  </h:form>
+  
+  <p:dialog id="addRegDlg" widgetVar="addRegDlgWv" dynamic="true">
+   <f:facet name="header">
+    <h:outputText value="New Registration"/>
+    <h:form id="vatRegDetailsFrm" prependId="false" >
+     <p:panelGrid id="vatRegDetailsPnl" >
+      <p:row>
+       <p:column>
+        <p:outputLabel for="regNum" value="#{formText.vatRegVatNumber}"/>
+       </p:column>
+       <p:column>
+        <p:inputText id="regNum" value="#{companyBean.company.vatRegDetails.vatNumber}" required="true" 
+                  requiredMessage="#{validationText.vatRegVatNum}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="regDate" value="#{formText.vatRegRegistrationDate}"/>
+       </p:column>
+       <p:column>
+        <p:calendar id="regDate" value="#{companyBean.company.vatRegDetails.registrationDate}" 
+                     required="true" mindate="#{companyBean.vegRegCompMinDate}"
+                    requiredMessage="#{validationText.vatRegValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="10"/>
+       </p:column>
+       <p:column>
+        <p:outputLabel for="deRegDate" value="#{formText.vatRegDeRegistrationDate}"/>
+       </p:column>
+       <p:column>
+        <p:calendar id="deRegDate" value="#{companyBean.company.vatRegDetails.registrationEnd}" 
+                     required="true"
+                    requiredMessage="#{validationText.vatRegValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="10"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="insp" value="#{formText.vatRegVatInspName}"/>
+       </p:column>
+       <p:column>
+        <p:autoComplete id="insp" value="#{companyBean.company.vatRegDetails.inspector}" 
+                      completeMethod="#{companyBean.vatInspectorComplete}" dropdown="true"
+                      converter="com.rationem.util.converter.PartnerIndividual" var="inspVar" 
+                      itemValue="#{inspVar}" maxResults="#{companyBean.completeResultSize}" 
+                      itemLabel="#{inspVar.title} #{inspVar.firstName} #{inspVar.familyName}"
+                      forceSelection="true" />
+        <p:spacer width="50" height="10"/>
+        <p:commandButton id="crInspBtn" icon="ui-icon-document" onclick="inspCrWvar.show()" type="button"/>
+       </p:column>
+       
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="offRef" value="#{formText.vatRegVatOffice}"/>
+       </p:column>
+       <p:column>
+        <p:inputText id="offRef" value="#{companyBean.company.vatRegDetails.vatOffice}"/>
+       </p:column>
+      </p:row>
+      <p:row>
+       <p:column>
+        <p:outputLabel for="vatOfficeAddrCompl" value="#{formText.vatRegVatOfficeAddress}"/>
+       </p:column>
+       <p:column>
+        <p:autoComplete id="vatOfficeAddrCompl" value="#{companyBean.company.vatRegDetails.vatOfficeAddress}" 
+                      completeMethod="#{companyBean.vatOfficeAddressComplete}" dropdown="true"
+                      converter="com.rationem.util.converter.Address" var="offAddrVar" 
+                      itemValue="#{offAddrVar}" maxResults="#{companyBean.completeResultSize}" 
+                      itemLabel="#{offAddrVar.houseNumber} #{offAddrVar.street} #{offAddrVar.postCode}"
+                      forceSelection="true" />
+        <p:spacer width="50" height="10"/>
+        <p:commandButton id="crVatOffAddrBtn" icon="ui-icon-document" type="button" onclick="offCrWvar.show()"/>
+       </p:column>
+      </p:row>
+      
+     </p:panelGrid>
+    </h:form>
+   </f:facet>
+  </p:dialog>
+  
+  <h:form >
+   
+    
+    <p:dialog id="inspCrDlg" header="#{formText.vatRegInspCr}" modal="true" widgetVar="inspCrWvar">
+    
+    <h:panelGrid columns="2">
+     <p:outputLabel for="title" value="#{formText.ptnrTitle}"/>
+     <p:inputText id="title" value="#{companyBean.company.vatRegDetails.inspector.title}"/>
+     <p:outputLabel for="fName" value="#{formText.ptnrFirstName}"/>
+     <p:inputText id="fName" value="#{companyBean.company.vatRegDetails.inspector.firstName}"/>
+     <p:outputLabel for="lName" value="#{formText.ptnrFamilyName}"/>
+     <p:inputText id="lName" value="#{companyBean.company.vatRegDetails.inspector.familyName}" />
+    </h:panelGrid>
+     <p:commandButton id="inspCrBtn" value="#{formText.genSaveBtn}" icon="ui-icon-person" 
+                      actionListener="#{companyBean.saveVatInspector}" oncomplete="inspCrWvar.hide()"
+                      process="inspCrDlg" />
+     <p:commandButton type="reset" process="inspCrDlg" oncomplete="inspCrWvar.hide()"
+                      value="#{formText.genResetBtn}" icon="ui-icon-close"/>
+   </p:dialog>
+   <p:dialog id="vatOfficeAddrDlg" header="#{formText.vatRegVatOffCr}" modal="true" widgetVar="offCrWvar">
+    <h:panelGrid columns="2">
+       
+       <p:outputLabel for="addrRef" value="#{formText.addrRef}"/>
+       <p:inputText id="addrRef" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.addrRef}"/>
+       <p:outputLabel for="build" value="#{formText.addrNumName}"/>
+       <h:panelGroup>
+        <p:inputText id="num" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.houseNumber}" size="5"/>
+        <p:spacer width="4"/>
+        <p:inputText id="hsName" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.houseName}"/>
+       </h:panelGroup>
+       <p:outputLabel for="build" value="#{formText.addrBuild}"/>
+       <p:inputText id="build" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.building}"/>
+       <p:outputLabel for="street" value="#{formText.addrStr}"/>
+       <p:inputText id="street" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.street}"/>
+       <p:outputLabel for="street2" value="#{formText.addrStr2}"/>
+       <p:inputText id="street2" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.street2}"/>
+       <p:outputLabel for="town" value="#{formText.addrTown}"/>
+       <p:inputText id="town" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.town}"/>
+       <p:outputLabel for="county" value="#{formText.addrCounty}"/>
+       <p:inputText id="county" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.countyName}"/>
+       <p:outputLabel for="postCode" value="#{formText.addrPostCd}"/>
+       <p:inputText id="postCode" value="#{companyBean.company.vatRegDetails.vatOfficeAddress.postCode}"/>
+     <p:commandButton id="offCrBtn" value="#{formText.genSaveBtn}" icon="ui-icon-document" 
+                      actionListener="#{companyBean.saveVatAddr}" oncomplete="offCrWvar.hide()"
+                      process="vatOfficeAddrDlg" />
+     <p:commandButton type="reset" process="inspCrDlg" oncomplete="offCrWvar.hide()"
+                      value="#{formText.genResetBtn}" icon="ui-icon-close"/>
+    </h:panelGrid>
+   </p:dialog>
+    
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

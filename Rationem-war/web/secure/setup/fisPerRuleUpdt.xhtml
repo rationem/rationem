@@ -1,0 +1,283 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_fisPerRuleUpdt}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_fisPerRuleUpdt}" styleClass="pageHeader" /> 
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="fisPerRuleUpdtFrm" prependId="false">
+   <p:wizard id="wizId"  flowListener="#{fiscalPeriodBean.onFiscPerUpdateWfStep}" widgetVar="wizWv">
+    <p:tab id="basicId" title="#{formText.fisPerCntrlBasic}">
+     <p:panel header="#{formText.fisPerCntrlBasicPnl}" >
+      <p:panelGrid columns="2">
+       <h:outputLabel for="fisRules" value="#{formText.fisPerCntrl_rules}"/>
+       <p:selectOneMenu id="fisRules" value="#{fiscalPeriodBean.selectedFisRuleId}"
+                    required="true" valueChangeListener="#{fiscalPeriodBean.periodRuleChangeListener}"
+                                 requiredMessage="#{formText.fisPerCntrl_selRq}" >
+        <f:selectItems value="#{fiscalPeriodBean.selectRule}"/>
+        <p:ajax event="change" />
+       </p:selectOneMenu>
+       <h:outputLabel for="perRule" value="#{formText.fisPerCntrl_rule}"/>
+       <p:inputText id="perRule" value="#{fiscalPeriodBean.fisPerRule.periodRule}"
+                                 title="#{formHelpText.fisPerCntrl_rule}" />
+
+       <h:outputLabel for="perDescr" value="#{formText.fisPerCntrl_desc}"/>
+       <p:inputText id="perDescr" value="#{fiscalPeriodBean.fisPerRule.periodDescr}"
+                                 title="#{formHelpText.fisPerCntrl_desc}"/>
+
+
+       <h:outputLabel for="fisRuleNumPer" value="#{formText.fisPerCntrl_numPers}"/>
+       <p:inputText id="fisRuleNumPer" value="#{fiscalPeriodBean.fisPerRule.numPeriods}"
+                             title="#{formHelpText.fisPerCntrl_numPers}"/>
+       <h:outputLabel for="fisRuleNumAuditPer" value="#{formText.fisPerCntrl_numAuditPers}"/>
+       <p:inputText id="fisRuleNumAuditPer" value="#{fiscalPeriodBean.fisPerRule.numAuditPeriods}"
+                             title="#{formHelpText.fisPerCntrl_numAuditPers}"/>
+
+       <h:outputLabel for="calRuleBasisOpt" value="#{formText.fisPerCntrl_calBasisOption}"/>
+       <p:selectOneRadio id="calRuleBasisOpt" layout="pageDirection"
+                     value="#{fiscalPeriodBean.fisPerRule.calBasisOption}" 
+                     valueChangeListener="#{fiscalPeriodBean.calendarBasisChangeListener}" disabled="true"     >
+        <f:selectItem itemValue="1" itemLabel="#{formText.fisPerCntrl_calBasis}"  />
+        <f:selectItem itemValue="2" itemLabel="#{formText.fisPerCntrl_fixedDay}" />
+        <f:selectItem itemValue="3" itemLabel="#{formText.fisPerCntrl_FlexPeriod}"/>
+        <p:ajax event="change"/>
+       </p:selectOneRadio>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="ruleId" title="#{formText.fisPerCntrl_rule}">
+     <p:panel id="rulPnlId" >
+      <f:facet name="header">
+       <h:outputText value="#{fiscalPeriodBean.detailPanelUpdt}"/>
+      </f:facet>
+      <p:toolbar rendered="#{fiscalPeriodBean.fisPerRule.calBasisOption ne 3}" >
+       <f:facet name="left">
+        <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                         actionListener="#{fiscalPeriodBean.onSavePeriodRule}"
+                         action="#{fiscalPeriodBean.onPeriodRuleUpdateAction}"/>
+       </f:facet>
+      </p:toolbar>
+      <p:toolbar rendered="#{fiscalPeriodBean.fisPerRule.calBasisOption eq 3}" >
+       <f:facet name="left">
+        <p:commandButton value="#{formText.fisPerCntrl_addYr}" actionListener="#{fiscalPeriodBean.onFlexPerAddYr}"/>
+        <span class="ui-separator">
+         <span class="ui-icon ui-icon-grip-dotted-vertical" />
+        </span>
+         <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                          actionListener="#{fiscalPeriodBean.onSavePeriodRule}"
+                          action="#{fiscalPeriodBean.onPeriodRuleUpdateAction}"/>
+       </f:facet>
+      </p:toolbar>
+      <p:panelGrid id="calPg" columns="2" rendered="#{fiscalPeriodBean.fisPerRule.calBasisOption eq 1}">
+       <p:outputLabel for="monthNum" value="#{formText.fisPerCntrl_startMth}"/>
+       <p:selectOneMenu id="monthNum" value="#{fiscalPeriodBean.fisCalMth.startMonthNumber}" filter="true" >
+        <f:selectItem  itemValue="0" itemLabel="#{formText.jan}"/>
+        <f:selectItem itemValue="1" itemLabel="#{formText.feb}"/>
+        <f:selectItem itemValue="2" itemLabel="#{formText.march}"/>
+        <f:selectItem itemValue="3" itemLabel="#{formText.april}"/>
+        <f:selectItem itemValue="4" itemLabel="#{formText.may}"/>
+        <f:selectItem itemValue="5" itemLabel="#{formText.june}"/>
+        <f:selectItem itemValue="6" itemLabel="#{formText.july}"/>
+        <f:selectItem itemValue="7" itemLabel="#{formText.aug}"/>
+        <f:selectItem itemValue="8" itemLabel="#{formText.sept}"/>
+        <f:selectItem itemValue="9" itemLabel="#{formText.oct}"/>
+        <f:selectItem itemValue="10" itemLabel="#{formText.nov}"/>
+        <f:selectItem itemValue="11" itemLabel="#{formText.june}"/>
+        <p:ajax event="change"/>
+       </p:selectOneMenu>
+      </p:panelGrid>
+      <p:panelGrid id="domPg" columns="2" rendered="#{fiscalPeriodBean.fisPerRule.calBasisOption eq 2}">
+       <p:outputLabel for="fixDomMonthNum" value="#{formText.fisPerCntrl_startMth}"/>
+       <p:selectOneMenu id="fixDomMonthNum" value="#{fiscalPeriodBean.fisCalFixedDate.startMonthNumber}" >
+        <f:selectItem  itemValue="0" itemLabel="#{formText.jan}"/>
+        <f:selectItem itemValue="1" itemLabel="#{formText.feb}"/>
+        <f:selectItem itemValue="2" itemLabel="#{formText.march}"/>
+        <f:selectItem itemValue="3" itemLabel="#{formText.april}"/>
+        <f:selectItem itemValue="4" itemLabel="#{formText.may}"/>
+        <f:selectItem itemValue="5" itemLabel="#{formText.june}"/>
+        <f:selectItem itemValue="6" itemLabel="#{formText.july}"/>
+        <f:selectItem itemValue="7" itemLabel="#{formText.aug}"/>
+        <f:selectItem itemValue="8" itemLabel="#{formText.sept}"/>
+        <f:selectItem itemValue="9" itemLabel="#{formText.oct}"/>
+        <f:selectItem itemValue="10" itemLabel="#{formText.nov}"/>
+        <f:selectItem itemValue="11" itemLabel="#{formText.june}"/>
+        <p:ajax event="change"/>
+       </p:selectOneMenu>
+       
+       <p:outputLabel for="fixDomDayNum" value="#{formText.fisPerDom}"/>
+       <p:inputText id="fixDomDayNum" value="#{fiscalPeriodBean.fisCalFixedDate.dayOfMonth}"
+                    title="#{formHelpText.fisPerCntrl_startMth}">
+        
+       </p:inputText>
+                      
+      </p:panelGrid>
+      <h:panelGrid id="flexPg"  columns="3" rendered="#{fiscalPeriodBean.fisPerRule.calBasisOption eq 3}"
+                   >
+       
+         <p:outputLabel for="flexYr" value="#{formText.fisPerCntrl_flexYr}"/>
+       
+         
+         <p:selectOneMenu id="flexYr" converter="com.rationem.util.converter.CalRuleFlexYear" 
+                          value="#{fiscalPeriodBean.fisCalFlexYr}" 
+                          valueChangeListener="#{fiscalPeriodBean.onFlexPerYearChange}">
+          <f:selectItems value="#{fiscalPeriodBean.fisPerRule.calendarRule.calRuleFlexYears}" var="yr" 
+                         itemValue="#{yr}" itemLabel="#{yr.calYear}"/>
+          <p:ajax event="change"/>
+         </p:selectOneMenu>
+       
+         <p:dataTable id="flexPersTblId" value="#{fiscalPeriodBean.fisCalFlexYr.flexPeriods}" var="flexPer" 
+                      editable="true" sortBy="#{flexPer.calPeriod}" >
+          <p:ajax event="rowEditInit" listener="#{fiscalPeriodBean.onFlexPerEditInit}"/>
+          <p:ajax event="rowEdit" listener="#{fiscalPeriodBean.onFlexPerEdit}"/>
+          <f:facet name="header">
+           <h:outputText value="period dates"/>
+          </f:facet>
+          <p:column width="60">
+           <f:facet name="header">
+            <h:outputText value="period"/>
+           </f:facet>
+           <h:outputText value="#{flexPer.calPeriod}" />
+          </p:column>
+          <p:column>
+           <f:facet name="header">
+            <h:outputText value="Start Date"/>
+           </f:facet>
+           <p:cellEditor>
+            <f:facet name="output">
+             <h:outputText value="#{flexPer.startPeriod}">
+              <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+             </h:outputText>
+            </f:facet>
+            <f:facet name="input">
+             <p:calendar value="#{flexPer.startPeriod}" pattern="dd/MMM/yyyy"/>
+            </f:facet>
+           
+           </p:cellEditor>
+          </p:column>
+          <p:column>
+           <f:facet name="header">
+            <h:outputText value="End Date"/>
+           </f:facet>
+           <p:cellEditor>
+            <f:facet name="output">
+             <h:outputText value="#{flexPer.endPeriod}">
+              <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+             </h:outputText>
+            </f:facet>
+            <f:facet name="input">
+             <p:calendar value="#{flexPer.endPeriod}" pattern="dd/MMM/yyyy" mindate="#{flexPer.startPeriod}"/>
+            </f:facet>
+           </p:cellEditor>
+           
+          </p:column>
+          <p:column>
+           <f:facet name="header">
+            <h:outputText value="Audit Period"/>
+           </f:facet>
+           <p:cellEditor>
+            <f:facet name="output">
+             <p:selectBooleanCheckbox value="#{flexPer.auditPer}" disabled="true"/>
+            </f:facet>
+            <f:facet name="input">
+             <p:selectBooleanCheckbox value="#{flexPer.auditPer}" disabled="false"/>
+            </f:facet>
+           </p:cellEditor>
+           
+          </p:column>
+          <p:column style="width:32px">
+           <p:rowEditor />
+          </p:column>
+         </p:dataTable>
+         
+       
+      </h:panelGrid>
+      
+     </p:panel>
+    </p:tab>
+    </p:wizard>
+   </h:form>
+  <p:dialog id="addYrDlgId"  widgetVar="addYrDlgWv" width="600" modal="true" dynamic="true">
+   <f:facet name="header">
+    <h:outputText value="#{formText.fisPerCntrl_addYr}"/>
+   </f:facet>
+   <h:form id="addYrFrm" prependId="false">
+    <p:messages  closable="true" />
+   <p:panelGrid >
+    <p:row>
+     <p:column width="40">
+      <p:outputLabel for="addYrFlexYear" value="#{formText.fisPerCntrl_flexYr}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="addYrFlexYear" value="#{fiscalPeriodBean.fisCalFlexYrAdd.calYear}" required="true"
+                   validator="#{fiscalPeriodBean.validateAddYear}" maxlength="4" validatorMessage="You cannot enter the same year" >
+       
+       <p:ajax event="keyup"/>
+      </p:inputText>
+     </p:column>
+    </p:row>
+    </p:panelGrid>
+    
+    
+      <p:dataTable value="#{fiscalPeriodBean.fisCalFlexYrAdd.flexPeriods}" var="addPerV" editable="true" 
+                   sortBy="#{addPerV.calPeriod}">
+       <p:column width="50" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.fisPerCntrl_period}"/>
+        </f:facet>
+        <h:outputText value="#{addPerV.calPeriod}"/>
+       </p:column>
+       <p:column >
+        <f:facet name="header">
+         <h:outputText value="#{formText.fisPerCntrl_date_fr}"/>
+        </f:facet>
+        <p:cellEditor>
+         <f:facet name="output">
+          <h:outputText value="#{addPerV.startPeriod}">
+           <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+          </h:outputText>
+         </f:facet>
+         <f:facet name="input">
+          <p:calendar value="#{addPerV.startPeriod}" pattern="dd/MMM/yyyy" />
+          
+         </f:facet>
+        </p:cellEditor>
+        
+       </p:column>
+       <p:column >
+        <f:facet name="header">
+         <h:outputText value="#{formText.fisPerCntrl_date_to}"/>
+        </f:facet>
+        <p:cellEditor>
+         <f:facet name="output">
+          <h:outputText value="#{addPerV.endPeriod}">
+            <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+          </h:outputText>
+         </f:facet>
+         <f:facet name="input">
+          <p:calendar value="#{addPerV.endPeriod}" pattern="dd/MMM/yyyy" />
+         </f:facet>
+        </p:cellEditor>
+        
+       </p:column>
+       <p:column style="width:32px">
+        <f:facet name="header">
+         <h:outputText value="#{formText.edit}"/>
+        </f:facet>
+        <p:rowEditor />
+       </p:column>
+      </p:dataTable>
+    <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                     actionListener="#{fiscalPeriodBean.onAddFlexYearSave}"/>
+    <p:commandButton value="#{formText.close}" icon="ui-icon-close"/>
+    
+   
+   </h:form>
+  </p:dialog>
+ </ui:define>
+</ui:composition>
+
+

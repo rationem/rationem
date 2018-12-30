@@ -1,0 +1,170 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.ptnrAcnts}</ui:define>
+ <ui:define name="header">#{pageTitle.ptnrAcnts} </ui:define>
+ <ui:define name="content">
+  <h:form id="ptnrAcntsFrm" >
+   <p:tooltip globalSelector="true"/>
+   <div class="ui-g ui-fluid">
+    <div class="ui-g-12">
+     
+     <p:messages id="msgs" closable="true"/>
+     <p:panelGrid id="PtnrSel" columns="2" layout="grid" columnClasses="ui-grid-col-2">
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete 
+        id="partner" value="#{partnerAccounts.ptnrBase}" var="ptnrV" forceSelection="true"
+        converter="com.rationem.util.converter.PartnerBase" dropdown="true"
+        completeMethod="#{partnerAccounts.onPartnerComplete}"
+        title="#{formHelpText.ptnrAcntSel}" itemValue="#{ptnrV}" emptyMessage="#{validationText.ptnrsNotFoundSel}"
+        itemLabel="#{ptnrV.displayName}">
+        <p:ajax event="itemSelect" listener="#{partnerAccounts.onPartnerSelect}"/>
+        <p:watermark value="Partner ref"/>
+        <p:column width="25%">
+         <h:outputText value="#{ptnrV.ref}"/>
+        </p:column>
+        <p:column width="75%">
+         <h:outputText value="#{ptnrV.displayName}"/>
+        </p:column>
+        </p:autoComplete>
+       <p:outputLabel for="partner" value="#{formText.ptnrPartner}"/>
+      </h:panelGroup>
+      <h:outputText id="ptnrName" value="#{partnerAccounts.ptnrBase.tradingName}" />
+     </p:panelGrid>
+    </div>
+    <div class="ui-g-12 ui-lg-6">
+     <!-- Left side -->
+     <p:dataTable 
+      id="arAcntsDt" value="#{partnerAccounts.arAccounts}" emptyMessage="#{validationText.ptnrNoArAcnts}"
+      var="arAcnt" reflow="true" paginatorAlwaysVisible="true" paginator="true" rowKey="#{arAcnt.id}"
+      selection="#{partnerAccounts.arAccntSel}"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24" />
+        <p:dataExporter type="xls" target="arAcntsDt" fileName="#{listHeading.ptnrAcs_FN}"  
+                          postProcessor="#{partnerAccounts.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="arAcntsDt" 
+                      fileName="#{listHeading.ptnrAcs_FN}" />
+       </h:commandLink>
+      </f:facet>
+      <f:facet name="header">
+       <h:outputText value="#{formText.ptnrArAcnts}"/>
+      </f:facet>
+      <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.arAcntRef}"/>
+        </f:facet>
+        <h:outputText value="#{arAcnt.arAccountCode}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{formText.comp}"/>
+        </f:facet>
+        <h:outputText value="#{arAcnt.company.reference}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.arAcntBal}"/>
+        </f:facet>
+        <h:outputText value="#{arAcnt.accountBalance}">
+         <f:convertNumber type="number" groupingUsed="true" 
+                          maxFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          minFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+        </h:outputText>
+       </p:column>
+      <p:columnGroup type="footer">
+       <p:column colspan="2" styleClass="column-rowTotal" footerText="#{formText.totalFooter}"/>
+       <p:column styleClass="column-financialValue"  >
+        <f:facet name="footer">
+         <h:outputText value="#{partnerAccounts.arTotal}" style="font-weight: bold">
+          <f:convertNumber maxFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          minFractionDigits="2"
+                          minIntegerDigits="1" />
+         </h:outputText>
+        </f:facet>
+       </p:column>
+      </p:columnGroup>
+     </p:dataTable>
+     <p:contextMenu id="arAcntMenu" for="arAcntsDt" >
+      <p:menuitem 
+       value="#{formTextMdm.ptnrAccntCr}"   action="#{partnerAccounts.onPartnerArAccntAddMi}"
+       disabled="#{partnerAccounts.ptnrBase eq null}"            />
+      <p:menuitem 
+       value="#{formTextMdm.ptnrAccntShowTrans}" disabled="#{partnerAccounts.ptnrBase eq null}"/>
+     </p:contextMenu>
+     
+    </div>
+    <div class="ui-g-12 ui-lg-6">
+     <!-- Right Side -->
+     <p:dataTable 
+      id="apAcntsDt" value="#{partnerAccounts.apAccounts}" var="apAcntV" reflow="true"
+      emptyMessage="#{validationText.ptnrNoApAcnts}" paginatorAlwaysVisible="true" paginator="true"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24" />
+        <p:dataExporter type="xls" target="apAcntsDt" fileName="#{listHeading.ptnrAcs_FN}"  
+                          postProcessor="#{partnerAccounts.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="apAcntsDt" 
+                      fileName="#{listHeading.ptnrAcs_FN}" />
+       </h:commandLink>
+      </f:facet>
+      <f:facet name="header">
+       <h:outputText value="#{formText.ptnrApAcnts}"/>
+      </f:facet>
+      <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.apAcntRef}"/>
+        </f:facet>
+        <h:outputText value="#{apAcntV.accountCode}"/>
+       </p:column>
+       <p:column>
+        <f:facet name="header">
+         <h:outputText value="#{formText.comp}"/>
+        </f:facet>
+        <h:outputText value="#{apAcntV.company.reference}"/>
+       </p:column>
+      <p:column styleClass="column-numericValue">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.apAcntBal}"/>
+        </f:facet>
+        <h:outputText value="#{apAcntV.accountBalance}">
+         <f:convertNumber type="number"  
+                          maxFractionDigits="#{apAcntV.company.currency.minorUnit}"
+                          minFractionDigits="2"
+                          minIntegerDigits="1"/>
+        </h:outputText>
+       </p:column>
+      <p:columnGroup type="footer">
+       <p:column colspan="2" styleClass="column-rowTotal" footerText="#{formText.totalFooter}"/>
+       <p:column styleClass="column-financialValue"  >
+        <f:facet name="footer">
+         <h:outputText value="#{partnerAccounts.apTotal}" style="font-weight: bold">
+          <f:convertNumber maxFractionDigits="#{apAcntV.company.currency.minorUnit}"
+                          minFractionDigits="2"
+                          minIntegerDigits="1" />
+         </h:outputText>
+        </f:facet>
+       </p:column>
+      </p:columnGroup>
+     </p:dataTable>
+     <p:contextMenu for="apAcntsDt">
+      <p:menuitem value="#{formTextMdm.ptnrAccntCr}"/>
+      <p:menuitem value="#{formTextMdm.ptnrAccntShowTrans}"/>
+     </p:contextMenu>
+    </div>
+   </div>
+  </h:form>
+ </ui:define>
+</ui:composition>

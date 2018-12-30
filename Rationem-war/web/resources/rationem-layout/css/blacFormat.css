@@ -1,0 +1,401 @@
+/* 
+    Document   : blacFormat
+    Created on : 19-May-2014, 22:26:32
+    Author     : Chris
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+ display: block;
+}
+.ui-menuitem-text{
+ color: black; 
+}
+
+.ui-autocomplete-itemtip{
+ width: 500px ;
+}
+
+.appName{
+ font-size:x-large;
+ font-weight: 700;
+ color:  white;
+}
+.panelNoBorders tr, .panelNoBorders td {
+    background: none !important;
+    border: none !important;
+}
+.noBorders tr, .noBorders td {
+ background: none !important;
+ border: none !important;
+}
+
+.panelHeader{
+    
+    text-align: center;
+    font-size: x-large;
+    font-weight: 700;
+}
+#greyOut{
+  font-weight: 100;
+}
+.pageHeader{
+ text-align: center;
+ font-size: x-large;
+ font-weight: 700;
+}
+
+.panel-w-10{
+ width: 10% !important;
+}
+
+.panel-w-20{
+ width: 20% !important;
+}
+
+.panel-w-25{
+ width: 25% !important;
+}
+
+.panel-w-30{
+ width: 30% !important;
+}
+
+
+
+.panel-w-70{
+ width: 70% !important;
+}
+
+.panel-w-75{
+ width: 75% !important;
+}
+.panelBodyBold{
+ font-weight: 700;
+}
+
+.panelFormFieldName{
+ font-family: Arial,Helvetica,sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+}
+.panelFieldRight{
+ text-align: right;
+}
+.menubar{
+
+  width: 100%;
+}
+.wizard-width{
+  width: 75%;
+}
+
+.menuitem-text{
+  font-size: 12px;
+}
+.menu-submenu{
+ font-size: 12px;
+}
+.toolbar-width{
+  width: 60%;
+}
+
+.tableFilter{
+ text-align: left;
+}
+
+.sect-header{
+
+  font-family: Arial,Helvetica,sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+}
+.ui-datatable-even{
+ 
+ background-color: #ccccff;
+ 
+}
+.ui-datatable-odd{
+ background-color: #ccffff; 
+}
+.noBorders tr .noBorders td {
+ background: none !important;
+ border: none !important;
+}
+
+.chequeTemplDlg{
+ width: 50em !important;
+}
+
+.column-bnkSortCd{
+ width: 10em;
+ min-width: 1em;
+ max-width: 10em;
+}
+
+.column-bnkAcNum{
+ min-width: 1em;
+ max-width: 5em;
+}
+
+.column-comp{
+ width: 2em;
+ min-width: 1em;
+ max-width: 2em;
+}
+
+.column-CostCent{
+ min-width: 1em;
+ max-width: 5em;
+}
+
+.column-DocNum{
+ width: 10px;
+ text-align:right;
+}
+.column-lineNum{
+ width: 30px;
+ text-align: right;
+}
+.column-GlAccount{
+ width: 50px;
+ 
+}
+
+.column-financialValue{
+ width: 120px;
+ text-align: right !important;
+}
+
+.column-min{
+ min-width: 1em;
+ max-width: 1em;
+}
+.column-partCode{
+ min-width: 1em;
+ max-width: 3em;
+ 
+ font-family: serif;
+}
+
+.column-partName{
+ min-width: 1em;
+ max-width: 3em;
+}
+.column-PostType{
+ min-width: 1em;
+ width: 3em;
+ text-align: left;
+ direction: ltr;
+ word-spacing: 1px;
+}
+.column-sortCode{
+ width: 100px;
+ min-width: 1em;
+ 
+}
+
+.column-textRight{
+ text-align: right;
+}
+
+.column-textCentre{
+ text-align:  center;
+}
+
+.Column-textLeft{
+ text-align: left;
+}
+.column-UOM{
+ min-width: 1em;
+ max-width: 3em;
+ 
+}
+
+
+
+
+.column-VatCode{
+ min-width: 1em;
+ max-width: 3em;
+}
+.amount{
+ text-align: right !important;
+}
+
+.tblColGrpRight{
+ text-align: right !important;
+}
+
+.table-financialValueTotal{
+ width: 120px;
+ text-align: right !important;
+ font-weight: 700 !important;
+}
+
+.table-txtRightBold{
+ text-align: right !important;
+ font-weight: 700 !important;
+}
+
+.docDisp-Amount{
+    width: 4em;
+    text-align: right;
+}
+
+.docDisp-LineNum{
+ width: 2em;
+ text-align: right;
+}
+
+.docEditAddDescr{
+ width: 10px;
+}
+
+.docEditAddValue{
+ width: 90px;
+}
+.docTempLnDisp-value{
+ font-weight: 500 !important;
+}
+
+.docTempLnDisp-lbl{
+ width: 90px;
+ font-weight: bold;
+}
+
+.left{
+ text-align: left;
+ 
+}
+
+.docBalanced{
+ font-weight: 700;
+ color: green;
+}
+
+.docUnbalanced{
+ font-weight: 700;
+ color: red;
+}
+.docDispl-txt{
+ font-weight: 700;
+}
+.docDispl-autoLine{
+ font-weight: 700;
+}
+
+.docDisp-Notes{
+ vertical-align: top;
+ font-weight: bold;
+}
+
+.jnl_sumAmnt{
+ font-size: medium;
+ font-weight:  600;
+}
+.inv_soldTo{
+ text-align: left;
+ font-weight: bold;
+ background-color: #e6e2e2;
+}
+
+.invDescr-tbl{
+ 
+ text-align: left;
+ color: #000000;
+ font-weight: bold;
+ font-style: normal;
+ font-variant: normal;
+ border-bottom-width: 1px;
+ border-bottom-color: #000000;
+ border-bottom-style: solid;
+ width: 400px;
+}
+.invto-tbl{
+ font-weight: bold;
+ font-style: normal;
+ font-variant: normal;
+ position: relative;
+ font-family: Arial,Helvetica,sans-serif;
+ width: 35em;
+ vertical-align: top;
+}
+.invto-addr{
+width: 35em; 
+font-weight: bold;
+
+}
+
+.invto-cols{
+ vertical-align: top;
+}
+.inv-stock{
+ min-width: 1em;
+ max-width: 2em;
+}
+.inv-date{
+ font-weight: bold;
+ font-style: normal;
+ font-variant: normal;
+ position: relative;
+ font-family: Arial,Helvetica,sans-serif;
+ width: 6em;
+ vertical-align: top;
+}
+.inv-tbl{
+ vertical-align: top;
+}
+.inv-tblR{
+ 
+ right: 1px;
+}
+.right{
+ 
+ text-align: right;
+}
+.inv-summName {
+ width: 50%;
+ text-align: left;
+ font-style: normal;
+ font-weight: bold;
+ font-family: Arial,Helvetica,sans-serif;
+}
+
+.inv-summAmount {
+    width: 50%;
+    text-align: right;
+}
+.invTotal_blck{
+ border-collapse: collapse;
+ position: fixed;
+ clip: rect(1px, 0px, 0px, 0px);
+ border-top-style: none;
+ border-bottom-style: solid;
+}
+.slPart-partCode{
+ min-width: 1em;
+ max-width: 2em;
+}
+.slCrn-overAlloc{
+ font-family: Arial,Helvetica,sans-serif;
+ font-size: 14px;
+ font-weight: 300;
+ color: #cc0000;
+}
+.arReceipt-unalloc{
+ text-align: right;
+ font-style: normal;
+ font-weight: bold;
+ font-family: Arial,Helvetica,sans-serif;
+}
+.editorHeader{
+ text-align: center;
+}
+.budTotal{
+ text-align: right;
+ font-style: normal;
+ font-weight: 800;
+ font-family: Arial,Helvetica,sans-serif;
+}

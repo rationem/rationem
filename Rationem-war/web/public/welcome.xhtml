@@ -1,0 +1,21 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+
+ <ui:define name="title" >Welcome</ui:define>
+ <ui:define name="content">
+  <h:outputText value="output text" styleClass="textHeader" />
+  <p:panelGrid columns="2">
+   <p:outputLabel for="usrId" value="#{formText.usrLogin}"/>
+   <p:autoComplete id="usrId" value="#{authManBean.selectedLogonName}" 
+                   converter="com.rationem.util.converter.UserLoginConverter"
+                   completeMethod="#{authManBean.usrLogonComplete}"
+                   dropdown="true" forceSelection="true" var="loginName" itemValue="#{loginName}"
+                   itemLabel="#{loginName.logonName}"/>
+  </p:panelGrid>
+
+ </ui:define>
+</ui:composition>

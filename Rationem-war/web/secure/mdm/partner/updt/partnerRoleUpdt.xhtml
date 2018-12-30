@@ -1,0 +1,97 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.ptnrRoleUpdt}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="ptnrRoleFrm" >
+    <div class="card card-w-title">
+     <h1><h:outputText value="#{formText.cfgPtnrRoles}" /></h1>
+     <p:messages id="errMsg" severity="error, warn" closable="true"/>
+     <p:growl id="okMsg" severity="info"/>
+     <p:dataTable 
+      id="rolesList" value="#{partnerRoleBean.roles}" var="roleV" rows="#{partnerRoleBean.usrBuff.tblRows}"
+      emptyMessage="#{listHeading.ptnrRoleNone}" rowKey="#{roleV.id}" paginator="true" paginatorAlwaysVisible="true"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+      reflow="true" selection="#{partnerRoleBean.roleSelected}" selectionMode="single">
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24" />
+        <p:dataExporter type="xls" target="rolesList" fileName="#{listHeading.ptnrRole_FN}"  
+                          postProcessor="#{partnerRoleBean.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="rolesList" 
+                      fileName="#{listHeading.ptnrRole_FN}" />
+       </h:commandLink>
+      </f:facet>
+      <p:column width="100" sortable="true" sortBy="#{roleV.roleCode}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.ptnrRlRef}"/>
+       </f:facet>
+       <h:outputText value="#{roleV.roleCode}" />
+      </p:column>
+      <p:column sortable="true" sortBy="#{roleV.roleName}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.ptnrRlName}"/>
+       </f:facet>
+       <h:outputText value="#{roleV.roleName}" />
+      </p:column>
+      <p:column width="100" sortable="true" sortBy="#{roleV.inUse}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.ptnrRlInUse}"/>
+       </f:facet>
+       <h:outputText value="#{formText.yes}" rendered="#{roleV.inUse}" />
+       <h:outputText value="#{formText.no}" rendered="#{ not roleV.inUse}" />
+      </p:column>
+     </p:dataTable>
+     <p:contextMenu for="rolesList">
+      <p:menuitem value="#{formText.edit}" icon="fa fa-pencil-square-o" update="editRoleFrm"
+                  oncomplete="PF('edRlDlgWv').show()"/>
+     </p:contextMenu>
+    </div>
+   </h:form>
+   <h:form id="editRoleFrm">
+    <p:dialog id="edRlDlgId" widgetVar="edRlDlgWv" dynamic="true" modal="true">
+     <f:facet name="header">
+      <h:outputText value="#{formText.cfgPtnrRoleEditDlg}"/>
+      <p:spacer width="4"/>
+      <h:outputText value="#{partnerRoleBean.roleSelected.roleCode}"  />
+     </f:facet>
+     <div class="card card-w-title">
+      <h1>
+       <h:outputText value="#{formText.cfgPtnrRole}" />
+       
+      </h1>
+      <p:panelGrid id="editRolePg" columns="1" layout="grid" styleClass="ui-noborder">
+       <h:panelGroup styleClass="md-inputfield">
+        <p:inputText id="roleCode" value="#{partnerRoleBean.roleSelected.roleCode}"/>
+        <p:outputLabel for="roleCode" value="#{formText.ref}"/>
+       </h:panelGroup>
+       <h:panelGroup styleClass="md-inputfield">
+        <p:inputText id="roleName" value="#{partnerRoleBean.roleSelected.roleName}"/>
+        <p:outputLabel for="roleName" value="#{formText.name}"/>
+       </h:panelGroup>
+       <h:panelGroup styleClass="md-inputfield">
+        <p:selectBooleanButton id="roleUsed" onLabel="#{formText.yes}" offLabel="#{formText.no}" 
+                               value="#{partnerRoleBean.roleSelected.inUse}" />
+        <p:outputLabel for="roleUsed" value="#{formText.availList}" style="font-weight: 900 !important;"/>
+       </h:panelGroup>
+      </p:panelGrid>
+      <p:panelGrid id="trfBtnPg" columns="2" layout="grid" styleClass="ui-noborder">
+       <p:commandButton id="trfBtn" value="#{formText.transfer}" icon="fa fa-long-arrow-left"
+                        actionListener="#{partnerRoleBean.onSaveRole}"/>
+       <p:commandButton id="clsBtn" value="#{formText.close}" icon="fa fa-window-close-o" type="button"
+                        onclick="PF('edRlDlgWv').hide()"/>
+      </p:panelGrid>
+     </div>
+    </p:dialog>
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,113 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_moduleUpdt}</ui:define>
+ <ui:define name="header"><h:outputText value="#{pageTitle.cfg_moduleUpdt}" styleClass="panelHeader" /> </ui:define>
+ <ui:define name="content">
+  <h:form id="moduleUpdateFrm" prependId="false">
+   <p:contextMenu for="modLst" widgetVar="cMenu">  
+    <p:menuitem value="Edit" icon="ui-icon-search"  actionListener="#{module.onModuleEditDlg}"/> 
+        
+   </p:contextMenu> 
+   <p:dataTable id="modLst" var="mdl" value="#{module.modules}" widgetVar="moduleList"
+                editable="true" selectionMode="single" rowKey="#{mdl.id}" paginator="true"
+                emptyMessage="#{formText.mod_none}" sortBy="#{mdl.name}"
+                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+
+     
+     <p:ajax event="contextMenu" listener="#{module.onCtxMenuDisp}" />
+     <p:ajax event="rowSelect" listener="#{module.onRowSelect}"/>
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="modLst" fileName="#{formText.mod_fn}" 
+                        postProcessor="#{unitOfmeasureBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="modLst" fileName="#{formText.mod_fn}" />
+      </h:commandLink>
+     </f:facet>
+     <f:facet name="header">
+     <h:outputText value="#{formText.mod_list}"/>
+     </f:facet>
+     
+     <p:column id="modName" headerText="#{formText.mod_name}"   >
+      <p:cellEditor>
+       <f:facet name="output">
+        <h:outputText value="#{mdl.name}" title="#{formHelpText.mod_name}" />
+       </f:facet>
+       <f:facet name="input">
+        <p:inputText value="#{mdl.name}"/>
+       </f:facet>
+      </p:cellEditor>
+      </p:column>
+      <p:column id="modDescr" headerText="#{formText.mod_descr}">
+       <p:cellEditor>
+        <f:facet name="output">
+         <h:outputText value="#{mdl.description}" title="#{formHelpText.mod_descr}"/>
+        </f:facet>
+        <f:facet name="input">
+         <p:inputText value="#{mdl.description}" title="#{formHelpText.mod_descr}"/>
+        </f:facet>
+       </p:cellEditor>
+      </p:column>
+      <p:column >
+       <f:facet name="header">
+        <h:outputText value="#{formText.mod_code}" />
+       </f:facet>
+       <p:cellEditor>
+        <f:facet name="input">
+         <h:selectOneMenu value="#{mdl.moduleCode}"  >
+          <f:selectItems  value="#{module.moduleCodes}" var="mCode" itemValue="#{mCode}" itemLabel="#{mCode}" />
+          </h:selectOneMenu>
+        </f:facet>
+        <f:facet name="output" >
+         <h:outputText value="#{mdl.moduleCode}" title="#{formHelpText.mod_code}"/>
+        </f:facet>
+       </p:cellEditor>
+       
+      </p:column>
+     </p:dataTable>
+   </h:form>
+  <p:dialog widgetVar="editModWv"  modal="true" dynamic="true" >
+   <f:facet name="header">
+    <h:outputText value="Edit module"/>
+   </f:facet>
+   <h:form id="editModFrm" prependId="false">
+    
+    <p:panelGrid id="updatePgId" columns="2" styleClass="panelNoBorders"  >
+     <p:outputLabel for="editModName" value="#{formText.mod_name}"/>
+     <p:inputText id="editModName" value="#{module.selectedModule.name}"/>
+     <p:outputLabel for="editModDescr" value="#{formText.mod_descr}"/>
+     <p:inputText id="editModDescr" value="#{module.selectedModule.description}"/>
+     <p:outputLabel for="editModCode" value="#{formText.mod_code}" />
+     <p:selectOneMenu id="editModCode" value="#{module.selectedModule.moduleCode}" >
+      <f:selectItems value="#{module.moduleCodes}" var="edModCodes" itemValue="#{edModCodes}" itemLabel="#{edModCodes}"/>
+     </p:selectOneMenu>
+     <p:commandButton id="editModSaveBtn" value="#{formText.save}" icon="fa fa-floppy-o" actionListener="#{module.onModuleEditSaveBtn}"/>
+    </p:panelGrid>
+     
+   </h:form>
+  </p:dialog>
+
+  <p:confirmDialog  widgetVar="modDelWv" severity="alert">
+   <f:facet name="header">
+    <h:outputText value="#{formText.mod_del}"/>
+   </f:facet>
+   <f:facet name="message">
+    <h:outputText value="#{formText.mod_del_msg}"/>
+   </f:facet>
+   <h:form id="modDelFromId" prependId="false">
+    <p:commandButton value="#{formText.yes}" actionListener="#{module.deleteModuleAction}"/>
+    <p:commandButton value="#{formText.no}"  onclick="PF('modDelWv').hide()" type="button"/>
+   </h:form>
+  </p:confirmDialog>
+            
+  </ui:define>
+</ui:composition>
+
+ 

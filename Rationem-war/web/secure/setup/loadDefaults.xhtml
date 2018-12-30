@@ -1,0 +1,38 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_default}</ui:define>
+ <ui:define name="header"><p:panel header="#{pageTitle.cfg_default}"  /></ui:define>
+ <ui:define name="content">
+  <h:form id="defaultSetupFrm">
+   <div class="ui-g ui-fluid">
+       <div class="ui-g-12">
+     <p:toolbar  >
+      <f:facet name="left">
+       <p:commandButton id="saveDef" value="#{formText.save}" icon="fa fa-floppy-o" styleClass="secondary" 
+                    actionListener="#{defaultLoadBean.onSaveDefConfiguration}"/>
+      </f:facet>
+     </p:toolbar>
+     <div class="card" >
+      <p:growl id="grwl" />
+      <p:pickList id="defPickList" value="#{defaultLoadBean.defaults}"  
+               var="defaults"  effect="bounce" filterMatchMode="contains"
+               converter="com.rationem.util.converter.defConfig" showSourceControls="tue"
+               showSourceFilter="true" showTargetControls="true" showTargetFilter="true"
+               showCheckbox="true" 
+               itemValue="#{defaults}" itemLabel="#{defaults.name}"  >
+       <f:facet name="sourceCaption">#{formText.cfgDefAvail}</f:facet>
+       <f:facet name="targetCaption">#{formText.cfgDefUse}</f:facet>
+      </p:pickList>
+   
+   </div>
+   </div>
+   </div>
+  </h:form>
+  
+ </ui:define>
+</ui:composition>
+

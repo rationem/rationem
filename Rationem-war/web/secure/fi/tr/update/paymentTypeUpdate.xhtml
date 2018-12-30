@@ -1,0 +1,195 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/Modify.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{menuOption.trPayTypeUpdateHdr}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="payTypeUpdt" prependId="false">
+    <p:growl id="successMsg"/>
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                       actionListener="#{paymentTypeBean.onSaveUpdate}" ajax="false">
+       <p:resetInput target=":payTypeUpdt" />
+      </p:commandButton>
+      
+     </f:facet >
+    </p:toolbar>
+    <p:focus for="payTyCompAC"/>
+    <div class="card" >
+     <p:panelGrid id="payTypeSelGrd" styleClass="panelNoBorders" layout="grid" columns="3" 
+                 columnClasses="ui-grid-col-1,ui-ui-grid-col-1,ui-ui-grid-col-1">
+      <f:facet name="header">
+       <h:outputText value="Payment Type selection"/>
+      </f:facet>
+     
+      <p:outputLabel for="payTyCompAC" value="#{formText.payTyComp}"/>
+      <p:selectOneMenu id="payTyCompAC" value="#{paymentTypeBean.comp}" var="compS1M"
+                        converter="com.rationem.util.converter.CompanyBasic">
+        <f:selectItems value="#{paymentTypeBean.compList}" var="compV"
+                       itemValue="#{compV}" itemLabel="#{compV.reference}" />
+        <p:column>
+         <p:outputLabel value="#{compS1M.reference}"/>
+         <p:outputLabel value=" - "/>
+         <p:outputLabel value="#{compS1M.name}"/>
+        </p:column>
+        <p:ajax event="itemSelect" listener="#{paymentTypeBean.onCompSelect}"/>
+      </p:selectOneMenu> 
+      <h:outputText id="compRefText" value="#{paymentTypeBean.comp.name}"/>
+      <p:outputLabel for="payTyCode" value="#{formText.payTyCode}"/>
+      <p:autoComplete id="payTyCode" value="#{paymentTypeBean.payType}" dropdown="true" size="10"
+                     converter="com.rationem.util.converter.PaymentType" forceSelection="true"
+                     completeMethod="#{paymentTypeBean.payTypeComplete}" required="true" 
+                     requiredMessage="#{validationText.payTyTypeSelect}"
+                     var="payTypeV" itemValue="#{payTypeV}" itemLabel="#{payTypeV.payTypeCode}">
+       <f:facet name="itemtip">
+        <h:panelGrid columns="2" cellpadding="5">
+         <p:outputLabel for="itemTipPayTyCode" value="#{formText.payTyCode}"/>
+         <h:outputText id="itemTipPayTyCode" value="#{payTypeV.payTypeCode}"/>
+         <p:outputLabel for="itemTipPayTyDescr" value="#{formText.compName}"/>
+         <h:outputText id="itemTipPayTyDescr" value="#{compV.description}"/>
+        </h:panelGrid>
+       </f:facet>
+       <p:ajax event="itemSelect"  
+               process="payTyCode" update="payTypeDescTxt payTyDetailGrd @this"
+               listener="#{paymentTypeBean.onPayTypeSelect}"  />
+      </p:autoComplete>
+      <h:outputText id="payTypeDescTxt" value="#{paymentTypeBean.payType.description}"/>
+     </p:panelGrid>
+    </div>
+    <div class="card">
+     <p:panelGrid id="payTyDetailGrd" styleClass="panelNoBorders" layout="grid" columns="6" 
+                 columnClasses="ui-grid-col-2,ui-ui-grid-col-1,ui-ui-grid-col-1,ui-ui-grid-col-1">
+      <f:facet name="header">
+       <h:outputText value="#{formText.payTyDetail}"/>
+      </f:facet>
+      <p:outputLabel for="payTyDescr" value="#{formText.payTyDesc}"/>
+      <p:inputText id="payTyDescr" value="#{paymentTypeBean.payType.description}" 
+                  disabled="#{!paymentTypeBean.payTypeSelected}"/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      
+      <p:outputLabel for="payMeduimCd" value="#{formText.payTyMeduimCode}"/>
+      <p:selectOneMenu id="payMeduimCd" value="#{paymentTypeBean.payType.payMedium}"
+                      disabled="#{!paymentTypeBean.payTypeSelected}">
+     
+       <f:selectItem itemLabel="#{formText.payTyChq}" itemValue="CHQ" />
+       <f:selectItem itemLabel="#{formText.payTyDD}" itemValue="DD" />
+       <f:selectItem itemLabel="#{formText.payTyDC}" itemValue="DC" />
+       <f:selectItem itemLabel="#{formText.payTyCsh}" itemValue="CSH" />
+       <f:selectItem itemLabel="#{formText.payTyCC}" itemValue="CC" />
+       <p:ajax listener="#{paymentTypeBean.onPayMediumChange}" partialSubmit="true" process="@this" 
+             update="bacsTransCd"/>
+      </p:selectOneMenu>
+      <p:outputLabel for="templ" value="#{formText.trChqTempl}"/>
+      <p:autoComplete 
+       id="templ" value="#{paymentTypeBean.payType.chqTemplate}" var="chqTempl" dropdown="true"
+       completeMethod="#{paymentTypeBean.onChequeTemplateComplete}" itemValue="#{chqTempl}"
+       converter="com.rationem.util.converter.ChequeTemplate" emptyMessage="#{validationText.chqTemplNone}"
+       itemLabel="#{chqTempl.reference}" disabled="#{paymentTypeBean.payType.payMedium ne 'CHQ'}"/>
+                      
+      <p:outputLabel for="bacsTransCd" value="#{formText.payTyBacsTrans}" 
+                    />
+      <p:selectOneMenu id="bacsTransCd" value="#{paymentTypeBean.payType.bacsTransCode}" 
+                      var="bacsTransSmV" converter="com.rationem.util.converter.BacsTransCode" 
+                      disabled="#{paymentTypeBean.bacsTransDisabled}">
+       <f:selectItems value="#{paymentTypeBean.bacsTransCodes}" var="bacsTransCdV" itemValue="#{bacsTransCdV}"
+                     itemLabel="#{bacsTransCdV.ptnrBnkTransCode}"/>
+       <p:column>
+        #{bacsTransSmV.ptnrBnkTransCode} - #{bacsTransSmV.description}
+       </p:column>
+      </p:selectOneMenu>
+      
+      
+     
+      <p:outputLabel for="ledger" value="#{formText.payTyLedger}"/>
+      <p:selectOneMenu id="ledger" value="#{paymentTypeBean.payType.ledger}" 
+                      converter="com.rationem.util.converter.Ledger"
+                      disabled="#{!paymentTypeBean.payTypeSelected}">
+       <f:selectItems value="#{paymentTypeBean.ledgers}" var="ledgerV" itemValue="#{ledgerV}" 
+                     itemLabel="#{ledgerV.descr}"/>
+      </p:selectOneMenu>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+     
+      <p:outputLabel for="payDirection" value="#{formText.payTyDirection}"/>
+      <p:selectOneRadio id="payDirection" value="#{paymentTypeBean.payType.inbound}" 
+                       layout="pageDirection" disabled="#{!paymentTypeBean.payTypeSelected}">
+       <f:selectItem itemLabel="#{formText.payTyReceipt}" itemValue="true"/>
+       <f:selectItem itemLabel="#{formText.payTyPayment}" itemValue="false"/>
+      </p:selectOneRadio>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+     
+      <p:outputLabel for="paysummLvl" value="#{formText.payTySumLvl}"/>
+      <p:selectOneMenu id="paysummLvl" value="#{paymentTypeBean.payType.summLevel}"
+                      disabled="#{!paymentTypeBean.payTypeSelected}">
+       <f:selectItem itemLabel="#{formText.payTySumDoc}" itemValue="1" />
+       <f:selectItem itemLabel="#{formText.payTySumAcnt}" itemValue="2" />
+      </p:selectOneMenu>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+     
+      <p:outputLabel for="bankAc" value="#{formText.payTyBnkAc}"/>
+      <p:autoComplete id="bankAc" value="#{paymentTypeBean.payType.payTypeForBankAccount}" dropdown="true"
+                     converter="com.rationem.util.converter.BankAccountCompany" required="true"
+                     disabled="#{!paymentTypeBean.payTypeSelected}" requiredMessage="#{validationText.payTyBankAc}"
+                     completeMethod="#{paymentTypeBean.bankAccountComplete}" 
+                     forceSelection="true" var="bankAcV"
+                     itemValue="#{bankAcV}" itemLabel="#{bankAcV.accountNumber}">
+       <f:facet name="itemtip">
+        <h:panelGrid columns="2" cellpadding="5">
+         <p:outputLabel for="itemTipBnkacNum" value="#{formText.bnkAccNum}"/>
+         <h:outputText id="itemTipBnkacNum" value="#{bankAcV.accountNumber}"/>
+         <p:outputLabel for="itemTipBnkacName" value="#{formText.bnkAccName}"/>
+         <h:outputText id="itemTipBnkacName" value="#{bankAcV.accountName}"/>
+        </h:panelGrid>
+       </f:facet>
+       <p:ajax event="itemSelect" listener="#{paymentTypeBean.onBankSelect}"  process="bankAc" update="glAc" partialSubmit="true"
+        />
+      </p:autoComplete>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+      <p:outputPanel/>
+     
+      <p:outputLabel for="glAc" value="#{formText.payTyGlAc} "/>
+      <p:autoComplete id="glAc" value="#{paymentTypeBean.payType.glBankAccount}" dropdown="true"
+                     converter="com.rationem.util.converter.FiGlAccountComp" required="true"
+                     completeMethod="#{paymentTypeBean.onGlAccountComplete}" 
+                     disabled="#{!paymentTypeBean.bankSelected}" 
+                     requiredMessage="#{validationText.payTyGlAc}" var="glAcV" itemValue="#{glAcV}"
+                     itemLabel="#{glAcV.coaAccount.ref}">
+       <f:facet name="itemtip">
+        <h:panelGrid columns="2" cellpadding="5">
+         <p:outputLabel for="itemTipGlAcRef" value="#{formText.glAccountRef}"/>
+         <h:outputText id="itemTipGlAcRef" value="#{glAcV.coaAccount.ref}"/>
+         <p:outputLabel for="itemTipGlAcName" value="#{formText.glAccountName}"/>
+         <h:outputText id="itemTipGlAcName" value="#{glAcV.coaAccount.name}"/>
+        </h:panelGrid>
+       </f:facet>
+       <p:ajax event="itemSelect" process="glAc" update="glActNameTxt" partialSubmit="true"/>
+      </p:autoComplete>
+      <h:outputText id="glActNameTxt" value="#{paymentTypeBean.payType.glBankAccount.coaAccount.description}"/>
+     </p:panelGrid>
+    </div> 
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

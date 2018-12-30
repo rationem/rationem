@@ -1,0 +1,430 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    
+>
+    
+ <ui:composition template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/Modify.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{menuOption.mnuDocEdit}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="docEditFrm" prependId="false" >
+   <p:toolbar>
+      <f:facet name="left">
+       <p:commandButton id="docEditBtn" icon="fa fa-floppy-o" value="#{formText.docUpdate}"
+                        actionListener="#{docDisplay.onDocUpdate}" ajax="false" 
+                        disabled="#{!docDisplay.docSelected}" >
+       </p:commandButton>
+       <p:commandButton id="docChangesBtn" icon="ui-icon-circle-plus" value="#{formText.auditDocChanges}"
+                        ajax="true" actionListener="#{docDisplay.onDocAuditAction}"
+                        update=":auditFrm:audTbl"
+                        disabled="#{!docDisplay.docSelected}" oncomplete="audDlgVar.show()" >
+       </p:commandButton>
+      </f:facet>
+     </p:toolbar>
+   <p:growl autoUpdate="true"/>
+   <p:fieldset legend="#{formText.docSelCriteria}" toggleable="true">
+    <h:panelGrid id="selGd" columns="2">
+     <p:outputLabel for="docCompMnu" value="#{formText.docCompany}"/>
+      <p:selectOneMenu id="docCompMnu" value="#{docDisplay.comp}" 
+                     converter="accounts.Util.converter.CompanyBasic">
+       <f:selectItems value="#{docDisplay.compList}" var="compV" itemValue="#{compV}" 
+                    itemLabel="#{compV.reference}" />
+      </p:selectOneMenu>
+     <p:outputLabel for="docNumAc" value="#{formText.docNum}"/>
+     <p:autoComplete id="docNumAc" value="#{docDisplay.docSel}"   completeMethod="#{docDisplay.docEditComplete}" 
+                    converter="accounts.Util.converter.DocFi" dropdown="true" var="docVar" forceSelection="true" 
+                    itemValue="#{docVar}" itemLabel="#{docVar.docNumber}"  >
+      <p:ajax event="itemSelect" listener="#{docDisplay.onDocSelectCompl}" update="docEditFrm" />
+      <f:facet name="itemtip">
+       <h:panelGrid columns="2" cellpadding="1">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docHdr}"/>
+        </f:facet>
+        <h:outputText value="#{formText.docDocDate}" />
+        <h:outputText value="#{docVar.documentDate}" >
+         <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+        <h:outputText value="#{formText.docPostDate}" />
+        <h:outputText value="#{docVar.postingDate}" >
+         <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+        <h:outputText value="#{formText.docPeriod}" />
+        <h:outputText value="#{docVar.fisYear} /  #{docVar.fisPeriod}" />
+       </h:panelGrid>
+      </f:facet>
+     </p:autoComplete>
+    </h:panelGrid>
+   </p:fieldset>
+   <p:outputPanel id="docHdrFs">
+      <p:fieldset legend="#{formText.docDetail}" toggleable="true" collapsed="false" 
+                  rendered="#{docDisplay.docSelected}"   >
+      <p:panel header="#{formText.docHdr}" toggleable="true"  >
+       <p:tabView id="docHdrTv" orientation="top" dynamic="true">
+        <p:tab title="Basic details">
+       <h:panelGrid columns="6">
+        <p:outputLabel for="docNum" value="#{formText.docNum}"/>
+        <h:outputText id="docNum" styleClass="docDispl-txt" value="#{docDisplay.docSel.docNumber}"/>
+        <p:outputLabel for="crDate" value="#{formText.genEnteredOn}"/>
+        <h:outputText id="crDate" styleClass="docDispl-txt" value="#{docDisplay.docSel.createOn}">
+         <f:convertDateTime  pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+        <p:outputLabel for="updtDate" value="#{formText.genChangedOn}"/>
+        <h:outputText id="updtDate" styleClass="docDispl-txt" value="#{docDisplay.docSel.changedOn}">
+         <f:convertDateTime  pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+        <p:outputLabel for="docDate" value="#{formText.docDocDate}"/>
+        <h:outputText id="docDate" styleClass="docDispl-txt" value="#{docDisplay.docSel.documentDate}">
+         <f:convertDateTime  pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+        <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
+        <h:outputText id="postDate" styleClass="docDispl-txt" value="#{docDisplay.docSel.postingDate}">
+         <f:convertDateTime  pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+        <p:outputLabel for="taxPoint" value="#{formText.docTaxDate}"/>
+        <h:outputText id="taxPoint" styleClass="docDispl-txt" value="#{docDisplay.docSel.taxDate}">
+         <f:convertDateTime  pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+        <p:outputLabel for="docType" value="#{formText.docType}"/>
+        <h:outputText id="docType" styleClass="docDispl-txt" value="#{docDisplay.docSel.docType.name}"/>
+        <p:outputLabel for="postPeriod" value="#{formText.docPeriod}"/>
+        <h:outputText id="postPeriod" styleClass="docDispl-txt" value="#{docDisplay.docSel.fisYear} / #{docDisplay.docSel.fisPeriod}"/>
+        <p:outputLabel for="extDocRef" value="#{formText.docPtnrTxt}"/>
+        <p:inputText id="extDocRef" styleClass="docDispl-txt" value="#{docDisplay.docSel.partnerRef}"/>
+        <p:outputLabel for="hdrText" value="#{formText.docHdrTxt}"/>
+        <p:inputText id="hdrText" styleClass="docDispl-txt" value="#{docDisplay.docSel.docHdrText}"/>
+       </h:panelGrid>
+       </p:tab>
+        <p:tab title="Notes">
+         <p:outputLabel styleClass="docDisp-Notes" for="docNotes" value="#{formText.docNotes}"/>
+         
+         <p:editor  value="#{docDisplay.docSel.notes}" id="docNotes" width="1000" height="100"
+                   controls="bold italic underline strikethrough font size color highlight bullets numbering cut copy paste link unlink print"/>
+        </p:tab>
+       </p:tabView>
+      </p:panel>
+       <p:panel header="#{formText.docLines}" toggleable="true" collapsed="true" >
+       <p:contextMenu for="docLines" >
+        <p:menuitem value="#{formText.arDocInvLineDet}" icon="ui-icon-pencil" 
+                    action="#{docDisplay.onDocLineDisplayAction}" 
+                    update=":editLineFrm:dispLineDlg"
+                    oncomplete="displLineWvar.show()"/>
+        <p:menuitem value="#{formText.arDocSelAudit}" icon="ui-icon-circle-plus" 
+                    actionListener="#{docDisplay.onDocLineAuditAction}" 
+                    update=":auditFrm:audTbl" ajax="true"
+                    oncomplete="audDlgVar.show()"/>
+       </p:contextMenu>
+       <p:dataTable id="docLines" var="docLineVar" value="#{docDisplay.docSel.docLines}" 
+                    emptyMessage="No line items" selectionMode="single" paginator="true" 
+                    selection="#{docDisplay.docLineSel}" paginatorAlwaysVisible="false"
+                    rowKey="#{docLineVar.id}" rows="5"
+                    rowsPerPageTemplate="5,10,15,20"
+                    sortMode="multiple"
+                    >
+        <p:column headerText="#{formText.genNum}"  width="2" sortBy="#{docLineVar.lineNum}"  >
+         <h:outputText value="#{docLineVar.lineNum}"/>
+        </p:column>
+        <p:column headerText="#{formText.docPostCode}" width="2" sortBy="docLineVar.postType.postTypeCode">
+         <h:outputText value="#{docLineVar.postType.postTypeCode} - #{docLineVar.postType.ledger.name}"/>
+          
+        </p:column>
+        <p:column headerText="#{formText.docAcntRef}" width="1" sortBy="#{docLineVar.accountRef}">
+         <h:outputText value="#{docLineVar.accountRef}"  />
+        </p:column>
+        <p:column headerText="#{formText.docSort}" width="100" sortBy="#{docLineVar.sortOrder}">
+         <h:outputText value="#{docLineVar.sortOrder}"/>
+        </p:column>
+        <p:column headerText="#{formText.docLnTxt}" width="100" sortBy="#{docLineVar.lineText}" >
+         <h:outputText value="#{docLineVar.lineText}"/>
+        </p:column>
+        <p:column headerText="#{formText.docDebit}" width="150" styleClass="column-financialValue" sortBy="#{docLineVar.debitValue}" >
+         <h:outputText value="#{docLineVar.debitValue}" >
+          <f:convertNumber minFractionDigits="2" minIntegerDigits="3" groupingUsed="true"/>
+         </h:outputText>
+         <f:facet name="footer">
+          <h:outputText value="#{docDisplay.docTotalDebit}">
+         </h:outputText>
+         </f:facet>
+        </p:column>
+        <p:column headerText="#{formText.docCredit}" width="150" styleClass="column-financialValue" sortBy="#{docLineVar.creditValue}" >
+         <h:outputText value="#{docLineVar.creditValue}">
+          <f:convertNumber minFractionDigits="2" minIntegerDigits="1"/>
+         </h:outputText>
+         <f:facet name="footer"  >
+          <h:outputText value="#{docDisplay.docTotalCredit}" >
+         </h:outputText>
+         </f:facet>
+        </p:column>
+         
+         
+       </p:dataTable>
+      </p:panel>
+     </p:fieldset>
+    </p:outputPanel>
+  </h:form>
+  <h:form id="editLineFrm" prependId="false">
+     <p:dialog id="dispLineDlg"  closable="false"
+               header="#{formText.docLineDetail} #{docDisplay.docLineSel.lineNum} #{docDisplay.docLineSel.postType.ledger.name}" 
+                modal="true" 
+               widgetVar="displLineWvar">
+      <h:panelGrid id="dispArGd" columns="2"  rendered="#{docDisplay.docLineClass eq 'DocLineArRec'}">
+       <p:outputLabel for="dispLineTypeAr" value="#{formText.docLineType}"/>
+       <h:outputText id="dispLineTypeAr" 
+                     value="#{docDisplay.docLineSel.postType.description} #{formText.docLineNum} #{docDisplay.docLineSel.lineNum}"/>
+       <p:outputLabel for="dispArDocNum" value="#{formText.docNum}"/>
+       <h:outputText id="dispArDocNum" value="#{docDisplay.docLineSel.docHeaderBase.docNumber}" />
+       <p:outputLabel for="displArAc" value="#{formText.docLineArAc}" 
+                      rendered="#{docDisplay.docLineClass eq 'DocLineArRec'}"/>
+       <h:outputText id="displArAc" value="#{docDisplay.docLineSel.accountRef} - #{docDisplay.docLineArSel.arAccount.arAccountName}"
+                     rendered="#{docDisplay.docLineClass eq 'DocLineArRec'}"/>
+       <p:outputLabel for="sort" value="#{formText.docSort}"/>
+       <h:outputText id="sort" value="#{docDisplay.docLineSel.sortOrder}" 
+                     rendered="#{docDisplay.docLineArSel.clearedLine}"/>
+       <p:inputText  value="#{docDisplay.docLineSel.sortOrder}" 
+                     rendered="#{!docDisplay.docLineArSel.clearedLine}"/>
+       <p:outputLabel for="dispLineTextAr" value="#{formText.docLnTxt}"/>
+       <h:outputText id="dispLineTextAr" value="#{docDisplay.docLineSel.lineText}"
+                     rendered="#{docDisplay.docLineArSel.clearedLine}"/>
+       <p:inputText id="dispLineTextArEd" value="#{docDisplay.docLineSel.lineText}"
+                     rendered="#{!docDisplay.docLineArSel.clearedLine}"/>
+       <p:outputLabel for="dispLineAmountAr" value="#{formText.docAmnt}"/>
+       <p:outputPanel id="dispLineAmountAr">
+        <h:outputText id="dispLineDrAmountAr" value="#{docDisplay.docLineSel.debitValue}" />
+        <h:outputText id="dispLineCrAmountAr" value="#{docDisplay.docLineSel.creditValue}"/>
+       </p:outputPanel>
+       <p:outputLabel for="dispPayTermsAr" value="#{formText.docPayTerms}"/>
+       <h:outputText id="dispPayTermsAr" value="#{docDisplay.docLineSel.payTerms.description}"
+                     rendered="#{docDisplay.docLineSel.clearedLine}"/>
+       <p:autoComplete value="#{docDisplay.docLineArSel.payTerms}" dropdown="true"
+                       rendered="#{!docDisplay.docLineArSel.clearedLine}" forceSelection="true"
+                       completeMethod="#{docDisplay.payTermsComplete}"
+                       converter="accounts.Util.converter.PaymentTerms" var="payTermVar"
+                       itemValue="#{payTermVar}" itemLabel="#{payTermVar.description}">
+        <p:ajax event="itemSelect" update="dispPayTermsAr"/>
+       </p:autoComplete>
+       <p:outputLabel for="dueDateAr" value="#{formText.docDueDate}"/>
+       <h:outputText id="dueDateAr" value="#{docDisplay.docLineArSel.dueDate}"
+                     rendered="#{docDisplay.docLineArSel.clearedLine}">
+        <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+       </h:outputText>
+       <p:calendar  value="#{docDisplay.docLineArSel.dueDate}" 
+                    rendered="#{!docDisplay.docLineArSel.clearedLine}"
+                    mode="popup" navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="12"/>
+       <p:outputLabel for="payTypeAr" value="#{formText.docPayType}"/>
+       
+        <h:outputText id="payTypeAr" value="#{docDisplay.docLineArSel.payType.description}" 
+                      rendered="#{docDisplay.docLineArSel.clearedLine}" />
+       
+       <p:autoComplete id="payTypeArAc" value="#{docDisplay.docLineArSel.payType}" 
+                       dropdown="true" rendered="#{!docDisplay.docLineArSel.clearedLine}"
+                       completeMethod="#{docDisplay.payTypeComplete}" forceSelection="true"
+                       converter="accounts.Util.converter.PaymentType" var="payTypeV"
+                       itemValue="#{payTypeV}" itemLabel="#{payTypeV.description}">
+        <p:ajax event="itemSelect" update="payTypeAr"/>
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2">
+          <p:outputLabel for="itPtCd" value="#{formText.payTyCode}"/>
+          <h:outputText id="itPtCd" value="#{payTypeV.payTypeCode}"/>
+          <p:outputLabel for="itPyDescr" value="#{formText.payTyDesc}"/>
+          <h:outputText id="itPyDescr" value="#{payTypeV.description}"/>
+          <p:outputLabel for="itPyMedium" value="#{formText.payTyMeduimCode}"/>
+          <h:outputText id="itPyMedium" value="#{payTypeV.payMedium}"/>
+         </h:panelGrid>
+        </f:facet>
+       </p:autoComplete> 
+       
+       <p:outputLabel for="bankAr" value="#{formText.docLineBank}"/>
+       <h:outputText id="bankAr" rendered="#{docDisplay.docLineArSel.clearedLine}" 
+                     value="#{docDisplay.docLineArSel.bankAc.bankAccount.accountForBranch.chapsBranchCode}"/>
+       <p:autoComplete value="#{docDisplay.docLineArSel.bankAc}" dropdown="true" forceSelection="true"
+                       rendered="#{!docDisplay.docLineArSel.clearedLine}"
+                       converter="accounts.Util.converter.ArBank" 
+                       completeMethod="#{docDisplay.arBankComplete}"
+                       var="bankArV" itemValue="#{bankArV}" itemLabel="#{bankArV.accountName}"
+                       >
+        <p:ajax event="itemSelect" update="bankAr"/>
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2">
+          <p:outputLabel for="itBnkName" value="#{formText.bnkAccName}"/>
+          <h:outputText id="itBnkName" value="#{bankArV.accountName}"/>
+          <p:outputLabel for="itBnkSort" value="#{formText.bnkSortCd}"/>
+          <h:outputText id="itBnkSort" value="#{bankArV.bankAccount.accountForBranch.sortCode}"/>
+          <p:outputLabel for="itBnkAcNum" value="#{formText.bnkAccNum}"/>
+          <h:outputText id="itBnkAcNum" value="#{bankArV.bankAccount.accountNumber}"/>
+          <p:outputLabel for="itBnkCollAuth" value="#{formText.arDocCollAuth}"/>
+          <h:outputText id="itBnkCollAuth" value="#{bankArV.collAuthYesNo}"/>
+          <p:outputLabel for="itBnkCollAuthDt" value="#{formText.arDocCollAuthFrom}"/>
+          <h:outputText id="itBnkCollAuthDt" value="#{bankArV.collValidFrom}"/> 
+         </h:panelGrid>
+        </f:facet>
+       </p:autoComplete>
+       <p:outputLabel for="notesAr" value="#{formText.docNotes}"/>
+       <p:inputTextarea id="notesAr" disabled="#{docDisplay.docLineArSel.clearedLine}" 
+                        value="#{docDisplay.docLineArSel.notes}"
+                        rows="2" cols="100"/>
+       <h:outputText value="#{formText.docLineExtDoc}"/>
+       <h:panelGrid columns="3">
+        <p:outputLabel for="extDocAr" value="#{formText.docLineExtDocNum}"/>
+        <h:outputText id="extDocAr" value="#{docDisplay.docSel.docInvoiceAr.invoiceNumber}"/>
+        <p:commandButton id="extDocDownLdAr" value="#{formText.docLineExtDocDownLoad}" ajax="false">
+         <p:fileDownload  value="#{docDisplay.invPdfile}" />
+        </p:commandButton>
+        
+       </h:panelGrid>
+       <p:outputLabel for="recLinesAr" value="#{formText.docLineRecDoc}"/>
+       <p:selectOneMenu id="recLinesAr" 
+                        value="#{docDisplay.docLineGlRecSel}" 
+                        converter="accounts.Util.converter.DocLineGl"
+                        var="recLineV">
+         <f:selectItems value="#{docDisplay.docLineArSel.reconiliationLines}" var="recLine"
+                        itemLabel="#{recLine.docAmount}" itemValue="#{recLine}"/>
+         <p:column >
+           #{recLine.glAccount.coaAccount.ref}
+         </p:column>
+         <p:column>
+           #{recLine.restrictedFund.fndCode}
+         </p:column>
+         <p:column>
+          <h:outputText value="#{recLine.docAmount}">
+           <f:convertNumber minFractionDigits="2" minIntegerDigits="1"/>
+          </h:outputText>
+           
+         </p:column>
+         
+       </p:selectOneMenu>
+       <p:outputLabel for="clearingFor" value="#{formText.docLineClr4Doc}" rendered="#{docDisplay.docLineSel.clearingLine}"/>
+       
+       <p:selectOneMenu id="clearingFor" value="#{docDisplay.docClearedLineAr}" var="clearDocSmV"
+                        rendered="#{docDisplay.docLineSel.clearingLine}" 
+                        converter="accounts.Util.converter.DocLineAr" >
+        <f:selectItems value="#{docDisplay.docLineSel.clearingLineForLines}" var="clearDocSiV" 
+                       itemValue="#{clearDocSiV}" itemLabel="#{formText.docNum} #{clearDocSiV.docHeaderBase.docNumber}"/>
+        <p:column>
+         #{clearDocSiV.docHeaderBase.docNumber}
+        </p:column>
+        <p:column>
+         #{clearDocSiV.lineNum}
+        </p:column>
+        <p:column>
+         #{clearDocSiV.docAmount}
+        </p:column>
+       </p:selectOneMenu>
+       <p:outputLabel for="dispRef1Ar" value="#{formText.docRef1}"/>
+       <h:outputText id="dispRef1Ar" value="#{docDisplay.docLineSel.reference1}"
+                     rendered="#{docDisplay.docLineSel.clearingLine}"/>
+       <p:inputText value="#{docDisplay.docLineSel.reference1}"
+                    rendered="#{!docDisplay.docLineArSel.clearingLine}"
+                    disabled="#{docDisplay.docLineArSel.clearedLine}"/>
+       <p:outputLabel for="dispRef2Ar" value="#{formText.docRef2}"/>
+       <h:outputText id="dispRef2Ar" value="#{docDisplay.docLineSel.reference2}"
+                     rendered="#{docDisplay.docLineSel.clearingLine}"/>
+       <p:inputText value="#{docDisplay.docLineSel.reference2}"
+                     rendered="#{!docDisplay.docLineSel.clearingLine}"
+                     disabled="#{docDisplay.docLineArSel.clearedLine}"/>
+      </h:panelGrid>
+      <h:panelGrid id="dispGlGd" columns="2" 
+                   rendered="#{docDisplay.docLineClass eq 'DocLineGLRec'}">
+       <p:outputLabel for="displineNumGl" value="#{formText.docLineNum}"/>
+       <h:panelGroup>
+       <h:outputText id="displineNumGl" value="#{docDisplay.docLineSel.lineNum}"/>
+       <p:spacer width="2"/>
+       <h:outputText value=" - #{formText.docLineAutoGen}" styleClass="docDispl-autoLine"
+                     rendered="#{docDisplay.docLineSel.autoGenerated}"/>
+       </h:panelGroup>
+       <p:outputLabel for="dispLineTypeGl" value="#{formText.docLineType}"/>
+       <h:outputText id="dispLineTypeGl" 
+                     value="#{docDisplay.docLineSel.postType.description}"/>
+       
+       <p:outputLabel for="dispGlAccountGl" value="#{formText.docLineGlAc}"/>
+       <h:outputText id="dispGlAccountGl" value="#{docDisplay.docLineGlSel.glAccount.coaAccount.ref} - #{docDisplay.docLineGlSel.glAccount.coaAccount.name}"
+                     />
+       <p:outputLabel for="dispGlLnSort" value="#{formText.docSort}"/>
+       <h:outputText id="dispGlLnSort" value="#{docDisplay.docLineGlSel.sortOrder}" 
+                     rendered="#{docDisplay.docLineGlSel.clearedLine}"/>
+       <p:inputText value="#{docDisplay.docLineGlSel.sortOrder}" 
+                     rendered="#{!docDisplay.docLineGlSel.clearedLine}"/>
+       <p:outputLabel for="dispLineTextGl" value="#{formText.docLnTxt}"/>
+       <h:outputText id="dispLineTextGl" value="#{docDisplay.docLineSel.lineText}" 
+                     rendered="#{docDisplay.docLineGlSel.clearedLine}"/>
+       <p:inputText value="#{docDisplay.docLineSel.lineText}" 
+                     rendered="#{!docDisplay.docLineGlSel.clearedLine}"/>
+       <p:outputLabel for="dispLineAmountGl" value="#{formText.docAmnt}"/>
+       <p:outputPanel id="dispLineAmountGl">
+        <h:outputText id="dispLineDrAmountGl" value="#{docDisplay.docLineSel.debitValue}" />
+        <h:outputText id="dispLineCrAmountGl" value="#{docDisplay.docLineSel.creditValue}" />
+       </p:outputPanel>
+       <p:outputLabel for="dispVatCodeGl" value="#{formText.docLineTaxCode}"/>
+       <h:outputText id="dispVatCodeGl" 
+                     value="#{docDisplay.docLineGlSel.vatReturnLine.vatCode.code} - #{docDisplay.docLineGlSel.vatReturnLine.vatCode.description}" 
+                     />
+       <p:outputLabel for="dispRestrBalGl" value="#{formText.docLineRestrFnd}"/>
+       <h:outputText id="dispRestrBalGl" 
+                     value="#{docDisplay.docLineGlSel.restrictedFund.fndCode} - #{docDisplay.docLineGlSel.restrictedFund.name}"
+                     />
+       <p:outputLabel for="dispCostCentGl" value="#{formText.docLineCostCent}"
+                      />
+       <h:outputText id="dispCostCentGl" 
+                     value="#{docDisplay.docLineGlSel.costCentre.refrence} - #{docDisplay.docLineGlSel.costCentre.costCentreName}"
+                     />
+       <p:outputLabel for="dispProgGl" value="#{formText.docLineProg}"
+                      />
+       <h:outputText id="dispProgGl" 
+                     value="#{docDisplay.docLineGlSel.programme.refrence} - #{docDisplay.docLineGlSel.programme.name}"
+                     />
+       <p:outputLabel for="dispRef1" value="#{formText.docRef1}"/>
+       <h:outputText id="dispRef1" value="#{docDisplay.docLineSel.reference1}"
+                     rendered="#{docDisplay.docLineGlSel.clearedLine}"/>
+       <p:inputText value="#{docDisplay.docLineSel.reference1}"
+                     rendered="#{!docDisplay.docLineGlSel.clearedLine}"/>
+       <p:outputLabel for="dispRef2" value="#{formText.docRef2}"/>
+       <h:outputText id="dispRef2" value="#{docDisplay.docLineSel.reference2}"
+                     rendered="#{docDisplay.docLineGlSel.clearedLine}"/>
+       <p:inputText value="#{docDisplay.docLineSel.reference2}"
+                     rendered="#{!docDisplay.docLineGlSel.clearedLine}"/>
+       
+      </h:panelGrid>
+      <p:commandButton  value="#{formText.genCloseBtn}" update=":docEditFrm:docLines" 
+                        oncomplete="displLineWvar.hide();"/>
+     </p:dialog> 
+    </h:form>
+  <h:form id="auditFrm" prependId="false">
+   <p:dialog header="Audit" modal="true" dynamic="true" widgetVar="audDlgVar" closable="false">
+    <p:dataTable id="audTbl" emptyMessage="No audit recs" value="#{docDisplay.auditRecs}" var="aud"
+                 paginator="true" rows="#{docDisplay.usrBuff.tblRows}" 
+                 paginatorAlwaysVisible="false" rowKey="#{aud.auditDate}" sortBy="#{aud.fieldName}" >
+     <p:column headerText="#{formText.auditField}" sortBy="#{aud.fieldName}">
+      <h:outputText value="#{aud.fieldName}"/>
+     </p:column>
+     <p:column headerText="#{formText.auditDate}" sortBy="#{aud.auditDate}">
+      <h:outputText value="#{aud.auditDate}">
+       <f:convertDateTime type="date" pattern="dd/MMM/yyyy HH:mm:ss" dateStyle="long"/>
+      </h:outputText>
+     </p:column>
+     <p:column headerText="#{formText.auditNew}" sortBy="#{aud.newValue}">
+      <h:outputText value="#{aud.newValue}"/>
+     </p:column>
+     <p:column headerText="#{formText.auditOld}" sortBy="#{aud.oldValue}">
+      <h:outputText value="#{aud.oldValue}"/>
+     </p:column>
+     <p:column headerText="#{formText.auditUser}">
+      <h:outputText value="#{aud.createdBy.familyName}, #{aud.createdBy.firstName} "/>
+     </p:column>
+     <f:facet name="footer">
+      <h:outputText value="#{formText.auditTotalNum} #{fn:length(docDisplay.auditRecs)}"/>
+     </f:facet>
+    </p:dataTable>
+    <p:commandButton type="button" value="#{formText.genCloseBtn}" onclick="audDlgVar.hide();"/>
+   </p:dialog>
+  </h:form>
+ </ui:define>
+  </ui:composition>
+</html>

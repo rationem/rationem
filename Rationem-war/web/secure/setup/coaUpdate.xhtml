@@ -1,0 +1,54 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ 
+
+ <ui:define name="title">#{pageTitle.cfg_coa_ed}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="coaChFrm">
+   <p:fieldset>
+   <p:panelGrid columns="2">
+   <p:outputLabel for="coa" value="#{formText.coa}"/>
+    <p:selectOneMenu id="coa" value="#{chartOfAccountsBean.coa}" 
+                     converter="com.rationem.util.converter.ChartOfAccounts" 
+                     valueChangeListener="#{chartOfAccountsBean.onChartChange}" >
+     <f:selectItems value="#{chartOfAccountsBean.charts}" var="coaVar" itemValue="#{coaVar}" 
+                   itemLabel="#{coaVar.reference}"/>
+     <p:ajax event="change"/>
+    </p:selectOneMenu>
+    <p:outputLabel for="coaRef" value="#{formText.coa_ref}"/>
+    <p:inputText id="coaRef" value="#{chartOfAccountsBean.coa.reference}" />
+    <p:outputLabel for="coaCurrCd" value="#{formText.coa_hmCurrCd}" title="#{formHelpText.coa_hmCurrCd}"/>
+    <p:inputText id="coaCurrCd" value="#{chartOfAccountsBean.coa.chartCurrency.currAlphaCode}" title="#{formHelpText.coa_hmCurrCd}"
+                                 required="true"/>
+
+   <p:outputLabel for="coaCurrISO" value="#{formText.coa_hmCurrISO}" title="#{formHelpText.coa_hmCurrISO}"/>
+   <p:inputText id="coaCurrISO" value="#{chartOfAccountsBean.coa.chartCurrency.currAlphaCode}" title="#{formHelpText.coa_hmCurrISO}"
+                                 required="true"/>
+   <p:outputLabel for="perBal" value="#{formText.fisPerCntrl}"/>
+   <p:selectOneMenu id="perBal" value="#{chartOfAccountsBean.coa.periodRule}" filter="true" required="true" 
+                    converter="com.rationem.util.converter.FisPeriodRule">
+    <f:selectItems value="#{chartOfAccountsBean.perCntrlRules}" var="perBal" itemValue="#{perBal}" 
+                   itemLabel="#{perBal.periodRule}" />
+   </p:selectOneMenu>
+   <p:outputLabel for="coaDeflt" value="#{formText.coa_defaultCoa}" title="#{formHelpText.coa_defaultCoa}"/>
+   <p:selectBooleanCheckbox id="coaDeflt" value="#{chartOfAccountsBean.coa.defaultChart}"
+                                             />
+
+   <p:outputLabel for="coaOIBalBwfd" value="#{formText.coa_oiDfltBalBfwd}" title="#{formHelpText.coa_oiDfltBalBfwd}"/>
+   <p:selectBooleanCheckbox id="coaOIBalBwfd"
+                                             value="#{chartOfAccountsBean.coa.oibalFwd}"
+                                             />
+   <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                    actionListener="#{chartOfAccountsBean.onChartUpdateSave}"/>
+   </p:panelGrid>
+   </p:fieldset>
+  </h:form>
+ </ui:define>
+</ui:composition>
+
+

@@ -1,0 +1,121 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_tr_bacs_trans_updt}</ui:define>
+ <ui:define name="content">
+   <h:form id="bacsCdLst">
+    <p:growl autoUpdate="true" severity="info"/>
+    <p:messages autoUpdate="true" severity="error, warn" />
+    
+    <div class="card">
+     <p:dataTable 
+      id="codeList" value="#{bacsTransCodeBean.bacsTransCodes}" var="cd" rowKey="#{cd.id}" 
+      rows="#{bacsTransCodeBean.usrBuff.tblRows}" emptyMessage="#{errorText.bacsTransCodeNone}"
+      paginatorAlwaysVisible="true" paginator="true" selectionMode="single" selection="#{bacsTransCodeBean.bacsTransCodeSel}"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+     
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="codeList" fileName="#{listHeading.arAcntListFn}" 
+                      postProcessor="#{apAcntList.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="codeList" fileName="#{listHeading.arAcntListFn}" />
+       </h:commandLink>
+      </f:facet>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.bacsTransCodeLst}"/>
+      </f:facet>
+      <p:column width="50" sortable="true" sortBy="#{cd.ptnrBnkTransCode}" >
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bacsTransCd}"/> 
+       </f:facet>
+       <h:outputText value="#{cd.ptnrBnkTransCode}"/>
+      </p:column>
+      <p:column sortable="true" sortBy="#{cd.name}" width="100">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bacsTransNm}"/> 
+       </f:facet>
+       <h:outputText value="#{cd.name}"/>
+      </p:column>
+      <p:column sortable="true" sortBy="#{cd.description}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bacsTransDescr}"/> 
+       </f:facet>
+       <h:outputText value="#{cd.description}"/>
+      </p:column>
+      <p:column width="50" sortable="true" sortBy="#{cd.contrTransCode}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bacsTransContra}"/> 
+       </f:facet>
+       <h:outputText value="#{cd.contrTransCode}"/>
+      </p:column>
+      <p:column width="50" sortable="true" sortBy="#{cd.collection}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bacsTransColl}"/> 
+       </f:facet>
+       <h:outputText value="#{formText.yes}" rendered="#{cd.collection eq true }"/>
+       <h:outputText value="#{formText.no}" rendered="#{cd.collection eq false}"/>
+      </p:column>
+      <p:column width="50" sortable="true" sortBy="#{cd.prCode}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.bacsTransPrCd}"/> 
+       </f:facet>
+       <h:outputText value="#{cd.prCode}"/>
+      </p:column>
+     </p:dataTable>
+     <p:contextMenu for="codeList">
+      <p:menuitem value="#{formText.edit}" icon="fa fa-pencil-square-o" 
+                  oncomplete="PF('editTranCdDlg').show();" update="editDlgFrm" />
+      <p:menuitem value="#{formText.delete}" icon="fa fa-trash-o" actionListener="#{bacsTransCodeBean.onDelTransCode}"/>
+     </p:contextMenu>
+    </div>
+   </h:form >
+   <h:form id="editDlgFrm" > 
+    <p:dialog id="editTranCd" dynamic="true" widgetVar="editTranCdDlg" maximizable="true" modal="true" responsive="true"
+              minWidth="800" width="600">
+     <f:facet name="header">
+      <h:outputText value="#{formText.trBacsTransEdit} " />
+      <p:spacer width="2" />
+      <h:outputText value="#{bacsTransCodeBean.bacsTransCodeSel.ptnrBnkTransCode} " />
+                    
+     </f:facet>
+    
+     <div class="card">
+     <p:panelGrid id="bacsTransCdGrd" columns="2" layout="grid" columnClasses="ui-grid-col-3,ui-grid-col-3"
+                  styleClass="ui-noborder">
+      <p:outputLabel for="transCd" value="#{formText.trBacsTransCd}"/>
+      <p:inputText id="transCd" value="#{bacsTransCodeBean.bacsTransCodeSel.ptnrBnkTransCode}" maxlength="2" size="2" 
+                  required="true" requiredMessage="#{validationText.bacsTransCdReq}"/>
+      <p:outputLabel for="transName" value="#{formText.trBacsTransName}"/>
+      <p:inputText id="transName" value="#{bacsTransCodeBean.bacsTransCodeSel.name}" maxlength="10" size="9"/>
+      <p:outputLabel for="transDescr" value="#{formText.trBacsTransDescr}"/>
+      <p:inputText id="transDescr" value="#{bacsTransCodeBean.bacsTransCodeSel.description}" maxlength="30" 
+                 size="29"/>
+      <p:outputLabel for="contraCd" value="#{formText.trBacsContra}"/>
+      <p:inputText id="contraCd" value="#{bacsTransCodeBean.bacsTransCodeSel.contrTransCode}" required="true"
+                  requiredMessage="#{validationText.bacsContraCdReq}" size="2" maxlength="2"/>
+      <p:outputLabel for="transPrCd" value="#{formText.trBacsProc}"/>
+      <p:inputText id="transPrCd" value="#{bacsTransCodeBean.bacsTransCodeSel.prCode}" maxlength="10" size="9"
+                  required="true" requiredMessage="#{validationText.bacsTransPrCdReq}"/>
+      <p:outputLabel for="transColl" value="#{formText.trBacsColl}"/>
+      <p:selectBooleanButton id="transColl" value="#{bacsTransCodeBean.bacsTransCodeSel.collection}" 
+                              onLabel="#{formText.yes}" offLabel="#{formText.no}"/>  
+      <p:commandButton id="trfBtn" value="#{formText.transfer}" icon="fa fa-long-arrow-left"
+                       actionListener="#{bacsTransCodeBean.onEditTransf}"/>
+      <p:commandButton id="cancelBtn" value="#{formText.cancel}" icon="fa fa-trash"
+                       type="button" onclick="PF('editTranCdDlg').hide();" />
+     </p:panelGrid>
+     </div>
+     
+    
+    </p:dialog>
+   </h:form>
+  </ui:define>
+                 
+</ui:composition>

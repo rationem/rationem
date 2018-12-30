@@ -1,0 +1,182 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+     <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/invoice.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.slDayBook}</ui:define>
+ <ui:define name="header">#{pageTitle.slDayBook} </ui:define>
+ <ui:define name="content">
+  <p:growl autoUpdate="true"/>
+  <h:form id="slDayBk" prependId="false">
+   <p:accordionPanel id="salesAP"    tabController="#{salesDaybook.selectValid}">
+     <p:ajax event="tabChange"/>
+    <p:tab id="sel" title="#{formText.selOpt}">
+     
+     <p:panelGrid id="selectOptPg" layout="grid" columns="3"  >
+      <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+      <p:selectOneMenu id="comp" value="#{salesDaybook.opts.comp}" var="compSM" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{salesDaybook.compList}" var="compV" itemValue="#{compV}"
+                      itemLabel="#{compV.reference}"/>
+       <p:column width="25%">
+        <h:outputText value="#{compSM.reference}"/>
+       </p:column>
+       <p:column width="75%">
+        <h:outputText value="#{compSM.name}"/>
+       </p:column>
+      </p:selectOneMenu>
+      <h:panelGroup/>
+      <h:panelGroup/>
+      <h:outputText value="#{formText.selFr}"/>
+      <h:outputText value="#{formText.selTo}"/>
+      
+      <h:outputText  value="#{formText.docFisYr}"/>
+      <p:inputText id="yrFr" value="#{salesDaybook.opts.yrFrom}" maxlength="4"  >
+       <f:convertNumber type="number" groupingUsed="false" integerOnly="true"/>
+       <f:validateLongRange maximum="9999"/>
+        <p:ajax event="blur"/>
+      </p:inputText>
+      <p:inputText id="yrTo" value="#{salesDaybook.opts.yrTo}"  maxlength="4"  >
+       <f:convertNumber type="number" groupingUsed="false" integerOnly="true"/>
+       <f:validateLongRange maximum="9999"/>
+       <p:ajax event="blur"/>
+      </p:inputText>
+   
+      <h:outputText  value="#{formText.docPeriod}"/>
+      <p:inputNumber id="perFr" value="#{salesDaybook.opts.perFrom}" decimalPlaces="0" maxValue="12" 
+                     maxlength="2" emptyValue="empty"  >
+       <p:ajax event="blur"/>
+      </p:inputNumber>
+      <p:inputNumber id="perTo" value="#{salesDaybook.opts.perTo}" decimalPlaces="0" maxValue="12" 
+                     maxlength="2"  emptyValue="empty">
+       <p:ajax event="blur"/>
+      </p:inputNumber>
+      <h:outputText  value="#{formText.docDocDate}"/>
+      <p:calendar id="docDtFr" value="#{salesDaybook.opts.docDateFrom}"
+                  navigator="true"  pattern="dd/MMM/yyyy" maskAutoClear="true" showTodayButton="true"
+                  showOtherMonths="true" maxlength="11" size="12" >
+       <p:ajax event="dateSelect" />
+      </p:calendar>
+      <p:calendar id="docDtTo" value="#{salesDaybook.opts.docDateTo}"
+                  navigator="true"  pattern="dd/MMM/yyyy" maskAutoClear="true" showTodayButton="true"
+                  showOtherMonths="true" maxlength="11" size="12">
+       <p:ajax event="dateSelect" />
+      </p:calendar>
+      
+      <h:outputText  value="#{formText.docPostDate}"/>
+      <p:calendar id="pstDtFr" value="#{salesDaybook.opts.postDateFrom}"
+                  navigator="true"  pattern="dd/MMM/yyyy" maskAutoClear="true" showTodayButton="true"
+                  showOtherMonths="true" maxlength="11" size="12">
+       <p:ajax event="dateSelect" />
+      </p:calendar>
+      <p:calendar id="pstDtTo" value="#{salesDaybook.opts.postDateTo}"
+                  navigator="true"  pattern="dd/MMM/yyyy" maskAutoClear="true" showTodayButton="true"
+                  showOtherMonths="true" maxlength="11" size="12">
+       <p:ajax event="dateSelect" />
+       </p:calendar>
+      <h:outputText  value="#{formText.docEntry}"/>
+      <p:calendar id="entryDtFr" value="#{salesDaybook.opts.entryDateFrom}"
+                  navigator="true"  pattern="dd/MMM/yyyy" maskAutoClear="true" showTodayButton="true"
+                  showOtherMonths="true" maxlength="11" size="12">
+       <p:ajax event="blur" />
+      </p:calendar>
+      <p:calendar id="entryDtTo" value="#{salesDaybook.opts.entryDateTo}"
+                  navigator="true"  pattern="dd/MMM/yyyy" maskAutoClear="true" showTodayButton="true"
+                  showOtherMonths="true" maxlength="11" size="12">
+       <p:ajax event="blur" />
+      </p:calendar>
+     </p:panelGrid>
+    </p:tab>
+    <p:tab id="dayBk" title="Sales Daybook" titletip="Invoices and credit notes taht have been issued ">
+     <p:dataTable id="dayBookList" value="#{salesDaybook.invList}" var="inv" rowKey="#{inv.id}"
+                  paginatorAlwaysVisible="true" paginator="true"
+                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                emptyMessage="#{formTextSl.salesNone}">
+      <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="dayBookList" fileName="#{listHeading.slDayBk_FN}" 
+                          postProcessor="#{salesDaybook.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="dayBookList" 
+                      fileName="#{listHeading.slDayBk_FN}" />
+     </h:commandLink>
+    </f:facet>
+      <f:facet name="header">
+       <h:outputText value="Sales Daybook"/>
+      </f:facet>
+      <p:column width="90" sortBy="#{inv.fiDocument.documentDate}" sortable="true">
+       <f:facet name="header">
+        <h:outputText value="Date"/>
+       </f:facet>
+       <h:outputText value="#{inv.fiDocument.documentDate}">
+        <f:convertDateTime type="date" dateStyle="medium"/>
+       </h:outputText>
+      </p:column>
+      <p:column width="90" sortBy="#{inv.invoiceNumber}">
+       <f:facet name="header">
+        <h:outputText value="Number"/>
+       </f:facet>
+       <h:outputText value="#{inv.invoiceNumber}"/>
+      </p:column>
+      <p:column sortBy="#{inv.arDocLine.arAccount.arAccountCode}" width="90">
+       <f:facet name="header">
+        <h:outputText value="Acnt Ref"/>
+       </f:facet>
+       <h:outputText value="#{inv.arDocLine.arAccount.arAccountCode}"/>
+      
+      </p:column>
+      <p:column  sortBy="#{inv.arDocLine.arAccount.arAccountFor.name}">
+       <f:facet name="header">
+        <h:outputText value="Account"/>
+       </f:facet>
+       <h:outputText value="#{inv.arDocLine.arAccount.arAccountFor.name}"/>
+      </p:column>
+      <p:column  styleClass="column-financialValue" sortBy="#{inv.totalAmount}">
+       <f:facet name="header">
+        <h:outputText value="Value"/>
+       </f:facet>
+       <h:outputText value="#{inv.totalAmount}">
+        <f:convertNumber type="number" locale="#{salesDaybook.opts.comp.locale}" groupingUsed="true"
+                         maxFractionDigits="#{salesDaybook.opts.comp.currency.minorUnit}"
+                         minFractionDigits="#{salesDaybook.opts.comp.currency.minorUnit}"
+                         minIntegerDigits="1"/>
+       </h:outputText>
+       
+      </p:column>
+      <p:columnGroup type="footer">
+       <p:row>
+        <p:column colspan="4"  styleClass="table-txtRightBold" >
+         <f:facet name="footer">
+          <h:outputText value="#{formText.totalFooter}:"/>
+         </f:facet>
+        </p:column>
+        <p:column styleClass="table-financialValueTotal">
+         <f:facet name="footer">
+        <h:outputText value="#{salesDaybook.totalValue}">
+         <f:convertNumber type="currency" currencySymbol="#{salesDaybook.opts.comp.currency.currSymbol}"
+                          locale="#{salesDaybook.opts.comp.locale}"/>
+        </h:outputText>
+       </f:facet>
+        </p:column>
+       </p:row>
+      </p:columnGroup>
+      <f:facet name="footer">
+       <h:outputText value="#{formTextSl.numDocs} : #{fn:length(salesDaybook.invList)}" />
+      </f:facet>
+     </p:dataTable>
+    </p:tab>
+   
+   
+  </p:accordionPanel>
+    
+  </h:form> 
+ </ui:define>
+</ui:composition>

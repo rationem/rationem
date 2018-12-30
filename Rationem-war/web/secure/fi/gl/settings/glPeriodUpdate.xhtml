@@ -1,0 +1,137 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.fiGlPerSett}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="glPerOpenClose" >
+    
+    <div class="card card-w-title">
+     <h1>
+      <h:outputText value="#{pageTitle.fiGlPerSett}"/>
+     </h1>
+    
+    <p:messages id="errMsg" severity="warn, error" closable="true"/>
+    <p:panelGrid id="periodPg" layout="grid" columns="3" columnClasses="ui-grid-col-1,ui-grid-col-1,,ui-grid-col-1" styleClass="ui-noborder">
+     <p:outputLabel for="comp" value="#{formText.comp}"/>
+     <p:selectOneMenu id="comp" value="#{glPeriodUpdtBean.compSel}" converter="com.rationem.util.converter.CompanyBasic"
+                      var="compS1M">
+      <f:selectItems value="#{glPeriodUpdtBean.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+      <p:column width="25%">
+       <h:outputText value="#{compS1M.reference}" />
+      </p:column>
+      <p:column width="75%">
+       <h:outputText value="#{compS1M.name}" />
+      </p:column>
+     </p:selectOneMenu>
+     <h:outputText id="compName" value="#{glPeriodUpdtBean.compSel.name}"/>
+    </p:panelGrid>
+    <p:dataTable 
+     id="postPeriodTbl" value="#{glPeriodUpdtBean.postPeriods}" rows="#{glPeriodUpdtBean.usrBuff.tblRows}"
+     var="perV" selection="#{glPeriodUpdtBean.postPeriodSel}" rowKey="#{perV.id}" paginator="true"
+     paginatorAlwaysVisible="true" emptyMessage="#{validationText.glPostPerNone}" selectionMode="single" 
+     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+     <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24" />
+      <p:dataExporter type="xls" target="postPeriodTbl" fileName="#{listHeading.glPostPer_FN}"  
+                          postProcessor="#{glPeriodUpdtBean.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="postPeriodTbl" 
+                      fileName="#{listHeading.glPostPer_FN}" />
+     </h:commandLink>
+    </f:facet>
+     
+     <p:column sortable="true" sortBy="#{perV.ledger.descr}">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cfgDefLed}"/>
+      </f:facet>
+      <h:outputText value="#{perV.ledger.descr}"/>
+     </p:column>
+     <p:column width="100" sortable="true" sortBy="#{perV.startYear}">
+      <f:facet name="header">
+       <h:outputText  value="#{listHeading.glPostPerStYr}"/>
+      </f:facet>
+      <h:outputText value="#{perV.startYear}"/>
+     </p:column>
+     <p:column width="100" sortable="true" sortBy="#{perV.startPer}">
+      <f:facet name="header">
+       <h:outputText  value="#{listHeading.glPostPerStPer}"/>
+      </f:facet>
+      <h:outputText value="#{perV.startPer}"/>
+     </p:column>
+     <p:column width="100" sortable="true" sortBy="#{perV.endYear}">
+      <f:facet name="header">
+       <h:outputText  value="#{listHeading.glPostPerEndYr}"/>
+      </f:facet>
+      <h:outputText value="#{perV.endYear}"/>
+     </p:column>
+     <p:column width="100" sortable="true" sortBy="#{perV.endPer}">
+      <f:facet name="header">
+       <h:outputText  value="#{listHeading.glPostPerEndPer}"/>
+      </f:facet>
+      <h:outputText value="#{perV.endPer}"/>
+     </p:column>
+    </p:dataTable>
+    <p:contextMenu for="postPeriodTbl">
+     <p:menuitem value="#{formText.edit}" icon="fa fa-pencil-square-o" oncomplete="PF('editDlgWv').show();"
+                 update="postPerEdFrm"/>
+     <p:menuitem value="#{formText.delete}" icon="fa fa-trash-o"/>
+    </p:contextMenu>
+    </div>
+   </h:form>
+   <h:form id="postPerEdFrm">
+    <p:dialog id="editDlg" closable="true" dynamic="true" widgetVar="editDlgWv" modal="true">
+     <f:facet name="header">
+      <h:outputText value="#{formText.postPeriodEdDlg}"/>
+      <p:spacer width="2"/>
+      <h:outputText value="#{glPeriodUpdtBean.postPeriodSel.ledger.name}"/>
+     </f:facet>
+     <p:messages id="dlgErrMsg" severity="warn, error" closable="true" />
+     <p:panelGrid id="editPerPg" layout="grid" columns="2" styleClass="ui-noborder">
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="startYr" value="#{glPeriodUpdtBean.postPeriodSel.startYear}" maxlength="4"  >
+        <p:keyFilter mask="pint"/>
+       </p:inputText>
+       <p:outputLabel for="startYr" value="#{formText.postPeriodStartYr}"/>
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+        <p:inputText id="startPer" value="#{glPeriodUpdtBean.postPeriodSel.startPer}" maxlength="2"  >
+         <f:validateLongRange maximum="12"/>
+        <p:keyFilter mask="pint"/>
+       </p:inputText>
+       <p:outputLabel for="startPer" value="#{formText.postPeriodStartPer}"/>
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="endYr" value="#{glPeriodUpdtBean.postPeriodSel.endYear}" maxlength="4" >
+        <p:keyFilter mask="pint"/>
+       </p:inputText>
+       <p:outputLabel for="endYr" value="#{formText.postPeriodEndYr}"/>
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+        <p:inputText id="endPer" value="#{glPeriodUpdtBean.postPeriodSel.endPer}" maxlength="2" >
+        <p:keyFilter mask="pint"/>
+        <f:validateLongRange maximum="12"/>
+       </p:inputText>
+       <p:outputLabel for="endPer" value="#{formText.postPeriodEndPer}"/>
+      </h:panelGroup>
+      <p:commandButton id="trfPostPer" value="#{formText.transfer}" icon="fa fa-long-arrow-left" 
+                       actionListener="#{glPeriodUpdtBean.onTransfPostPer}"/>
+      <p:commandButton id="canPostPer" value="#{formText.close}" icon="fa fa-window-close-o" type="button"
+                       onclick="PF('editDlgWv').hide();"
+                        />
+      
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>
+  
+

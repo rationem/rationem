@@ -1,0 +1,198 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.apRptAcntBal}</ui:define>
+ <ui:define name="content">
+  <h:form id="acntBalFrm" >
+   <p:toolbar>
+    <f:facet name="left">
+     <p:commandButton id="exec" value="#{formText.exec}" icon="fa fa-gear" actionListener="#{apAcntBalBean.onExecBtn}"/>
+    </f:facet>
+   </p:toolbar>
+   <p:messages id="errMsg" severity="warn, error, fatal" closable="true;"/>
+   <p:growl id="infoMsq" />
+   <div class="ui-fluid">
+    <div class="card">
+     <p:panelGrid 
+      id="compPg" layout="grid" columns="3" columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-2"
+      styleClass="ui-noborder">
+      <p:outputLabel for="menuComp" value="#{formText.comp}"/>
+      <p:selectOneMenu 
+      id="menuComp" value="#{apAcntBalBean.compSel}"  converter="com.rationem.util.converter.CompanyBasic">
+       <f:selectItems value="#{apAcntBalBean.compList}" var="compV" itemValue="#{compV}" 
+                   itemLabel="#{compV.reference}"/>
+      </p:selectOneMenu>
+      <h:outputText id="compNameTxt" value="#{apAcntBalBean.compSel.name}"/>
+    </p:panelGrid>
+    </div>
+    <div class="card">
+     <p:dataTable 
+      id="acntBalTbl" value="#{apAcntBalBean.accountBalList}" var="acntV" emptyMessage="#{listHeading.apAcntNone}"
+      rowKey="#{acntV.id}" rows="#{apAcntBalBean.usrBuff.tblRows}" paginator="true" paginatorAlwaysVisible="true"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+      reflow="true" selectionMode="single" selection="#{apAcntBalBean.accountBalSel}">
+      <f:facet name="{Exporters}" >
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24" />
+        <p:dataExporter type="xls" target="acntBalTbl" fileName="#{listHeading.apPerBal_FN}"  
+                          postProcessor="#{apAcntBalBean.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="acntBalTbl"  
+                      fileName="#{listHeading.apPerBal_FN}" />
+       </h:commandLink>
+      </f:facet>
+      <p:column width="150" sortBy="#{acntV.code}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.apAcntCd}"/>
+       </f:facet>
+       <h:outputText value="#{acntV.code}"/>
+      </p:column>
+      <p:column sortBy="#{acntV.name}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.apAcntName}"/>
+       </f:facet>
+       <h:outputText value="#{acntV.name}"/>
+      </p:column>
+      <p:column styleClass="column-financialValue" width="150" sortBy="#{acntV.amount}">
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.apAcntBal}"/>
+       </f:facet>
+       <h:outputText value="#{acntV.amount}">
+        <f:convertNumber 
+          locale="#{apAcntBalBean.compSel.locale}" maxFractionDigits="#{apAcntBalBean.compSel.currency.minorUnit}"
+          minFractionDigits="#{apAcntBalBean.compSel.currency.minorUnit}"
+          minIntegerDigits="1"/>
+       </h:outputText>
+      </p:column>
+      <p:columnGroup type="footer">
+        
+      
+       <p:column colspan="2" styleClass="column-textRight"  >
+        <f:facet name="footer">
+         <h:outputText value="#{listHeading.total}" style="font-weight: 700;"/>
+        </f:facet>
+       </p:column>
+       <p:column styleClass="column-financialValue" >
+        <f:facet name="footer">
+         <h:outputText value="#{apAcntBalBean.totalBal}" style="font-weight: 700;">
+          <f:convertNumber 
+            locale="#{apAcntBalBean.compSel.locale}" maxFractionDigits="#{apAcntBalBean.compSel.currency.minorUnit}"
+           minFractionDigits="#{apAcntBalBean.compSel.currency.minorUnit}"
+           minIntegerDigits="1"/>
+        </h:outputText>
+       </f:facet>
+       </p:column>
+      </p:columnGroup>
+     </p:dataTable>
+     <p:contextMenu for="acntBalFrm:acntBalTbl" >
+      <p:menuitem 
+       id="balLines" value="#{formTextAp.apAcntTransDisp}" 
+       actionListener="#{apAcntBalBean.onAcntTransDlg}"/> 
+                   
+     </p:contextMenu>
+    </div>
+   </div>
+   
+  </h:form>
+  <h:form id="lineItmsFrm">
+   <p:dialog id="lineItmsDlg" dynamic="true" responsive="true" widgetVar="lineItmsWv" modal="true" >
+    <f:facet name="header">
+     <h:outputText value="#{formTextAp.apAcntTrans4}"/>
+     <p:spacer width="5"/>
+     <h:outputText value="#{apAcntBalBean.accountBalSel.code}"/>
+    </f:facet>
+    <p:dataTable 
+     id="balLinesId" value="#{apAcntBalBean.acntLines}" rows="#{apAcntBalBean.usrBuff.tblRows}"
+     reflow="true" emptyMessage="#{validationText.apAcntLinesNone}" paginator="true"
+     paginatorAlwaysVisible="true" var="lineV" filteredValue="#{apAcntBalBean.acntLinesFiltered}" 
+     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+     <f:facet name="{Exporters}" >
+      <h:commandLink style="float:right;"  >
+       <p:graphicImage name="/images/Excel-48.gif" width="24" />
+       <p:dataExporter type="xls" target="balLinesId" fileName="#{listHeading.apAcntBalLnFN}"  
+                          postProcessor="#{apAcntBalBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+       <p:graphicImage name="/images/csv_text.png" width="24" />
+       <p:dataExporter type="csv" target="balLinesId"  
+                      fileName="#{listHeading.apAcntBalLnFN}" />
+      </h:commandLink>
+     </f:facet>
+     
+     <p:column width="50" sortable="true" sortBy="#{lineV.docFi.docNumber}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docNumber}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.docFi.docNumber}"/> 
+     </p:column>
+     <p:column width="50" sortable="true" sortBy="#{lineV.comp.reference}" 
+                 filterBy="#{lineV.comp.reference}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.compCode}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.comp.reference}">
+       <f:convertDateTime type="date" dateStyle="medium" locale="#{apAcntTransListBean.usrBuff.loc}"/>
+      </h:outputText>
+     </p:column>
+     <p:column width="90" sortable="true" sortBy="#{lineV.docFi.postingDate}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docPstDate}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.docFi.postingDate}">
+       <f:convertDateTime type="date" dateStyle="medium" locale="#{apAcntTransListBean.usrBuff.loc}"/>
+      </h:outputText>
+     </p:column>
+     <p:column width="90" sortable="true" sortBy="#{lineV.dueDate}">
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docLnDueDt}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.dueDate}">
+       <f:convertDateTime type="date" dateStyle="medium" locale="#{apAcntTransListBean.usrBuff.loc}"/>
+      </h:outputText>
+     </p:column>
+     <p:column width="50" sortable="true" sortBy="#{lineV.postType.postTypeCode}" 
+                 filterBy="#{lineV.postType.postTypeCode}" >
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docPstTy}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.postType.postTypeCode}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.docLnText}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.lineText}"/>
+     </p:column>
+     <p:column  sortable="true" sortBy="#{lineV.docAmount}" styleClass="column-financialValue" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.docDebit}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.docAmount}" rendered="#{lineV.postType.debit}" >
+       <f:convertNumber type="number" locale="#{apAcntTransListBean.selOpt.comp.locale}"
+                          maxFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+      </h:outputText>
+     </p:column> 
+     <p:column  sortable="true" sortBy="#{lineV.docAmount}" styleClass="column-financialValue" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.docCredit}"/>
+      </f:facet>
+      <h:outputText value="#{lineV.docAmount}" rendered="#{ not lineV.postType.debit}">
+       <f:convertNumber type="number" locale="#{apAcntTransListBean.selOpt.comp.locale}"
+                          maxFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minFractionDigits="#{apAcntTransListBean.selOpt.comp.currency.minorUnit}"
+                          minIntegerDigits="1"/>
+      </h:outputText>
+     </p:column>
+    </p:dataTable>
+                 
+   </p:dialog>
+  </h:form>
+ </ui:define>
+</ui:composition>

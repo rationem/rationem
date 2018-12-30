@@ -1,0 +1,56 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{menuOption.fisPerCalDetail}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <p:fieldset id="fisPCntrlFs" legend="#{formText.fisCal}">
+   <h:form prependId="false" >
+    <h:panelGrid columns="2">
+     <h:outputLabel for="ref" value="#{formText.coa_ref}"/>
+     <p:inputText id="ref" required="true" value="#{fiscalPeriodBean.fisCal.reference}"
+                             title="#{formHelpText.fisCalRef}" />
+     <h:outputLabel for="descr" value="#{formText.ldgrDescr}" />
+     <p:inputText id="descr" value="#{fiscalPeriodBean.fisCal.description}"
+                             title="#{formHelpText.fisCalDesc}"/>
+     <h:outputLabel for="caLBasisOpt" value="#{formText.fisPerCntrl_calBasisOption}"/>
+     <h:selectOneRadio id="caLBasisOpt" layout="pageDirection"
+                                  value="#{fiscalPeriodBean.fisPerRule.calBasisOption}"   >
+     <f:selectItem itemValue="1" itemLabel="#{formText.fisPerCntrl_calBasis}"/>
+     <f:selectItem itemValue="2" itemLabel="#{formText.fisPerCntrl_fixedDay}" />
+     <f:selectItem itemValue="3" itemLabel="#{formText.fisPerCntrl_Periodlen}"/>
+     <f:selectItem itemValue="4" itemLabel="#{formText.fisPerCntrl_annSched}"/>
+
+     </h:selectOneRadio>
+    </h:panelGrid>
+   <p:tabView >
+    <p:tab title="#{formText.fisPerCntrl_calBasis}">
+     <h:outputLabel for="monthNum" value="#{formText.fisPerCntrl_startMth}"/>
+     <p:inputText id="monthNum" value="#{fiscalPeriodBean.fisCalMth.startMonthNumber}"
+                                     title="#{formHelpText.fisPerCntrl_startMth}"/>
+                       
+    </p:tab>
+    <p:tab title="#{formText.fisPerCntrl_Periodlen}" > 
+     <h:panelGrid columns="2">
+      <h:outputLabel for="uoms" value="#{formText.fisPerCntrl_uom}"/>
+                            
+      <h:selectOneMenu id="uoms" value="#{fiscalPeriodBean.uomId}"
+                                             title="#{formHelpText.fisPerCntrl_uom}" >
+       <f:selectItems value="#{fiscalPeriodBean.uomSelItems}"/>
+      </h:selectOneMenu>
+     </h:panelGrid>
+    </p:tab>
+   </p:tabView> 
+   <p:commandButton id="saveCal" value="#{formText.genSaveBtn}"
+                                 actionListener="#{fiscalPeriodBean.saveCalendarAction}" ajax="false"
+                                 update="messages"/>
+   <p:commandButton id="reset" value="#{formText.genResetBtn}" />
+   </h:form>
+  </p:fieldset>
+ </ui:define>
+</ui:composition>
+    
+

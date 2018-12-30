@@ -1,0 +1,285 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.apPaySingleCr}</ui:define>
+ <ui:define name="header">#{pageTitle.apPaySingleCr}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <div class="ui-g">
+    <div class="ui-g-12">
+     <h:form id="apPaySinglFrm">
+      <p:messages id="msg" autoUpdate="true"/>
+      
+      <p:toolbar id="toolBar"  >
+       <f:facet name="left">
+        
+        <p:commandButton id="save" value="#{formText.save}" icon="fa fa-floppy-o" ajax="true" 
+                         actionListener="#{apPayment.onSaveSingle}" />
+       </f:facet>
+       <f:facet name="right">
+        <p:commandButton id="print" value="#{formText.print}" icon="fa fa-print" 
+                         actionListener="#{apPayment.onPrintOutput}">
+         <p:fileDownload value="#{apPayment.onPrintOutput} "   />
+        </p:commandButton>
+       </f:facet>
+       
+      </p:toolbar>
+      <div class="card">
+       <p:panelGrid columns="9" layout="grid" styleClass="ui-noborder"   
+                   columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-1,ui-grid-col-1,ui-grid-col-1,ui-grid-col-3">
+       <p:outputLabel for="comp" value="#{formText.docCompany}"/>
+       <p:autoComplete id="comp" value="#{apPayment.fiDocument.company}" completeMethod="#{apPayment.companyComplete}"
+                     forceSelection="true" dropdown="true" size="10" required="true" 
+                     requiredMessage="Company must be selected"
+                     converter="com.rationem.util.converter.CompanyBasic"
+                     var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}">
+        <p:ajax event="itemSelect" listener="#{apPayment.onCompanySelect}" 
+               
+              partialSubmit="true" process="comp"  />
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2" columnClasses="ui-grid-col-1,ui-grid-col-1">
+          <p:outputLabel for="itemTipCompName" value="#{formText.docCompany}"/>
+          <h:outputText id="itemTipCompName" value="#{compV.name}"/>
+         </h:panelGrid>
+        </f:facet>
+       </p:autoComplete>
+       <h:outputText id="compText" value="#{apPayment.fiDocument.company.name}" />
+       <p:outputLabel for="apAcnt" value="#{formTextAp.apAcnt}"/>
+       <p:autoComplete id="apAcnt" value="#{apPayment.docLineAp.apAccount}" forceSelection="true"
+                     dropdown="true" converter="com.rationem.util.converter.ApAccount" size="10"
+                     completeMethod="#{apPayment.onApAccountComplete}" var="apAcntV"
+                     required="true" requiredMessage="Supllier account must be selected"
+                     disabled="#{apPayment.fiDocument.company eq null}" itemValue="#{apAcntV}"
+                     itemLabel="#{apAcntV.accountCode}">
+        <f:facet name="itemtip">
+         <h:panelGrid columns="2" cellpadding="5">
+          <p:outputLabel for="itemTipApAcCode" value="#{formTextAp.apAcntCode}"/>
+          <h:outputText id="itemTipApAcCode" value="#{apAcntV.accountCode}"/>
+          <p:outputLabel for="itemTipApAcName" value="#{formTextAp.apAcntName}"/>
+          <h:outputText id="itemTipApAcName" value="#{apAcntV.accountName}"/>
+         </h:panelGrid>
+        </f:facet>
+        <p:ajax event="itemSelect" listener="#{apPayment.onApAccountSelect}"  
+                process="apAcnt" partialSubmit="true" update="apPaySinglFrm:osInvs" />
+       </p:autoComplete>
+       <h:outputText id="apAcntName" value="#{apPayment.docLineAp.apAccount.accountName}"
+                   />     
+       <h:panelGroup/>
+       <p:outputLabel for="unallocated" value="#{formText.docLineUnalloc}"/>
+       <h:outputText id="unallocated" value="#{apPayment.amountUnallocated}" 
+                     styleClass="column-financialValue">
+        <f:convertNumber locale="#{apPayment.fiDocument.company.locale}"
+                         minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                         maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                         minIntegerDigits="1"/>
+       </h:outputText>
+    
+       <p:outputLabel for="docDate" value="#{formText.docDocDate}" />
+       <p:calendar id="docDate" value="#{apPayment.fiDocument.documentDate}" 
+                    mode="popup" required="true" 
+                    requiredMessage="#{validationText.fiDocDocDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="12">
+        <p:ajax event="dateSelect" listener="#{apPayment.onDocDateSelect}"/>
+       </p:calendar>
+       <h:panelGroup/>
+       <p:outputLabel for="postDate" value="#{formText.docPostDate}" />
+       <p:calendar id="postDate" value="#{apPayment.fiDocument.postingDate}" 
+                    mode="popup" required="true"
+                    disabled="#{apPayment.fiDocument.company eq null}"
+                    requiredMessage="#{validationText.fiDocPostDate}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="11" size="12">
+        <p:ajax event="dateSelect" listener="#{apPayment.onPostDateSelect}" update="period" 
+               partialSubmit="true" />
+       </p:calendar>
+       <p:outputLabel for="period" value="#{formText.docPeriod}"/>
+       <h:outputText id="period" value="#{apPayment.fiscPeriodStr}" />
+       <h:panelGroup/>
+       <h:panelGroup/>
+       <p:outputLabel for="docType" value="#{formText.docType}"/>
+       <p:selectOneMenu id="docType" value="#{apPayment.fiDocument.docType}" 
+                      converter="com.rationem.util.converter.DocType">
+        <f:selectItems value="#{apPayment.docTypeList}" var="docTypeSiVar" itemValue="#{docTypeSiVar}"
+                       itemLabel="#{docTypeSiVar.name}"/>
+       </p:selectOneMenu>
+       <h:panelGroup/>
+       <p:outputLabel for="payType" value="#{formText.docPayType}"/>
+       <p:selectOneMenu id="payType" value="#{apPayment.docLineAp.payType}"  
+                      converter="com.rationem.util.converter.PaymentType"   >
+        <f:selectItems value="#{apPayment.paymentTypes}" var="payTySiVar" itemValue="#{payTySiVar}"
+                       itemLabel="#{payTySiVar.description}" />
+       </p:selectOneMenu>
+      </p:panelGrid>
+      
+      <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-1, ui-grid-col-11"
+                   styleClass="ui-noborder">
+       <p:outputLabel for="docHdrText" value="#{formText.docHdrTxt}"/>
+       <p:inputText id="docHdrText" value="#{apPayment.fiDocument.docHdrText}"  size="50"/>
+      </p:panelGrid>
+      <p:panelGrid columns="4" layout="grid" styleClass="ui-noborder"
+                   columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-2, ui-grid-col-4">
+       <p:outputLabel for="amount" value="#{formTextAp.apDocLineAmntPaid}"/>
+       <p:inputText id="amount" value="#{apPayment.amountPaid}" styleClass="docDisp-Amount" 
+                    requiredMessage="#{validationText.docAmntPayZero}" required="true">
+        <f:convertNumber locale="#{apPayment.fiDocument.company.locale}" 
+                         maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                         minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                         minIntegerDigits="1"/>
+        
+        <p:ajax event="blur" listener="#{apPayment.onDocPayAmnt}" update="amount"/>
+       </p:inputText>
+        <p:outputLabel for="payRef" value="#{formTextAp.apDocLinePayRef}"/>
+        <p:inputText id="payRef" value="#{apPayment.fiDocument.partnerRef}">
+         
+        </p:inputText>
+       </p:panelGrid> 
+       </div>
+      <div class="card" >
+       
+       <p:dataTable id="osInvs" value="#{apPayment.docLinesOutStanding}" var="line" widgetVar="lineWv"
+                    editable="true" editMode="row" sortMode="single" rowKey="#{line.id}" reflow="true"
+                    paginatorAlwaysVisible="true" paginator="true" rows="#{apPayment.usrBuff.tblRows}"
+                    selection="#{apPayment.docLineSelected}" selectionMode="single" 
+         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+         sortBy="#{line.sortOrder}">
+        <f:facet name="{Exporters}">
+         <h:commandLink style="float:right;"  >
+          <p:graphicImage name="/images/Excel-48.gif" width="24" />
+          <p:dataExporter type="xls" target="lines" fileName="#{listHeading.docLinesOpenFN}"  
+                          postProcessor="#{apDocPost.postProcessXLS}" />
+         </h:commandLink>
+         <h:commandLink style="float:right;">
+          <p:graphicImage name="/images/csv_text.png" width="24" />
+          <p:dataExporter type="csv" target="lines" 
+                      fileName="#{listHeading.docLinesOpenFN}" />
+         </h:commandLink>
+        </f:facet>
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLinesOpen}"/>
+        </f:facet>
+        <p:ajax event="rowEdit" listener="#{apPayment.onPayEdit}" />
+        <p:ajax event="rowEditInit" listener="#{apPayment.onPayEditPre}"/>
+        <p:ajax event="cellEdit" listener="#{apPayment.onPayCellEdit}"/>
+        
+        
+        <p:column sortBy="#{line.sortOrder}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnSort}"/>
+         </f:facet>
+         <h:outputText value="#{line.id}"/>
+        </p:column>
+        <p:column sortBy="#{line.docNumber}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docNumber}"/>
+         </f:facet>
+         <h:outputText value="#{line.docNumber}"/>
+        </p:column>
+        <p:column sortBy="#{line.ptnrRef}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docPtnrText}"/>
+         </f:facet>
+         <h:outputText value="#{line.ptnrRef}"/>
+        </p:column>
+        <p:column sortBy="#{line.dueDate}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnDueDt}"/>
+         </f:facet>
+         <h:outputText value="#{line.dueDate}">
+          <f:convertDateTime type="date" locale="#{apPayment.fiDocument.company.locale}" 
+                             dateStyle="medium"/>
+         </h:outputText>
+        </p:column>
+        <p:column sortBy="#{line.lineText}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnText}"/>
+         </f:facet>
+         <h:outputText value="#{line.lineText}"/>
+        </p:column>
+        
+        <p:column sortBy="#{line.docTypeName}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docType}"/>
+         </f:facet>
+         <h:outputText value="#{line.docTypeName}"/>
+        </p:column>
+        <p:column sortBy="#{line.postType.postTypeCode}">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docPstTy}"/>
+         </f:facet>
+         <h:outputText value="#{line.postType.postTypeCode}"/>
+        </p:column>
+        <p:column sortBy="#{line.docAmount}" styleClass="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnAmnt}" />
+          <i class="fa fa-pencil" />
+         </f:facet>
+         <h:outputText value="#{line.docAmount}">
+          <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                             minIntegerDigits="1"
+                             minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                             maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"/>
+         </h:outputText>
+        </p:column>
+        <p:column styleClass="column-textRight" >
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docPay}"/>
+         </f:facet>
+         <p:cellEditor>
+          <f:facet name="output">
+           <h:outputText value="#{line.paidAmount}">
+           
+            <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                             minIntegerDigits="1"
+                             minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                             maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"/>
+           </h:outputText>
+           
+          </f:facet>
+          <f:facet name="input">
+           <p:inputText value="#{line.paidAmount}">
+            <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                             minIntegerDigits="1"
+                             minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                             maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"/>
+           </p:inputText>
+          </f:facet>
+         </p:cellEditor>
+        </p:column>
+        <p:column sortBy="#{line.unpaidAmount}" styleClass="column-textRight">
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.docLnAmntOs}"/>
+         </f:facet>
+         <h:outputText value="#{line.unpaidAmount}">
+          <f:convertNumber type="number" locale="#{apPayment.fiDocument.company.locale}" 
+                             minIntegerDigits="1"
+                             minFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"
+                             maxFractionDigits="#{apPayment.fiDocument.company.currency.minorUnit}"/>
+         </h:outputText>
+        </p:column>
+        <p:column  width="50">
+         <f:facet name="header">
+          <h:outputText value="Edit"/>
+         </f:facet>
+         <p:rowEditor />
+        </p:column>
+       </p:dataTable>
+       
+      
+      </div>
+     </h:form>
+      </div>
+
+     
+     
+    </div>
+   </div>
+   
+ </ui:define>
+</ui:composition>
+  

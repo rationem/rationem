@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     
+      xmlns:ui="http://java.sun.com/jsf/facelets"  
+      xmlns:p="http://primefaces.org/ui" 
+>
+    
+ <ui:composition template="/WEB-INF/template.xhtml"> 
+  <ui:define name="title">#{menuOption.vatSchemeAssign}</ui:define>
+  <ui:define name="header"></ui:define>
+  <ui:define name="content">
+   <p:growl autoUpdate="true"  />
+   <h:form id="vatSchemAssignFrm">
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton id="addregSchemAssignSave" icon="fa fa-floppy-o" value="#{formText.genSaveBtn}" 
+                       actionListener="#{vatRegAssignBean.onSaveSchemeAssignment}" 
+                       title="#{formHelpText.vatRegSchemeAssgnSave}" update="@(form)"   />
+      <p:commandButton type="reset" value="#{formText.genResetBtn}" />
+     </f:facet >
+    </p:toolbar>
+    <h:panelGrid columns="2">
+     <p:outputLabel for="comp" value="#{formText.glAccountComp}"/>
+     <p:selectOneMenu id="comp" value="#{vatRegAssignBean.vatRegScheme.vatReg.comp}" 
+                      converter="accounts.Util.converter.CompanyBasic">
+      <f:selectItems value="#{vatRegAssignBean.compList}" var="compVar" itemValue="#{compVar}" 
+                     itemLabel="#{compVar.reference} #{compVar.name}"/>
+     </p:selectOneMenu>
+     <p:outputLabel for="vatReg" value="#{formText.compVATNum}"/>
+     <p:selectOneMenu id="vatReg" value="#{vatRegAssignBean.vatRegScheme.vatReg}" 
+                      converter="accounts.Util.converter.VatRegistration" >
+      <f:selectItems value="#{vatRegAssignBean.vatRegistrations}" var="vatRegVar" itemValue="#{vatRegVar}" 
+                     itemLabel="#{vatRegVar.vatNumber} "/>
+     </p:selectOneMenu>
+     <p:outputLabel for="ref" value="#{formText.vatRegSchemeAssgnRef}"/>
+     <p:inputText id="ref" value="#{vatRegAssignBean.vatRegScheme.ref}" required="true" 
+                  requiredMessage="#{errorText.vatSchemeAssignRef}" />
+     <p:outputLabel for="descr" value="#{formText.vatRegSchemeAssgnDescr}"/>
+     <p:inputText id="descr" value="#{vatRegAssignBean.vatRegScheme.description}"/>
+     <p:outputLabel for="validFr" value="#{formText.vatRegSchemeAssgnValidFr}"/>
+     <p:calendar id="validFr" value="#{vatRegAssignBean.vatRegScheme.validFrom}" 
+                    mode="popup" required="true"
+                    requiredMessage="#{validationText.vatRegValidFr}"
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" maxlength="10" 
+                    size="10"/>
+     <p:outputLabel for="validTo" value="#{formText.vatRegSchemeAssgnValidTo}"/>
+     <p:calendar id="validTo" value="#{vatRegAssignBean.vatRegScheme.validTo}" 
+                    mode="popup" 
+                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                    maxlength="10" 
+                    size="10"/>
+     <p:outputLabel for="schemes" value="#{formText.vatRegSchemeSchemes}"/>
+     <p:pickList id="schemes"  value="#{vatRegAssignBean.vatSchemes}" var="schemeVar"  
+                 converter="accounts.Util.converter.VatScheme" required="true" requiredMessage="#{errorText.vatSchemeAssignScheme}"
+                 itemValue="#{schemeVar}" itemLabel="#{schemeVar.ref} #{schemeVar.description}" 
+                 >
+      <f:facet name="sourceCaption">#{formText.vatRegSchemeAvail}</f:facet>
+      <f:facet name="targetCaption">#{formText.vatRegSchemeSel}</f:facet>
+      
+     </p:pickList>
+     <p:outputLabel for="ind" value="#{formText.vatRegSchemeInd}"/>
+     <p:selectOneMenu id="ind" value="#{vatRegAssignBean.vatRegScheme.vatIndRate}" 
+                      converter="accounts.Util.converter.VatIndustry">
+      <f:selectItems value="#{vatRegAssignBean.vatInds}" var="indVar" itemValue="#{indVar}" 
+                     itemLabel="#{indVar.ref}"/>
+     </p:selectOneMenu>
+    </h:panelGrid>
+   </h:form>
+  </ui:define>
+ </ui:composition>
+</html>

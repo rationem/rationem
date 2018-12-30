@@ -1,0 +1,48 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/templateDialog.xhtml">
+ <ui:define name="title">
+  <h:outputFormat value="#{pageTitle.ptnrDet}">
+   <f:param value="#{partnerDisplayBean.ptnrBase.displayName}" />
+  </h:outputFormat>
+ </ui:define> 
+  
+ <ui:define name="header">#{pageTitle.ptnrDisp}</ui:define>
+ <ui:define name="content">
+  <h:form id="ptnrDispFrm">
+   <p:tooltip trackMouse="true"  showEffect="clip" hideEffect="explode" />
+   
+    <p:messages id="msgs" closable="true"/>
+    
+    <p:tabView id="tabV" >
+     <p:tab title="#{formText.ptnrBasicTab}" >
+      <f:facet name="actions" >
+       <p:button value="#{formText.save}"/>
+      </f:facet >
+      <p:panelGrid 
+       id="ptnrBasicPnl"  layout="grid" columns="4" 
+       columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2" >
+       <h:outputText value="#{listHeading.ptnrRlRef}"/>
+       <h:outputText value="#{partnerDisplayBean.ptnrBase.ref}"/>
+       <h:outputText  value="#{formText.ptnrType}"/>
+       <h:panelGroup >
+        <h:outputText  value="#{formText.ptnrCorp}" rendered="#{partnerDisplayBean.partnerType eq 'corp'}" />
+        <h:outputText  value="#{formText.ptnrIndiv}" rendered="#{partnerDisplayBean.partnerType eq 'pers'}" />
+       </h:panelGroup >
+       
+      </p:panelGrid> 
+     </p:tab>
+     <p:tab title="#{formText.ptnrDetTab}">
+      <f:facet name="actions">
+       <p:button value="#{formText.save}"/>
+      </f:facet>
+      partner info
+     </p:tab>
+    </p:tabView>
+   
+  </h:form>
+ </ui:define>
+</ui:composition>

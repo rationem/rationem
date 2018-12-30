@@ -1,0 +1,96 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.trChqSingle}</ui:define>
+ <ui:define name="header">#{pageTitle.trChqSingle}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="chqSinglFrm" prependId="true">
+    <p:dialog modal="true" widgetVar="statusDialog" header="#{formText.trChqDlWait}" draggable="false"
+      closable="false">
+     <p:graphicImage value="/resources/images/ajax-loader-bar.gif"  />
+    </p:dialog>
+    <div class="card">
+     <p:messages autoUpdate="true"/>
+    <p:panelGrid id="selPG" layout="grid" columns="2" columnClasses="ui-grid-col-2,ui-grid-col-3" >
+     <p:outputLabel for="comp" value="#{formText.comp}" />
+     <p:selectOneMenu 
+      id="comp" value="#{chequeSingleBean.compSelected}" required="true" 
+      requiredMessage="#{validationText.fiDocComp}" converter="com.rationem.util.converter.CompanyBasic">
+                      
+      <f:selectItems value="#{chequeSingleBean.compList}" var="compV" itemValue="#{compV}"
+                     itemLabel="#{compV.name}"/>
+     </p:selectOneMenu>
+     <p:outputLabel for="ledg" value="#{formText.actTypLedger}"/>
+     <p:selectOneMenu id="ledg" value="#{chequeSingleBean.ledgerCode}">
+      <f:selectItem itemValue="AP" itemLabel="#{formText.ldgr_pay}" noSelectionOption="true"/>
+      <f:selectItem itemValue="AR" itemLabel="#{formText.ldgr_rec}"/>
+      <p:ajax event="itemSelect" 
+              update="chqSinglFrm:payLnOp"/>
+     </p:selectOneMenu>
+     <p:outputLabel for="paymntLn" value="#{formText.docLineApPay}"/>
+     <p:outputPanel id="payLnOp" >
+      <p:autoComplete id="paymntLn" value="#{chequeSingleBean.docLineSel}" var="lnAp" itemValue="#{lnAp}"
+                     dropdown="true" required="true" rendered="#{chequeSingleBean.ledgerCode eq 'AP'}"
+                     itemLabel="#{lnAp.docNumber}" completeMethod="#{chequeSingleBean.onDocLineSel}"
+                     converter="com.rationem.util.converter.DocLineAp">
+       <p:ajax event="itemSelect" listener="#{chequeSingleBean.onDocLineSelItem}"/>
+      </p:autoComplete>
+      <p:autoComplete id="paymntLnAr" value="#{chequeSingleBean.docLineSel}"  var="lnAp" itemValue="#{lnAp}"
+                     dropdown="true" required="true" rendered="#{chequeSingleBean.ledgerCode eq 'AR'}"
+                     itemLabel="#{lnAp.docNumber}" completeMethod="#{chequeSingleBean.onDocLineSel}"
+                     converter="com.rationem.util.converter.DocLineAr">
+       <p:ajax event="itemSelect" listener="#{chequeSingleBean.onDocLineSelItem}"/>
+      </p:autoComplete>
+     </p:outputPanel>
+     <p:outputLabel for="cb" value="#{formText.trChqBk}"/>
+     <p:autoComplete  
+      id="cb" value="#{chequeSingleBean.chequeBook}" var="chqBkV" itemValue="#{chqBkV}" 
+      converter="com.rationem.util.converter.NumberRangeCheque" required="true" dropdown="true"
+      completeMethod="#{chequeSingleBean.onChequeBookComplete}" itemLabel="#{chqBkV.shortDescr}"                
+                       disabled="#{chequeSingleBean.chequeBooks eq null}">
+      
+      <p:column width="25%">
+       <h:outputText value="#{chqBkV.shortDescr}"/>
+      </p:column>
+      <p:column width="75%">
+       <h:outputText value="#{chqBkV.longDescr}"/>
+      </p:column>
+      <p:ajax event="itemSelect" listener="#{chequeSingleBean.onChequeBookSelItem}"/>
+     </p:autoComplete>
+     <p:outputLabel for="chqNum" value="#{formText.trChqNum}"/>
+     <p:inputText id="chqNum" value="#{chequeSingleBean.chequeNumber}"  size="8" maxlength="8"
+                    disabled="#{chequeSingleBean.chequeBook eq null}"  
+                  valueChangeListener="#{chequeSingleBean.onChequeNumberChange}" >
+      <p:keyFilter mask="pint"/>
+      <p:ajax event="blur" update="@this" />
+      
+     </p:inputText>
+      
+    
+                     
+    </p:panelGrid>
+    </div>
+    <div class="card">
+     <p:panelGrid columns="1" columnClasses="ui-grid-col-2" layout="grid">
+      <p:commandButton id="chqDownLoad" value="#{formText.trChq}" icon="fa fa-arrow-down" 
+                       disabled="#{chequeSingleBean.docLineAp eq null}" 
+                       ajax="false"
+                       onclick="PrimeFaces.monitorDownload(showStatus, hideStatus)">
+       <p:fileDownload value="#{chequeSingleBean.chequePdf}"/>
+      </p:commandButton>
+     </p:panelGrid>
+    </div>
+      
+      
+     </h:form>
+   </div>
+ </ui:define>
+</ui:composition>
+

@@ -1,0 +1,127 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_comp_lst}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+
+   <h:form id="comPListFrm" >
+    <div class="card-w-title">
+     <h1>#{formText.compList}</h1>
+     <p:dataTable
+      id="compTbl" value="#{companyList.compList}" emptyMessage="#{validationText.compsNone}"
+      var="compV" rows="#{companyList.usrBuff.tblRows}" rowKey="#{compV.id}" selectionMode="single"
+      reflow="true" paginatorAlwaysVisible="true" paginator="true" selection="#{companyList.compSelected}"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;"  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="comPListFrm:compTbl" fileName="#{listHeading.compListFn}"
+                        postProcessor="#{arAccntListBean.postProcessXLS}" />
+       </h:commandLink>
+       <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24" />
+        <p:dataExporter type="csv" target="comPListFrm:compTbl" fileName="#{listHeading.compListFn}" />
+       </h:commandLink>
+      </f:facet>
+      <p:column>
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.ref}"/>
+       </f:facet>
+       <h:outputText value="#{compV.reference}"/>
+      </p:column>
+      <p:column>
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.name}"/>
+       </f:facet>
+       <h:outputText value="#{compV.name}"/>
+      </p:column>
+      <p:column>
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.compVatReg}"/>
+       </f:facet>
+       <h:outputText value="#{formText.yes}" rendered="#{compV.vatReg }"/>
+       <h:outputText value="#{formText.no}" rendered="#{not compV.vatReg }"/>
+      </p:column>
+      <p:column>
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.compCharty}"/>
+       </f:facet>
+       <h:outputText value="#{formText.yes}" rendered="#{compV.charity }"/>
+       <h:outputText value="#{formText.no}" rendered="#{not compV.charity }"/>
+      </p:column>
+      <p:column>
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.compFndAcnt}"/>
+       </f:facet>
+       <h:outputText value="#{formText.yes}" rendered="#{compV.fundAccounting }"/>
+       <h:outputText value="#{formText.no}" rendered="#{not compV.fundAccounting }"/>
+      </p:column>
+      <p:column>
+       <f:facet name="header">
+        <h:outputText value="#{formText.createdOn}"/>
+       </f:facet>
+
+       <h:outputText value="#{compV.createdDate}">
+        <f:convertDateTime type="date" dateStyle="medium"/>
+       </h:outputText>
+      </p:column>
+     </p:dataTable>
+     <p:contextMenu for="compTbl">
+      <p:menuitem value="#{formText.addDet}" actionListener="#{companyList.onAddDetBtn}"/>
+     </p:contextMenu>
+   </div>
+   </h:form>
+   <h:form id="addDetFrm">
+    <p:dialog id="addDetDlg" widgetVar="addDetDlgV" responsive="true" dynamic="true" width="600">
+     <f:facet name="header">
+      <h:outputFormat value="#{formText.compAddDet}">
+       <f:param value="#{companyList.compSelected.name}"/>
+      </h:outputFormat>
+      <div class="ui-g ui-g-12">
+       <p:panelGrid id="compDetPgId" layout="grid" columns="2" columnClasses="ui-grid-col-4,ui-grid-col-3">
+       <h:outputText value="#{formText.compCountry}"/>
+       <h:outputText value="#{companyList.compSelected.country.countryName}"/>
+       <h:outputText value="#{formText.compCurrSymb}"/>
+       <h:outputText value="#{companyList.compSelected.currency.currSymbol}"/>
+       </p:panelGrid>
+
+       <p:accordionPanel id="compDetAp" >
+        <p:tab id="compDetTabId" title="#{formText.compDetTab}" disabled="#{companyList.compSelected.corp}">
+         <p:panelGrid id="compDetPg" layout="grid" columns="2"
+                     columnClasses="ui-grid-col-1,ui-grid-col-1">
+         <h:outputText value="#{formText.compRegNum}"/>
+         <h:outputText value="#{companyList.compSelected.companyNumber}"/>
+         <h:outputText value="#{formText.compRegDt}"/>
+         <h:outputText value="#{companyList.compSelected.incorporatedDate}">
+          <f:convertDateTime type="date" dateStyle="medium" locale="#{companyList.usrBuff.loc}"/>
+         </h:outputText>
+        </p:panelGrid>
+       </p:tab>
+       <p:tab id="charityTabId" title="#{formText.compCharityTab}"
+              disabled="#{not companyList.compSelected.charity }">
+        <p:panelGrid id="charityPg" layout="grid" columns="2"
+                     columnClasses="ui-grid-col-1,ui-grid-col-2"></p:panelGrid>
+        <h:outputText value="#{formText.compCharityNum}"/>
+        <h:outputText value="#{companyList.compSelected.charityNumber}">
+         <f:convertNumber groupingUsed="false"/>
+        </h:outputText>
+        <h:outputText value="#{formText.compCharityRegDt}"/>
+        <h:outputText value="#{companyList.compSelected.charityRegDate}">
+         <f:convertDateTime type="medium" locale="#{companyList.usrBuff.loc}"/>
+        </h:outputText>
+
+       </p:tab>
+      </p:accordionPanel>
+      </div>
+     </f:facet>
+    </p:dialog>
+   </h:form>
+
+  </div>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,28 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/resources/template/dfTemplate.xhtml">
+ 
+ <ui:define name="content">
+  <h:outputText id="apBnkAcntCrhdr" value="#{pageTitle.trBankAcntCr}" />
+  <p:panelGrid id="addBnkAcntPnl"  >
+     <p:row>
+      <p:column>
+       <h:outputText value="#{formText.bnkSortCd}"/>
+      </p:column>
+      <p:column>
+       <p:autoComplete id="trBnkSortCd" value="#{apMast.bankAcApNew.bankAccount.accountForBranch}"
+                       converter="com.rationem.util.converter.BankBranch" dropdown="true"
+                      completeMethod="#{apMast.onBankBranchComplete}" var="trBnkBrV"
+                      itemValue="#{trBnkBrV}" itemLabel="#{trBnkBrV.sortCode}"/>
+      </p:column>
+      
+     </p:row>
+     
+    </p:panelGrid>
+  
+ </ui:define>
+</ui:composition>
+

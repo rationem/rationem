@@ -1,0 +1,44 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.ptnrRoleCr}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="ptnrRoleFrm" >
+    <div class="card card-w-title">
+     <h1><h:outputText value="#{formText.cfgPtnrRoleCr}" /></h1>
+     <p:toolbar id="toolbarId">
+      <f:facet name="left">
+       <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank">
+       <p:commandButton id="saveRole" value="#{formText.save}" icon="fa fa-floppy-o" 
+                        actionListener="#{partnerRoleBean.onSaveRole}" styleClass="secondary"
+                        update="ptnrRoleFrm"/>
+       <p:commandButton id="resetRole" value="#{formText.reset}" icon="fa fa-refresh" styleClass="secondary">
+        <p:ajax update="ptnrRoleFrm:rolePg" resetValues="true"/>
+       </p:commandButton>
+       </p:panelGrid>
+      </f:facet>
+     </p:toolbar>
+     <p:messages id="errMsg" severity="error, warn" closable="true"/>
+     <p:growl id="okMsg" severity="info"/>
+     <p:panelGrid id="rolePg" columns="1" layout="grid" styleClass="ui-noborder">
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="ptnrRoleRef" value="#{partnerRoleBean.role.roleCode}"/>
+       <p:outputLabel for="ptnrRoleRef" value="#{formText.ref}"/>
+      </h:panelGroup>
+      <h:panelGroup styleClass="md-inputfield">
+       <p:inputText id="ptnrRoleName" value="#{partnerRoleBean.role.roleName}"/>
+       <p:outputLabel for="ptnrRoleName" value="#{formText.name}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     
+    </div>
+    create partner role
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

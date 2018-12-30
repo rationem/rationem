@@ -1,0 +1,238 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_countries}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <h:form id="countriesFrm" prependId="false">
+   <p:fieldset>
+    
+    <p:commandButton value="#{formText.cntryAdd}" actionListener="#{countryBean.onAddCountry}" 
+                     icon="ui-icon-document"/>
+    <p:contextMenu for="countriesTbl">
+     <p:menuitem value="#{formText.edit}" icon="ui-icon-pencil" actionListener="#{countryBean.onCountryEdit}">
+     </p:menuitem> 
+    </p:contextMenu>
+    <p:dataTable id="countriesTbl" var="cntry" value="#{countryBean.countries}" paginator="true" 
+                 selection="#{countryBean.countrySelected}" rowKey="#{cntry.id}" selectionMode="single"
+                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                 emptyMessage="#{blacResponse.countryNone}" filteredValue="#{countryBean.countriesFiltered}"
+                 widgetVar="countriesTblWv">
+     
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;" >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="countriesTbl" fileName="#{formText.cntry_fn}" 
+                        postProcessor="#{countryBean.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="countriesTbl" fileName="#{formText.cntry_fn}" />
+      </h:commandLink>
+     </f:facet>
+     <f:facet name="header">
+      <h:outputText value="#{formText.cntryAvail}"/>
+     </f:facet>
+     <p:column width="65" sortBy="#{cntry.countryCode2}" filterBy="#{cntry.countryCode2}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryCode2}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.countryCode2}"/>
+     </p:column>
+     <p:column width="50" sortBy="#{cntry.countryCode3}" filterBy="#{cntry.countryCode3}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryCode3}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.countryCode3}"/>
+     </p:column>
+     <p:column width="50" sortBy="#{cntry.countryNumeric}" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryCntryCodeNum}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.countryNumeric}"/>
+     </p:column>
+     <p:column sortBy="#{cntry.countryName}" filterBy="#{cntry.countryName}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryName}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.countryName}"/>
+     </p:column>
+     <p:column sortBy="#{cntry.countryNameFr}" filterBy="#{cntry.countryNameFr}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryNameFr}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.countryNameFr}"/>
+     </p:column>
+     <p:column width="50" sortBy="#{cntry.currCode}" filterBy="#{cntry.currCode}" filterMatchMode="contains" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryCurrCode}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.currCode}"/>
+     </p:column>
+     <p:column sortBy="#{cntry.currName}" filterBy="#{cntry.currName}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryCurrName}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.currName}"/>
+     </p:column>
+     <p:column width="80" sortBy="#{cntry.currNumCode}">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryCurrCodeNum}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.currNumCode}"/>
+     </p:column>
+     <p:column width="49" sortBy="#{cntry.fractionalLength}">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryCurrDecPl}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.fractionalLength}"/>
+     </p:column>
+     <p:column width="85" filterMatchMode="equals" filterBy="#{cntry.independent}" sortBy="#{cntry.independent}">
+      <f:facet name="filter">
+       <p:selectOneMenu onchange="PF('countriesTblWv').filter()">
+        <f:converter converterId="javax.faces.Boolean" />
+        <f:selectItem itemLabel="Select One" itemValue="#{null}" noSelectionOption="true" />
+        <f:selectItem itemLabel="#{formText.yes}" itemValue="true" />
+        <f:selectItem itemLabel="#{formText.no}" itemValue="false" />
+       </p:selectOneMenu>
+      </f:facet>
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryIndep}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.independent ? formText.yes : formText.no}"/>
+     </p:column>
+     <p:column sortBy="#{cntry.dependency}" filterBy="#{cntry.dependency}" filterMatchMode="contains">
+      <f:facet name="header" >
+       <h:outputText value="#{formText.cntryDep}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.dependency}"/>
+     </p:column>
+     <p:column width="40" sortBy="#{cntry.dialCd}" filterBy="#{cntry.dialCd}" filterMatchMode="contains">
+      <f:facet name="header">
+       <h:outputText value="#{formText.cntryDial}"/>
+      </f:facet>
+      <h:outputText value="#{cntry.dialCd}"/>
+     </p:column>
+    </p:dataTable>
+   </p:fieldset>
+  </h:form>
+  
+  <p:dialog  id="addCntryDlgId" widgetVar="addCntryDlgWv" dynamic="true" modal="true">
+   <f:facet name="header">
+    <h:outputText value="#{formText.cntryNewDialog}"/>
+   </f:facet>
+   <h:form id="newCntryFrm" prependId="false">
+    <p:focus for="cName"/>
+    <p:panelGrid columns="2" styleClass="panelNoBorders">
+    
+    <p:outputLabel for="cName" value="#{formText.cntryName}"/>
+    <p:inputText id="cName" value="#{countryBean.country.countryName}" required="true" 
+                 requiredMessage="#{validationText.currName}"/>
+    <p:outputLabel for="cNameFr" value="#{formText.cntryNameFr}"/>
+    <p:inputText id="cNameFr" value="#{countryBean.country.countryNameFr}" required="true" 
+                 requiredMessage="#{validationText.currName}"/>
+    <p:outputLabel for="cCode2" value="#{formText.cntryCode2}"/>
+    <p:inputText id="cCode2" value="#{countryBean.country.countryCode2}" maxlength="2" size="2" 
+              required="true"   />
+    <p:outputLabel for="cCode3" value="#{formText.cntryCode3}"/>
+    <p:inputText id="cCode3" value="#{countryBean.country.countryCode3}" maxlength="3" size="3" />
+    <p:outputLabel for="cCntryCode" value="#{formText.cntryCntryCodeNum}"/>
+    <p:inputText id="cCntryCode" value="#{countryBean.country.countryNumeric}" maxlength="3" size="3" /> 
+    <p:outputLabel for="cCurrCode" value="#{formText.cntryCurrCode}"/>
+    <p:inputText id="cCurrCode" value="#{countryBean.country.currCode}" maxlength="3" size="3" 
+                 required="true"   />
+    <p:outputLabel for="cCurrName" value="#{formText.cntryCurrName}"/>
+    <p:inputText id="cCurrName" value="#{countryBean.country.currName}" maxlength="30" size="30" 
+                 required="true"   />
+    <p:outputLabel for="cCurrNumCd" value="#{formText.cntryCurrCodeNum}"/>
+    <p:inputText id="cCurrNumCd" value="#{countryBean.country.currNumCode}" maxlength="3" size="3" 
+                 required="true"   />
+    <p:outputLabel for="cCurrDecPl" value="#{formText.cntryCurrDecPl}"/>
+    <p:inputText id="cCurrDecPl" value="#{countryBean.country.fractionalLength}" maxlength="3" size="3" 
+                 required="true"   />
+    <p:outputLabel for="cindep" value="#{formText.cntryIndep}"/>
+    <p:selectBooleanCheckbox id="cindep" value="#{countryBean.country.independent}" 
+                             valueChangeListener="#{countryBean.onDepenNewChange}" >
+     <p:ajax event="change"/>
+    </p:selectBooleanCheckbox>
+                 
+    <p:outputLabel for="cDep" value="#{formText.cntryDep}"/>
+    <p:inputText id="cDep" value="#{countryBean.country.dependency}" maxlength="20" size="20" 
+                 disabled="#{countryBean.country.independent eq true}"/>
+    <p:outputLabel for="cDial" value="#{formText.cntryDial}"/>
+    <p:inputText id="cDial" value="#{countryBean.country.dialCd}" maxlength="20" size="4" />
+
+   
+    
+     <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                      actionListener="#{countryBean.onSaveCountry}"  />
+     <p:commandButton value="#{formText.close}" icon="ui-icon-close" 
+                      actionListener="#{countryBean.onCloseCountryDlg}" immediate="true" />
+    
+   </p:panelGrid>
+   </h:form>
+  </p:dialog>
+  
+  <p:dialog  id="editCntryDlgId" widgetVar="editCntryDlgWv" dynamic="true" modal="true">
+   <f:facet name="header">
+    <h:outputText value="#{formText.cntryEditDialog}"/>
+   </f:facet>
+   <h:form id="editCntryFrm" prependId="false">
+    <p:focus for="editCName"/>
+   <p:panelGrid columns="2" styleClass="panelNoBorders">
+    
+    <p:outputLabel for="editCName" value="#{formText.cntryName}"/>
+    <p:inputText id="editCName" value="#{countryBean.countrySelected.countryName}" required="true" 
+                 requiredMessage="#{validationText.currName}"/>
+    <p:outputLabel for="editNameFr" value="#{formText.cntryNameFr}"/>
+    <p:inputText id="editNameFr" value="#{countryBean.countrySelected.countryNameFr}" required="true" 
+                 requiredMessage="#{validationText.currName}"/>
+    <p:outputLabel for="editcCode2" value="#{formText.cntryCode2}"/>
+    <p:inputText id="editcCode2" value="#{countryBean.countrySelected.countryCode2}" maxlength="2" size="2" 
+              required="true"   />
+    <p:outputLabel for="editcCode3" value="#{formText.cntryCode3}"/>
+    <p:inputText id="editcCode3" value="#{countryBean.countrySelected.countryCode3}" maxlength="3" size="3"/>
+    <p:outputLabel for="editcCntryCode" value="#{formText.cntryCntryCodeNum}"/>
+    <p:inputText id="editcCntryCode" value="#{countryBean.countrySelected.countryNumeric}" maxlength="3" 
+                 size="3">
+     <f:convertNumber integerOnly="true"/>
+    </p:inputText>
+    <p:outputLabel for="editcurrCode" value="#{formText.cntryCurrCode}"/>
+    <p:inputText id="editcurrCode" value="#{countryBean.countrySelected.currCode}" maxlength="3"  size="3"
+               required="true"   />
+    <p:outputLabel for="editcurrName" value="#{formText.cntryCurrName}"/>
+    <p:inputText id="editcurrName" value="#{countryBean.countrySelected.currName}" 
+                required="true" />
+    <p:outputLabel for="editcCurrNumCd" value="#{formText.cntryCurrCodeNum}"/>
+    <p:inputText id="editcCurrNumCd" value="#{countryBean.countrySelected.currNumCode}" maxlength="3" size="3" 
+                 required="true"   />
+    <p:outputLabel for="editcCurrDecPl" value="#{formText.cntryCurrDecPl}"/>
+    <p:inputText id="editcCurrDecPl" value="#{countryBean.countrySelected.fractionalLength}" maxlength="3" size="3" 
+                 required="true"   />
+    <p:outputLabel for="editcindep" value="#{formText.cntryIndep}"/>
+    <p:selectBooleanCheckbox id="editcindep" value="#{countryBean.countrySelected.independent}" 
+                             valueChangeListener="#{countryBean.onDepenEditChange}"
+                             >
+     <p:ajax event="change" update="editcDep"/>
+    </p:selectBooleanCheckbox>
+                 
+    <p:outputLabel for="editcDep" value="#{formText.cntryDep}"/>
+    <p:inputText id="editcDep" value="#{countryBean.countrySelected.dependency}" maxlength="20" size="20" 
+                 disabled="#{countryBean.countrySelected.independent eq true}"/>
+    <p:outputLabel for="editcDial" value="#{formText.cntryDial}"/>
+    <p:inputText id="editcDial" value="#{countryBean.countrySelected.dialCd}" maxlength="20" size="4" />
+    
+    
+     <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" 
+                      actionListener="#{countryBean.onSaveEdit}"  />
+     <p:commandButton value="#{formText.close}" icon="ui-icon-close" 
+                      actionListener="#{countryBean.onCloseEditDlg}" immediate="true" />
+    
+   </p:panelGrid>
+   </h:form>
+  </p:dialog>
+ </ui:define>
+</ui:composition>

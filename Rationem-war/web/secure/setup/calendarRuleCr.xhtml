@@ -1,0 +1,322 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_calRuleDt}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_calRuleDt}" styleClass="pageHeader" /> 
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="calRuleUpdtFrm" prependId="false">
+   <p:wizard widgetVar="calCrWizWv" flowListener="#{calendarBean.onCreateWizFlow}">
+    <p:tab id="basicId" title="#{formText.calWizTabBasic}">
+     <p:panel header="#{formText.calWizPnlBasic}">
+      <p:panelGrid columns="2" styleClass="noBorders">
+       <p:outputLabel for="calRuleRef"  value="#{formText.calRef}"/>
+       <p:inputText id="calRuleRef" value="#{calendarBean.calBase.reference}" required="true"/>
+       <p:outputLabel for="calRuleDescr" value="#{formText.calDescr}"/>
+       <p:inputText id="calRuleDescr" value="#{calendarBean.calBase.description}" required="true"/>
+       <p:outputLabel for="calRuleType" value="#{formText.calType}"/>
+       <p:selectOneRadio id="calRuleType" layout="pageDirection" required="true" requiredMessage="Calendar Type must be selected"
+                         value="#{calendarBean.calBase.calType}">
+        <f:selectItem itemLabel="#{formText.calNatCal}" itemValue="cal"/>
+        <f:selectItem itemLabel="#{formText.calMonth}" itemValue="mon"/>
+        <f:selectItem itemLabel="#{formText.calFlexYr}" itemValue="flex"/>
+       </p:selectOneRadio>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="monthId" title="#{formText.calWizTabMonth}">
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.calWizPnlMonth}"/>
+      </f:facet>
+      <h:panelGrid columns="2">
+       <p:outputLabel for="mthStart" value="#{formText.calFirstMonth}"/>
+      <p:selectOneMenu id="mthStart" value="#{calendarBean.calMonth.startMonthNumberL}"  >
+       <f:selectItem itemLabel="#{formText.jan}" itemValue="#{1}"/>
+       <f:selectItem itemLabel="#{formText.feb}" itemValue="#{2}"/>
+       <f:selectItem itemLabel="#{formText.march}" itemValue="#{3}"/>
+       <f:selectItem itemLabel="#{formText.april}" itemValue="#{4}"/>
+       <f:selectItem itemLabel="#{formText.may}" itemValue="#{5}"/>
+       <f:selectItem itemLabel="#{formText.june}" itemValue="#{6}"/>
+       <f:selectItem itemLabel="#{formText.july}" itemValue="#{7}"/>
+       <f:selectItem itemLabel="#{formText.aug}" itemValue="#{8}"/>
+       <f:selectItem itemLabel="#{formText.sept}" itemValue="#{9}"/>
+       <f:selectItem itemLabel="#{formText.oct}" itemValue="#{10}"/>
+       <f:selectItem itemLabel="#{formText.nov}" itemValue="#{11}"/>
+       <f:selectItem itemLabel="#{formText.dec}" itemValue="#{12}"/>
+
+      </p:selectOneMenu>
+
+      </h:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="flexId" title="#{formText.calWizTabFlex}">
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.calWizPnlFlex}"/>
+      </f:facet>
+      <p:commandButton value="#{formText.calAddYear}" actionListener="#{calendarBean.onFlexYearAddDlg}"/>
+      <p:dataTable id="flexYrNewTbl" value="#{calendarBean.calFlex.calRuleFlexYears}" 
+                  var="flexYr" style="width: 500px;" sortBy="#{flexYr.calYear}"  
+                  rows="#{calendarBean.usrBuff.tblRows}"
+                  emptyMessage="#{validationText.calFlexYearNone}">
+       <f:facet name="header">
+        <h:outputText value="Years configured"/>
+       </f:facet>
+       <p:column styleClass="toggler_width">
+        <p:rowToggler />
+       </p:column>
+       <p:column  sortBy="#{flexYr.calYear}" filterBy="#{flexYr.calYear}" filterMatchMode="contains">
+        <f:facet name="header">
+         <h:outputText  value="#{formText.calFlexYear}"/>
+        </f:facet>
+        <h:outputText value="#{flexYr.calYear}" >
+         <f:convertNumber integerOnly="true" groupingUsed="false"/>
+        </h:outputText>
+       </p:column>
+       <p:rowExpansion >
+        <p:dataTable var="addPer" value="#{flexYr.flexPeriods}" style="width: 400px;" 
+                    rows="#{calendarBean.usrBuff.tblRows}" emptyMessage="#{validationText.calFlexPerNone}" 
+                  editable="true"  editMode="row" paginator="true" paginatorAlwaysVisible="true"
+                  
+                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+         <p:ajax event="rowEdit" listener="#{calendarBean.onPeriodRowEdit}"/>
+         <f:facet name="{Exporters}">
+          <p:commandButton value="add" icon="ui-icon-document"  
+                          actionListener="#{calendarBean.onFlexPerAddDlg}" 
+                          oncomplete="PF('addPerWv').show()">
+           <f:setPropertyActionListener value="#{flexYr}" target="#{calendarBean.flexYrSelected}"/>
+          </p:commandButton>
+         </f:facet>
+         <p:column width="40">
+          <f:facet name="header">
+           <h:outputText value="#{formText.fisPerCntrl_period}" />
+          </f:facet>
+          <h:outputText value="#{addPer.calPeriod}"/>
+         </p:column>
+         <p:column>
+          <f:facet name="header">
+           <h:outputText value="#{formText.fisPerCntrl_date_fr}"/>
+          </f:facet>
+          <p:cellEditor >
+           <f:facet name="output">
+            <h:outputText value="#{addPer.startPeriod}">
+             <f:convertDateTime type="date" dateStyle="medium"/>
+            </h:outputText>
+           </f:facet>
+           <f:facet name="input">
+            <p:calendar value="#{addPer.startPeriod}" mode="popup" maxlength="10"
+                      size="8"  navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" /> 
+           </f:facet>
+          </p:cellEditor>
+         </p:column>
+         <p:column>
+          <f:facet name="header">
+           <h:outputText value="#{formText.fisPerCntrl_date_to}"/>
+          </f:facet>
+          <p:cellEditor>
+           <f:facet name="output">
+            <h:outputText value="#{addPer.endPeriod}">
+             <f:convertDateTime type="date" dateStyle="medium"/>
+            </h:outputText>
+           </f:facet>
+           <f:facet name="input">
+            <p:calendar value="#{addPer.endPeriod}" mode="popup" maxlength="10"
+                      size="8"  navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" /> 
+           
+           </f:facet>
+          </p:cellEditor>
+         </p:column>
+         <p:column width="40">
+          <f:facet name="header">
+           <h:outputText value="#{formText.edit}"/>
+          </f:facet>
+          <p:rowEditor />
+         </p:column>
+        </p:dataTable>
+       </p:rowExpansion>
+      </p:dataTable>
+     </p:panel>
+    </p:tab>
+    <p:tab id="summId" title="#{formText.calWizTabSumm}">
+     <p:panel>
+      <f:facet name="header">
+       <h:outputText value="#{formText.calWizPnlSumm}"/>
+      </f:facet>
+      <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" actionListener="#{calendarBean.onSaveNewCal}"  />
+      <h:panelGrid columns="2" rendered="#{calendarBean.calBase.calType eq 'cal'}">
+       <h:outputText value="#{formText.calType}"/>
+       <h:outputText value="#{formText.calNatCal}"/>
+       <h:outputText value="#{formText.calRef}"/>
+       <h:outputText value="#{calendarBean.calBase.reference}"/>
+       <h:outputText value="#{formText.calDescr}"/>
+       <h:outputText value="#{calendarBean.calBase.description}"/>
+      </h:panelGrid>
+      <h:panelGrid columns="2" rendered="#{calendarBean.calBase.calType eq 'mon'}">
+       <h:outputText value="#{formText.calType}"/>
+       <h:outputText value="#{formText.calMonth}"/>
+       <h:outputText value="#{formText.calRef}"/>
+       <h:outputText value="#{calendarBean.calMonth.reference}"/>
+       <h:outputText value="#{formText.calDescr}"/>
+       <h:outputText value="#{calendarBean.calMonth.description}"/>
+       <h:outputText value="#{formText.calFirstMonth}"/>
+       <h:outputText value="#{formText.jan}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 1}"/>
+      <h:outputText value="#{formText.feb}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 2}"/>
+      <h:outputText value="#{formText.march}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 3}"/>
+      <h:outputText value="#{formText.april}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 4}"/>
+      <h:outputText value="#{formText.may}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 5}"/>
+      <h:outputText value="#{formText.june}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 6}"/>
+      <h:outputText value="#{formText.july}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 7}"/>
+      <h:outputText value="#{formText.aug}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 8}"/>
+      <h:outputText value="#{formText.sept}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 9}"/>
+      <h:outputText value="#{formText.oct}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 10}"/>
+      <h:outputText value="#{formText.nov}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 11}"/>
+      <h:outputText value="#{formText.dec}"
+                    rendered="#{calendarBean.calMonth.startMonthNumber eq 12}"/>
+      </h:panelGrid>
+      <p:panelGrid  rendered="#{calendarBean.calBase.calType eq 'flex'}" styleClass="noBorders">
+       <p:row>
+        <p:column width="40">
+         <h:outputText value="#{formText.calType}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.calFlexYr}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column width="40">
+         <h:outputText value="#{formText.calRef}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{calendarBean.calFlex.reference}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column width="40">
+         <h:outputText value="#{formText.calDescr}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{calendarBean.calFlex.description}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column colspan="2">
+         <p:dataTable  value="#{calendarBean.calFlex.calRuleFlexYears}" 
+                  var="flexYr" style="width: 500px;" sortBy="#{flexYr.calYear}"  
+                  rows="#{calendarBean.usrBuff.tblRows}"
+                  emptyMessage="#{validationText.calFlexYearNone}">
+          <f:facet name="header">
+           <h:outputText value="Years configured"/>
+          </f:facet>
+         <p:column styleClass="toggler_width">
+          <p:rowToggler />
+         </p:column>
+         <p:column  sortBy="#{flexYr.calYear}" filterBy="#{flexYr.calYear}" filterMatchMode="contains" >
+          <f:facet name="header">
+           <h:outputText  value="#{formText.calFlexYear}"/>
+          </f:facet>
+          <h:outputText value="#{flexYr.calYear}" >
+           <f:convertNumber integerOnly="true" groupingUsed="false"/>
+          </h:outputText>
+         </p:column>
+         <p:rowExpansion >
+          <p:dataTable var="addPer" value="#{flexYr.flexPeriods}" style="width: 400px;" 
+                    rows="#{calendarBean.usrBuff.tblRows}" emptyMessage="#{validationText.calFlexPerNone}" 
+                  editable="true"  editMode="row" paginator="true" paginatorAlwaysVisible="true"
+                  
+                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
+           <p:ajax event="rowEdit" listener="#{calendarBean.onPeriodRowEdit}"/>
+           <p:column width="40">
+            <f:facet name="header">
+             <h:outputText value="#{formText.fisPerCntrl_period}" />
+            </f:facet>
+            <h:outputText value="#{addPer.calPeriod}"/>
+           </p:column>
+           <p:column>
+            <f:facet name="header">
+             <h:outputText value="#{formText.fisPerCntrl_date_fr}"/>
+            </f:facet>
+            <h:outputText value="#{addPer.startPeriod}">
+               <f:convertDateTime type="date" dateStyle="medium"/>
+              </h:outputText>
+           </p:column>
+           <p:column>
+            <f:facet name="header">
+             <h:outputText value="#{formText.fisPerCntrl_date_to}"/>
+            </f:facet>
+            <h:outputText value="#{addPer.endPeriod}">
+             <f:convertDateTime type="date" dateStyle="medium"/>
+            </h:outputText>
+           </p:column>
+          </p:dataTable>
+         </p:rowExpansion>
+        </p:dataTable>
+        </p:column>
+       </p:row>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+   </p:wizard>
+   
+  </h:form>
+  <p:dialog widgetVar="addyearWv" dynamic="true" >
+   <f:facet name="header">
+    <h:outputText value="#{formText.calAddYear}"/>
+   </f:facet>
+    <h:form id="addYearFrm" prependId="false">
+     <h:panelGrid columns="2">
+      <p:outputLabel for="fixAddYear" value="#{formText.calFlexYear}"/>
+      <p:inputText id="fixAddYear" value="#{calendarBean.flexYrNew.calYear}"/>
+      <p:watermark for="fixAddYear" value="Enter Calendar year"/>
+      <p:commandButton value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w" 
+                       actionListener="#{calendarBean.onFlexYearAddNew}" />
+     </h:panelGrid>
+    </h:form>
+   </p:dialog>
+  
+  <p:dialog widgetVar="addPerWv" dynamic="true" >
+    <f:facet name="header">
+     <h:outputText value="Add Period"/>
+     <h:outputText value="#{calendarBean.flexYrSelected.calYear}"/>
+    </f:facet>
+    <h:form id="addPeriodFrm" prependId="false">
+     <h:panelGrid columns="2">
+      <h:outputText  value="#{formText.calFlexYear}"/>
+      <h:outputText  value="#{calendarBean.flexYrSelected.calYear}"/>
+      <p:outputLabel for="addPerNum" value="#{formText.calPerNum}"/>
+      <p:inputText id="addPerNum"  value="#{calendarBean.flexPerNew.calPeriod}" size="2"
+                   maxlength="2" required="true">
+       <f:convertNumber integerOnly="true" groupingUsed="false"/>
+      </p:inputText>
+      <p:outputLabel for="addPerStart" value="#{formText.calStartDt}"/>
+      <p:calendar id="addPerStart" value="#{calendarBean.flexPerNew.startPeriod}" mode="popup" 
+                  maxlength="10" required="true"
+                  size="8"  navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" /> 
+      <p:outputLabel for="addPerEnd" value="#{formText.calEndDt}"/>
+      <p:calendar id="addPerEnd" value="#{calendarBean.flexPerNew.endPeriod}" mode="popup" 
+                  maxlength="10" required="true"
+                  size="8"  navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" /> 
+      <p:commandButton value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w" 
+                       actionListener="#{calendarBean.onFlexPerAddNewTrf}"/>
+      <p:commandButton value="#{formText.calNextPer}" icon="ui-icon-document" 
+                       actionListener="#{calendarBean.onFlexPerAddNew}"/>
+     </h:panelGrid>
+    </h:form>
+   </p:dialog>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,62 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                template="/WEB-INF/template.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ <ui:define name="title">#{pageTitle.cfg_chq_tmpl_cr}</ui:define>
+ <ui:define name="header">#{pageTitle.cfg_chq_tmpl_cr}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="chqTemplFrm">
+    <div class="card">
+     <p:toolbar >
+       <f:facet name="left">
+        <p:panelGrid layout="grid" columns="2"  >
+        <p:commandButton value="#{formText.save}" icon="fa  fa-save" 
+                         actionListener="#{chequeTemplateBean.onSaveTemplate}"/>
+        <p:commandButton  value="#{formText.reset}" icon="fa fa-undo" 
+                          actionListener="#{chequeTemplateBean.onReset}">
+         
+        </p:commandButton>
+        </p:panelGrid>
+       </f:facet>
+      </p:toolbar>
+     <p:messages id="msg" closable="true" autoUpdate="true" />
+     <p:panelGrid id="chqTemplPnlG" layout="grid" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-6" >
+      
+      <p:outputLabel for="ref" value="#{formText.chqTemplRef}"/>
+      <p:inputText id="ref" value="#{chequeTemplateBean.templ.reference}"/>
+      <h:panelGroup />
+      <p:outputLabel for="descr" value="#{formText.chqTemplDescr}"/>
+      <p:inputText id="descr" value="#{chequeTemplateBean.templ.description}"/>
+      <h:panelGroup />
+      <p:outputLabel for="prntChqLn" value="#{formText.chqTemplPrntBnkLn}"/>
+      <p:inputSwitch id="prntChqLn" value="#{chequeTemplateBean.templ.printChqNumLine}" 
+                     onLabel="#{formText.yes}" offLabel="#{formText.no}"/>
+      <h:panelGroup />
+      <p:outputLabel for="baseFile" value="#{formText.chqTemplFile}"/>
+      <h:outputText id="baseFile" value="#{chequeTemplateBean.templ.originalFileName}"/>
+      <p:fileUpload id="baseFileUpload"  mode="advanced" auto="true"
+                    invalidFileMessage="#{validationText.chqOthFileType}"
+                     fileUploadListener="#{chequeTemplateBean.onUploadBaseFile}" 
+                     label="#{formText.chqTemplFlSel}"
+                     update="chqTemplFrm:baseFile" allowTypes="/(\.|\/)(doc?|odt)$/" />
+      <p:outputLabel for="pdfFile" value="#{formText.chqTemplPdf}"/>
+      <h:outputText id="pdfFile" value="#{chequeTemplateBean.templ.pdfFileName}"/>
+      <p:fileUpload id="pdfFileUpload"  mode="advanced" auto="true" allowTypes="/(\.|\/)(pdf)$/"
+                    invalidFileMessage="#{validationText.chqPdfFileType}"
+                    label="#{formText.chqTemplFlSel}" 
+                    fileUploadListener="#{chequeTemplateBean.onUploadPdfFormFile}" 
+                    update="chqTemplFrm:pdfFile" />
+      
+     
+     </p:panelGrid>
+    </div>
+    
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

@@ -1,0 +1,75 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.apAcntList}</ui:define>
+ <ui:define name="header">#{pageTitle.apAcntList}</ui:define>
+ <ui:define name="content">
+  <h:form id="apActCrFrm" prependId="false">
+   <p:panelGrid layout="grid" columns="3" style="width: 40%"  >
+    <p:outputLabel for="comp" value="#{formText.comp}"/>
+    <p:selectOneMenu id="comp" value="#{apAcntList.selComp}" 
+                       converter="com.rationem.util.converter.CompanyBasic">
+     <f:selectItems value="#{apAcntList.compList}" var="compV" itemValue="#{compV}"
+                      itemLabel="#{compV.reference}"/>
+    </p:selectOneMenu>
+    <h:outputText value="#{apAcntList.selComp.name}"/>
+   </p:panelGrid>
+   <p:dataTable id="accountList" value="#{apAcntList.apAcnts}" var="acnt" rowKey="#{acnt.id}"
+      emptyMessage="#{validationText.apAcntsNone}"
+      rows="#{apAcntList.usrBuff.tblRows}"  filteredValue="#{apAcntList.apAcntsFiltered}"
+      paginatorAlwaysVisible="true" paginator="true"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="accountList" fileName="#{listHeading.arAcntListFn}" 
+                      postProcessor="#{apAcntList.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="accountList" fileName="#{listHeading.arAcntListFn}" />
+     </h:commandLink>
+    </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.apAcntList}"/>
+    </f:facet>
+    <p:column width="150" sortBy="#{acnt.accountCode}" filterBy="#{acnt.accountCode}" 
+              filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.apAcntRef}"/>
+     </f:facet>
+     <h:outputText value="#{acnt.accountCode}"/>
+    </p:column>
+    <p:column sortBy="#{acnt.accountName}" filterBy="#{acnt.accountName}" 
+              filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.apAcntName}"/>
+     </f:facet>
+     <h:outputText value="#{acnt.accountName}"/>
+    </p:column>
+    <p:column sortBy="#{acnt.apAccountFor.name}" filterBy="#{acnt.apAccountFor.name}" 
+              filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.apAcntFor}"/>
+     </f:facet>
+     <h:outputText value="#{acnt.apAccountFor.name}"/>
+    </p:column>
+    <p:column styleClass="column-financialValue" width="100" sortBy="#{acnt.accountBalance}" 
+              >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.apAcntBal}"/>
+     </f:facet>
+     <h:outputText value="#{acnt.accountBalance}">
+      <f:convertNumber type="number" locale="#{apAcntList.selComp.locale}" 
+                       maxFractionDigits="#{apAcntList.selComp.currency.minorUnit}"
+                       minFractionDigits="#{apAcntList.selComp.currency.minorUnit}" minIntegerDigits="1"/>
+     </h:outputText>
+    </p:column>
+   </p:dataTable>
+   
+  </h:form>
+ </ui:define>
+</ui:composition>

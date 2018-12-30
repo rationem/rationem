@@ -1,0 +1,218 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_tr_bacs_trans_updt}</ui:define>
+ <ui:define name="content">
+ <h:form id="dayBkSel" >
+  <p:steps id="steps" activeIndex="#{apDayBookBean.step}">
+   <p:menuitem value="#{formText.selOpt}"/>
+   <p:menuitem value="#{menuText.mi_ap_dayBkLst}" />
+  </p:steps>
+  <p:outputPanel id="stepOp">
+  <div class="card card-w-title" >
+   <h1>#{apDayBookBean.stepName}</h1>
+   <p:messages id="errMsg" autoUpdate="true" severity="warn, error" closable="true"/>
+   <p:growl id="okMsg"  autoUpdate="true" severity="info"/>
+   <p:panelGrid id="selPg" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2" 
+                styleClass="ui-noborder" layout="grid" rendered="#{apDayBookBean.step eq 0}" >
+    <p:outputLabel for="comp" value="#{formText.comp}"/>
+    <p:selectOneMenu id="comp" value="#{apDayBookBean.selOpts.comp}" converter="com.rationem.util.converter.CompanyBasic"
+                     var="compS1Mv" >
+     <f:selectItems value="#{apDayBookBean.compList}" var="compV" itemValue="#{compV}" itemLabel="#{compV.reference}"/>
+     <p:column width="25%">
+      <h:outputText value="#{compS1Mv.reference}" />
+     </p:column>
+     <p:column width="75%">
+      <h:outputText value="#{compS1Mv.name}" />
+     </p:column>
+    </p:selectOneMenu>
+    <h:outputText value="#{apDayBookBean.selOpts.comp.name}"/>
+    
+    <p:outputLabel value="#{formText.fiscYear}"/>
+    <h:panelGroup styleClass="md-inputfield">
+     <p:inputText id="fiscYrFr" value="#{apDayBookBean.selOpts.fiscYearFr}" size="4" maxlength="4" >
+      <f:convertNumber integerOnly="true" groupingUsed="false"/>
+     </p:inputText>
+     <p:outputLabel for="fiscYrFr" value="#{formText.fromDate}" />
+    </h:panelGroup>
+    <h:panelGroup styleClass="md-inputfield">
+     <p:inputText id="fiscYrTo" value="#{apDayBookBean.selOpts.fiscYearTo}" size="4" maxlength="4" >
+      <f:convertNumber integerOnly="true" groupingUsed="false"/>
+      <p:keyFilter mask="pint"/> 
+     </p:inputText>
+     <p:outputLabel for="fiscYrFr" value="#{formText.toDate}" />
+     
+    </h:panelGroup>
+    
+    <p:outputLabel value="#{formText.fiscPer}"/>
+    <h:panelGroup styleClass="md-inputfield">
+     <p:inputText id="fiscPerFr" value="#{apDayBookBean.selOpts.fiscPerFr}" size="4" maxlength="4" >
+      <f:convertNumber integerOnly="true" groupingUsed="false"/>
+      <p:keyFilter mask="pint"/>
+     </p:inputText>
+     <p:outputLabel for="fiscPerFr" value="#{formText.fromDate}" />
+    </h:panelGroup>
+    <h:panelGroup styleClass="md-inputfield">
+     <p:inputText id="fiscPerTo" value="#{apDayBookBean.selOpts.fiscPerTo}" size="4" maxlength="4" >
+      <f:convertNumber integerOnly="true" groupingUsed="false"/>
+     </p:inputText>
+     <p:outputLabel for="fiscPerTo" value="#{formText.toDate}" />
+    </h:panelGroup>
+    <p:outputLabel for="docDateFr" value="#{formText.docDocDate}"/>
+    
+    <p:calendar id="docDateFr" value="#{apDayBookBean.selOpts.docDateFr}" 
+                locale="#{apDayBookBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+    <p:calendar id="docDateTo" value="#{apDayBookBean.selOpts.docDateTo}" 
+                locale="#{apDayBookBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+    
+    <p:outputLabel for="postDateFr" value="#{formText.docPostDate}"/>
+    <p:calendar id="postDateFr" value="#{apDayBookBean.selOpts.postDateFr}" 
+                locale="#{apDayBookBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+    <p:calendar id="postDateTo" value="#{apDayBookBean.selOpts.postDateTo}" 
+                locale="#{apDayBookBean.selOpts.comp.locale}" navigator="true" pattern="dd/MMM/yyyy" 
+                         showOtherMonths="true" maxlength="11" size="12"/>
+    <p:outputLabel for="docTy" value="#{formText.docType}"/>
+    <p:autoComplete id="docTy" value="#{apDayBookBean.selOpts.docTy}" converter="com.rationem.util.converter.DocType"
+                    completeMethod="#{apDayBookBean.onDocTypeComplete}"
+                    var="docTyV" itemValue="#{docTyV}" itemLabel="#{docTyV.name}" dropdown="true"/>
+    <h:panelGroup />
+    <p:commandButton id="getList" value="#{formTextAp.dayBookList}" icon="fa fa-gear" 
+                     actionListener="#{apDayBookBean.onGetDocs}" /> 
+    <p:watermark for="docDateFr" value="#{formText.fromDate}"/>
+    <p:watermark for="docDateTo" value="#{formText.toDate}"/>
+    <p:watermark for="postDateFr" value="#{formText.fromDate}"/>
+    <p:watermark for="postDateTo" value="#{formText.toDate}"/>
+   </p:panelGrid>
+   <p:dataTable 
+    id="dayBkLst" value="#{apDayBookBean.apLines}"  var="apInvV" rendered="#{apDayBookBean.step eq 1}" 
+    rows="#{apDayBookBean.usrBuff.tblRows}" rowKey="#{apInvV.id}" paginator="true" sortBy="#{apInvV.docFi.docNumber}"
+    paginatorAlwaysVisible="true" selection="#{apDayBookBean.apLineSel}" emptyMessage="#{listHeading.apDayBkEmpty}"
+    paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+   
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24" />
+      <p:dataExporter type="xls" target="dayBkLst" fileName="#{listHeading.apDayBk_FN}"  
+                          postProcessor="#{apDayBookBean.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink style="float:right;">
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="dayBkLst" 
+                      fileName="#{listHeading.apDayBk_FN}" />
+     </h:commandLink>
+    </f:facet>
+    <p:column width="50" sortable="true" sortBy="#{apInvV.docFi.docNumber}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docNumber}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docFi.docNumber}"/>
+    </p:column>
+    <p:column width="50" sortable="true" sortBy="#{apInvV.postType.postTypeCode}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docPstTy}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.postType.postTypeCode}"/>
+    </p:column>
+    <p:column width="80" sortable="true" sortBy="#{apInvV.docFi.documentDate}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docDate}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docFi.documentDate}" >
+      <f:convertDateTime type="date" dateStyle="medium" locale="#{apDayBookBean.selOpts.comp.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column width="80" sortable="true" sortBy="#{apInvV.docFi.postingDate}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docPstDate}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docFi.postingDate}" >
+      <f:convertDateTime type="date" dateStyle="medium" locale="#{apDayBookBean.selOpts.comp.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column width="80" sortable="true" sortBy="#{apInvV.docFi.taxDate}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docTaxDt}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docFi.taxDate}" >
+      <f:convertDateTime type="date" dateStyle="medium" locale="#{apDayBookBean.selOpts.comp.locale}"/>
+     </h:outputText>
+    </p:column>
+    <p:column width="40" styleClass="column-numericValue" sortable="true" sortBy="#{apInvV.docFi.fisYear}" > 
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docFiscYr}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docFi.fisYear}" />
+    </p:column>
+    <p:column width="40" styleClass="column-numericValue" sortable="true" sortBy="#{apInvV.docFi.fisPeriod}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docFiscPer}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docFi.fisPeriod}" />
+    </p:column>
+    <p:column width="100" sortable="true" sortBy="#{apInvV.accountRef}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docAcnt}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.accountRef}" />
+    </p:column>
+    <p:column sortable="true" sortBy="#{apInvV.docFi.docHdrText}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.docHdrText}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docFi.docHdrText}" />
+    </p:column>
+    
+    <p:column styleClass="column-financialValue" sortable="true" sortBy="#{apInvV.docAmount}" >
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.apDayBkTot}"/>
+     </f:facet>
+     <h:outputText value="#{apInvV.docAmount}"  rendered="#{not apInvV.postType.debit }">
+     <f:convertNumber 
+       locale="#{apDayBookBean.selOpts.comp.locale}" maxFractionDigits="#{apDayBookBean.selOpts.comp.currency.minorUnit}"
+       minFractionDigits="#{apDayBookBean.selOpts.comp.currency.minorUnit}" minIntegerDigits="1"/>
+     </h:outputText>
+     <h:outputText value="#{apInvV.docAmount * -1}"  rendered="#{apInvV.postType.debit }">
+      <f:convertNumber 
+       locale="#{apDayBookBean.selOpts.comp.locale}" maxFractionDigits="#{apDayBookBean.selOpts.comp.currency.minorUnit}"
+       minFractionDigits="#{apDayBookBean.selOpts.comp.currency.minorUnit}" minIntegerDigits="1"/>
+     </h:outputText>
+     
+     
+    </p:column>
+    <p:columnGroup type="footer">
+     <p:row>
+      <p:column colspan="9" styleClass="column-rowTotal" > 
+       <f:facet name="footer" >
+        <h:outputText value="#{listHeading.total}" />
+       </f:facet>
+       
+      </p:column>
+      <p:column styleClass="column-financialValue" >
+       <f:facet name="footer" >
+        <h:outputText value="#{apDayBookBean.totalDoc}" style="font-weight: 600;">
+        <f:convertNumber 
+         locale="#{apDayBookBean.selOpts.comp.locale}" maxFractionDigits="#{apDayBookBean.selOpts.comp.currency.minorUnit}"
+       minFractionDigits="#{apDayBookBean.selOpts.comp.currency.minorUnit}" minIntegerDigits="1" type="currency" 
+       currencySymbol="#{apDayBookBean.selOpts.comp.currency.currSymbol}"/>
+                       
+        </h:outputText>
+       </f:facet>
+       
+      </p:column>
+     </p:row>
+     
+    </p:columnGroup>
+   </p:dataTable>
+                
+  </div> 
+ </p:outputPanel>
+ </h:form>
+ 
+ </ui:define>
+</ui:composition>

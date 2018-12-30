@@ -1,0 +1,157 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.slPartUpdt}</ui:define>
+ <ui:define name="header">#{pageTitle.slPartUpdt} </ui:define>
+ <ui:define name="content">
+ <p:growl autoUpdate="true"/>
+ <h:form id="salesCatUpdt" prependId="false">
+  <p:growl autoUpdate="true" />
+  <p:toolbar >
+   <f:facet name="left">
+    <p:commandButton value="#{formText.save}" icon="fa fa-save" actionListener="#{salesCategory.onUpdateSave}"/>
+    <p:commandButton value="#{formText.reset}" icon="fa fa-refresh" update="salesCatUpdt" 
+                     process="@this">
+     <p:resetInput target="salesCatUpdt" />
+    </p:commandButton>
+   </f:facet>
+  </p:toolbar>
+  <p:panelGrid   >
+   <p:row>
+    <p:column>
+     <p:outputLabel for="compId" value="#{formTextSl.partComp}"/>
+    </p:column>
+    <p:column>
+     <p:selectOneMenu id="compId" value="#{salesCategory.cat.company}" var="compMnu" 
+                    converter="com.rationem.util.converter.CompanyBasic" required="true">
+      <f:selectItems value="#{salesCategory.compList}" var="comp" itemValue="#{comp}" 
+                     itemLabel="#{comp.reference}" />
+      <p:column width="20%">
+       #{compMnu.reference}
+      </p:column>
+      <p:column width="80%">
+       #{compMnu.name}
+      </p:column>
+     </p:selectOneMenu>
+    </p:column>
+    <p:column>
+     <h:outputText id="compName" value="#{salesCategory.cat.company.name}" />
+    </p:column>
+   </p:row>
+   <p:row>
+    <p:column>
+     <p:outputLabel for="catId" value="#{formTextSl.partCat}"/>
+    </p:column>
+    <p:column>
+     <p:selectOneMenu id="catId" value="#{salesCategory.cat}" var="catMnuV"
+                    converter="com.rationem.util.converter.SalesCategory" required="true" >
+      <f:selectItems value="#{salesCategory.categories}" var="catV" itemValue="#{catV}" 
+                                   itemLabel="#{catV.code}" />
+      <p:ajax event="itemSelect" update="salesCatUpdt"  />    
+      <p:column width="20%">
+       <h:outputText value="#{catMnuV.code}"/>
+      </p:column>
+      <p:column width="80%">
+       <h:outputText value="#{catMnuV.sortDescr}"/>
+      </p:column>
+     </p:selectOneMenu>
+    </p:column>
+   </p:row>
+  </p:panelGrid>
+  
+  <p:spacer height="2"/>
+  <p:fieldset legend="#{formTextSl.catDet}" >
+   <h:panelGrid columns="2"   >
+   <p:outputLabel for="code" value="#{formTextSl.slCatCode}"/>
+     <p:inputText id="code" value="#{salesCategory.cat.code}" required="true"/>
+     <p:outputLabel for="sDescr"  value="#{formTextSl.slCatSrtDescr}"/>
+     <p:inputText id="sDescr" value="#{salesCategory.cat.sortDescr}"/>
+     <p:outputLabel for="lDescr" value="#{formTextSl.slCatLngDescr}"/>
+     <p:inputText id="lDescr" value="#{salesCategory.cat.longDescr}"/>
+     
+  </h:panelGrid> 
+      
+   <p:confirmDialog id="remSubCat" header="#{formTextSl.subCatRemHdr}" 
+                    message="#{formTextSl.subCatRemMsg}" widgetVar="remSubCatWv" >
+    <p:commandButton id="remSubCatY" value="#{formText.yes}" actionListener="#{salesCategory.onSubCatRemove}"/>
+    <p:commandButton id="remSubCatN" value="#{formText.no}" type="button" onclick="PF('remSubCatWv').hide();"/>
+   </p:confirmDialog>
+   
+   
+  <p:contextMenu for="subCatTbl">
+   <p:menuitem value="#{formText.add}" icon="fa fa-file" actionListener="#{salesCategory.onEditAddSubcat}"/>
+   <p:menuitem value="#{formText.remove}"  icon="fa fa-pencil" onclick="PF('remSubCatWv').show();"/> 
+  </p:contextMenu>
+        
+  <p:dataTable id="subCatTbl" value="#{salesCategory.cat.subCategories}" var="subCat" 
+               emptyMessage="#{validationText.slSubCatNone}" rowKey="#{subCat.id}" 
+               selection="#{salesCategory.selectedCat}" selectionMode="single" >
+   <p:ajax event="contextMenu" listener="#{salesCategory.onCatCtxMnu}"/>
+   <f:facet name="header">
+    <h:outputText value="#{formTextSl.subCatList}"/>
+   </f:facet>
+   <p:column  width="50">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.slCatCode}"/>
+    </f:facet>
+    <h:outputText value="#{subCat.code}"/>
+   </p:column>
+         <p:column width="50">
+          <f:facet name="header">
+           <h:outputText value="#{listHeading.compCode}"/>
+          </f:facet>
+          <h:outputText value="#{subCat.company.reference}"/>
+         </p:column>
+         <p:column >
+          <f:facet name="header">
+           <h:outputText value="#{formTextSl.slCatSrtDescr}"/>
+          </f:facet>
+          <h:outputText value="#{subCat.sortDescr}"/>
+         </p:column>
+         <p:column >
+          <f:facet name="header">
+           <h:outputText value="#{formTextSl.slCatLngDescr}"/>
+          </f:facet>
+          <h:outputText value="#{subCat.longDescr}"/>
+         </p:column>
+        </p:dataTable>
+        
+    </p:fieldset>
+  
+  
+  </h:form>
+ <h:form id="assignSubCatFrm" prependId="false">
+  <p:dialog id="assignSubCatDlg" widgetVar="assignSubCatDlgWv" dynamic="true" closable="false" >
+   <f:facet name="header">
+    <h:outputText value="#{formTextSl.subCatAddDlg}"/>
+   </f:facet>
+   <p:pickList value="#{salesCategory.subCategories}" 
+              converter="com.rationem.util.converter.SalesCategory"
+               var="subCatPlV" itemLabel="#{subCatPlV.code}" itemValue="#{subCatPlV}" showSourceFilter="true" showTargetFilter="true" 
+               >
+    <f:facet name="sourceCaption">
+     <h:outputText value="#{formText.availList}"/>
+    </f:facet>
+    <f:facet name="targetCaption">
+     <h:outputText value="#{formText.assignList}"/>
+    </f:facet>
+    <p:column style="width: 25%">
+     <h:outputText value="#{subCatPlV.code}"/>
+    </p:column>
+    <p:column style="width: 75%">
+     <h:outputText value="#{subCatPlV.sortDescr}"/>
+    </p:column>
+    <p:ajax event="transfer" listener="#{salesCategory.onEditCatSubCatAssignTrf}" />
+   </p:pickList>
+   <p:commandButton value="#{formText.close}" icon="fa fa-close" type="button" 
+                    onclick="PF('assignSubCatDlgWv').hide();" />
+  </p:dialog>
+  
+ </h:form>
+   
+ </ui:define>
+</ui:composition>
+

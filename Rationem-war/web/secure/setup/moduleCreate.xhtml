@@ -1,0 +1,39 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_moduleCr}</ui:define>
+ <ui:define name="header">
+  <h:form >
+  <p:breadCrumb homeDisplay="text">
+   <p:menuitem  value="#{pageTitle.cfg_main_menu}" action="configHome" immediate="true" />
+    
+   </p:breadCrumb>
+  </h:form>
+  <h:outputText value="#{pageTitle.cfg_moduleCr}" styleClass="panelHeader" /> 
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="createModule" prependId="false">
+   <p:growl id="messages" />
+   
+   <h:panelGrid columns="2">
+    <p:outputLabel for="modName" value="#{formText.mod_name}" title="#{formHelpText.mod_name}"/>
+    <p:inputText id="modName" value="#{module.module.name}" title="#{formHelpText.mod_name}" required="true"/>
+    <p:outputLabel for="modDescr" value="#{formText.mod_descr}" title="#{formHelpText.mod_descr}"/>
+    <p:inputText id="modDescr" value="#{module.module.description}" title="#{formHelpText.mod_descr}" required="true"/>
+    <p:outputLabel for="modCd" value="#{formText.mod_code}" title="#{formHelpText.mod_code}"/>
+    <p:selectOneMenu id="modCd" value="#{module.module.moduleCode}" required="true" >
+     <f:selectItems id="modCds" value="#{module.moduleCodes}"  />
+    </p:selectOneMenu>
+    <p:commandButton id="createBtn" value="#{formText.save}" 
+                                     actionListener="#{module.createBtnAction}"
+                                      update="messages"
+                                     />
+   </h:panelGrid>
+   </h:form>
+        </ui:define>
+    </ui:composition>
+
+

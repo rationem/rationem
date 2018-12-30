@@ -1,0 +1,651 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.fiGlStdJnlRev}</ui:define>
+ <ui:define name="header">#{pageTitle.fiGlStdJnlRev}</ui:define>
+ <ui:define name="content">
+  <h:form id="glJnlRevFrm" prependId="false">
+   <p:wizard  flowListener="#{glStdJnlDisplay.onDocListFlowProcess}">
+    <p:tab id="selOpts" title="#{formText.glGlStdSelOptTab}">
+     <p:panel header="#{formText.glGlStdSelOptPnl}">
+      <f:facet name="actions">
+       <p:commandButton styleClass="ui-panel-titlebar-icon ui-corner-all ui-state-default" 
+                        title="#{formText.clearInpt}" 
+                        icon="fa fa-file-o" actionListener="#{glStdJnlDisplay.onClearSelections}">
+        <p:resetInput target="selectionPg"/>
+       </p:commandButton>
+      </f:facet>
+      <p:messages autoUpdate="true"/>
+      <p:panelGrid id="selectionPg" styleClass="ui-noborder" >
+       <p:row>
+        <p:column>
+         <p:outputLabel for="compS1M" value="#{formText.docCompany}"/>
+        </p:column>
+        <p:column >
+         <p:selectOneMenu id="compS1M" value="#{glStdJnlDisplay.selectOpts.comp}"
+                        converter="com.rationem.util.converter.CompanyBasic" required="true">
+          <f:selectItems var="compSI" value="#{glStdJnlDisplay.compList}" itemValue="#{compSI}"
+                       itemLabel="#{compSI.reference}"/>
+         </p:selectOneMenu>
+        </p:column>
+        <p:column colspan="5">
+         <h:outputText id="compName" value="#{glStdJnlDisplay.selectOpts.comp.name}" styleClass="docDispl-txt"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.docDocDate}"/>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="docDtFr" value="#{formText.fromDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="docDtFr" value="#{glStdJnlDisplay.selectOpts.docDateFrom}" 
+                     mode="popup"  size="10" readonlyInput="true"
+                     navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                     locale="#{glStdJnlDisplay.selectOpts.comp.locale}" 
+                     valueChangeListener="#{glStdJnlDisplay.onDocDtFromChange}">
+          <p:ajax event="dateSelect"/>
+          <p:ajax event="change"/>
+         </p:calendar>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="docDtTo" value="#{formText.toDate}"/>
+        </p:column>
+        <p:column colspan="3">
+         <p:calendar id="docDtTo" value="#{glStdJnlDisplay.selectOpts.docDateTo}" 
+                     mode="popup"  size="10"  showOn="focus" readonlyInput="true"  
+                     navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                     locale="#{glStdJnlDisplay.selectOpts.comp.locale}" 
+                     mindate="#{glStdJnlDisplay.selectOpts.docDateFrom}"
+                     >
+          
+          <p:ajax event="dateSelect" />
+         </p:calendar>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.docPostDate}"/>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="postDtFr" value="#{formText.fromDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="postDtFr" value="#{glStdJnlDisplay.selectOpts.postDateFrom}" 
+                     mode="popup"  size="10" showOn="focus" readonlyInput="true"  
+                     navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                     locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                     valueChangeListener="#{glStdJnlDisplay.onPostDateFrChange}">
+          
+          <p:ajax event="dateSelect" />
+         </p:calendar>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="postDtTo" value="#{formText.toDate}"/>
+        </p:column>
+        <p:column colspan="3">
+         <p:calendar id="postDtTo" value="#{glStdJnlDisplay.selectOpts.postDateTo}" 
+                     mode="popup"  size="10"  showOn="focus" readonlyInput="true"  
+                     navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                     locale="#{glStdJnlDisplay.selectOpts.comp.locale}">
+          <p:ajax event="dateSelect" listener="#{glTemplateJnlDisplay.onDocDtFromSel}"/>
+         </p:calendar>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.docEntry}"/>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="entryDtFr" value="#{formText.fromDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="entryDtFr" value="#{glStdJnlDisplay.selectOpts.entryDateFrom}" 
+                     mode="popup"  size="10"  showOn="focus" readonlyInput="true"  
+                     navigator="true"   showOtherMonths="true" pattern="dd/MMM/yyyy"
+                     locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                     maxdate="#{glStdJnlDisplay.selectOpts.entryDateTo}"
+                     valueChangeListener="#{glStdJnlDisplay.onEntryDateFrChange}"
+                     >
+          
+          <p:ajax event="dateSelect"/>
+          
+         </p:calendar>
+         
+        </p:column>
+        <p:column>
+         <p:outputLabel for="entryDtTo" value="#{formText.toDate}"/>
+        </p:column>
+        <p:column>
+         <p:calendar id="entryDtTo" value="#{glStdJnlDisplay.selectOpts.entryDateTo}" 
+                     mode="popup"  size="10"  showOn="focus" readonlyInput="true"  
+                     navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                     locale="#{glStdJnlDisplay.selectOpts.comp.locale}">
+          
+          <p:ajax event="dateSelect" />
+         </p:calendar>
+        </p:column>
+        <p:column>
+         <p:outputLabel for="entryUsr" value="#{formText.enteredBy}"/>
+        </p:column>
+        <p:column>
+         <p:autoComplete id="entryUsr" value="#{glStdJnlDisplay.selectOpts.enteredBy}" dropdownMode="current"
+                        converter="com.rationem.util.converter.User" dropdown="true" var="usrAc"
+                        completeMethod="#{glStdJnlDisplay.onUserComplete}"
+                        itemValue="#{usrAc}" itemLabel="#{usrAc.nameStructured}"/>
+         <p:spacer width="25"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <p:outputLabel for="docTy" value="#{formText.docType}"/>
+        </p:column>
+        <p:column colspan="6">
+         <p:autoComplete id="docTy" value="#{glStdJnlDisplay.selectOpts.docType}" dropdownMode="current"
+                         completeMethod="#{glStdJnlDisplay.onDocTypeComplete}" dropdown="true"
+                         converter="com.rationem.util.converter.DocType" var="docTyV" itemValue="#{docTyV}"
+                         itemLabel="#{docTyV.code}"/>
+         
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column >
+         <p:outputLabel for="docHdrTxt" value="#{formText.docHdrTxt}"/>
+        </p:column>
+        <p:column colspan="3">
+         <p:inputText id="docHdrTxt" value="#{glStdJnlDisplay.selectOpts.docText}" size="40"/>
+        </p:column>
+       
+        <p:column>
+         <p:outputLabel for="ptnrRef" value="#{formText.docPtnrTxt}"/>
+        </p:column>
+        <p:column colspan="2" >
+         <p:inputText id="ptnrRef" value="#{glStdJnlDisplay.selectOpts.ptnrRef}" size="40"/>
+        </p:column>
+       </p:row>
+      </p:panelGrid>
+     </p:panel>
+    </p:tab>
+    <p:tab id="jnlList" title="#{formText.glGlStdSelOptListTab}">
+     <p:panel header="#{formText.glGlStdSelOptListTab}">
+      <p:contextMenu for="jnlListDt">
+       <p:menuitem value="#{formText.display}" icon="fa fa-binoculars" 
+                   actionListener="#{glStdJnlDisplay.onDocLineMenuDisp}"/>
+       <p:menuitem value="#{formText.edit}" icon="fa fa-edit" 
+                   
+                   actionListener="#{glStdJnlDisplay.onDocLineMenuEdit}"/>
+      </p:contextMenu>
+      <p:dataTable id="jnlListDt" value="#{glStdJnlDisplay.docList}" var="docHdr" 
+                   emptyMessage="#{validationText.fiDocListEmpty}" 
+                   dataLocale="#{glStdJnlDisplay.selectOpts.comp.locale}" rowKey="#{docHdr.id}"
+                   rows="#{glStdJnlDisplay.usrBuff.tblRows}" paginator="true"
+                   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                   paginatorAlwaysVisible="true" selectionMode="single"
+                   selection="#{glStdJnlDisplay.docSelected}">
+       <f:facet name="{Exporters}">
+        <h:commandLink style="float:right;"  >
+         <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+         
+         <p:dataExporter type="xls" target="jnlListDt" fileName="#{formText.docList_fn}" 
+                        postProcessor="#{glTemplateJnlDisplay.postProcessXLS}" />
+        </h:commandLink>
+        <h:commandLink style="float:right;">
+         <p:graphicImage name="/images/csv_text.png" width="24" />
+         <p:dataExporter type="csv" target="jnlListDt" fileName="#{formText.docList_fn}" />
+        </h:commandLink>
+       </f:facet>
+       <p:ajax event="contextMenu" listener="#{glStdJnlDisplay.onDocLineMenu}" />
+       <p:column width="50" sortBy="#{docHdr.docNumber}"  
+                 filterMatchMode="contains">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docNumber}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.docNumber}">
+         <f:convertNumber integerOnly="true"/>
+        </h:outputText>
+       </p:column>
+       <p:column  sortBy="#{docHdr.documentDate}" width="70">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docDate}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.documentDate}">
+         <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+       </p:column>
+       <p:column  sortBy="#{docHdr.postingDate}" width="70">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docPstDate}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.postingDate}">
+         <f:convertDateTime type="date" pattern="dd/MMM/yyyy"/>
+        </h:outputText>
+       </p:column>
+       <p:column sortBy="#{docHdr.fisYearPeriod}" filterBy="#{docHdr.fisYearPeriod}" 
+                 filterMatchMode="contains" width="70">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docFiscPer}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.fisYearPeriod}"/>
+       </p:column>
+       <p:column sortBy="#{docHdr.docType.code}" filterBy="#{docHdr.docType.code}" width="120"
+                 filterMatchMode="contains"  > 
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docTy}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.docType.code}" />
+       </p:column>
+       <p:column sortBy="#{docHdr.docHdrText}" filterBy="#{docHdr.docHdrText}" 
+                 filterMatchMode="contains"  > 
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docHdrText}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.docHdrText}" />
+       </p:column>
+       <p:column sortBy="#{docHdr.partnerRef}" filterBy="#{docHdr.partnerRef}" 
+                 filterMatchMode="contains"  > 
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docPtnrText}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.partnerRef}" />
+       </p:column>
+       <p:column sortBy="#{docHdr.reversed}"  width="50"  > 
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docRev}"/>
+        </f:facet>
+        <h:outputText value="#{docHdr.reversed ? formText.yes : formText.no}" />
+       </p:column>
+      </p:dataTable>
+     </p:panel>
+    </p:tab>
+   </p:wizard>
+  </h:form>
+  <h:form id="docDispFrm" prependId="false">
+   <p:dialog id="docDispDlg" widgetVar="docDispWv" dynamic="true" modal="true">
+    <f:facet name="header">
+     <h:outputText value="#{formText.docDisplDlgHdr}"/>
+     <p:spacer width="2"/>
+     <h:outputText value="#{glStdJnlDisplay.docSelected.docNumber}">
+      <f:convertNumber integerOnly="true" groupingUsed="false"/>
+     </h:outputText>
+    </f:facet>
+    <p:accordionPanel dynamic="true">
+     <p:tab title="#{formText.docHdr}">
+      <p:panelGrid id="docHdtPg" styleClass="ui-noborder">
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.docDocDate}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.documentDate}">
+          <f:convertDateTime type="date" locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                             pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.docTaxDate}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.taxDate}">
+          <f:convertDateTime type="date" locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                             pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.docCompany}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.company.reference}"/>
+        </p:column>
+        <p:column style="text-align: center;">
+         <h:outputText value="#{formText.docNotes}" />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.docPostDate}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.postingDate}">
+          <f:convertDateTime type="date" locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                             pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.fisPerCntrl_period}"/>
+        </p:column>
+        <p:column  colspan="3">
+         <h:outputText value="#{glStdJnlDisplay.docSelected.fisYearPeriod}"/>
+        </p:column> 
+        <p:column rowspan="4">
+         <p:editor value="#{glStdJnlDisplay.docSelected.notes}" controls="copy print" 
+                      height="150" disabled="true"      />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+        
+         <h:outputText value="#{formText.docType}"/>
+        </p:column>
+        <p:column  colspan="5">
+         <h:outputText  value="#{glStdJnlDisplay.docSelected.docType.code}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText  value="#{formText.docPtnrTxt}"/>
+        </p:column>
+        <p:column colspan="5">
+         <h:outputText value="#{glStdJnlDisplay.docSelected.partnerRef}" title="#{formHelpText.docPtnrTxt}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column >
+         <h:outputText value="#{formText.docHdrTxt}"/>
+        </p:column>
+        <p:column colspan="5">
+         <h:outputText value="#{glStdJnlDisplay.docSelected.docHdrText}"  title="#{formHelpText.docHdrTxt}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column colspan="6"/>
+       </p:row>
+      </p:panelGrid>
+     </p:tab>
+     <p:tab title="#{formText.docLines}">
+      <p:dataTable var="line" value="#{glStdJnlDisplay.docSelected.docLines}" reflow="true" 
+                   rowExpandMode="single">
+       <p:column style="width:16px">
+        <p:rowToggler />
+       </p:column>
+       <p:column width="30" sortBy="#{line.lineNum}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLineNum}"/>
+        </f:facet>
+        <h:outputText value="#{line.lineNum}">
+         <f:convertNumber integerOnly="true" groupingUsed="false"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="70" sortBy="#{line.glAccount.coaAccount.ref}" >
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLineAcnt}"/>
+        </f:facet>
+        <h:outputText value="#{line.glAccount.coaAccount.ref}"/>
+       </p:column>
+       <p:column width="50" sortBy="#{line.postType.postTypeCode}">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docPostCode}"/>
+        </f:facet>
+        <h:outputText value="#{line.postType.postTypeCode}"/>
+       </p:column>
+       <p:column sortBy="#{line.sortOrder}">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docDefSort}"/>
+        </f:facet>
+        <h:outputText value="#{line.sortOrder}"/>
+       </p:column>
+       <p:column  sortBy="#{line.lineText}">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docLnTxt}"/>
+        </f:facet>
+        <h:outputText value="#{line.lineText}"/>
+       </p:column>
+       <p:column width="120" styleClass="column-financialValue" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.docDebit}"/>
+        </f:facet>
+        <h:outputText value="#{line.docAmount}" rendered="#{line.postType.debit}">
+         <f:convertNumber type="number" minIntegerDigits="1" 
+                          minFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          maxFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          locale="#{glStdJnlDisplay.selectOpts.comp.locale}"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="120" styleClass="column-financialValue" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.docCredit}"/>
+        </f:facet>
+        <h:outputText value="#{line.docAmount}" rendered="#{!line.postType.debit}">
+         <f:convertNumber type="number" minIntegerDigits="1" 
+                          minFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          maxFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          locale="#{glStdJnlDisplay.selectOpts.comp.locale}"/>
+        </h:outputText>
+       </p:column>
+       <p:rowExpansion>
+        <p:panelGrid columns="6" columnClasses="docEditAddDescr,docEditAddValue"   >
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.expand}"/>
+         </f:facet>
+         
+           <h:outputText value="#{formText.restFnd}:"/>
+         
+           <h:outputText value="#{line.restrictedFund.fndCode}"/>
+         
+           <h:outputText value="#{formText.docLineCostCent}:"/>
+         
+           <h:outputText value="#{line.costCentre.refrence}"/>
+         
+           <h:outputText value="#{formText.docLineProg}:"/>
+         
+           <h:outputText value="#{line.programme.reference}"/>
+         
+        </p:panelGrid>
+        
+       </p:rowExpansion> 
+      </p:dataTable>
+     </p:tab>
+    </p:accordionPanel>
+    
+   </p:dialog>
+  </h:form>
+  <h:form id="docEditFrm" prependId="false">
+   <p:dialog id="docEditDlg" widgetVar="docEditWv" position="center" modal="true" width="1000">
+    <f:facet name="header">
+     <h:outputText value="#{formText.docEditDlg}"/>
+     <p:spacer width="4"/>
+     <h:outputText value="#{glStdJnlDisplay.docSelected.docNumber}"/>
+    </f:facet>
+    <p:toolbar>
+     <f:facet name="left">
+      <p:commandButton value="#{formText.transfer}" actionListener="#{glStdJnlDisplay.onDocChangeSave}"/>
+      <p:commandButton type="button" value="#{formText.cancel}" onclick="PF('docEditWv').hide()" />
+     </f:facet>
+    </p:toolbar>
+    <p:accordionPanel dynamic="true">
+     <p:tab title="#{formText.docHdr}">
+      <p:panelGrid id="docHdrEdPg" styleClass="ui-noborder">
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.docDocDate}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.documentDate}">
+          <f:convertDateTime type="date" locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                             pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.docTaxDate}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.taxDate}">
+          <f:convertDateTime type="date" locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                             pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.docCompany}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.company.reference}"/>
+        </p:column>
+        <p:column style="text-align: center;">
+         <h:outputText value="#{formText.docNotes}" />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText value="#{formText.docPostDate}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{glStdJnlDisplay.docSelected.postingDate}">
+          <f:convertDateTime type="date" locale="#{glStdJnlDisplay.selectOpts.comp.locale}"
+                             pattern="dd/MMM/yyyy"/>
+         </h:outputText>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{formText.fisPerCntrl_period}"/>
+        </p:column>
+        <p:column  colspan="3">
+         <h:outputText value="#{glStdJnlDisplay.docSelected.fisYearPeriod}"/>
+        </p:column> 
+        <p:column rowspan="4">
+         <p:editor value="#{glStdJnlDisplay.docSelected.notes}" 
+            controls="bold italic underline strikethrough bullets numbering outdent indent alignleft center justify alignright rule copy paste pastetext cut font size style color highlight undo redo "
+                      height="150"       />
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+        
+         <h:outputText value="#{formText.docType}"/>
+        </p:column>
+        <p:column  colspan="5">
+         <h:outputText  value="#{glStdJnlDisplay.docSelected.docType.code}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column>
+         <h:outputText  value="#{formText.docPtnrTxt}"/>
+        </p:column>
+        <p:column colspan="5">
+         <p:inputText value="#{glStdJnlDisplay.docSelected.partnerRef}" title="#{formHelpText.docPtnrTxt}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column >
+         <h:outputText value="#{formText.docHdrTxt}"/>
+        </p:column>
+        <p:column colspan="5">
+         <p:inputText value="#{glStdJnlDisplay.docSelected.docHdrText}"  title="#{formHelpText.docHdrTxt}"/>
+        </p:column>
+       </p:row>
+       <p:row>
+        <p:column colspan="6"/>
+       </p:row>
+      </p:panelGrid>
+     </p:tab>
+     <p:tab title="#{formText.docLines}">
+      <p:dataTable var="lineEd" value="#{glStdJnlDisplay.docSelected.docLines}" reflow="true" 
+                   rowExpandMode="single" editable="true" editMode="row">
+       <p:column style="width:16px">
+        <p:rowToggler />
+       </p:column>
+       <p:column width="30" sortBy="#{lineEd.lineNum}">
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLineNum}"/>
+        </f:facet>
+        <h:outputText value="#{lineEd.lineNum}">
+         <f:convertNumber integerOnly="true" groupingUsed="false"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="70" sortBy="#{lineEd.glAccount.coaAccount.ref}" >
+        <f:facet name="header">
+         <h:outputText value="#{listHeading.docLineAcnt}"/>
+        </f:facet>
+        <h:outputText value="#{lineEd.glAccount.coaAccount.ref}"/>
+       </p:column>
+       <p:column width="50" sortBy="#{lineEd.postType.postTypeCode}">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docPostCode}"/>
+        </f:facet>
+        <h:outputText value="#{lineEd.postType.postTypeCode}"/>
+       </p:column>
+       <p:column sortBy="#{lineEd.sortOrder}">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docDefSort}"/>
+        </f:facet>
+        <p:cellEditor>
+         <f:facet name="output">
+          <h:outputText value="#{lineEd.sortOrder}"/>
+         </f:facet>
+         <f:facet name="input">
+          <p:inputText value="#{lineEd.sortOrder}"/>
+         </f:facet>
+        </p:cellEditor>
+        
+       </p:column>
+       <p:column  sortBy="#{lineEd.lineText}">
+        <f:facet name="header">
+         <h:outputText value="#{formText.docLnTxt}"/>
+        </f:facet>
+        <p:cellEditor>
+         <f:facet name="output">
+          <h:outputText value="#{lineEd.lineText}"/>
+         </f:facet>
+         <f:facet name="input">
+          <p:inputText value="#{lineEd.lineText}"/>
+         </f:facet>
+        </p:cellEditor>
+        
+       </p:column>
+       
+       <p:column width="120" styleClass="column-financialValue" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.docDebit}"/>
+        </f:facet>
+        <h:outputText value="#{lineEd.docAmount}" rendered="#{lineEd.postType.debit}">
+         <f:convertNumber type="number" minIntegerDigits="1" 
+                          minFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          maxFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          locale="#{glStdJnlDisplay.selectOpts.comp.locale}"/>
+        </h:outputText>
+       </p:column>
+       <p:column width="120" styleClass="column-financialValue" >
+        <f:facet name="header">
+         <h:outputText value="#{formText.docCredit}"/>
+        </f:facet>
+        <h:outputText value="#{lineEd.docAmount}" rendered="#{!line.postType.debit}">
+         <f:convertNumber type="number" minIntegerDigits="1" 
+                          minFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          maxFractionDigits="#{glStdJnlDisplay.selectOpts.comp.currency.minorUnit}"
+                          locale="#{glStdJnlDisplay.selectOpts.comp.locale}"/>
+        </h:outputText>
+       </p:column>
+       <p:column>
+        <p:rowEditor />
+       </p:column>
+       <p:rowExpansion>
+        <p:panelGrid columns="6" columnClasses="docEditAddDescr,docEditAddValue"   >
+         <f:facet name="header">
+          <h:outputText value="#{listHeading.expand}"/>
+         </f:facet>
+         
+           <h:outputText value="#{formText.restFnd}:"/>
+         
+           <h:outputText value="#{lineEd.restrictedFund.fndCode}"/>
+         
+           <h:outputText value="#{formText.docLineCostCent}:"/>
+         
+           <h:outputText value="#{lineEd.costCentre.refrence}"/>
+         
+           <h:outputText value="#{formText.docLineProg}:"/>
+         
+           <h:outputText value="#{lineEd.programme.reference}"/>
+         
+        </p:panelGrid>
+        
+       </p:rowExpansion> 
+      </p:dataTable>
+     </p:tab>
+    </p:accordionPanel>
+   </p:dialog>
+  </h:form>
+  
+   
+ </ui:define>
+</ui:composition>

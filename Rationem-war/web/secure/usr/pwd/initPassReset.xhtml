@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                template="/WEB-INF/templateDialog.xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+ 
+ 
+ <ui:define name="title">#{formText.usrPwdCh} - #{authManBean.usrLogin.logonName} </ui:define>
+ <ui:define name="header">#{formText.usrPwdCh} - #{authManBean.usrLogin.logonName}</ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   
+     <h:form id="initPassResetFrm" >
+      <p:messages  showDetail="true" >
+        <p:autoUpdate />
+      </p:messages>
+      <p:panel closable="false" >
+       <f:facet name="header">
+        <h:outputText value="#{listHeading.usrLoginIntPwReset}"/>
+       </f:facet>
+       <h:outputText value="#{validationText.userPwLevel}" />
+       <p:panelGrid id="pwdGrid" layout="grid" columns="2" columnClasses="ui-grid-col-2, ui-grid-col-2"
+                    styleClass="ui-panelgrid-blank">
+        <p:outputLabel for="pwd1" value="#{formText.usrPwd}"/>
+        <p:inputText id="pwd1" value="#{authManBean.initPwd1}"   
+                      />
+        <p:outputLabel for="pwd2" value="#{formText.usrPwdRep}"/>
+        <p:inputText id="pwd2" value="#{authManBean.initPwd2}"  
+                    />
+        <p:commandButton icon="fa fa-floppy-o" value="#{formText.save}" 
+                        action="#{authManBean.onUpdatePwAction}"
+                        process="initPassResetFrm"
+                        />
+        
+       </p:panelGrid>
+       </p:panel>
+     </h:form>
+  
+  </div>
+ </ui:define>
+</ui:composition>

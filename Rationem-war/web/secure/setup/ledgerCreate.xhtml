@@ -1,0 +1,41 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="title">#{pageTitle.cfg_ledgerCr}</ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_ledgerCr}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="ledgerFrm">
+   <p:focus for="ldrName"/>
+   <p:panelGrid id="ledCrPG" columns="2">
+    
+    <p:outputLabel for="ldrName" value="#{formText.ldgrName}" />
+    <p:inputText id="ldrName" value="#{ledgerBean.ledger.name}" size="10" 
+                 title="#{formHelpText.ldgrName}" required="true" requiredMessage="#{validationText.ldgr_NameReq}">
+       <f:ajax listener="#{ledgerBean.ajaxFieldCheck}"/>
+     </p:inputText>
+     
+     <p:outputLabel for="ldrDescr" value="#{formText.ldgrDescr}"/>
+     <p:inputText id="ldrDescr" value="#{ledgerBean.ledger.descr}" size="50"
+                                 title="#{formHelpText.ldgrDescr}"
+                                 required="true"
+                                 requiredMessage="#{validationText.ldgr_DescrRq}"
+                                 />
+     <p:outputLabel for="ldgrCd" value="#{formText.ldrUsgCd}"  />
+     <p:inputText id="ldgrCd" value="#{ledgerBean.ledger.code}" size="10"
+                                 title="#{formHelpText.ldrUsgCd}"
+                                 required="true" 
+                                 requiredMessage="#{validationText.ldgr_CodeRq}"/>
+     
+    </p:panelGrid>
+    <p:commandButton value="#{formText.save}" actionListener="#{ledgerBean.saveNewLedger}"
+                     update="ledCrPG"/>
+   </h:form>
+  </ui:define>
+</ui:composition>
+
+

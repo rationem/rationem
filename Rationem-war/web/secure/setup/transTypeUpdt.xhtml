@@ -1,0 +1,142 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    template="/WEB-INF/template.xhtml"
+    >
+ <ui:define name="title"><h:outputText value="#{pageTitle.cfg_transTyUpdt}" /></ui:define>
+ <ui:define name="header">
+  <h:outputText value="#{pageTitle.cfg_transTyUpdt}" styleClass="panelHeader" />
+ </ui:define>
+ <ui:define name="content">
+  <h:form id="tranTyCrFrm" prependId="false" >
+   
+   <p:contextMenu for="transTypes">
+    <p:menuitem icon="ui-icon-pencil" value="#{formText.edit}" actionListener="#{transTypeBean.onEditTransTypeDlg}"/>
+   </p:contextMenu>
+   
+   <p:dataTable id="transTypes" value="#{transTypeBean.transTypes}" var="tranType" selection="#{transTypeBean.transTypeSelected}" 
+                emptyMessage="#{validationText.transTypesNone}" rowKey="#{tranType.id}" selectionMode="single"
+                filteredValue="#{transTypeBean.transTypesFiltered}" paginator="true" rows="#{transTypeBean.usrBuff.tblRows}"
+                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                sortBy="#{tranType.code}">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.transTypes}"/>
+     
+    </f:facet>
+    <f:facet name="{Exporters}">
+     <p:spacer width="20" height="1"/>
+     <h:commandLink  >
+        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+        <p:dataExporter type="xls" target="transTypes" fileName="#{formText.transTypFn}" postProcessor="#{transTypeBean.postProcessXLS}" />
+     </h:commandLink>
+     <h:commandLink >
+        <p:graphicImage name="/images/csv_text.png" width="24"/>
+        <p:dataExporter type="csv" target="transTypes" fileName="#{formText.transTypFn}" />
+     </h:commandLink>
+    
+    </f:facet>
+    
+    
+    <p:column width="30" sortBy="#{tranType.code}" filterBy="#{tranType.code}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{formText.transTypeCode}"/>
+     </f:facet>
+     <h:outputText value="#{tranType.code}"/>
+    </p:column>
+    <p:column width="80" sortBy="#{tranType.shortDescription}" filterBy="#{tranType.shortDescription}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{formText.transTypeName}"/>
+     </f:facet>
+     <h:outputText value="#{tranType.shortDescription}"/>
+    </p:column>
+    <p:column width="300" sortBy="#{tranType.description}" filterBy="#{tranType.description}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{formText.transTypDescr}"/>
+     </f:facet>
+     <h:outputText value="#{tranType.description}"/>
+    </p:column>
+    <p:column width="70" sortBy="#{tranType.ledger.descr}" filterBy="#{tranType.ledger.descr}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{formText.transTypLed}"/>
+     </f:facet>
+     <h:outputText value="#{tranType.ledger.descr}"/>
+    </p:column>
+    <p:column width="40" sortBy="#{tranType.processCode}" filterBy="#{tranType.processCode}" filterMatchMode="contains">
+     <f:facet name="header">
+      <h:outputText value="#{formText.transTypProcCd}"/>
+     </f:facet>
+     <h:outputText value="#{tranType.processCode}"/>
+    </p:column>
+   </p:dataTable>
+   
+  </h:form>
+  <p:dialog id="editDlgId" widgetVar="editDlgWv" dynamic="true" modal="true">
+   <f:facet name="header">
+    <h:outputText value="#{formText.transEdDlgHdr}"/>
+   </f:facet>
+   <h:form id="editFrmId" prependId="false">
+    
+    <p:panelGrid styleClass="panelNoBorders">
+    <p:row>
+     <p:column>
+      <p:outputLabel id="codeLblEdit" for="codeEdit" value="#{formText.transTypeCode}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="codeEdit" value="#{transTypeBean.transTypeSelected.code}" size="5"
+                   required="true" requiredMessage="#{validationText.transTyCode}"
+                   validator="#{transTypeBean.onValidateTransTypeCodeChange}" validatorMessage="#{validationText.transTyCdUniq}">
+       <p:ajax event="change"/>
+      </p:inputText>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="nameEdit" value="#{formText.transTypeName}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="nameEdit" value="#{transTypeBean.transTypeSelected.shortDescription}" size="10"
+                   required="true" requiredMessage="#{validationText.transTyName}"/>
+     </p:column>
+    </p:row>
+    <p:row >
+     <p:column>
+      <p:outputLabel for="descrEdit" value="#{formText.transTypDescr}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="descrEdit" value="#{transTypeBean.transTypeSelected.description}" size="40"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="ledgerEdit" value="#{formText.transTypLed}"/>
+     </p:column>
+     <p:column>
+      <p:selectOneMenu id="ledgerEdit" value="#{transTypeBean.transTypeSelected.ledger}" converter="com.rationem.util.converter.Ledger">
+       <f:selectItems var="led" value="#{transTypeBean.ledgers}" itemValue="#{led}" itemLabel="#{led.name}"/>
+      </p:selectOneMenu>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column>
+      <p:outputLabel for="procCodeEdit" value="#{formText.transTypProcCd}"/>
+     </p:column>
+     <p:column>
+      <p:inputText id="procCodeEdit" value="#{transTypeBean.transTypeSelected.processCode}" required="true" size='5'
+                   requiredMessage="#{validationText.transTyProcCd}"/>
+     </p:column>
+    </p:row>
+    <p:row>
+     <p:column colspan="2">
+      <p:commandButton id="updtTrf" icon="ui-icon-arrowthick-1-w" value="#{formText.transfer}" actionListener="#{transTypeBean.onSaveTransfer}"/>
+      <p:spacer width="10"/>
+      <p:commandButton id="updrClse" icon="ui-icon-close" value="#{formText.close}" type="button" onclick="PF('editDlgWv').hide();"/>
+     </p:column> 
+    </p:row>
+   </p:panelGrid>
+   </h:form>
+  </p:dialog>
+ </ui:define>
+</ui:composition>
