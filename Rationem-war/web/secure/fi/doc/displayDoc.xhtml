@@ -11,7 +11,9 @@
   <div class="ui-fluid">
    <div class="ui-g">
     <div class="ui-g-12">
-     <p:growl autoUpdate="true"/> 
+     <p:growl >
+      <p:autoUpdate />
+     </p:growl>
      <h:form id="docDispFrm" >
       <div class="card">
        <p:panelGrid id="selGd" columns="2" layout="grid" columnClasses="ui-grid-col-1,ui-grid-col-2" >
@@ -22,13 +24,15 @@
         <p:selectOneMenu id="docCompMnu" value="#{docDisplay.comp}" 
                      converter="com.rationem.util.converter.CompanyBasic">
          <f:selectItems value="#{docDisplay.compList}" var="compV" itemValue="#{compV}" 
-                    itemLabel="#{compV.reference}" />
+                        itemLabel="#{compV.reference}" />
+         <p:ajax event="itemSelect" />
         </p:selectOneMenu>
         <p:outputLabel for="docNumAc" value="#{formText.docNum}"/>
-        <p:autoComplete id="docNumAc" value="#{docDisplay.docSel}"   
-                    completeMethod="#{docDisplay.docComplete}" 
-                    converter="com.rationem.util.converter.DocFi" dropdown="true" var="docVar" forceSelection="true" 
-                    itemValue="#{docVar}" itemLabel="#{docVar.docNumber}"  >
+        <p:autoComplete 
+         id="docNumAc" value="#{docDisplay.docSel}" completeMethod="#{docDisplay.onDocComplete}"
+         converter="com.rationem.util.converter.DocFi" dropdown="true" var="docVar" 
+         forceSelection="true" emptyMessage="#{validationText.docDispDocsNon}"
+         itemValue="#{docVar}" itemLabel="#{docVar.docNumber}"  >
          <p:ajax event="itemSelect" listener="#{docDisplay.onDocSelectCompl}" update="docDispFrm" />
          <f:facet name="itemtip">
           <h:panelGrid columns="2" cellpadding="1">
@@ -53,16 +57,16 @@
       <p:outputPanel id="docHdrFs">
        <div class="card">
         <p:panelGrid rendered="#{docDisplay.docSelected}" layout="grid" columns="1" 
-                     columnClasses="ui-grid-col-12"  >
+                     columnClasses="ui-grid-col-12"   >
          <f:facet name="header">
           <h:outputText value="#{formText.docDetails}" />
          </f:facet>
-        <p:panel header="#{formText.docHdr}" toggleable="true"  >
-         <p:tabView id="docHdrTv" orientation="top" dynamic="true">
+         <p:panel header="#{formText.docHdr}" toggleable="true" styleClass="ui-noborder"  >
+          <p:tabView id="docHdrTv" orientation="top" dynamic="true">
           <p:tab title="#{formText.docEntryBasicTab}">
          <p:panelGrid 
-           columns="6" layout="grid" 
-           columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2 ">
+          columns="6" layout="grid"   styleClass="ui-noborder"
+          columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2 ">
           <f:facet name="header">
            <h:outputText value="#{formText.docHeaderPnl}"/>
           </f:facet>
@@ -177,8 +181,10 @@
       </p:panel>
       
       <p:panel header="#{formText.docLines}" toggleable="true" collapsed="true" >
-       <p:messages autoUpdate="true"/>
-       
+       <p:messages >
+        <p:autoUpdate  />
+       </p:messages>
+
        <p:dataTable id="docLines" var="docLineVar" value="#{docDisplay.docSel.docLines}" 
                     emptyMessage="#{validationText.docDisplNoLn}" selectionMode="single" paginator="true" 
                     selection="#{docDisplay.docLineSel}" paginatorAlwaysVisible="true"
@@ -257,12 +263,14 @@
     </h:form>
     
      <h:form id="dispLineFrm">
-     <p:dialog id="dispLineDlg"  closable="false"
-               header="#{docDisplay.docLineSel.postType.ledger.name} - #{formText.docLineDetail} #{docDisplay.docLineSel.lineNum} " 
-               dynamic="true" modal="true" responsive="true"  
-               widgetVar="displLineWvar">
-      <h:panelGrid id="dispArGd" columns="2" width="100%"  rendered="#{docDisplay.docLineClass eq 'DocLineArRec'}">
-       <p:outputLabel for="dispLineTypeAr" value="#{formText.docLineType}"/>
+      <p:dialog 
+       id="dispLineDlg"  closable="false" dynamic="true" modal="true" responsive="true"
+       header="#{docDisplay.docLineSel.postType.ledger.name} - #{formText.docLineDetail} #{docDisplay.docLineSel.lineNum} " 
+       widgetVar="displLineWvar">
+       <p:panelGrid
+        id="dispArGd" columns="2" layout="grid" columnClasses="ui-grid-col-3, ui-grid-col-4"
+        rendered="#{docDisplay.docLineClass eq 'DocLineArRec'}">
+        <p:outputLabel for="dispLineTypeAr" value="#{formText.docLineType}"/>
        <h:outputText id="dispLineTypeAr" 
                      value="#{docDisplay.docLineSel.postType.description}"/>
        <p:outputLabel for="dispArDocNum" value="#{formText.docNum}"/>
@@ -307,8 +315,10 @@
        <p:outputLabel for="recLinesAr" value="#{formText.docReconDocs}"/>
        <h:panelGroup>
        <p:commandButton id="recLinesAr" icon="ui-icon-info" />
-       <p:overlayPanel for="recLinesAr" my="right botton" appendToBody="left top">
-        <p:dataTable id="recLines" value="#{docDisplay.docLineReconLines}" var="recLine" 
+       <p:overlayPanel for="recLinesAr"  dismissable="false" modal="true"
+                       showCloseIcon="true"   >
+        <p:outputPanel id="reconLinesOp"  style="width:600px">
+         <p:dataTable id="recLines" value="#{docDisplay.docLineReconLines}" var="recLine" 
                      rows="#{docDisplay.usrBuff.tblRows}" >
          <f:facet name="header">
           <h:outputText value="#{formText.docReconDocs}"/>
@@ -325,14 +335,20 @@
           </f:facet>
           <h:outputText value="#{recLine.restrictedFund.fndCode}"/>
          </p:column>
-         <p:column >
+         <p:column class="text-align: right;" >
           <f:facet name="header">
            <h:outputText value="#{formText.docAmnt}"/>
           </f:facet>
           <h:outputText value="#{recLine.debitValue}" rendered="#{recLine.postType.debit}"/>
           <h:outputText value="#{recLine.creditValue}" rendered="#{!recLine.postType.debit}"/>
+          <h:outputText  value="#{recLine.docAmount}" >
+           <f:convertNumber type="number" locale="#{docDisplay.comp.locale}" minIntegerDigits="1"
+                            maxFractionDigits="#{docDisplay.comp.currency.minorUnit}"
+                            minFractionDigits="#{docDisplay.comp.currency.minorUnit}"/>
+          </h:outputText>
          </p:column>
         </p:dataTable>
+        </p:outputPanel>
        </p:overlayPanel>
       </h:panelGroup>
       <p:outputLabel for="clearingFor" value="#{formText.docLineClr4Doc}" rendered="#{docDisplay.docLineSel.clearingLine}"/>
@@ -374,8 +390,10 @@
        <h:outputText id="dispRef1Ar" value="#{docDisplay.docLineSel.reference1}"/>
        <p:outputLabel for="dispRef2Ar" value="#{formText.docRef2}"/>
        <h:outputText id="dispRef2Ar" value="#{docDisplay.docLineSel.reference2}"/>
-      </h:panelGrid>
-      
+       <p:commandButton type="button" value="#{formText.close}" icon="fa fa-window-close-o"
+                        onclick="PF('displLineWvar').hide()" />
+       </p:panelGrid>
+
       <p:panelGrid 
        id="dispGlGd" columns="2" columnClasses="ui-grid-col-5,ui-grid-col-8" layout="grid" 
         rendered="#{docDisplay.docLineClass eq 'DocLineGLRec'}">
@@ -422,8 +440,8 @@
        <h:outputText id="dispRef1" value="#{docDisplay.docLineSel.reference1}"/>
        <p:outputLabel for="dispRef2" value="#{formText.docRef2}"/>
        <h:outputText id="dispRef2" value="#{docDisplay.docLineSel.reference2}"/>
-       <p:commandButton type="button" value="#{formText.close}" icon="fa fa-window-close-o" 
-                       onclick="PF('displLineWvar').hide()" />
+       <p:commandButton type="button" value="#{formText.close}" icon="fa fa-window-close-o"
+                        onclick="PF('displLineWvar').hide()" />
       </p:panelGrid>
       
       <p:panelGrid 
@@ -536,14 +554,24 @@
        <p:commandButton type="button" value="#{formText.close}" icon="fa fa-window-close-o" 
                        onclick="PF('displLineWvar').hide()" />
       </p:panelGrid>
+      <p:panelGrid
+       id="dispGlLnPg" columns="4" columnClasses="ui-grid-col-5,ui-grid-col-8" layout="grid"
+       rendered="#{docDisplay.docLineClass eq 'DocLineGlRec'}">
+       <h:outputText value="#{formText.glAccountAccount}"/>
+       <h:outputText value="#{docDisplay.docLineGlSel.accountRef}"/>
+       <h:outputText value="#{formText.docAmnt}"/>
+       <h:outputText value="#{docDisplay.docLineGlSel.docAmount}"/>
+       <p:commandButton type="button" value="#{formText.close}" icon="fa fa-window-close-o"
+                        onclick="PF('displLineWvar').hide()" />
+      </p:panelGrid>
+
       
-       
-      
-     </p:dialog> 
+
+     </p:dialog>
     </h:form>
     </div>
-    </div>
-    </div>
+   </div>
+  </div>
  </ui:define>
 </ui:composition>
 

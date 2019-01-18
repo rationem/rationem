@@ -283,7 +283,7 @@ public class ApDocPost extends BaseBean {
  }
 
  public List<FundBalance> getFundBalForDoc(List<DocLineBaseRec> lines){
-  LOGGER.log(INFO, "getFundBalForDoc called with num lines {0}", lines.size());
+  LOGGER.log(INFO, "getFundBalForDoc called with num lines {0}", lines);
   if(lines == null){
    return null;
    

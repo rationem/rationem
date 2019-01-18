@@ -1333,6 +1333,7 @@ public PartnerRoleRec getPartnerRoleByCode(String code){
   }
 
  public List<CompanyFiscalPeriodYearForDate> getCompFiscalPerYrForDate() {
+  LOGGER.log(INFO,"getCompFiscalPerYrForDate {0}",compFiscalPerYrForDate);
   if(compFiscalPerYrForDate == null){
    compFiscalPerYrForDate = new ArrayList<> (PERIOD_LIST_SIZE);
    
@@ -1343,21 +1344,25 @@ public PartnerRoleRec getPartnerRoleByCode(String code){
  
  public FiscalPeriodYearRec getCompFiscalPeriodYearForDate(CompanyBasicRec comp, Date date){
   LOGGER.log(INFO, "chart of accounts {0}", comp.getChartOfAccounts().getId());
-  
+  LOGGER.log(INFO, "compFiscalPerYrForDate {0}", compFiscalPerYrForDate);
   if(compFiscalPerYrForDate == null){
    compFiscalPerYrForDate = new ArrayList<>();
   }
   
   for(CompanyFiscalPeriodYearForDate curr:compFiscalPerYrForDate){
+   LOGGER.log(INFO, "curr fis yr {0} Period {1}", 
+     new Object[]{curr.getFisPeriodYear().getYear(),curr.getFisPeriodYear().getPeriod()});
    if(Objects.equals(curr.getComp().getId(), comp.getId()) && curr.getDate().equals(date)){
     LOGGER.log(INFO, "Found fis per in buff date {0}", curr.getDate());
+    LOGGER.log(INFO, "Fisc Period {0} year {1}", 
+      new Object[]{curr.getFisPeriodYear().getPeriod(),curr.getFisPeriodYear().getYear()});
     return curr.getFisPeriodYear();
    }
   }
   
   LOGGER.log(INFO, "Need to determine fis per");
    ChartOfAccountsRec chart = comp.getChartOfAccounts();
-   LOGGER.log(INFO, "Period rule id {0}", comp.getChartOfAccounts().getPeriodRule());
+   LOGGER.log(INFO, "Period rule  {0}", comp.getChartOfAccounts().getPeriodRule());
     FisPeriodRuleRec perRule = comp.getChartOfAccounts().getPeriodRule();
    if(perRule == null){
     // need to get period rule
@@ -1367,7 +1372,7 @@ public PartnerRoleRec getPartnerRoleByCode(String code){
     ListIterator<CompanyBasicRec> compLi = this.companies.listIterator();
     while(compLi.hasNext() && !compFound){
      CompanyBasicRec curr = compLi.next();
-     if(curr.getId() == comp.getId()){
+     if(Objects.equals(curr.getId(), comp.getId()) ){
       compFound = true;
       compLi.set(comp);
      }
@@ -1410,6 +1415,8 @@ public PartnerRoleRec getPartnerRoleByCode(String code){
    
   }else{
    LOGGER.log(INFO, "Natural calendar");
+   fisPer.setYear(cal.get(Calendar.YEAR));
+   fisPer.setPeriod(cal.get(Calendar.MONTH) + 1);
   }
   CompanyFiscalPeriodYearForDate compFisPer = new CompanyFiscalPeriodYearForDate();
   compFisPer.setComp(comp);
@@ -1428,6 +1435,7 @@ public PartnerRoleRec getPartnerRoleByCode(String code){
  }
 
  public void setCompFiscalPerYrForDate(List<CompanyFiscalPeriodYearForDate> compFiscalPerYrForDate) {
+  LOGGER.log(INFO, "setCompFiscalPerYrForDate called with {0}", compFiscalPerYrForDate);
   this.compFiscalPerYrForDate = compFiscalPerYrForDate;
  }
 

@@ -3226,7 +3226,14 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
    line.setDueDate(rec.getDueDate());
    line.setHomeAmount(rec.getHomeAmount());
    // set AR line text to doc header text
-   line.setLineText(hdr.getDocHdrText());
+   if(StringUtils.isBlank(rec.getLineText())){
+    line.setLineText(hdr.getDocHdrText());
+   }else{
+    line.setLineText(rec.getLineText());
+   }
+   LOGGER.log(INFO, "rec header text {0} rec line text {1} db line text {2}", new Object[]{
+    hdr.getDocHdrText(), rec.getLineText(), line.getLineText() });
+   
    line.setNotes(rec.getNotes());
    if(rec.getPayTerms() != null){
     LOGGER.log(INFO, "Pay terms {0}", rec.getPayTerms());
@@ -3459,7 +3466,13 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
    l.setDueDate(rec.getDueDate());
    l.setHomeAmount(rec.getHomeAmount());
    // set AR line text to doc header text
-   l.setLineText(docHdr.getDocHdrText());
+   if(StringUtils.isBlank(rec.getLineText())){
+    l.setLineText(docHdr.getDocHdrText());
+   }else{
+    l.setLineText(rec.getLineText());
+   }
+   LOGGER.log(INFO, "Rec header text {0} line text {1} db line text {2}", new Object[]{
+    docHdr.getDocHdrText(), rec.getLineText(), l.getLineText()});
    l.setNotes(rec.getNotes());
    if(rec.getPayTerms() != null){
     LOGGER.log(INFO, "Pay terms {0}", rec.getPayTerms());
@@ -3681,6 +3694,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
    return l;
   }
   private DocLineArRec buildDocLineArRecMin(DocLineAr ln){
+   LOGGER.log(INFO, "Called buildDocLineArRecMin with ln id {0}", ln.getId());
    DocLineArRec rec  = new DocLineArRec();
    rec.setId(ln.getId());
    rec.setAccountRef(ln.getArAccount().getAccountCode());
@@ -3708,7 +3722,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
    rec.setGiftAid(ln.isGiftAid());
    rec.setHomeAmount(ln.getHomeAmount());
    rec.setLineNum(ln.getLineNum());
-   rec.setLineText(rec.getLineText());
+   rec.setLineText(ln.getLineText());
    rec.setNotes(ln.getNotes());
    rec.setOrginalAmount(ln.getOrginalAmount());
    rec.setPaidAmount(ln.getPaidAmount());
@@ -3821,6 +3835,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
   private DocLineArRec buildDocLineArRec(DocLineAr rec,ArAccountRec ar, boolean reconLines){
    LOGGER.log(INFO, "buildDocLineArRec called with line {0} ar account {1} ", 
            new Object[]{rec.getId(),ar});
+   LOGGER.log(INFO, "DB line line id {0} line text {1}", new Object[]{rec.getId(), rec.getLineText()});
    DocLineArRec l  = new DocLineArRec();
    l.setId(rec.getId());
    UserRec crUsr = this.usrDM.getUserRecPvt(rec.getCreateBy());
@@ -9150,19 +9165,23 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
  public List<DocFiRec> getAllFiDocsForCompany(CompanyBasicRec comp, boolean inclLines, UserRec usr, String pg) throws BacException {
   LOGGER.log(INFO, "DocDM.getAllFiDocsForCompany called with comp {0}", comp.getReference());
   int listSize = this.sysBuff.getMaxComplSize();
-  Query q = em.createNamedQuery("docCompAll");
-  q.setMaxResults(listSize);
+  TypedQuery q = em.createNamedQuery("fiDocsForCompAll",DocFi.class);
+  //q.setMaxResults(listSize);
   q.setParameter("compId", comp.getId());
   List rs = q.getResultList();
-  ListIterator docsLi  = rs.listIterator();
+  LOGGER.log(INFO, "rs returned {0}", rs);
+  LOGGER.log(INFO, "listSize {0}", listSize);
+  ListIterator<DocFi> docsLi  = rs.listIterator();
   List<DocFiRec> resList = new ArrayList<>();
   while(docsLi.hasNext()){
-   DocBase docBase = (DocBase)docsLi.next();
-   if(docBase.getClass().getCanonicalName().endsWith("DocFI")){
-    DocFi docFi = (DocFi)docBase;
+   DocFi docFi = docsLi.next();
+   LOGGER.log(INFO, "Process Doc num {0}", docFi.getDocNumber());
+   //if(docBase.getClass().getCanonicalName().endsWith("DocFI"))
+    
     DocFiRec docFiRec = this.buildDocFiRec(docFi);
+    if(docFi.getDocInvoiceAr() != null){
     DocInvoiceAr inv = docFi.getDocInvoiceAr();
-     if(inv != null){
+    // if(inv != null){
       //does doc have an Sales invoice
       DocInvoiceArRec invRec = this.buildDocInvoiceArRec(inv);
       docFiRec.setDocInvoiceAr(invRec);
@@ -9172,9 +9191,10 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
      docFiRec = this.addDocLines(docFiRec, docFi.getDocLines(),usr,pg);
     }
     resList.add(docFiRec);
-   }
+   
    
   }
+  LOGGER.log(INFO, "FI Docs returned from DocDM {0}", resList);
   return resList;
  }
 
@@ -9472,16 +9492,18 @@ public List<DocFiRec> getFiDocsBySelOpt(FiDoclSelectionOpt selOpt){
           new Object[]{comp,docNum,inclLines});
   int listSize = this.sysBuff.getMaxComplSize();
   LOGGER.log(INFO, "Max list size {0}", listSize);
-  Query q = em.createNamedQuery("docCompDocNumPartAll");
+  TypedQuery q = em.createNamedQuery("docCompDocNumPartAll", DocBase.class);
   q.setMaxResults(listSize);
   q.setParameter("compId", comp.getId());
   q.setParameter("docNum", docNum);
-  List rs = q.getResultList();
-  ListIterator docsLi  = rs.listIterator();
+  List<DocBase> rs = q.getResultList();
+  LOGGER.log(INFO, "Docs found {0}", rs.size());
+  ListIterator<DocBase> docsLi  = rs.listIterator();
   List<DocFiRec> resList = new ArrayList<>();
   while(docsLi.hasNext()){
-   DocBase docBase = (DocBase)docsLi.next();
-   if(docBase.getClass().getCanonicalName().endsWith("DocFI")){
+   DocBase docBase = docsLi.next();
+   LOGGER.log(INFO, "Doc class name {0}", docBase.getClass().getSimpleName());
+   if(StringUtils.equals(docBase.getClass().getSimpleName(), "DocFi")){
     DocFi docFi = (DocFi)docBase;
     LOGGER.log(INFO, "getDocFiCompByDocNumPart docFI lines {0}", docFi.getDocLines());
     DocFiRec docFiRec = this.buildDocFiRec(docFi);
@@ -9494,7 +9516,7 @@ public List<DocFiRec> getFiDocsBySelOpt(FiDoclSelectionOpt selOpt){
      }
     if(inclLines){ 
      LOGGER.log(INFO, "Add doc lines to doc");
-     docFiRec = this.addDocLines(docFiRec, docFi.getDocLines(),usr, pg);
+     docFiRec = addDocLines(docFiRec, docFi.getDocLines(),usr, pg);
     }
     resList.add(docFiRec);
    }
@@ -9656,6 +9678,30 @@ public List<DocFiRec> getFiDocsBySelOpt(FiDoclSelectionOpt selOpt){
   
   return apLine;
  }
+ 
+ public DocLineArRec getDocLineArReconLines(DocLineArRec arLine){
+  LOGGER.log(INFO, "DocDM getDocLineApReconLines called with apLine {0}", arLine);
+  if(arLine == null){
+   return null;
+  }
+  
+  TypedQuery q = em.createNamedQuery("glReconLinesForArLine",DocLineGl.class);
+  q.setParameter("arLineid", arLine.getId());
+  List<DocLineGl> rs = q.getResultList();
+  
+  LOGGER.log(INFO, "rec lines rs {0}", rs);
+  if (rs == null){
+   return null;
+  }
+  List<DocLineGlRec> recLines = new ArrayList<>();
+  for(DocLineGl curr:rs){
+   DocLineGlRec currGl = this.buildGlRecDocLine(curr);
+   recLines.add(currGl);
+  }
+  arLine.setReconiliationLines(recLines);
+  
+  return arLine;
+ }
  public DocLineBaseRec getDocLineBaseRecPvt(DocLineBase ln){
   DocLineBaseRec lnRec = this.buildDocLineBaseRecPvt(ln);
   return lnRec;
@@ -9671,8 +9717,9 @@ public List<DocFiRec> getFiDocsBySelOpt(FiDoclSelectionOpt selOpt){
   
   DocFi doc = em.find(DocFi.class, docRec.getId());
   List<DocLineBaseRec> baseRecLines = new ArrayList<>();
+  LOGGER.log(INFO,"doc lines from getDocLines {0}",doc.getDocLines().size());
   for(DocLineBase lnBase : doc.getDocLines()){
-   LOGGER.log(INFO, "lnBase id {0} class {1}", new Object[]{lnBase.getClass().getSimpleName(),lnBase.getId()});
+   LOGGER.log(INFO, "lnBase class {0} id {1}", new Object[]{lnBase.getClass().getSimpleName(),lnBase.getId()});
    String lineClass = lnBase.getClass().getSimpleName();
   
    switch(lineClass){
@@ -9683,11 +9730,11 @@ public List<DocFiRec> getFiDocsBySelOpt(FiDoclSelectionOpt selOpt){
      LOGGER.log(INFO, "AP Line id {0}", lnAp.getId());
      break;
     case "DocLineAr" :
-     DocLineArRec lnAr = this.buildDocLineArRecMin((DocLineAr)lnBase);
+     DocLineArRec lnAr = buildDocLineArRecMin((DocLineAr)lnBase);
      baseRecLines.add(lnAr);
      LOGGER.log(INFO, "AR Line id {0}", lnAr.getId());
      break;
-    case "DocLineGL" :
+    case "DocLineGl" :
      DocLineGlRec lnGl = buildGlRecDocLine((DocLineGl)lnBase);
      baseRecLines.add(lnGl);
      LOGGER.log(INFO, "GL Line id {0}", lnGl.getId());
@@ -10758,6 +10805,89 @@ public List<DocFiRec> getFiDocsBySelOpt(FiDoclSelectionOpt selOpt){
    trans.rollback(); 
   }
   return docRec;
+ }
+ 
+ public DocFiRec postArInvoice(DocFiRec doc,List<DocVatSummary> vatSumm, List<FundBalance> fndSplit, String page){
+  LOGGER.log(INFO, "docDM postArInvoice called");
+  LOGGER.log(INFO, "doc id {0}",doc.getId());
+  if(doc.getDocLines() == null || doc.getDocLines().isEmpty()){
+   LOGGER.log(INFO, "No document lines");
+   return doc;
+  }
+  
+  for(DocLineBaseRec curr:doc.getDocLines()){
+   LOGGER.log(INFO, "Doc line type {0} id {1} amount {2} post type {3}", new Object[]{curr.getLineType().getLineCode(),
+    curr.getId(), curr.getDocAmount(), curr.getPostType().getDescription()
+   });
+  }
+  
+  if(!trans.isActive()){
+   trans.begin();
+  }
+  // Save document and get ID
+  DocFi docFi = buildDocFi(doc, page);
+  LOGGER.log(INFO, "Doc id is now {0}", docFi.getId());
+  
+  // save entered doc lines
+  List<DocLineBase> docLines = new ArrayList<>();
+  FiGlAccountComp reconcilAcnt;
+  for(DocLineBaseRec curr:doc.getDocLines()){
+   if(StringUtils.equals(curr.getLineType().getLineCode(), "AR")){
+    DocLineArRec currAr = (DocLineArRec)curr;
+    DocLineAr lineAr = buildDocLineAr(currAr, page);
+    
+    lineAr.setDocHeaderBase(docFi);
+    lineAr.setDocBase(docFi);
+    lineAr.setDocFi(docFi);
+    FiGlAccountCompRec reconcilAcntRec = currAr.getArAccount().getReconciliationAc();
+    reconcilAcnt = em.find(FiGlAccountComp.class, reconcilAcntRec.getId());
+    List<DocLineGlRec> recLinesRec = currAr.getReconiliationLines();
+    List<DocLineGl> recLines = new ArrayList<>();
+    for(DocLineGlRec currGlLine:recLinesRec){
+     DocLineGl recLine = buildDocLineGL(currGlLine, page);
+     Fund fnd;
+     if(currGlLine.getRestrictedFund() != null){
+      fnd = em.find(Fund.class, currGlLine.getRestrictedFund().getId());
+      recLine.setRestrictedFund(fnd);
+     }
+     recLine.setReconcilForArLine(lineAr);
+     recLines.add(recLine);
+    }
+    lineAr.setReconiliationLines(recLines);
+    docLines.add(lineAr);
+    
+    // update account balance 
+     ArAccount arAcnt = lineAr.getArAccount();
+     double currBal = arAcnt.getAccountBalance();
+     if(lineAr.getPostType().isDebit()){
+      currBal += lineAr.getDocAmount();
+     }else{
+      currBal -= lineAr.getDocAmount();
+     }
+     arAcnt.setAccountBalance(currBal);
+     LOGGER.log(INFO, "Current account balance {0}", arAcnt.getAccountBalance());
+   
+   } else if(StringUtils.equals(curr.getLineType().getLineCode(), "GL")){
+    // gl line.
+    DocLineGl lineGl = this.buildDocLineGL((DocLineGlRec)curr, page);
+    lineGl.setDocHeaderBase(docFi);
+    lineGl.setDocFi(docFi);
+    docLines.add(lineGl);
+    
+   }
+  
+  }
+  
+  LOGGER.log(INFO, "docFi.getId() {0}", docFi.getId());
+  if(docFi.getId() == null){
+   trans.rollback();
+  }else{
+   trans.commit();
+  }
+  docFi.setDocLines(docLines);
+  doc.setId(docFi.getId());
+  doc.setDocNumber(docFi.getDocNumber());
+  return doc;
  }
  
  public DocFiRec postArPayRunBacs(DocFiRec doc, BnkPaymentRunRec payRun, BankAccountCompanyRec compBnkAc,

@@ -652,6 +652,12 @@ public class DocumentManager {
   LOGGER.log(INFO, "getDocLineApReconLines {0}", apLine.getReconiliationLines());
   return apLine;
  }
+ 
+ public DocLineArRec getDocLineArReconLines(DocLineArRec arLine){
+  arLine = docDM.getDocLineArReconLines(arLine);
+  return arLine;
+ }
+ 
  public DocLineFiTemplateRec getDocLineFiTemplGlRecAddlazy(DocLineFiTemplateRec line){
   line = this.docDM.getDocLineFiTemplGlRecAddlazy((DocLineFiTemplGlRec)line);
   return line;
@@ -732,6 +738,14 @@ public class DocumentManager {
   return accruals;
  }
  
+ public DocFiRec postArInv(DocFiRec doc, List<DocVatSummary> vatSum,List<FundBalance> fndSplit, String pg){
+  LOGGER.log(INFO, "postArInv called with doc {0}, vatSum {1}, Fund bal {2} page {3}", new Object[]{
+   doc,vatSum, fndSplit, pg});
+  
+  doc = this.docDM.postArInvoice(doc, vatSum, fndSplit, pg);
+  return doc;
+  
+ }
  public DocFiRec postArReceiptSingle(DocFiRec doc, List<DocLineArRec> paidLines, Locale loc,UserRec usr, String source)
          throws BacException {
   LOGGER.log(INFO, "DocMgr.postArReceiptSingle called with doc {0} paidLines {1} usr {2} source {3}", new Object[]{

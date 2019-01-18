@@ -6,6 +6,7 @@
 package com.rationem.busRec.config.company;
 
 import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Structure to hold a Fiscal year and date combination
@@ -15,6 +16,7 @@ public class FiscalPeriodYearRec implements Serializable {
 
   private int period;
   private int year;
+  private String yearPeriod;
 
   public FiscalPeriodYearRec() {
   }
@@ -39,6 +41,17 @@ public class FiscalPeriodYearRec implements Serializable {
   public void setYear(int year) {
     this.year = year;
   }
+
+ public String getYearPeriod() {
+  if(StringUtils.isBlank(yearPeriod)){
+   yearPeriod = String.valueOf(year) + "/"+String.valueOf(period);
+  }
+  return yearPeriod;
+ }
+
+ public void setYearPeriod(String yearPeriod) {
+  this.yearPeriod = yearPeriod;
+ }
 
   
 

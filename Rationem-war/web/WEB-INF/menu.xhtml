@@ -51,9 +51,9 @@
       <p:submenu label="#{menuText.mL1_doc}" >
        <p:menuitem value="#{menuText.mi_ar_inv}" outcome="arInvPst"/>
        <p:menuitem value="#{menuText.mi_ar_crn}" outcome="arInvPst"/>
-       <p:menuitem value="#{menuText.mi_ar_sales_inv} old" outcome="arInvPstOld"/>
        <p:menuitem value="#{menuText.mi_ar_recpt_sngle} h" outcome="arInvPst"/>
        <p:menuitem value="#{menuText.mi_ar_recpt_run} h" outcome="arInvPst"/>
+       <p:menuitem id="ro_ar_doc_disp" value="#{menuText.mi_gen_doc_disp}" outcome="docDispl"/>
       </p:submenu>
       <p:submenu id="ro_ar_sett" label="#{menuText.mL1_sett}">
        <p:menuitem id="ar_bal_age_gro" value="#{menuText.mi_ap_sett_bal_age}" outcome="arAgedDebt"/>

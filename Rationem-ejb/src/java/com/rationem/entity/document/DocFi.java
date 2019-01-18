@@ -208,13 +208,7 @@ public class DocFi extends DocBase implements Serializable {
   this.docInvoiceAr = docInvoiceAr;
  }
 
- public DocType getDocType() {
-  return docType;
- }
-
- public void setDocType(DocType docType) {
-  this.docType = docType;
- }
+ 
 
  
  public List<AuditDocFi> getDocFiAuditRecords() {

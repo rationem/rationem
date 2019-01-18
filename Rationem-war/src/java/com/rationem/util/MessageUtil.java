@@ -24,6 +24,13 @@ public class MessageUtil {
   context.addMessage(clientId, new FacesMessage(SEVERITY_ERROR, message, ""));
  }
  
+ public static void addClientErrorMessage(String clientId,String str, String resourceName, String param1) {
+  FacesContext context = FacesContext.getCurrentInstance();
+  ResourceBundle bundle = context.getApplication().getResourceBundle(context, resourceName);
+  String message = bundle.getString(str);
+  message += param1;
+  context.addMessage(clientId, new FacesMessage(SEVERITY_ERROR, message, ""));
+ }
  public static void addClientInfoMessage(String clientId,String str, String resourceName) {
   FacesContext context = FacesContext.getCurrentInstance();
   ResourceBundle bundle = context.getApplication().getResourceBundle(context, resourceName);

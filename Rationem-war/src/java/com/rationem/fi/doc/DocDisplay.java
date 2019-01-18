@@ -30,8 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 
 import java.util.logging.Logger;
 
@@ -39,6 +37,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import org.apache.commons.lang3.StringUtils;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
@@ -174,21 +173,24 @@ private ContactManager contMgr;
  return docSelList;
   
  }
-public List<DocFiRec> docComplete(String input){
- LOGGER.log(INFO, "docComplete called with input{0}", input.getClass().getCanonicalName());
+public List<DocFiRec> onDocComplete(String input){
+ LOGGER.log(INFO, "docComplete called with input{0}", input);
  if(comp == null){
   ListIterator<CompanyBasicRec> compLi = this.getCompList().listIterator();
   comp = compLi.next();
  }
  LOGGER.log(INFO, "comp {0}", comp);
- if(input == null || input.isEmpty()){
+ if(StringUtils.isBlank(input)){
+  LOGGER.log(INFO, "Doc complete to return all docs for company");
   docSelList = docMgr.getAllFiDocsForComp(comp, false,getLoggedInUser(),getView());
  }else{
+   LOGGER.log(INFO, "get doc with number {0}", input);
   try{
+   
    input = input.trim();
   long docNumInpt = Long.parseLong(input);
   docSelList = this.docMgr.getFiDocsByDocNumPartial(comp, docNumInpt, false,getLoggedInUser(),getView());
-  LOGGER.log(INFO, "after call to get docs");
+  LOGGER.log(INFO, "after call to get docs sel List {0} ",docSelList);
   }catch(NumberFormatException ex){
    GenUtil.addErrorMessage("Not a number");
   }
@@ -368,16 +370,18 @@ public List<DocFiRec> docComplete(String input){
       clearedLines = docLine.getClearingLineForLines();
      }
      
-    } 
-    ListIterator<DocLineBaseRec> clrdLnLi = clearedLines.listIterator();
-    while(clrdLnLi.hasNext()){
-     DocLineBaseRec clrdLn = clrdLnLi.next();
-     if(clrdLn.getPostType().isDebit()){
-      clrdLn.setDebitValue(GenUtil.formatNumberLocDp(clrdLn.getDocAmount(), locale));
-     }else{
-      clrdLn.setCreditValue(GenUtil.formatNumberLocDp(clrdLn.getDocAmount() * -1, locale));
+    }
+    if(clearedLines != null){
+     ListIterator<DocLineBaseRec> clrdLnLi = clearedLines.listIterator();
+     while(clrdLnLi.hasNext()){
+      DocLineBaseRec clrdLn = clrdLnLi.next();
+      if(clrdLn.getPostType().isDebit()){
+       clrdLn.setDebitValue(GenUtil.formatNumberLocDp(clrdLn.getDocAmount(), locale));
+      }else{
+       clrdLn.setCreditValue(GenUtil.formatNumberLocDp(clrdLn.getDocAmount() * -1, locale));
+      }
+      clrdLnLi.set(clrdLn);
      }
-     clrdLnLi.set(clrdLn);
     }
     docLine.setClearingLineForLines(clearedLines);
    }
@@ -495,8 +499,15 @@ public List<DocFiRec> docComplete(String input){
    case "DocLineArRec":
     setDocLineArSel((DocLineArRec)docLineSel);
     docLineReconLines = this.docLineArSel.getReconiliationLines();
+    if(docLineReconLines == null){
+     // need to get fom DB
+     docLineArSel = docMgr.getDocLineArReconLines(docLineArSel);
+     docLineReconLines = docLineArSel.getReconiliationLines();
+     LOGGER.log(INFO, "ar recon lines from DB", docLineReconLines);
+     // TODO: update web doc lines for this line with recon lines
+    }
     break;
-   case "DocLineGLRec":
+   case "DocLineGlRec":
     this.setDocLineGlSel((DocLineGlRec)docLineSel);
     break;
    case "DocLineApRec":
@@ -506,7 +517,7 @@ public List<DocFiRec> docComplete(String input){
     LOGGER.log(INFO, "Docline ap Account name {0}", docLineApSel.getApAccount().getApAccountFor().getName());
     LOGGER.log(INFO, "rec lines {0}", docLineApSel.getReconiliationLines());
     if(docLineApSel.getReconiliationLines() == null){
-     docLineApSel = this.docMgr.getDocLineApReconLines(docLineApSel);
+     docLineApSel = docMgr.getDocLineApReconLines(docLineApSel);
      LOGGER.log(INFO, "rec lines now {0}", docLineApSel.getReconiliationLines());
     }
     break;

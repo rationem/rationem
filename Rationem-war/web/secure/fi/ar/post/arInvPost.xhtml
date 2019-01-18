@@ -99,26 +99,41 @@
         <p:panelGrid 
          id="docHdrDatesPg" layout="grid" columns="6"  styleClass="ui-noborder"
          columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2" >
-         <p:outputLabel for="invDate" value="#{formText.docDocDate}"/>
-         <p:calendar id="invDate" value="#{arDocPost.fiDocument.documentDate}" 
-                    mode="popup" required="true"
-                    requiredMessage="#{validationText.fiDocDocDate}"
-                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
-                    maxlength="10" size="10" disabled="#{arDocPost.custAccount.id eq null}"/>
-          
-         <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
-         <p:calendar id="postDate" value="#{arDocPost.fiDocument.postingDate}" 
-                    mode="popup" required="true"
-                    requiredMessage="#{validationText.fiDocPostDate}"
-                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
-                    maxlength="10" size="10" disabled="#{arDocPost.custAccount.id eq null}"/>
-         <p:outputLabel for="taxDate" value="#{formText.docTaxDate}"/> 
-         <p:calendar id="taxDate" value="#{arDocPost.fiDocument.taxDate}" 
-                    mode="popup" required="true"
-                    requiredMessage="#{validationText.fiDocTaxDate}"
-                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
-                    maxlength="10" size="10" disabled="#{arDocPost.custAccount.id eq null}"/>
-         
+         <h:panelGroup class="md-inputfield">
+          <p:calendar id="invDate" value="#{arDocPost.fiDocument.documentDate}" 
+                      mode="popup" required="true"
+                      requiredMessage="#{validationText.fiDocDocDate}"
+                      navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
+                      maxlength="10" size="10" disabled="#{arDocPost.custAccount.id eq null}"/>
+          <p:outputLabel for="invDate" value="#{formText.docDocDate}"/>
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield">
+          <p:calendar id="postDate" value="#{arDocPost.fiDocument.postingDate}"
+                      mode="popup" required="true"
+                      requiredMessage="#{validationText.fiDocPostDate}"
+                      navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                      maxlength="10" size="10" disabled="#{arDocPost.custAccount.id eq null}">
+           <p:ajax event="dateSelect" listener="#{arDocPost.onPostDateSelect}"/>
+          </p:calendar>
+          <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield">
+          <p:inputText id="postPer" value="#{arDocPost.fiDocument.fisYearPeriod}" disabled="true"
+                       style="font-weight: bold !important;"/>
+          <p:outputLabel for="postPer" value="#{formText.docPeriod}"/>
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield">
+          <p:calendar id="taxDate" value="#{arDocPost.fiDocument.taxDate}"
+                      mode="popup" required="true"
+                      requiredMessage="#{validationText.fiDocTaxDate}"
+                      navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                      maxlength="10" size="10" disabled="#{arDocPost.custAccount.id eq null}"/>
+          <p:outputLabel for="taxDate" value="#{formText.docTaxDate}"/>
+         </h:panelGroup>
+
+
+
+
         </p:panelGrid>
         <p:panelGrid 
          id="docHdrDetPg" layout="grid" columns="4"  styleClass="ui-noborder"
@@ -358,6 +373,8 @@
         <p:contextMenu for="docLines">
          <p:menuitem 
           value="#{formText.add}" icon="fa fa-file-o" actionListener="#{arDocPost.onArInvLineAdd}"/>
+         <p:menuitem
+          value="#{formText.delete}" icon="fa fa-trash-o" actionListener="#{arDocPost.onArInvLineDelete}"/>
         </p:contextMenu>
       </p:panel>
       </p:outputPanel>
