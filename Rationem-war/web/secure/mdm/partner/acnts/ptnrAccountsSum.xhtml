@@ -69,14 +69,14 @@
         </f:facet>
         <h:outputText value="#{arAcnt.company.reference}"/>
        </p:column>
-       <p:column>
-        <f:facet name="header">
+      <p:column styleClass="column-financialValue">
+       <f:facet name="header">
          <h:outputText value="#{listHeading.arAcntBal}"/>
         </f:facet>
         <h:outputText value="#{arAcnt.accountBalance}">
          <f:convertNumber type="number" groupingUsed="true" 
-                          maxFractionDigits="#{arAcnt.company.currency.minorUnit}"
-                          minFractionDigits="#{arAcnt.company.currency.minorUnit}"
+                          maxFractionDigits="#{partnerAccounts.usrBuff.currency.defaultFractionDigits}"
+                          minFractionDigits="#{partnerAccounts.usrBuff.currency.defaultFractionDigits}"
                           minIntegerDigits="1"/>
         </h:outputText>
        </p:column>
@@ -85,8 +85,8 @@
        <p:column styleClass="column-financialValue"  >
         <f:facet name="footer">
          <h:outputText value="#{partnerAccounts.arTotal}" style="font-weight: bold">
-          <f:convertNumber maxFractionDigits="#{arAcnt.company.currency.minorUnit}"
-                          minFractionDigits="2"
+          <f:convertNumber maxFractionDigits="#{partnerAccounts.usrBuff.currency.defaultFractionDigits}"
+                           minFractionDigits="2"
                           minIntegerDigits="1" />
          </h:outputText>
         </f:facet>
@@ -140,10 +140,11 @@
          <h:outputText value="#{listHeading.apAcntBal}"/>
         </f:facet>
         <h:outputText value="#{apAcntV.accountBalance}">
-         <f:convertNumber type="number"  
-                          maxFractionDigits="#{apAcntV.company.currency.minorUnit}"
-                          minFractionDigits="2"
-                          minIntegerDigits="1"/>
+         <f:convertNumber 
+          type="number" locale="#{partnerAccounts.usrBuff.loc}"
+          maxFractionDigits="#{arAcnt.company.currency.minorUnit}"
+          minFractionDigits="#{arAcnt.company.currency.minorUnit}"
+          minIntegerDigits="1"/>
         </h:outputText>
        </p:column>
       <p:columnGroup type="footer">

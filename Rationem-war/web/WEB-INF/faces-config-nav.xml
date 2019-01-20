@@ -343,8 +343,12 @@
    <to-view-id>/secure/fi/ar/post/arInvPost.xhtml</to-view-id>
   </navigation-case>
   <navigation-case>
-   <from-outcome>arInvPstOld</from-outcome>
-   <to-view-id>/secure/fi/ar/post/arInvPostOld.xhtml</to-view-id>
+   <from-outcome>arCrnPst</from-outcome>
+   <to-view-id>/secure/fi/ar/post/arCrnPost.xhtml</to-view-id>
+  </navigation-case>
+  <navigation-case>
+   <from-outcome>arAcntBalChk</from-outcome>
+   <to-view-id>/secure/fi/ar/update/arAccountBalCheck.xhtml</to-view-id>
   </navigation-case>
   <navigation-case>
    <from-outcome>glRestrFndUpdt</from-outcome>

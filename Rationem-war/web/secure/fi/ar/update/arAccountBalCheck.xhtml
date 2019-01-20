@@ -1,0 +1,99 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+ <ui:define name="meta">
+ </ui:define>
+ <ui:define name="title">#{pageTitle.arAcntBalCk}</ui:define>
+ <ui:define name="header">#{pageTitle.arAcntBalCk}</ui:define>
+ <ui:define name="content">
+  <h:form id="arActChkFrm" >
+   <div class="card ">
+    <p:panelGrid id="compSel" layout="grid" columns="2"
+                 columnClasses="ui-grid-col-1,ui-grid-col-1">
+     <p:outputLabel for="acntAc" value="#{formText.comp}"/>
+     <p:autoComplete
+      id="acntAc" value="#{arAccountBalanceCheck.compSelected}" var="compV" dropdown="true"
+      converter="com.rationem.util.converter.CompanyBasic" required="true"
+      emptyMessage="#{validationText.compSelNon}" itemValue="#{compV}" itemLabel="#{compV.reference}"
+      completeMethod="#{arAccountBalanceCheck.onCompComplete}">
+      <f:facet name="itemtip">
+       <h:outputText id="compName" value="#{compV.name}" />
+      </f:facet>
+      <p:ajax id="compSelEvt" event="itemSelect" listener="#{arAccountBalanceCheck.onCompanySelect}"/>
+     </p:autoComplete>
+
+    </p:panelGrid>
+   </div>
+   <p:growl id="successGrl" />
+   <p:messages id="errMsg" />
+   <p:dataTable
+    id="acntList" value="#{arAccountBalanceCheck.accountBalanceList}" var="acntBal"
+    emptyMessage="#{validationText.compSelNon}" reflow="true" rowKey="#{acntBal.accountId}"
+   paginatorAlwaysVisible="true" paginator="true" selection="#{arAccountBalanceCheck.accountBalancesSelected}"
+   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+   <f:facet name="{Exporters}">
+    <h:commandLink style="float:right;"  >
+     <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+     <p:dataExporter type="xls" target="arActChkFrm:acntList" fileName="#{listHeading.arAcntListFn}"
+                     postProcessor="#{arAccntListBean.postProcessXLS}" />
+    </h:commandLink>
+    <h:commandLink style="float:right;">
+     <p:graphicImage name="/images/csv_text.png" width="24" />
+     <p:dataExporter type="csv" target="arActChkFrm:acntList" fileName="#{listHeading.arAcntListFn}" />
+    </h:commandLink>
+   </f:facet>
+   <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+   <p:column>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.arAcntRef}"/>
+    </f:facet>
+    <h:outputText value="#{acntBal.accountRef}"/>
+   </p:column>
+   <p:column>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.arAcntName}"/>
+    </f:facet>
+    <h:outputText value="#{acntBal.name}"/>
+   </p:column>
+   <p:column styleClass="column-financialValue">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.arAcntBal}"/>
+    </f:facet>
+    <h:outputText value="#{acntBal.acntBal}">
+     <f:convertNumber type="number"
+                      locale="#{arAccountBalanceCheck.compDefault.locale}"
+                      maxFractionDigits="#{arAccountBalanceCheck.compDefault.currency.minorUnit}"
+                      minFractionDigits="#{arAccountBalanceCheck.compDefault.currency.minorUnit}"
+                      minIntegerDigits="1" />
+    </h:outputText>
+   </p:column>
+   <p:column styleClass="column-financialValue">
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.arTransBal}"/>
+    </f:facet>
+    <h:outputText value="#{acntBal.lineBal}">
+     <f:convertNumber type="number"
+                      locale="#{arAccountBalanceCheck.compDefault.locale}"
+                      maxFractionDigits="#{arAccountBalanceCheck.compDefault.currency.minorUnit}"
+                      minFractionDigits="#{arAccountBalanceCheck.compDefault.currency.minorUnit}"
+                      minIntegerDigits="1" />
+    </h:outputText>
+   </p:column>
+
+
+
+
+  </p:dataTable>
+   <p:commandButton  
+    id="updateBtn" icon="fa fa-cog" value="Update Balance" styleClass="secondary" iconPos="right"
+    disabled="#{arAccountBalanceCheck.compSelected eq null}"
+    actionListener="#{arAccountBalanceCheck.onBalanceUpdate}"/>
+
+
+  </h:form>
+ </ui:define>
+</ui:composition>
+

@@ -43,11 +43,14 @@ import com.rationem.entity.mdm.PartnerPerson;
 import com.rationem.entity.tr.bank.BankAccount;
 import com.rationem.entity.user.User;
 import com.rationem.exception.BacException;
+import com.rationem.helper.comparitor.ArAccountBalById;
+import com.rationem.util.ArAcntBalChkRec;
 //import com.sun.org.apache.xerces.internal.utils.Objects;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -841,7 +844,7 @@ public class ArAccountDM {
  }
 
  public List<ArAccountRec> getArAccountsForCompany(CompanyBasicRec comp){
-  LOGGER.log(INFO, "getArAccountsByTradingNamePart called with company id {0}", comp.getId());
+  LOGGER.log(INFO, "getArAccountsForCompany called with company id {0}", comp.getId());
   List<ArAccountRec> actList = new ArrayList<>();
   TypedQuery q = em.createNamedQuery("getActsForCompany",ArAccount.class);
   q.setParameter("compId", comp.getId());
@@ -853,7 +856,7 @@ public class ArAccountDM {
   ListIterator<ArAccount> li = rs.listIterator();
   while(li.hasNext()){
    ArAccount actDb = li.next();
-   
+   LOGGER.log(INFO, "Account id {0} balance {1}", new Object[]{actDb.getId(), actDb.getAccountBalance()});
    ArAccountRec actRec = buildArAccountRec(actDb);
    LOGGER.log(INFO, "ArAccount id: {0}", actRec.getId());
    actList.add(actRec);
@@ -1031,6 +1034,58 @@ public class ArAccountDM {
  LOGGER.log(INFO, "End of Ar Account update - banks {0}",acnt.getArAccountBanks());
  trans.commit();
  return acnt; 
+ }
+ 
+ public boolean updateArAccountBal(List<ArAcntBalChkRec> bals, UserRec usr, String pg){
+  LOGGER.log(INFO,"arAccountDM.updateArAccountBal  called with bals {0} ",bals);
+  if(!trans.isActive()){
+   trans.begin();
+  }
+  if(bals == null || bals.isEmpty()){
+   return false;
+  }
+  
+  List<Long> idList = new ArrayList<>();
+  for(ArAcntBalChkRec bal:bals){
+   idList.add(bal.getAccountId());
+  }
+  
+  TypedQuery q = em.createNamedQuery("getActsById", ArAccount.class);
+  q.setParameter("idList", idList);
+  List<ArAccount> accounts = q.getResultList();
+  LOGGER.log(INFO, "Num accounts found {0}", accounts.size());
+  if(accounts == null || accounts.isEmpty()){
+   return false;
+  }
+  User audUsr = em.find(User.class, usr.getId());
+  Collections.sort(bals, new ArAccountBalById());
+  int numUpdates = 0;
+  for(ArAcntBalChkRec bal:bals){
+   boolean foundDb = false;
+   ListIterator<ArAccount> acLi = accounts.listIterator();
+   while(acLi.hasNext() && !foundDb){
+    ArAccount acnt = acLi.next();
+    if(Objects.equals(acnt.getId(), bal.getAccountId())){
+     acnt.setAccountBalance(bal.getLineBal());
+     // audit change
+     
+     AuditArAccount aud = this.buildAuditArAccount(acnt, audUsr, pg, 'U');
+     aud.setFieldName("AR_ACNT_BAL");
+     aud.setNewValue(String.valueOf(acnt.getAccountBalance()));
+     foundDb = true;
+     numUpdates++;
+    }
+   }
+  }
+  if(numUpdates > 0){
+   trans.commit();
+   return true;
+  }else{
+   trans.rollback();
+   return false;
+  }
+  
+  
  }
 
  public List<FiArPeriodBalanceRec> getArPerBals(ArAccountRec acntRec, int year){

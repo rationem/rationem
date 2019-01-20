@@ -17,6 +17,7 @@ import com.rationem.ejbBean.dataManager.MasterDataDM;
 import com.rationem.util.ArPayRunSelection;
 import com.rationem.exception.BacException;
 import com.rationem.helper.comparitor.ArAccountByRef;
+import com.rationem.util.ArAcntBalChkRec;
 import com.rationem.util.ArAcntSrchSelOpt;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -189,6 +190,44 @@ public class ArManager {
   return actList;
  }
  
+ public List<ArAcntBalChkRec> getAccountsBalCheck(CompanyBasicRec comp){
+  LOGGER.log(INFO, "getAccountsBalCheck called with company {0}", comp);
+  List<ArAcntBalChkRec> retList = new ArrayList<>();
+  
+  List<ArAccountRec> actList = arAccountDM.getArAccountsForCompany(comp);
+  LOGGER.log(INFO, "actList {0}", actList);
+  if(actList == null){
+   LOGGER.log(INFO, "No AR accounts for comp ref {0}", comp.getReference());
+   return null;
+  }
+  for(ArAccountRec arAcnt:actList){
+   ArAcntBalChkRec acntBalChk = new ArAcntBalChkRec();
+   acntBalChk.setAccountId(arAcnt.getId());
+   acntBalChk.setAccountRef(arAcnt.getArAccountCode());
+   acntBalChk.setName(arAcnt.getArAccountName());
+   acntBalChk.setAcntBal(arAcnt.getAccountBalance());
+   
+   List<DocLineArRec> arLines = docDM.getOutstandingDocsForArAccount(arAcnt);
+   LOGGER.log(INFO, "Lines found {0}", arLines);
+   if(arLines == null || arLines.isEmpty()){
+    acntBalChk.setLineBal(0);
+   }else{
+    double lineBal = 0;
+    for(DocLineArRec arLn:arLines){
+     if(arLn.getPostType().isDebit()){
+      lineBal += arLn.getDocAmount();
+     }else{
+      lineBal -= arLn.getDocAmount();
+     }
+    }
+    acntBalChk.setLineBal(lineBal);
+   }
+   retList.add(acntBalChk);
+  }
+  LOGGER.log(INFO, "Ret list to return {0}", retList);
+  
+  return retList;
+ }
 /**
  * retrieves account numbers based on partial account numbers
  * @param actNumber
@@ -233,6 +272,7 @@ public class ArManager {
   return actList;
  }
 
+ 
  public List<ArAccountRec> getAccountsAll() throws BacException {
   LOGGER.log(INFO, "getAccountsAll() called");
   
@@ -247,6 +287,12 @@ public class ArManager {
   LOGGER.log(INFO, "ArManger updates mades: {0}",account);
   return account;
   
+ }
+ public boolean updateArAccountBal(List<ArAcntBalChkRec> bals, UserRec usr, String pg){
+  LOGGER.log(INFO, "updateArAccountBal called with {0}", bals);
+  boolean rc = this.arAccountDM.updateArAccountBal(bals, usr, pg);
+  LOGGER.log(INFO, "DB updates ok {0}", rc);
+  return rc;
  }
 /**
  * Gets all open documents for an Accounts Receivable account.

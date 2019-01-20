@@ -5,10 +5,8 @@
 package com.rationem.util.converter;
 
 import com.rationem.busRec.fi.arap.ArAccountRec;
-import com.rationem.busRec.partner.PartnerPersonRec;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
