@@ -25,7 +25,8 @@
      </p:toolbar>
      <p:messages id="errMsg" severity="error, warn" closable="true"/>
      <p:growl id="okMsg" severity="info"/>
-     <p:panelGrid id="rolePg" columns="1" layout="grid" styleClass="ui-noborder">
+     <p:panelGrid id="rolePg" columns="1" layout="grid" styleClass="ui-noborder"
+                  columnClasses="ui-grid-col-8">
       <h:panelGroup styleClass="md-inputfield">
        <p:inputText id="ptnrRoleRef" value="#{partnerRoleBean.role.roleCode}"/>
        <p:outputLabel for="ptnrRoleRef" value="#{formText.ref}"/>
@@ -35,9 +36,10 @@
        <p:outputLabel for="ptnrRoleName" value="#{formText.name}"/>
       </h:panelGroup>
      </p:panelGrid>
-     
+
+
     </div>
-    create partner role
+
    </h:form>
   </div>
  </ui:define>

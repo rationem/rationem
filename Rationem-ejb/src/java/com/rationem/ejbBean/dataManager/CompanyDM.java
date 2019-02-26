@@ -2227,7 +2227,7 @@ public class CompanyDM {
          CalendarRuleBaseRec calRuleRec = rec.getCalendarRule();
          CalendarRuleBase calRule = buildCalendarRuleBase(calRuleRec, pg);
          List<CalendarRuleFlexYearRec> yrRecs = calRuleRec.getCalRuleFlexYears();
-         List<CalendarRuleFlexYear> yrs = new ArrayList<>();
+         //List<CalendarRuleFlexYear> yrs = new ArrayList<>();
          for(CalendarRuleFlexYearRec calYrRec:yrRecs){
           List<CalendarRuleFlexPerRec> flexPerRecs = calYrRec.getFlexPeriods();
           List<CalendarFlexPer> flexPers = new ArrayList<>();
@@ -2239,7 +2239,7 @@ public class CompanyDM {
           }
           calyr.setFlexPeriods(flexPers);
          // calyr.setCalRule(calRule);
-          yrs.add(calyr);
+//          yrs.add(calyr);
           
          }
         // calRule.setCalRuleFlexYears(yrs);
@@ -3545,15 +3545,20 @@ if(years != null){
  */
  public List<VatRegistrationRec> getVatRegistrationsForCompany(CompanyBasicRec comp) 
          throws BacException {
+  if(!trans.isActive()){
+   trans.begin();
+  }
   List<VatRegistrationRec> vatRegRecs = new ArrayList<>();
   CompanyBasic compDB = em.find(CompanyBasic.class, comp.getId(), OPTIMISTIC);
   List<VatRegistration> vatRegs = compDB.getVatRegistrations();
   ListIterator<VatRegistration> li = vatRegs.listIterator();
   while(li.hasNext()){
    VatRegistration reg = li.next();
+   LOGGER.log(INFO, "VAT registration inspector {0}", reg.getInspector());
    VatRegistrationRec rec = vatDM.buildVatRegistrationRecPvt(reg);
    vatRegRecs.add(rec);
   }
+  trans.rollback();
   return vatRegRecs;
  }
 

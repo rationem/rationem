@@ -50,6 +50,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -313,10 +314,11 @@ public class VatDM {
    
  }
  
- private AuditCompany buildAuditCompany(CompanyBasic comp,User usr,  String pg){
+ private AuditCompany buildAuditCompany(CompanyBasic comp, char usrAction ,User usr,  String pg ){
   AuditCompany aud = new AuditCompany();
   aud.setAuditDate(new Date());
   aud.setComp(comp);
+  aud.setUsrAction(usrAction);
   aud.setCreatedBy(usr);
   aud.setSource(pg);
   em.persist(aud);
@@ -459,7 +461,7 @@ public class VatDM {
    
    if((v.getCompany() == null && vatComp.getCompany() != null) ||
       (v.getCompany() != null && vatComp.getCompany() == null) ||
-      ((v.getCompany() != null && v.getCompany().getId() != vatComp.getCompany().getId()))){
+      ((v.getCompany() != null && !Objects.equals(v.getCompany().getId(), vatComp.getCompany().getId())))){
     AuditVatCodeComp aud = buildAuditVatCodeComp(vatComp, 'U', chUsr, pg);
     aud.setFieldName("VAT_COMP_COMP");
     aud.setNewValue(v.getCompany().getReference());
@@ -480,7 +482,7 @@ public class VatDM {
    
    if((v.getRateGlAccount() == null && vatComp.getVatGlAccount() != null) ||
       (v.getRateGlAccount() != null && vatComp.getVatGlAccount() == null) ||       
-      (v.getRateGlAccount() != null && v.getRateGlAccount().getId() != vatComp.getVatGlAccount().getId())){
+      (v.getRateGlAccount() != null && !Objects.equals(v.getRateGlAccount().getId(), vatComp.getVatGlAccount().getId()))){
     AuditVatCodeComp aud = buildAuditVatCodeComp(vatComp, 'U', chUsr, pg);
     aud.setFieldName("VAT_COMP_RATE_GL");
     aud.setNewValue(v.getRateGlAccount().getCoaAccount().getRef());
@@ -492,7 +494,7 @@ public class VatDM {
    
    if((v.getVatCode() == null && vatComp.getVatCode() != null) ||
       (v.getVatCode() != null && vatComp.getVatCode() == null) ||
-      (v.getVatCode() != null && v.getVatCode().getId() != vatComp.getVatCode().getId())){
+      (v.getVatCode() != null && !Objects.equals(v.getVatCode().getId(), vatComp.getVatCode().getId()))){
     AuditVatCodeComp aud = buildAuditVatCodeComp(vatComp, 'U', chUsr, pg);
     aud.setFieldName("VAT_COMP_VAT_CD");
     aud.setNewValue(v.getVatCode().getCode());
@@ -511,7 +513,7 @@ public class VatDM {
  }
  
  private VatCode buildVatCode(VatCodeRec rec,  String pg){
-  VatCode cd = null;
+  VatCode cd;
   boolean newVatCode = false;
   boolean vatCodeChanged = false;
   if(rec.getId() == null || rec.getId() == 0){
@@ -672,6 +674,7 @@ public class VatDM {
   rec.setCreatedBy(crUsr);
   rec.setCreatedOn(reg.getCreatedOn());
   
+  LOGGER.log(INFO, "VAT inspector {0}", reg.getInspector());
   if(reg.getInspector() != null){
    PartnerPersonRec insp = masterDataDM.buildPartnerPersonRecPvt(reg.getInspector());
    rec.setInspector(insp);
@@ -679,8 +682,10 @@ public class VatDM {
   rec.setRegistrationDate(reg.getRegistrationDate());
   
   rec.setRegistrationEnd(reg.getRegistrationEnd());
+  LOGGER.log(INFO, "VAT reg end date on build vatRegRec {0}", rec.getRegistrationEnd());
   rec.setVatNumber(reg.getVatNumber());
   rec.setVatOffice(reg.getVatOffice());
+  LOGGER.log(INFO,"VatOffice {0}",rec.getVatOffice());
   if(reg.getVatOfficeAddress() != null){
    AddressRec off = masterDataDM.getAddressRec(reg.getVatOfficeAddress());
    rec.setVatOfficeAddress(off);
@@ -741,7 +746,7 @@ public class VatDM {
    User chUsr = em.find(User.class, rec.getChangedBy().getId(),OPTIMISTIC);
    if((rec.getComp() == null && reg.getComp() != null)||
        (rec.getComp() != null && reg.getComp() == null) ||
-      (rec.getComp() != null && rec.getComp().getId() != rec.getComp().getId())){
+      (rec.getComp() != null && !Objects.equals(rec.getComp().getId(), rec.getComp().getId()))){
     AuditVatRegistration aud = this.buildAuditVatRegistration(reg, 'U',chUsr, pg);
     aud.setFieldName("VAT_REG_COMP");
     aud.setNewValue(rec.getComp().getReference());
@@ -754,12 +759,14 @@ public class VatDM {
    
    if((rec.getInspector() == null && reg.getInspector() != null) ||
       (rec.getInspector() != null && reg.getInspector() == null) ||
-       (rec.getInspector() != null && rec.getInspector().getId() != reg.getInspector().getId())
+       (rec.getInspector() != null && !Objects.equals(rec.getInspector().getId(), reg.getInspector().getId()))
      ){
      AuditVatRegistration aud = this.buildAuditVatRegistration(reg,'U', chUsr, pg);
      aud.setFieldName("VAT_REG_INSP");
      aud.setNewValue(rec.getInspector().getFamilyName());
-     aud.setOldValue(reg.getInspector().getFamilyName() );
+     if(reg.getInspector() != null){
+      aud.setOldValue(reg.getInspector().getFamilyName() );
+     }
      aud.setUsrAction('U');
      PartnerPerson insp = em.find(PartnerPerson.class, rec.getInspector().getId(), OPTIMISTIC);
      reg.setInspector(insp);
@@ -811,7 +818,7 @@ public class VatDM {
    
    if((rec.getVatOfficeAddress() == null && reg.getVatOfficeAddress() != null ) ||
       (rec.getVatOfficeAddress() != null && reg.getVatOfficeAddress() == null ) ||
-      (rec.getVatOfficeAddress() != null && rec.getVatOfficeAddress().getId() != reg.getVatOfficeAddress().getId()) 
+      (rec.getVatOfficeAddress() != null && !Objects.equals(rec.getVatOfficeAddress().getId(), reg.getVatOfficeAddress().getId())) 
      ){
     AuditVatRegistration aud = this.buildAuditVatRegistration(reg,'U', chUsr, pg);
     aud.setFieldName("VAT_REG_OFF_ADDR");
@@ -840,7 +847,7 @@ public class VatDM {
          new Object[]{rec.getComp(),reg.getComp()});
  if((rec.getComp() == null && reg.getComp() != null )||
     (rec.getComp() != null && reg.getComp() == null ) ||
-    (rec.getComp() != null && rec.getComp().getId() != reg.getComp().getId() )  ){
+    (rec.getComp() != null && !Objects.equals(rec.getComp().getId(), reg.getComp().getId()) )  ){
   CompanyBasic comp = em.find(CompanyBasic.class, rec.getComp().getId(), OPTIMISTIC);
   AuditVatRegistration aud = this.buildAuditVatRegistration(reg, 'U',chUsr, pg);
   aud.setFieldName("VAT_REG_COMP");
@@ -853,13 +860,13 @@ public class VatDM {
  
  if((rec.getComp().getVatRegDetails() == null && reg.getComp().getVatRegCurrent()  != null) ||
     (rec.getComp().getVatRegDetails() != null && reg.getComp().getVatRegCurrent()  == null) ||
-    (rec.getComp().getVatRegDetails().getId() != reg.getComp().getVatRegCurrent().getId())    ){
+    (!Objects.equals(rec.getComp().getVatRegDetails().getId(), reg.getComp().getVatRegCurrent().getId()))    ){
   CompanyBasic comp = em.find(CompanyBasic.class, rec.getComp().getId(), OPTIMISTIC);
-  AuditCompany aud = this.buildAuditCompany(comp, chUsr, pg);
+  AuditCompany aud = this.buildAuditCompany(comp,'U', chUsr, pg);
   aud.setFieldName("COMP_VAT_CURR_REG");
   aud.setNewValue(rec.getComp().getVatRegDetails().getVatNumber());
   aud.setOldValue(reg.getComp().getVatRegCurrent().getVatNumber());
-  aud.setUsrAction('U');
+  //aud.setUsrAction('U');
   comp.setVatRegCurrent(reg);
   compChanged = true;
  }
@@ -972,7 +979,7 @@ public class VatDM {
     vatSchChanged = true;
    }
    
-   if(rec.getVatScheme().getId() != sch.getVatScheme().getId()){
+   if(!Objects.equals(rec.getVatScheme().getId(), sch.getVatScheme().getId())){
     AuditVatRegScheme aud = this.buildAuditVatRegScheme(sch,'U', chUsr, pg);
     aud.setFieldName("VAT_REG_SCH_SCHEME");
     aud.setNewValue(rec.getVatScheme().getRef());
@@ -1068,7 +1075,7 @@ public class VatDM {
    v.setCreatedBy(crUsr);
    v.setCreatedOn(rec.getCreatedOn());
    em.persist(v);
-  }
+  } 
   v.setBox1Value(rec.getBox1Value());
   v.setBox2Value(rec.getBox2Value());
   v.setBox3Value(rec.getBox3Value());
@@ -1372,7 +1379,7 @@ public CompanyBasicRec getCompVatRegRec(CompanyBasicRec compRec){
 }
  public List<VatCodeRec> getAllVatCodes() throws BacException {
   LOGGER.log(INFO, "VatDM.allVatCodes called");
-  List<VatCodeRec> codeList = new ArrayList<VatCodeRec>();
+  List<VatCodeRec> codeList = new ArrayList<>();
   Query q = em.createNamedQuery("allVatCodes");
   List resultLst = q.getResultList();
   ListIterator li = resultLst.listIterator();
@@ -1391,7 +1398,7 @@ public CompanyBasicRec getCompVatRegRec(CompanyBasicRec compRec){
 /**
  *  Saves new VAT posting settings for company
  * @param vatCode - VAT code to be updated
- * @param vatCodeComp = list company posting settings
+ * @param vatCodeComps
  * @param createdUser
  * @param source - page on which the change was made
  * @return
@@ -1414,7 +1421,7 @@ public VatCodeRec addVatPostingForCompanies(VatCodeRec vatCode, List<VatCodeComp
   vatComp.setVatCode(vatCodeDb);
   List<VatCodeCompany> vatCompsDb = vatCodeDb.getVatCodeComps();
   if(vatCompsDb == null){
-   vatCompsDb = new ArrayList<VatCodeCompany>(); 
+   vatCompsDb = new ArrayList<>(); 
   }
   vatCompsDb.add(vatComp);
   vatCodeDb.setVatCodeComps(vatCompsDb);
@@ -1495,9 +1502,69 @@ public VatCodeCompanyRec vatCodeCompanyUpdate(VatCodeCompanyRec vatCompRec, Stri
   LOGGER.log(INFO, "End create Ind rate returns {0}", rate);
   return rate;
  }
+ 
+ public boolean vatRegistrationDelete(VatRegistrationRec vatRegRec, CompanyBasicRec compRec,
+   UserRec usrRec,   String pg){
+  LOGGER.log(INFO, "vatDM.vatRegistrationDelete called with reg {0} ", vatRegRec.getVatNumber());
+  if(!trans.isActive()){
+   trans.begin();
+  }
+  boolean rc;
+  User usr ;
+  VatRegistration vatReg = em.find(VatRegistration.class, vatRegRec.getId());
+  if(vatReg == null){
+   LOGGER.log(INFO, "Could not find vatReg");
+   return false;
+  }
+  
+  usr = em.find(User.class, usrRec.getId());
+  CompanyBasic comp = em.find(CompanyBasic.class, compRec.getId());
+  LOGGER.log(INFO, "Current comp VAT reg {0}", comp.getVatRegCurrent());
+  
+  if(comp.getVatRegCurrent() != null && 
+    Objects.equals(comp.getVatRegCurrent().getId(), vatReg.getId())){
+   // this Vat reg is the one allocated to the company so remove company VAT registration
+   LOGGER.log(INFO, "Remove VAT reg from comp");
+   
+   AuditCompany aud = this.buildAuditCompany(comp, 'U', usr, pg);
+   aud.setFieldName("COMP_VAT_NUM");
+   aud.setOldValue(compRec.getVatNumber());
+   aud.setNewValue(" ");
+   comp.setVatNumber(null);
+   
+   aud = this.buildAuditCompany(comp, 'U', usr, pg);
+   aud.setFieldName("COMP_VAT_REG");
+   aud.setOldValue(String.valueOf(compRec.isVatReg()));
+   aud.setNewValue(String.valueOf(false));
+   comp.setVatReg(false);
+   
+   aud = this.buildAuditCompany(comp, 'U', usr, pg);
+   aud.setFieldName("COMP_VAT_CURR_REG");
+   aud.setOldValue(compRec.getVatRegDetails().getVatNumber());
+   aud.setNewValue(" ");
+   comp.setVatRegCurrent(null);
+   LOGGER.log(INFO, "Current VAT reg for comp is now {0}", comp.getVatRegCurrent());
+       
+  }
+   Query q = em.createNamedQuery("AuditVatRegDel");
+   q.setParameter("vatRegId", vatReg.getId());
+   int numDel = q.executeUpdate();
+   LOGGER.log(INFO, "Number of audit records deleted {0}", numDel);
+   AuditDelete audDel = new AuditDelete();
+   audDel.setAuditDate(new Date());
+   audDel.setCreatedBy(usr);
+   audDel.setFieldName("DEL_NAME");
+   audDel.setName("VatRegistration");
+   audDel.setNamePath("com.rationem.entity.salesTax.vat.VatRegistration");
+   em.remove(vatReg);
+   
+   rc = true;
+   trans.commit();
+  return rc; 
+ }
 /**
  * SAves a new VAT registration to database
- * @param comp Company the VAT registration is for
+ * @param compRec Company the VAT registration is for
  * @param vatReg
  * @param usr
  * @param source
@@ -1514,26 +1581,48 @@ public VatCodeCompanyRec vatCodeCompanyUpdate(VatCodeCompanyRec vatCompRec, Stri
   VatRegistration reg = buildVatRegistration(vatReg, usr,source);
   List<VatRegScheme> regSchemes = reg.getVatRegSchemes();
   if(regSchemes == null){
-   regSchemes = new ArrayList<VatRegScheme>();
+   regSchemes = new ArrayList<>();
   }
   List<VatRegSchemeRec> regRecSchemes = vatReg.getRegSchemes();
-  
-  ListIterator<VatRegSchemeRec> schemeLi = regRecSchemes.listIterator();
-  while(schemeLi.hasNext()){
-   VatRegSchemeRec schRec = schemeLi.next();
-   VatRegScheme sch = buildVatRegScheme(schRec, usr, source);
+  if(regRecSchemes != null){
+   ListIterator<VatRegSchemeRec> schemeLi = regRecSchemes.listIterator();
+   while(schemeLi.hasNext()){
+    VatRegSchemeRec schRec = schemeLi.next();
+    VatRegScheme sch = buildVatRegScheme(schRec, usr, source);
    
-   if(schRec.getId() == null){
-    regSchemes.add(sch);
-    sch.setVatReg(reg);
-    schRec.setId(sch.getId());
+    if(schRec.getId() == null){
+     regSchemes.add(sch);
+     sch.setVatReg(reg);
+     schRec.setId(sch.getId());
+    }
+    schemeLi.set(schRec);
    }
-   schemeLi.set(schRec);
   }
   reg.setVatRegSchemes(regSchemes);
   vatReg.setRegSchemes(regRecSchemes);
   vatReg.setId(reg.getId());
   compRec.setVatRegDetails(vatReg);
+  CompanyBasic comp = em.find(CompanyBasic.class, compRec.getId());
+  User audUsr = em.find(User.class, usr.getId());
+  AuditCompany aud = this.buildAuditCompany(comp,'U', audUsr, source);
+  aud.setFieldName("COMP_VAT_NUM");
+  LOGGER.log(INFO, "comp.getVatNumber() {0} vatReg.getVatNumber() {1} ", new Object[]{
+   comp.getVatNumber(),vatReg.getVatNumber()  });
+  if(comp.getVatNumber() != null){
+   aud.setOldValue(comp.getVatNumber());
+  }
+  
+  aud.setNewValue(vatReg.getVatNumber());
+  comp.setVatNumber(vatReg.getVatNumber());
+  
+  AuditCompany aud1 = this.buildAuditCompany(comp, 'U', audUsr, source);
+  LOGGER.log(INFO, "comp.isVatReg() {0} new isVatReg {1} ", new Object[]{
+   String.valueOf(comp.isVatReg()),String.valueOf(true)
+  });
+  aud1.setFieldName("COMP_VAT_REG");
+  aud1.setOldValue(String.valueOf(comp.isVatReg()));
+  aud1.setNewValue(String.valueOf(true));
+  comp.setVatReg(true);
   LOGGER.log(INFO, "addVatRegistration returns VAT registration {0}", vatReg.getId());
   
   
@@ -1568,7 +1657,7 @@ public VatRegistrationRec vatRegistrationSetActive(CompanyBasicRec compRec,VatRe
          new Object[]{vatRegRec.getComp(),vatReg.getComp()});
  if((vatRegRec.getComp() == null && vatReg.getComp() != null )||
     (vatRegRec.getComp() != null && vatReg.getComp() == null ) ||
-    (vatRegRec.getComp() != null && vatRegRec.getComp().getId() != vatReg.getComp().getId() )  ){
+    (vatRegRec.getComp() != null && !Objects.equals(vatRegRec.getComp().getId(), vatReg.getComp().getId()) )  ){
   AuditVatRegistration aud = this.buildAuditVatRegistration(vatReg, 'U',chUsr, source);
   aud.setFieldName("VAT_REG_COMP");
   aud.setNewValue(vatRegRec.getComp().getReference());
@@ -1580,8 +1669,8 @@ public VatRegistrationRec vatRegistrationSetActive(CompanyBasicRec compRec,VatRe
  
  if((compRec.getVatRegDetails() == null && comp.getVatRegCurrent()  != null) ||
     (compRec.getVatRegDetails() != null && comp.getVatRegCurrent()  == null) ||
-    (compRec.getVatRegDetails().getId() != comp.getVatRegCurrent().getId())    ){
-  AuditCompany aud = this.buildAuditCompany(comp, chUsr, source);
+    (!Objects.equals(compRec.getVatRegDetails().getId(), comp.getVatRegCurrent().getId()))    ){
+  AuditCompany aud = this.buildAuditCompany(comp, 'U', chUsr, source);
   aud.setFieldName("COMP_VAT_CURR_REG");
   aud.setNewValue(compRec.getVatRegDetails().getVatNumber());
   aud.setNewValue(comp.getVatRegCurrent().getVatNumber());
@@ -1628,7 +1717,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
   */
  public List<VatSchemeRec> getVatSchemesAll() throws BacException {
   LOGGER.log(INFO, "VatDM.getVatSchemesAll ");
-  ArrayList<VatSchemeRec> vatSchemeList = new ArrayList<VatSchemeRec>();
+  ArrayList<VatSchemeRec> vatSchemeList = new ArrayList<>();
   Query q = em.createNamedQuery("allVatSchemes");
   List l = q.getResultList();
   ListIterator li = l.listIterator();
@@ -1644,7 +1733,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
  }
 
  public List<VatFlatRateIndRateRec> getVatIndustries() throws BacException {
-  List<VatFlatRateIndRateRec> inds = new ArrayList<VatFlatRateIndRateRec>();
+  List<VatFlatRateIndRateRec> inds = new ArrayList<>();
   Query q = em.createNamedQuery("allVatIndustries");
   List l = q.getResultList();
   ListIterator li = l.listIterator();
@@ -1706,7 +1795,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
 */
  public List<VatCodeCompanyRec> getVatCompanyCodesAll() throws BacException {
   LOGGER.log(INFO, "VatDM.getVatCompanyCodesAll");
-  List<VatCodeCompanyRec> list = new ArrayList<VatCodeCompanyRec>();
+  List<VatCodeCompanyRec> list = new ArrayList<>();
   Query q = em.createNamedQuery("vatCompCodesAll");
   List l = q.getResultList();
   ListIterator li = l.listIterator();
@@ -1729,7 +1818,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
    trans.begin();
   }
   
-  List<VatRegistrationRec> vatRegList = new ArrayList<VatRegistrationRec>();
+  List<VatRegistrationRec> vatRegList = new ArrayList<>();
   CompanyBasic company = em.find(CompanyBasic.class, comp.getId(), OPTIMISTIC);
   Query q = em.createNamedQuery("vatRegForComp");
   q.setParameter("company", company);
@@ -1774,7 +1863,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
   List<VatRegSchemeRec> vatRegSchemes = vatRegRec.getRegSchemes();
   LOGGER.log(INFO, "VatDM vatReg.schemes {0}",vatReg.getVatRegSchemes());
   if(vatRegSchemes == null){
-   vatRegSchemes = new ArrayList<VatRegSchemeRec>();
+   vatRegSchemes = new ArrayList<>();
    List<VatRegScheme> regSchemes = vatReg.getVatRegSchemes();
    if(regSchemes != null){
     ListIterator<VatRegScheme> regSchemesLi = regSchemes.listIterator();
@@ -1841,7 +1930,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
  }
 */
  public List<VatCodeCompanyRec> getVatCompCodesForVatCode(VatCodeRec vatCode){
-  List<VatCodeCompanyRec> retList = new ArrayList<VatCodeCompanyRec>();
+  List<VatCodeCompanyRec> retList = new ArrayList<>();
   VatCode vatCd = em.find(VatCode.class, vatCode.getId(), OPTIMISTIC);
   List<VatCodeCompany> compCodes = vatCd.getVatCodeComps();
   if(compCodes == null){
@@ -1879,7 +1968,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
   LOGGER.log(INFO,"VatDM getVatCompRecsForVatCode called with code {0} ",vatCode.getCode());
   VatCode cd = em.find(VatCode.class, vatCode.getId(), OPTIMISTIC);
   List<VatCodeCompany> vatCompLst = cd.getVatCodeComps();
-  List<VatCodeCompanyRec> vatCompRecLst = new ArrayList<VatCodeCompanyRec>();
+  List<VatCodeCompanyRec> vatCompRecLst = new ArrayList<>();
   ListIterator<VatCodeCompany> vatCompLstLi = vatCompLst.listIterator();
   while(vatCompLstLi.hasNext()){
    VatCodeCompany compVat = vatCompLstLi.next();
@@ -1921,7 +2010,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
   if(rs == null){
    return null;
   }
-  List<VatReturnRec> vatReturnList = new ArrayList<VatReturnRec>();
+  List<VatReturnRec> vatReturnList = new ArrayList<>();
   ListIterator vLi = rs.listIterator();
   while(vLi.hasNext()){
    VatReturn vatReturn = (VatReturn)vLi.next();
@@ -2126,14 +2215,14 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
   Query q = em.createNamedQuery("vatCodesInput");
   List rs = q.getResultList();
   ListIterator li = rs.listIterator();
-  List<VatCodeRec> vatCodeRecList = new ArrayList<VatCodeRec>();
+  List<VatCodeRec> vatCodeRecList = new ArrayList<>();
   while(li.hasNext()){
    VatCode v = (VatCode)li.next();
    List<VatCodeCompany> vatComps = v.getVatCodeComps();
    ListIterator<VatCodeCompany> vatCompsLi = vatComps.listIterator();
    while(vatCompsLi.hasNext()){
     VatCodeCompany vatComp = vatCompsLi.next();
-    if(vatComp.getId() == comp.getId()){
+    if(Objects.equals(vatComp.getId(), comp.getId())){
      VatCodeRec vatCodeRec = this.buildVatCodeRec(v);
      vatCodeRecList.add(vatCodeRec);
     }
@@ -2147,14 +2236,14 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
   Query q = em.createNamedQuery("vatCodesOutput");
   List rs = q.getResultList();
   ListIterator li = rs.listIterator();
-  List<VatCodeRec> vatCodeRecList = new ArrayList<VatCodeRec>();
+  List<VatCodeRec> vatCodeRecList = new ArrayList<>();
   while(li.hasNext()){
    VatCode v = (VatCode)li.next();
    List<VatCodeCompany> vatComps = v.getVatCodeComps();
    ListIterator<VatCodeCompany> vatCompsLi = vatComps.listIterator();
    while(vatCompsLi.hasNext()){
     VatCodeCompany vatComp = vatCompsLi.next();
-    if(vatComp.getId() == comp.getId()){
+    if(Objects.equals(vatComp.getId(), comp.getId())){
      VatCodeRec vatCodeRec = this.buildVatCodeRec(v);
      vatCodeRecList.add(vatCodeRec);
     }
@@ -2179,7 +2268,7 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
   }
   List<VatRegScheme> regSchemes =  vatReg.getVatRegSchemes();
   if(regSchemes == null){
-  regSchemes = new ArrayList<VatRegScheme>();
+  regSchemes = new ArrayList<>();
   }
   ListIterator<VatRegSchemeRec> schemeLi = schemes.listIterator();
   while(schemeLi.hasNext()){
@@ -2204,7 +2293,7 @@ public VatRegistrationRec vatRegSchemeUpdate(VatRegistrationRec vatRegRec, UserR
  VatRegistration vatReg = em.find(VatRegistration.class, vatRegRec.getId(), OPTIMISTIC);
  List<VatRegScheme> regSchemes =  vatReg.getVatRegSchemes();
  if(regSchemes == null){
-  regSchemes = new ArrayList<VatRegScheme>();
+  regSchemes = new ArrayList<>();
  }
  List<VatRegSchemeRec> regSchemeRec = vatRegRec.getRegSchemes();
  ListIterator<VatRegSchemeRec> regSchLi = regSchemeRec.listIterator();

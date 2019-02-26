@@ -38,6 +38,7 @@ import static javax.persistence.DiscriminatorType.STRING;
  * @author Chris
  */
 @Entity
+
 @Inheritance(strategy=JOINED )
 @DiscriminatorColumn(name="DTYPE",discriminatorType=STRING,length=50)
 @DiscriminatorValue("audit.auditBase")

@@ -40,6 +40,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 import static javax.persistence.TemporalType.DATE;
 import static javax.persistence.InheritanceType.JOINED;
 import static javax.persistence.DiscriminatorType.STRING;
+import static javax.persistence.FetchType.EAGER; 
 import javax.persistence.ManyToMany;
 import static org.eclipse.persistence.annotations.MultitenantType.SINGLE_TABLE;
 
@@ -135,7 +136,7 @@ public class PartnerBase implements Serializable {
  @OneToMany(mappedBy = "arAccountFor")
  private List<ArAccount> arAccounts;
  
- @ManyToMany
+ @ManyToMany (fetch=EAGER)
  @JoinTable(name="ptnr05",
    joinColumns={@JoinColumn(name="partner_id", referencedColumnName="partner_id")},
    inverseJoinColumns={@JoinColumn(name="ptnr_role_id",referencedColumnName="ptnr_role_id")})

@@ -65,6 +65,14 @@ public class MessageUtil {
   context.addMessage(clientId, new FacesMessage(SEVERITY_WARN, message, ""));
  }
  
+ public static void addClientWarnMessage(String clientId,String str, String resourceName, String param1) {
+  FacesContext context = FacesContext.getCurrentInstance();
+  ResourceBundle bundle = context.getApplication().getResourceBundle(context, resourceName);
+  String message = bundle.getString(str);
+  message += " " + param1;
+  context.addMessage(clientId, new FacesMessage(SEVERITY_WARN, message, ""));
+ }
+ 
  /**
   * Add Faces Message to faces context with summary only
   *

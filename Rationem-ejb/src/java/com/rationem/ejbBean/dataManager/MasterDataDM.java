@@ -2640,28 +2640,14 @@ public static synchronized NumberRangeRec getNumberRangeNextVal(NumberRangeRec n
     trans.begin();
    }
    
-   PartnerBase ptnr = this.buildPartner(rec, pg);
+   PartnerBase ptnr = buildPartner(rec, pg);
    LOGGER.log(INFO,"ptnr id after build {0}",ptnr.getId());
    LOGGER.log(INFO, "ptnr roles {0}", ptnr.getPartnerRoles());
    
    if(rec.getId() == null){
     rec.setId(ptnr.getId());
    }
-   /*if(ptnrType.equals("PartnerPersonRec")){
-    LOGGER.log(INFO, "Indiv partner");
-    PartnerPerson ptnrPers = this.buildPartnerPerson((PartnerPersonRec)ptnr, pg);
-    if(ptnr.getId() == null){
-     ptnr.setId(ptnrPers.getId());
-    }
-   }
-   else{
-    LOGGER.log(INFO, "Corp parner");
-    PartnerCorporate ptnrCorp = this.buildPartnerCorporate((PartnerCorporateRec)ptnr, pg);
-    if(ptnr.getId() == null){
-     ptnr.setId(ptnrCorp.getId());
-    }
-   }
-   */
+   
    trans.commit();
    //trans.rollback();
    return rec;
@@ -2859,6 +2845,8 @@ public static synchronized NumberRangeRec getNumberRangeNextVal(NumberRangeRec n
       }
     try{
       List<PartnerPerson> l = q.getResultList();
+      LOGGER.log(INFO, " partner num records found {0}", l.size());
+      LOGGER.log(INFO, " partner records found {0}", l);
       if(l == null || l.isEmpty()){
        return null;
       }

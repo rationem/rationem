@@ -1033,6 +1033,13 @@ public CompPostPerRec getCompPostPerByCompLed(CompanyBasicRec comp, LedgerRec le
 
     return glAccounts;
   }
+
+public CompanyBasicRec getVatRegsistrations(CompanyBasicRec compRec){
+ List<VatRegistrationRec> regList = compDM.getVatRegistrationsForCompany(compRec);
+ LOGGER.log(INFO, "Vat registrations found {0}", regList);
+ compRec.setVatRegistrations(regList);
+ return compRec;
+}
   
 public  CalendarRuleBaseRec addNewCalendar(CalendarRuleBaseRec cal, String src){
  LOGGER.log(INFO, "addFlexCalendar called with cal {0} nat {1} mon {2} flex {3}", new Object[]{
@@ -1070,12 +1077,13 @@ public  CalendarRuleBaseRec addNewCalendar(CalendarRuleBaseRec cal, String src){
 
   }
 
- public VatRegistrationRec saveVatRegistration(CompanyBasicRec comp, VatRegistrationRec vatReg, 
+  public VatRegistrationRec saveVatRegistration(CompanyBasicRec comp, VatRegistrationRec vatReg, 
          UserRec usr, String source) throws BacException {
   LOGGER.log(INFO, "CompanyMgr.saveVatRegistration called with company {1} reg {2}", 
           new Object[]{comp,vatReg});
-  
+  vatReg.setComp(comp);
   vatReg = vatDM.vatRegistrationUpdate(comp, vatReg, usr, source);
+  
   LOGGER.log(INFO, "Company manager returns var reg with id {0}", vatReg.getId());
   return vatReg;
  }
@@ -1090,5 +1098,19 @@ public  CalendarRuleBaseRec addNewCalendar(CalendarRuleBaseRec cal, String src){
   return this.compDM.updateRestrictedFund(fund, pg);
  }
  
- 
+ public VatRegistrationRec updateVatRegistration(VatRegistrationRec vatReg, 
+   CompanyBasicRec comp, UserRec usrRec, String pg){
+  LOGGER.log(INFO, "CompMgr.updateVatRegistration called with var reg {0}", vatReg.getVatNumber());
+  vatReg = vatDM.vatRegistrationUpdate(comp, vatReg, usrRec, pg);
+  return vatReg;
  }
+ 
+ public boolean vatRegistrationDelete(VatRegistrationRec vatReg,CompanyBasicRec comp,UserRec usrRec, String pg ){
+  LOGGER.log(INFO, "CompMgr.vatRegistrationDelete called with vatReg {0}", vatReg.getVatNumber());
+  boolean rc = vatDM.vatRegistrationDelete( vatReg, comp, usrRec, pg);
+  LOGGER.log(INFO, "vatDM.vat reg del returned {0}", rc);
+  return rc;
+ }
+ 
+ 
+}
