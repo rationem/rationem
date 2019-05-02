@@ -11,185 +11,241 @@
  <ui:define name="title">#{pageTitle.fiGlAcntCoaUpdt}</ui:define>
  <ui:define name="header"> #{pageTitle.fiGlAcntCoaUpdt}</ui:define>
  <ui:define name="content">
-  <h:form id="glUpdt"   prependId="false">
-   <h:panelGrid columns="2">
-    <p:outputLabel for="coa" value="#{formText.glAccountChart}"/>
-    
-    <p:selectOneMenu id="coa" required="true" converter="com.rationem.util.converter.ChartOfAccounts"
-                           value="#{glAccountBean.selectedCoA}"  
-                           requiredMessage="#{formText.coa_coaRequired}"
-                           valueChangeListener="#{glAccountBean.onCoaAcntCoaChanged}"
-                           >
-       <p:ajax event="change" update="glUpdt"/>
-       <f:selectItems value="#{glAccountBean.coaList}" var="coaVar" itemValue="#{coaVar}" 
-                      itemLabel="#{coaVar.reference}"/>
-       </p:selectOneMenu>
-   </h:panelGrid>
-   <p:contextMenu for="acntTbl">
-    <p:menuitem value="#{formText.edit}" actionListener="#{glAccountBean.onEditCoaAcntDlg}"/>
-    <p:menuitem value="#{formText.glAccountCompAcs}" actionListener="#{glAccountBean.onEditCoaCompAcsDlg}"/>
-   </p:contextMenu>
-   <p:dataTable id="acntTbl" value="#{glAccountBean.accountList}" var="coaAcnt" 
-                emptyMessage="#{validationText.glAcsForCoaNone}"  paginator="true"
-                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
-                rows="#{glAccountBean.usrBuff.tblRows}" rowKey="#{coaAcnt.id}"
-                selection="#{glAccountBean.glAccountSelected}" selectionMode="single"
-                rowExpandMode="single">
-    <p:ajax event="contextMenu" listener="#{glAccountBean.onContextMenuCoaAcntUpdate}"/>
-    <p:ajax event="rowToggle" listener="#{glAccountBean.onEditCoaRowToggle}"/>
-    <f:facet name="{Exporters}">
+  <div>
+   <h:form id="glUpdt">
+    <p:panelGrid id="selPg" columns="2" columnClasses="ui-grid-col-4,ui-grid-col-2 "
+                 styleClass="ui-noborder">
+     <p:outputLabel for="coa" value="#{formText.glAccountChart}"/>
+
+     <p:autoComplete
+      id="coa" value="#{glAccountBean.selectedCoA}" dropdown="true" var="coaV"
+      itemValue="#{coaV}" converter="com.rationem.util.converter.ChartOfAccounts"
+      completeMethod="#{glAccountBean.onCoaComplete}" required="true"
+      requiredMessage="#{formText.coa_coaRequired}" itemLabel="#{coaV.reference}">
+      <f:facet name="itemtip">
+       <h:panelGrid columns="2">
+        <h:outputText value="#{coaV.reference}"/>
+        <h:outputText value="#{coaV.name}" />
+       </h:panelGrid>
+     </f:facet>
+      <p:ajax event="itemSelect" listener="#{glAccountBean.onCoaSelect}" />
+
+      <p:column width="25%">
+       <h:outputText value="#{coaV.reference}"/>
+      </p:column>
+      <p:column width="75%">
+       <h:outputText value="#{coaV.name}"/>
+      </p:column>
+
+     </p:autoComplete>
+
+
+    </p:panelGrid>
+
+
+    <p:dataTable
+     id="acntTbl" value="#{glAccountBean.accountList}" var="coaAcnt" paginator="true"
+     emptyMessage="#{validationText.glAcsForCoaNone}" rowKey="#{coaAcnt.id}"
+     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+     rows="#{glAccountBean.usrBuff.tblRows}" rowExpandMode="single" reflow="true"
+     selection="#{glAccountBean.glAccountSelected}" selectionMode="single" >
+     <p:ajax event="contextMenu" listener="#{glAccountBean.onContextMenuCoaAcntUpdate}"/>
+     <p:ajax event="rowToggle" listener="#{glAccountBean.onEditCoaRowToggle}"/>
+     <f:facet name="{Exporters}">
       <h:commandLink style="float:right;" >
-        <p:graphicImage name="/images/Excel-48.gif" width="24"/>
-        <p:dataExporter type="xls" target="acntTbl" fileName="#{formText.glAccount_fn}" 
-                        postProcessor="#{countryBean.postProcessXLS}" />
+       <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+       <p:dataExporter type="xls" target="acntTbl" fileName="#{formText.glAccount_fn}" 
+                       postProcessor="#{countryBean.postProcessXLS}" />
       </h:commandLink>
       <h:commandLink style="float:right;">
-        <p:graphicImage name="/images/csv_text.png" width="24"/>
-        <p:dataExporter type="csv" target="acntTbl" fileName="#{formText.glAccount_fn}" />
+       <p:graphicImage name="/images/csv_text.png" width="24"/>
+       <p:dataExporter type="csv" target="acntTbl" fileName="#{formText.glAccount_fn}" />
       </h:commandLink>
      </f:facet>
-    <p:column style="width:36px" exportable="false">
-     <f:facet name="header">
-      <h:outputText value="#{formText.detail}"/>
-      
-     </f:facet>
-     <p:rowToggler />
-    </p:column>
-    <p:column filterBy="#{coaAcnt.ref}" filterMatchMode="contains" sortBy="#{coaAcnt.ref}" width="120">
+     <p:column style="width:36px" exportable="false">
+      <f:facet name="header">
+       <h:outputText value="#{formText.detail}"/>
+
+      </f:facet>
+      <p:rowToggler />
+     </p:column>
+     <p:column filterBy="#{coaAcnt.ref}" filterMatchMode="contains" sortBy="#{coaAcnt.ref}" width="120">
       <f:facet name="header">
        <h:outputText value="#{formText.glAccountRef}"/>
       </f:facet>
       <h:outputText value="#{coaAcnt.ref}"/>
      </p:column>
-    <p:column  sortBy="#{coaAcnt.name}" filterBy="#{coaAcnt.name}" filterMatchMode="contains" width="200">
-     <f:facet name="header">
-      <h:outputText value="#{formText.glAccountName}"/>
-     </f:facet>
-     <h:outputText value="#{coaAcnt.name}"/>
-    </p:column>
-    <p:column sortBy="#{coaAcnt.description}" filterBy="#{coaAcnt.description}" filterMatchMode="contains" >
-     <f:facet name="header">
-      <h:outputText value="#{formText.glAccountFullName}"/>
-     </f:facet>
-     <h:outputText value="#{coaAcnt.description}"/>
-    </p:column>
-    <p:column sortBy="#{coaAcnt.pl}"  width="70">
-     <f:facet name="header">
-      <h:outputText value="#{formText.glAccountPlAct}"/>
-     </f:facet>
-     <h:outputText value="#{formText.yes}" rendered="#{coaAcnt.pl == true}"/>
-     <h:outputText value="#{formText.no}" rendered="#{coaAcnt.pl == false}"/>
-    </p:column>
-    <p:column sortBy="#{coaAcnt.accountType.description}" filterBy="#{coaAcnt.accountType.description}"
-              filterMatchMode="contains" width="250">
-     <f:facet name="header">
-      <h:outputText value="#{formText.glAccountActTy}"/>
-     </f:facet>
-     <h:outputText value="#{coaAcnt.accountType.description}"/>
-    </p:column>
-    <p:rowExpansion>
-     <p:outputPanel id="expRowId">
-      <p:panelGrid rendered="#{glAccountBean.selectedCoaClass eq 'pl'}" columns="4" 
-                   styleClass="panelNoBorders">
-       <h:outputText  value="#{formText.glAccountRepCat}" styleClass="expansionText"/>
-       <h:outputText  value="#{glAccountBean.selectedPlAccount.reportCat}"/>
-       <h:outputText value="#{formText.glAccountActCat}" styleClass="expansionText"/>
-       <h:outputText value="#{glAccountBean.selectedPlAccount.accountCat}"/>
-      </p:panelGrid>
-      <p:panelGrid rendered="#{glAccountBean.selectedCoaClass eq 'bs'}" columns="4" 
-                   styleClass="panelNoBorders">
-       <h:outputText  value="#{formText.glAccountRepCat}" styleClass="expansionText"/>
-       <h:outputText  value="#{glAccountBean.selectedBsAccount.reportCat}"/>
-       <h:outputText value="#{formText.glAccountBalFwd}" styleClass="expansionText"/>
-       <h:outputText value="#{formText.yes}" rendered="#{glAccountBean.selectedBsAccount.balFwd}"/>
-       <h:outputText value="#{formText.no}" rendered="#{!glAccountBean.selectedBsAccount.balFwd}"/>
-      </p:panelGrid>
-     </p:outputPanel>
-    </p:rowExpansion>
-    
+     <p:column  sortBy="#{coaAcnt.name}" filterBy="#{coaAcnt.name}" filterMatchMode="contains" width="200">
+      <f:facet name="header">
+       <h:outputText value="#{formText.glAccountName}"/>
+      </f:facet>
+      <h:outputText value="#{coaAcnt.name}"/>
+     </p:column>
+     <p:column sortBy="#{coaAcnt.description}" filterBy="#{coaAcnt.description}" filterMatchMode="contains" >
+      <f:facet name="header">
+       <h:outputText value="#{formText.glAccountFullName}"/>
+      </f:facet>
+      <h:outputText value="#{coaAcnt.description}"/>
+     </p:column>
+     <p:column sortBy="#{coaAcnt.pl}"  width="70">
+      <f:facet name="header">
+       <h:outputText value="#{formText.glAccountPlAct}"/>
+      </f:facet>
+      <h:outputText value="#{formText.yes}" rendered="#{coaAcnt.pl == true}"/>
+      <h:outputText value="#{formText.no}" rendered="#{coaAcnt.pl == false}"/>
+     </p:column>
+     <p:column sortBy="#{coaAcnt.accountType.description}" filterBy="#{coaAcnt.accountType.description}"
+               filterMatchMode="contains" width="250">
+      <f:facet name="header">
+       <h:outputText value="#{formText.glAccountActTy}"/>
+      </f:facet>
+      <h:outputText value="#{coaAcnt.accountType.description}"/>
+     </p:column>
+     <p:rowExpansion>
+      <p:outputPanel id="expRowId">
+       <p:panelGrid rendered="#{glAccountBean.selectedCoaClass eq 'pl'}" columns="4"
+                    styleClass="panelNoBorders">
+        <h:outputText  value="#{formText.glAccountRepCat}" styleClass="expansionText"/>
+        <h:outputText  value="#{glAccountBean.selectedPlAccount.reportCat}"/>
+        <h:outputText value="#{formText.glAccountActCat}" styleClass="expansionText"/>
+        <h:outputText value="#{glAccountBean.selectedPlAccount.accountCat}"/>
+       </p:panelGrid>
+       <p:panelGrid rendered="#{glAccountBean.selectedCoaClass eq 'bs'}" columns="4"
+                    styleClass="panelNoBorders">
+        <h:outputText  value="#{formText.glAccountRepCat}" styleClass="expansionText"/>
+        <h:outputText  value="#{glAccountBean.selectedBsAccount.reportCat}"/>
+        <h:outputText value="#{formText.glAccountBalFwd}" styleClass="expansionText"/>
+        <h:outputText value="#{formText.yes}" rendered="#{glAccountBean.selectedBsAccount.balFwd}"/>
+        <h:outputText value="#{formText.no}" rendered="#{!glAccountBean.selectedBsAccount.balFwd}"/>
+       </p:panelGrid>
+      </p:outputPanel>
+     </p:rowExpansion>
     </p:dataTable>
-   
-  </h:form>
-  <p:dialog dynamic="true" id="editActDlgId"  widgetVar="editActDlgWv" modal="true" >
-   <f:facet name="header">
-    <h:outputText value="#{formText.update}"/>
-    <p:spacer width="10"/>
-    <h:outputText rendered="#{glAccountBean.selectedCoaClass eq 'bs'}"
-     value="#{glAccountBean.selectedBsAccount.ref} #{glAccountBean.selectedBsAccount.description}"/>
-    <h:outputText rendered="#{glAccountBean.selectedCoaClass eq 'pl'}"
-     value="#{glAccountBean.selectedPlAccount.ref} #{glAccountBean.selectedPlAccount.description}"/>
-   </f:facet>
-   <h:form id="updateCoaAcntFrm" prependId="false">
-    <p:panelGrid columns="2" rendered="#{glAccountBean.selectedCoaClass eq 'pl'}" 
-                 styleClass="panelNoBorders">
-     <p:outputLabel for="editPlRef" value="#{formText.glAccountRef}"/>
-     <p:inputText id="editPlRef" value="#{glAccountBean.selectedPlAccount.ref}" required="true"/>
-     <p:outputLabel for="editPlName" value="#{formText.glAccountName}"/>
-     <p:inputText id="editPlName" value="#{glAccountBean.selectedPlAccount.name}"/>
-     <p:outputLabel for="editPlDescr" value="#{formText.glAccountFullName}"/>
-     <p:inputText id="editPlDescr" value="#{glAccountBean.selectedPlAccount.description}"/>
-     <p:outputLabel for="editPlAcntTy" value="#{formText.glAccountActTy}"/>
-     
-     <p:inplace id="actTyInPlace" editor="true">
-      <f:facet  name="output">
-       <h:outputText value="#{glAccountBean.selectedPlAccount.accountType.description}"/>
-      </f:facet>
-      <f:facet name="input"  >
-       <h:selectOneMenu id="editPlAcntTy" value="#{glAccountBean.selectedPlAccount.accountType}"
-                      converter="com.rationem.util.converter.GlAccountType">
-        <f:selectItems value="#{glAccountBean.accountTyList}" var="actTy" itemValue="#{actTy}" 
-                     itemLabel="#{actTy.description}"/>
-       
-       </h:selectOneMenu>
-      </f:facet>
-     </p:inplace>
-     <p:outputLabel for="editReportCat" value="#{formText.glAccountRepCat}"/>
-     <p:inputText id="editReportCat" value="#{glAccountBean.selectedPlAccount.reportCat}"/>
-     <p:outputLabel for="editAcntCat" value="#{formText.glAccountActCat}"/>
-     <p:inputText id="editAcntCat" value="#{glAccountBean.selectedPlAccount.accountCat}"/>
-     <p:commandButton id="editTrf" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"
-                      actionListener="#{glAccountBean.onEditCoaPlAcntTrf}"/>
-     <p:commandButton type="button" onclick="PF('editActDlgWv').hide();" icon="ui-icon-close"
-                      value="#{formText.close}"/>
-    </p:panelGrid>
-    
-    <p:panelGrid columns="2" rendered="#{glAccountBean.selectedCoaClass eq 'bs'}" 
-                 styleClass="panelNoBorders">
-     <p:outputLabel for="editBsRef" value="#{formText.glAccountRef}"/>
-     <p:inputText id="editBsRef" value="#{glAccountBean.selectedBsAccount.ref}" required="true"/>
-     <p:outputLabel for="editBsName" value="#{formText.glAccountName}"/>
-     <p:inputText id="editBsName" value="#{glAccountBean.selectedBsAccount.name}"/>
-     <p:outputLabel for="editBsDescr" value="#{formText.glAccountFullName}"/>
-     <p:inputText id="editBsDescr" value="#{glAccountBean.selectedBsAccount.description}"/>
-     <p:outputLabel for="editBsAcntTy" value="#{formText.glAccountActTy}"/>
-     
-     <p:inplace id="actTyBsInPlace" editor="true">
-      <f:facet  name="output">
-       <h:outputText value="#{glAccountBean.selectedBsAccount.accountType.description}"/>
-      </f:facet>
-      <f:facet name="input"  >
-       <h:selectOneMenu id="editBsAcntTy" value="#{glAccountBean.selectedBsAccount.accountType}"
-                      converter="com.rationem.util.converter.GlAccountType">
-        <f:selectItems value="#{glAccountBean.accountTyList}" var="actTy" itemValue="#{actTy}" 
-                     itemLabel="#{actTy.description}"/>
-       
-       </h:selectOneMenu>
-      </f:facet>
-     </p:inplace>
-     <p:outputLabel for="editBsReportCat" value="#{formText.glAccountRepCat}"/>
-     <p:inputText id="editBsReportCat" value="#{glAccountBean.selectedBsAccount.reportCat}"/>
-     <p:outputLabel for="editBsBalFwd" value="#{formText.glAccountBalFwd}"/>
-     <p:selectBooleanButton id="editBsBalFwd" offLabel="#{formText.no}" onLabel="#{formText.yes}" 
-                            value="#{glAccountBean.selectedBsAccount.balFwd}"/>
-     <p:commandButton id="editBsTrf" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"
-                      actionListener="#{glAccountBean.onEditCoaPlAcntTrf}"/>
-     <p:commandButton type="button" onclick="PF('editActDlgWv').hide();" icon="ui-icon-close"
-                      value="#{formText.close}"/>
-    </p:panelGrid>
-    
+    <p:contextMenu for="acntTbl">
+     <p:menuitem value="#{formText.edit}" actionListener="#{glAccountBean.onEditCoaAcntDlg}"/>
+     <p:menuitem value="#{formText.glAccountCompAcs}" actionListener="#{glAccountBean.onEditCoaCompAcsDlg}"/>
+    </p:contextMenu>
    </h:form>
-  </p:dialog>
-  <p:dialog id="editCoaCompDlg" widgetVar="editCoaCompDlgWv" dynamic="true" modal="true" 
+
+   <h:form id="updateCoaAcntFrm" prependId="false">
+    <p:dialog dynamic="true" id="editActDlgId"  widgetVar="editActDlgWv" modal="true" >
+     <f:facet name="header">
+      <h:outputText value="#{formText.update}"/>
+      <p:spacer width="10"/>
+      <h:outputText rendered="#{glAccountBean.selectedCoaClass eq 'bs'}"
+                    value="#{glAccountBean.selectedBsAccount.ref} #{glAccountBean.selectedBsAccount.description}"/>
+      <h:outputText rendered="#{glAccountBean.selectedCoaClass eq 'pl'}"
+                    value="#{glAccountBean.selectedPlAccount.ref} #{glAccountBean.selectedPlAccount.description}"/>
+     </f:facet>
+
+     <p:panelGrid id="plPg" columns="1" rendered="#{glAccountBean.selectedCoaClass eq 'pl'}"
+                  styleClass="ui-noborder" layout="grid" columnClasses="ui-grid-col-3">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editPlRef" value="#{glAccountBean.selectedPlAccount.ref}"
+                    required="true"/>
+       <p:outputLabel for="editPlRef" value="#{formText.glAccountRef}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editPlName" value="#{glAccountBean.selectedPlAccount.name}"/>
+       <p:outputLabel for="editPlName" value="#{formText.glAccountName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editPlDescr" value="#{glAccountBean.selectedPlAccount.description}"/>
+       <p:outputLabel for="editPlDescr" value="#{formText.glAccountFullName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inplace id="actTyInPlace" editor="true">
+        <f:facet  name="output">
+         <h:outputText value="#{glAccountBean.selectedPlAccount.accountType.description}"/>
+        </f:facet>
+        <f:facet name="input"  >
+         <h:selectOneMenu id="editPlAcntTy" value="#{glAccountBean.selectedPlAccount.accountType}"
+                          converter="com.rationem.util.converter.GlAccountType">
+          <f:selectItems value="#{glAccountBean.accountTyList}" var="actTy" itemValue="#{actTy}"
+                         itemLabel="#{actTy.description}"/>
+
+         </h:selectOneMenu>
+        </f:facet>
+       </p:inplace>
+       <p:outputLabel for="editPlAcntTy" value="#{formText.glAccountActTy}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editReportCat" value="#{glAccountBean.selectedPlAccount.reportCat}"/>
+       <p:outputLabel for="editReportCat" value="#{formText.glAccountRepCat}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editAcntCat" value="#{glAccountBean.selectedPlAccount.accountCat}"/>
+       <p:outputLabel for="editAcntCat" value="#{formText.glAccountActCat}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+
+
+     <p:panelGrid
+      columns="1" rendered="#{glAccountBean.selectedCoaClass eq 'bs'}" layout="grid"
+      styleClass="ui-noborder" columnClasses="ui-grid-col-8">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editBsRef" value="#{glAccountBean.selectedBsAccount.ref}"
+                    required="true"/>
+       <p:outputLabel for="editBsRef" value="#{formText.glAccountRef}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editBsName" value="#{glAccountBean.selectedBsAccount.name}"/>
+       <p:outputLabel for="editBsName" value="#{formText.glAccountName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editBsDescr" value="#{glAccountBean.selectedBsAccount.description}"/>
+       <p:outputLabel for="editBsDescr" value="#{formText.glAccountFullName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="editBsReportCat" value="#{glAccountBean.selectedBsAccount.reportCat}"/>
+       <p:outputLabel for="editBsReportCat" value="#{formText.glAccountRepCat}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-10,ui-grid-col-10"
+                  styleClass="ui-noborder">
+      <p:outputLabel for="editBsAcntTy" value="#{formText.glAccountActTy}"/>
+      <p:inplace id="actTyBsInPlace" editor="true">
+       <f:facet  name="output">
+        <h:outputText value="#{glAccountBean.selectedBsAccount.accountType.description}"/>
+       </f:facet>
+       <f:facet name="input"  >
+        <p:selectOneMenu
+         id="editBsAcntTy" value="#{glAccountBean.selectedBsAccount.accountType}"
+         converter="com.rationem.util.converter.GlAccountType" filter="true"
+         filterMatchMode="contains">
+         <f:selectItems value="#{glAccountBean.accountTyList}" var="actTy" itemValue="#{actTy}"
+                        itemLabel="#{actTy.description}"/>
+        </p:selectOneMenu>
+       </f:facet>
+      </p:inplace>
+      <p:outputLabel for="ldrRecon" value="#{formTextGl.glCoaAcntSubLed}"/>
+      <p:autoComplete
+        id="ldrRecon" value="#{glAccountBean.selectedBsAccount.reconForLed}" dropdown="true"
+        converter="com.rationem.util.converter.Ledger" var="ledV" itemValue="#{ledV}"
+        completeMethod="#{glAccountBean.onLedgerComplete}" itemLabel="#{ledV.name}">
+       <p:column width="25%">
+        <h:outputText value="#{ledV.name}"/>
+       </p:column>
+       <p:column width="75%">
+        <h:outputText value="#{ledV.descr}"/>
+       </p:column>
+      </p:autoComplete>
+      <p:outputLabel for="editBsBalFwd" value="#{formText.glAccountBalFwd}"/>
+      <p:selectBooleanButton id="editBsBalFwd" offLabel="#{formText.no}" onLabel="#{formText.yes}"
+                             value="#{glAccountBean.selectedBsAccount.balFwd}"/>
+     </p:panelGrid>
+     <p:panelGrid id="btnPg" layout="grid" columns="2" styleClass="ui-noborder"
+                  columnClasses="ui-gris-col-6,ui-gris-col-6" >
+      <p:commandButton id="editTrf" value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w"
+                       actionListener="#{glAccountBean.onEditCoaPlAcntTrf}"/>
+      <p:commandButton type="button" onclick="PF('editActDlgWv').hide();" icon="ui-icon-close"
+                       value="#{formText.close}"/>
+     </p:panelGrid>
+
+    </p:dialog>
+   </h:form>
+
+   <p:dialog id="editCoaCompDlg" widgetVar="editCoaCompDlgWv" dynamic="true" modal="true" 
             styleClass="dlgHeader">
    <f:facet name="header">
     <h:outputText value="#{formText.glAccountCompAcsFor}"/> 
@@ -332,6 +388,7 @@
    </p:panelGrid>
    </h:form>
   </p:dialog>
+  </div>
  </ui:define>
 </ui:composition>
 

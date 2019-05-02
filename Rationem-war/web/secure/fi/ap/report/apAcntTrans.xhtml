@@ -14,8 +14,8 @@
    <p:outputPanel id="stepOp">
     <div class="card card-w-title" >
      <h1>#{apAcntTransListBean.stepName}</h1>
-     <p:messages id="errMsg" autoUpdate="true" severity="warn, error, fatal" closable="true"/>
-     <p:growl id="okMsg"  autoUpdate="true" severity="info"/>
+     <p:messages id="errMsg"   severity="warn, error, fatal" closable="true"/>
+     <p:growl id="okMsg"    severity="info"/>
      <p:panelGrid id="selPg" columns="2"  
                 styleClass="ui-noborder" layout="grid" rendered="#{apAcntTransListBean.step eq 0}" >
       <h:panelGroup styleClass="md-inputfield">

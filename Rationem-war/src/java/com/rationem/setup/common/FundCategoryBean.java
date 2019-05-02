@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -64,9 +64,9 @@ public class FundCategoryBean extends BaseBean {
  }
  
  public void onEditMenu(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editCatFrm");
-  rCtx.execute("PF('editCatDlg').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editCatFrm");
+  pf.executeScript("PF('editCatDlg').show()");
  }
  
  public void onSaveEditCategory(){
@@ -83,9 +83,9 @@ public class FundCategoryBean extends BaseBean {
     }
    }
    MessageUtil.addInfoMessage("fndCatUpdt", "blacResponse");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("catlistFrm");
-   rCtx.execute("PF('editCatDlg').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("catlistFrm");
+   pf.executeScript("PF('editCatDlg').hide()");
   }catch(Exception ex){
    
   }
@@ -97,8 +97,8 @@ public class FundCategoryBean extends BaseBean {
   fndCat = setUp.updateFundCategory(fndCat, getView());
   MessageUtil.addInfoMessage("fndCatCr", "blacResponse");
   fndCat = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("fndCatCrFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("fndCatCrFrm");
   }catch(Exception ex){
    MessageUtil.addErrorMessage("fndCatCr", "errorText");
   }

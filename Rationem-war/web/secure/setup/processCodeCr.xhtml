@@ -9,30 +9,53 @@
   <h:outputText value="#{pageTitle.cfg_procCodeCr}" styleClass="panelHeader" /> 
  </ui:define>
  <ui:define name="content">
-  <h:form id="procCodeCrFrm" prependId="false" >
-   <p:toolbar>
-    <f:facet name="left" >
-     <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" actionListener="#{processCodeBean.onAddProcCodeSave}" />
-     <p:commandButton type="reset" value="#{formText.reset}" icon="ui-icon-arrowrefresh-1-n"/>
-    </f:facet>
-   </p:toolbar>
-   <p:messages id="procMsg" showSummary="true" showDetail="true" >
-    <p:autoUpdate />
-   </p:messages>
-   <p:panelGrid columns="2" >
-    <p:outputLabel for="name" value="#{formText.procCd_name}"/>
-    <p:inputText id="name" value="#{processCodeBean.processCode.name}" size="20" required="true"
-                 requiredMessage="#{validationText.procCd_name}"/>
-    <p:outputLabel for="descr" value="#{formText.procCd_desc}" />
-    <p:inputText id="descr" value="#{processCodeBean.processCode.description}" size="50" required="true"
-                 requiredMessage="#{validationText.procCd_descr}" />
-    <p:outputLabel for="module" value="#{formText.procCd_mod}"/>
-    <p:selectOneMenu id="module" value="#{processCodeBean.processCode.module}" 
-                     converter="com.rationem.util.converter.Module" >
-     <f:selectItems value="#{processCodeBean.modules}" var="modVar" itemValue="#{modVar}" 
-                    itemLabel="#{modVar.moduleCode} - #{modVar.description}" />
-    </p:selectOneMenu>
-   </p:panelGrid>
-  </h:form>
+  <div class="ui-g ui-fluid">
+   <h:form id="procCodeCrFrm" >
+    <p:toolbar>
+     <f:facet name="left" >
+      <p:commandButton 
+       value="#{formText.save}" styleClass="secondary"
+       icon="fa fa-floppy-o" actionListener="#{processCodeBean.onAddProcCodeSave}" />
+     </f:facet>
+     <f:facet name="right" >
+      <p:commandButton 
+       type="reset" value="#{formText.reset}" styleClass="secondary"
+       icon="fa fa-refresh">
+       <p:resetInput target="procCodeCrFrm:detailsPg"/>
+      </p:commandButton>
+
+     </f:facet>
+    </p:toolbar>
+    <p:messages id="procMsg" showSummary="true" showDetail="true" />
+
+
+    <p:panelGrid id="detailsPg" columns="1" layout="grid" columnClasses="ui-grid-col-5" >
+     <h:panelGroup class="md-inputfield">
+      <p:inputText
+       id="name" value="#{processCodeBean.processCode.name}" size="20"
+       required="true" />
+      <p:outputLabel for="name" value="#{formText.procCd_name}"/>
+     </h:panelGroup>
+     <h:panelGroup class="md-inputfield">
+      <p:inputText
+       id="descr" value="#{processCodeBean.processCode.description}" size="50" required="true"
+       requiredMessage="#{validationText.procCd_descr}" />
+      <p:outputLabel for="descr" value="#{formText.procCd_desc}" />
+     </h:panelGroup>
+     <h:panelGroup class="md-inputfield">
+      <p:autoComplete
+       id="module" value="#{processCodeBean.processCode.module}" var="modV" itemValue="#{modV}"
+       completeMethod="#{processCodeBean.onModuleComplete}" itemLabel="#{modV.name}"
+       emptyMessage="#{validationText.moduleNf}" required="true" dropdown="true"
+       converter="com.rationem.util.converter.Module">
+       <p:column>
+        #{modV.name} #{modV.description}
+       </p:column>
+      </p:autoComplete>
+      <p:outputLabel for="module" value="#{formText.procCd_mod}"/>
+     </h:panelGroup>
+    </p:panelGrid>
+   </h:form>
+  </div>
  </ui:define>
 </ui:composition>

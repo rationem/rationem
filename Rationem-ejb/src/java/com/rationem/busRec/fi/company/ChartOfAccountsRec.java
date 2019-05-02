@@ -5,7 +5,6 @@
 
 package com.rationem.busRec.fi.company;
 
-import java.util.Collection;
 import com.rationem.busRec.config.company.FisPeriodRuleRec;
 import com.rationem.busRec.mdm.CountryRec;
 import com.rationem.busRec.mdm.CurrencyRec;
@@ -17,7 +16,6 @@ import java.util.List;
 
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.INFO;
 
 /**
  * A chart of accounts holds the processing rules for a set of accounts.
@@ -26,7 +24,7 @@ import static java.util.logging.Level.INFO;
  * @author Chris
  */
 public class ChartOfAccountsRec implements Serializable {
- private static final Logger logger = Logger.getLogger(ChartOfAccountsRec.class.getName());
+ private static final Logger LOGGER = Logger.getLogger(ChartOfAccountsRec.class.getName());
 
  private Long id;
  private String reference;

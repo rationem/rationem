@@ -6,18 +6,11 @@
 package com.rationem.setup.common;
 
 import java.util.Date;
-import com.rationem.busRec.config.common.LineTypeRuleTextRec;
-import com.rationem.exception.BacException;
-import com.rationem.util.GenUtil;
 import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.busRec.config.common.ModuleRec;
 import java.util.ListIterator;
-import java.io.Serializable;
 import com.rationem.ejbBean.config.common.BasicSetup;
 import javax.ejb.EJB;
-import javax.faces.model.SelectItem;
-import javax.faces.event.AjaxBehaviorEvent;
-import java.util.ArrayList;
 import com.rationem.busRec.config.common.LineTypeRuleRec;
 import com.rationem.util.BaseBean;
 import com.rationem.util.MessageUtil;
@@ -26,7 +19,7 @@ import java.util.List;
 
 import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 
 
@@ -136,14 +129,14 @@ public class LineTypeBean extends BaseBean  {
 
     public void onLineTypeEditDlg(){
      logger.log(INFO, "onLineTypeEditDlg called with selected {0}", this.lineTypeSelected);
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("editLineTyFrm");
-     rCtx.execute("PF('lineTypeEditDlg').show()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("editLineTyFrm");
+     pf.executeScript("PF('lineTypeEditDlg').show()");
     }
 
     public void onLineTypeEditClose(){
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.execute("PF('lineTypeEditDlg').hide()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.executeScript("PF('lineTypeEditDlg').hide()");
     }
     
     public void onLineTypeEditTrf(){
@@ -162,9 +155,9 @@ public class LineTypeBean extends BaseBean  {
       if(ln.getId() == lineTypeSelected.getId()){
        li.set(lineTypeSelected);
        foundLn = true;
-       RequestContext rCtx = RequestContext.getCurrentInstance();
-       rCtx.update("lineTypeFrm");
-       rCtx.execute("PF('lineTypeEditDlg').hide()");
+       PrimeFaces pf = PrimeFaces.current();
+       pf.ajax().update("lineTypeFrm");
+       pf.executeScript("PF('lineTypeEditDlg').hide()");
       }
      }
      MessageUtil.addInfoMessage("lineTypeUpdt", "blacResponse");

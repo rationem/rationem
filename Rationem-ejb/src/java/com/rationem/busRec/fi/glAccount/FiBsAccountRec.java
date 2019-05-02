@@ -7,6 +7,7 @@ package com.rationem.busRec.fi.glAccount;
 
 import com.rationem.busRec.config.arap.PaymentTypeRec;
 import com.rationem.busRec.config.company.AccountTypeRec;
+import com.rationem.busRec.config.company.LedgerRec;
 //import com.rationem.busRec.config.fi.FiGlActTypeRec;
 import com.rationem.busRec.fi.company.ChartOfAccountsRec;
 import java.util.Date;
@@ -19,6 +20,7 @@ import java.util.List;
 public class FiBsAccountRec extends FiGlAccountBaseRec {
 
   private boolean balFwd;
+  private LedgerRec reconForLed;
   
   public FiBsAccountRec() {
   }
@@ -38,6 +40,15 @@ public class FiBsAccountRec extends FiGlAccountBaseRec {
     this.balFwd = balFwd;
   }
 
+ public LedgerRec getReconForLed() {
+  return reconForLed;
+ }
+
+ public void setReconForLed(LedgerRec reconForLed) {
+  this.reconForLed = reconForLed;
+ }
+
+  
   
 
   

@@ -12,7 +12,6 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
-import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.ManyToOne;
@@ -30,7 +29,6 @@ import com.rationem.entity.salesTax.vat.VatCodeCompany;
 import com.rationem.entity.salesTax.vat.VatReturnLine;
 
 import static javax.persistence.InheritanceType.JOINED;
-import static javax.persistence.DiscriminatorType.STRING;
 
 /**
  *
@@ -128,7 +126,7 @@ public class DocLineGl extends DocLineBase implements Serializable {
  
  @ManyToOne
  @JoinColumn(name="comp_vat_code_id" ,referencedColumnName="vat_code_comp_id" )
- private VatCodeCompany vatCodeComp;
+ private VatCodeCompany vatCode;
  
  
  @OneToOne(mappedBy = "expenseDocLine")
@@ -323,12 +321,12 @@ public class DocLineGl extends DocLineBase implements Serializable {
   this.vatReturnLine = vatReturnLine;
  }
 
- public VatCodeCompany getVatCodeComp() {
-  return vatCodeComp;
+ public VatCodeCompany getVatCode() {
+  return vatCode;
  }
 
- public void setVatCodeComp(VatCodeCompany vatCodeComp) {
-  this.vatCodeComp = vatCodeComp;
+ public void setVatCode(VatCodeCompany vatCode) {
+  this.vatCode = vatCode;
  }
 
  

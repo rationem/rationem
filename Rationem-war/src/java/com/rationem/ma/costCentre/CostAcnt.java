@@ -30,8 +30,6 @@ import javax.ejb.EJB;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
@@ -39,7 +37,7 @@ import org.apache.poi.ss.util.DateFormatConverter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 
@@ -174,16 +172,16 @@ public class CostAcnt extends BaseBean {
  
  public void onCostAcntDispDlg(){
   logger.log(INFO, "Displ Dlg called account {0}", this.accountSel.getRef());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displAcntFrm");
-  rCtx.execute("PF('dispDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displAcntFrm");
+  pf.executeScript("PF('dispDlgWv').show();");
  }
  
  public void onCostAcntUpdtDlg(){
   logger.log(INFO, "Update Dlg called account {0}", this.accountSel.getRef());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("updtAcntFrm");
-  rCtx.execute("PF('updtDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("updtAcntFrm");
+  pf.executeScript("PF('updtDlgWv').show();");
  }
  
  public void onCreateAcntsBtn(){
@@ -193,8 +191,8 @@ public class CostAcnt extends BaseBean {
   this.actsCreated = true;
   MessageUtil.addInfoMessageVar1("maCostAcsCreated", "blacResponse", 
      String.valueOf(costCentSel.getCostAccountDirectAcs().size()));
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("acsDt");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("acsDt");
  }
  
  public List<PartnerPersonRec> onRespPers(String input){
@@ -236,16 +234,16 @@ public class CostAcnt extends BaseBean {
     foundCacnt = true;
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(foundCacnt){
    MessageUtil.addInfoMessageVar1("maCstAcntUpdt", "blacResponse", accountSel.getRef());
-   rCtx.update("msgs");
-   rCtx.update("acsDt");
-   rCtx.execute("PF('updtDlgWv').hide();");
+   pf.ajax().update("msgs");
+   pf.ajax().update("acsDt");
+   pf.executeScript("PF('updtDlgWv').hide();");
    
   }else{
    MessageUtil.addWarnMessageParam("maCostAcntUpdt", "errorText", accountSel.getRef());
-   rCtx.update("msgs");
+   pf.ajax().update("msgs");
   }
  }
  @Override

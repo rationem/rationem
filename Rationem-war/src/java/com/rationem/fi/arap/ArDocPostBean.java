@@ -94,7 +94,7 @@ import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.tabview.Tab;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 //import org.primefaces.event.DateSelectEvent;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.SelectEvent;
@@ -329,7 +329,7 @@ public class ArDocPostBean extends BaseBean {
   glReconLnRec.setPostType(ptRec);
   glReconLnRec.setReference1(docLineAr.getReference1());
   glReconLnRec.setReference2(docLineAr.getReference2());
-  glReconLnRec.setVatCodeCompany(docLineAr.getVatCodeCompany());
+  //glReconLnRec.setVatCodeCompany(docLineAr.getVatCodeCompany());
   return glReconLnRec;
  }
  
@@ -1291,7 +1291,7 @@ public class ArDocPostBean extends BaseBean {
    }
    }
   }
-  //RequestContext rCtx = RequestContext.getCurrentInstance();
+  //PrimeFaces pf = PrimeFaces.current();
   PrimeFaces pf = PrimeFaces.current();
   List<String> update = new ArrayList<>();
   update.add("custNum");
@@ -1304,7 +1304,7 @@ public class ArDocPostBean extends BaseBean {
    update.add("arDocTabV");
   }
   pf.ajax().update(update);
-  //rCtx.update(update);
+  //pf.ajax().update(update);
   
  }
 
@@ -1376,7 +1376,7 @@ public void onArInvLineAdd(){
  LOGGER.log(INFO, "docLineAr line text {0}", docLineAr.getLineText());
  docLineBase = new DocLineBaseRec();
  docLineGl = new DocLineGlRec();
-  //RequestContext rCtx = RequestContext.getCurrentInstance();
+  //PrimeFaces pf = PrimeFaces.current();
  LOGGER.log(INFO, "Open new page");
  PrimeFaces pf = PrimeFaces.current();
  pf.ajax().update("addDocLnFrm");
@@ -1459,7 +1459,7 @@ public void onArInvPost(){
     case "DocLineGLRec":
      DocLineGlRec currGl = (DocLineGlRec)curr;
      curr.setLineType(lnTyGl);
-     if(currGl.getVatCodeCompany() != null){
+     if(currGl.getVatCode() != null){
       vatSummary = this.updateVatSummary(vatSummary, currGl);
      }
      break;
@@ -1743,10 +1743,10 @@ public void onArInvTabChange(TabChangeEvent evt){
   return;
  }
  if(custAccount.getArAccountCode() == null || custAccount.getArAccountCode().isEmpty()){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('docTabViewWv').select('0')");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('docTabViewWv').select('0')");
   MessageUtil.addWarnMessage("arDocArAcnt", "validationText");
-  rCtx.update("tabChngmsg");
+  pf.ajax().update("tabChngmsg");
   
  }
 }
@@ -1783,9 +1783,9 @@ public void onCreateOrderedByPersonBtnListener(){
 public void onCloseAddLineBtn(){
   salesInvLine = new SalesPartFiLineRec();
   LOGGER.log(INFO,"onCloseAddLineBtn called salesInvLine is now {0}",salesInvLine);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addLineFrm");
-  rCtx.execute("PF('addLineDlgWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addLineFrm");
+  pf.executeScript("PF('addLineDlgWv').hide();");
   
  }
 
@@ -1867,13 +1867,13 @@ public void onCompanySel(SelectEvent evt){
   }
   List<DocLineArRec> trf = (List<DocLineArRec>) evt.getItems();
   if(evt.isAdd()){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(crnAmntUnalloc == 0.0){
    MessageUtil.addInfoMessageWithoutKey("Fully Allocated", "No credit availablr to allocate");
    for(DocLineArRec ln:trf){
     crnInvAllocList.getSource().add(ln);
     crnInvAllocList.getTarget().remove(ln);
-    rCtx.update("invHeaderTab:pickInvs");
+    pf.ajax().update("invHeaderTab:pickInvs");
    }
    
   }else{
@@ -1901,7 +1901,7 @@ public void onCompanySel(SelectEvent evt){
    opts.add("invHeaderTab:pickInvs");
    opts.add("invHeaderTab:unallocCr");
    
-   RequestContext.getCurrentInstance().update(opts);
+   PrimeFaces.current().ajax().update(opts);
    
   }
   }
@@ -1949,7 +1949,7 @@ public void onCompanySel(SelectEvent evt){
   docLineAr.setArAccount((ArAccountRec)evt.getObject());
   LOGGER.log(INFO, "arDocLine account id {0}", docLineAr.getArAccount().getId());
   
-  RequestContext.getCurrentInstance().update(update);
+  PrimeFaces.current().ajax().update(update);
  }
  
  public List<ArBankAccountRec> onArBankComplete(String input){
@@ -2005,7 +2005,7 @@ public void onCompanySel(SelectEvent evt){
     List<String> updates = new ArrayList<>();
     updates.add("docAmount");
     updates.add("lines");
-    RequestContext.getCurrentInstance().update(updates);
+    PrimeFaces.current().ajax().update(updates);
     LOGGER.log(INFO, "End of delete salesInvLines {0}", salesInvLines);
     return;
    }
@@ -2076,7 +2076,7 @@ public void onCompanySel(SelectEvent evt){
   updts.add("docTotalsPG");
   updts.add("lines");
     
-  RequestContext.getCurrentInstance().update(updts);
+  PrimeFaces.current().ajax().update(updts);
  }
  
  public void onInvLineUpdateBtn(){
@@ -2124,13 +2124,13 @@ public void onCompanySel(SelectEvent evt){
  //  totalGoods,totalVat,invTotal
  // });
  
- RequestContext rCtx = RequestContext.getCurrentInstance();
+ PrimeFaces pf = PrimeFaces.current();
  List<String> updates = new ArrayList<>();
  updates.add("docAmount");
  updates.add("lines");
- rCtx.update(updates);
+ pf.ajax().update(updates);
  
- rCtx.execute("PF('editLineDlgWv').hide()");
+ pf.executeScript("PF('editLineDlgWv').hide()");
  
  }
  public void onOrderUpload(FileUploadEvent event) {
@@ -2352,9 +2352,9 @@ public void onCompanySel(SelectEvent evt){
   
   vatablePeriod = isVatableDoc();
   LOGGER.log(INFO, "vatablePeriod {0}", vatablePeriod);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  //rCtx.update("addLineGrid");
-  rCtx.execute("PF('addLineDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  //pf.ajax().update("addLineGrid");
+  pf.executeScript("PF('addLineDlgWv').show()");
   LOGGER.log(INFO, "onAddSaleInvLine end");
  }
  
@@ -2610,7 +2610,7 @@ public void onCompanySel(SelectEvent evt){
    LOGGER.log(INFO, "fiDocument inv number {0}", fiDocument.getDocInvoiceAr().getInvoiceNumber());
    MessageUtil.addInfoMessageVar1("slInvPosted","blacResponse",  fiDocument.getDocInvoiceAr().getInvoiceNumber());
    
-   RequestContext.getCurrentInstance().update("salesInvoiceFrm");
+   PrimeFaces.current().ajax().update("salesInvoiceFrm");
   }catch(BacException ex){
    MessageUtil.addErrorMessage("slInvPost", "errorText");
    LOGGER.log(INFO, "Inv sale error {0}", ex.getLocalizedMessage());
@@ -2773,7 +2773,7 @@ public void onCompanySel(SelectEvent evt){
    updates.add("invLineArAcnt");
    updates.add("trfLineNew");
   }
-  RequestContext.getCurrentInstance().update(updates);
+  PrimeFaces.current().ajax().update(updates);
   
  }
  
@@ -2803,7 +2803,7 @@ public void onCompanySel(SelectEvent evt){
    LOGGER.log(INFO, "onSlQuantityEdValueChange qty return: {0}",selectedSalesInvLine.getQty());
    double tot = selectedSalesInvLine.getUnitPrice() * 0;
    selectedSalesInvLine.setLineTotal(tot);
-   RequestContext.getCurrentInstance().update("invLineTotal");
+   PrimeFaces.current().ajax().update("invLineTotal");
    return;
   }
   
@@ -2838,9 +2838,9 @@ public void onCompanySel(SelectEvent evt){
   salesInvLineNew.setLineTotal(tot);
   LOGGER.log(INFO, "salesInvLine Line total {0}", salesInvLineNew.getLineTotal());
   if(getViewSimple().equals("slCreditNote")){
-   RequestContext.getCurrentInstance().update("addLineFrm:invLineTotal");
+   PrimeFaces.current().ajax().update("addLineFrm:invLineTotal");
   }else{
-   RequestContext.getCurrentInstance().update("invLineTotal");
+   PrimeFaces.current().ajax().update("invLineTotal");
   }
   
  }
@@ -2865,9 +2865,9 @@ public void onCompanySel(SelectEvent evt){
   LOGGER.log(INFO, "salesInvLine Line total {0}", salesInvLineNew.getLineTotal());
   LOGGER.log(INFO, "Call to update invLineTotal");
   if(getViewSimple().equals("slCreditNote")){
-   RequestContext.getCurrentInstance().update("addLineFrm:invLineTotal");
+   PrimeFaces.current().ajax().update("addLineFrm:invLineTotal");
   }else{
-   RequestContext.getCurrentInstance().update("invLineTotal");
+   PrimeFaces.current().ajax().update("invLineTotal");
   }
   
  }
@@ -2887,9 +2887,9 @@ public void onCompanySel(SelectEvent evt){
   salesInvLineNew.setLineTotal(tot);
   
   if(getViewSimple().equals("slCreditNote")){
-   RequestContext.getCurrentInstance().update("addLineFrm:addLineGrid");
+   PrimeFaces.current().ajax().update("addLineFrm:addLineGrid");
   }else{
-   RequestContext.getCurrentInstance().update("addLineGrid");
+   PrimeFaces.current().ajax().update("addLineGrid");
   }
   
  }
@@ -3163,9 +3163,9 @@ public void onCompanySel(SelectEvent evt){
   }
   LOGGER.log(INFO, " add line restricted funds ");
   // got to end so can update UI
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("lines");
-  rCtx.execute("PF('addLineDlgWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("lines");
+  pf.executeScript("PF('addLineDlgWv').hide()");
  
  }
  
@@ -3246,10 +3246,10 @@ public void onCompanySel(SelectEvent evt){
   this.canPostInv = true;
  }
  LOGGER.log(INFO, "canPostInv {0}",canPostInv);
- RequestContext rCtx = RequestContext.getCurrentInstance();
+ PrimeFaces pf = PrimeFaces.current();
  List<String> updates = new ArrayList<>();
  invoice.setTotalAmount(totalAmount);
- rCtx.execute("PF('addLineDlgWv').hide()");
+ pf.executeScript("PF('addLineDlgWv').hide()");
  updates.add("docAmount");
  
  if(getViewSimple().equals("slCreditNote")){
@@ -3259,7 +3259,7 @@ public void onCompanySel(SelectEvent evt){
   updates.add("salesInvoiceFrm");
  }
  
- rCtx.update(updates);
+ pf.ajax().update(updates);
  LOGGER.log(INFO, "arDocLine arAccount id {0}", this.docLineAr.getArAccount().getId());
  }
  
@@ -3290,8 +3290,8 @@ public void onCompanySel(SelectEvent evt){
    docLineGl.setLineNum(lineNum);
    LineTypeRuleRec lineType = buffer.getLineTypeRuleByCode("GL");
    docLineGl.setLineType(lineType);
-   if(docLineGl.getVatCodeCompany() != null){
-    double taxAmnt = docLineGl.getVatCodeCompany().getVatCode().getRate() * docLineGl.getDocAmount();
+   if(docLineGl.getVatCode() != null){
+    double taxAmnt = docLineGl.getVatCode().getVatCode().getRate() * docLineGl.getDocAmount();
     if(!debit){
      taxAmnt *= -1;
     }
@@ -3853,13 +3853,13 @@ public List<DocVatSummary> updateVatSummary(List<DocVatSummary> vatSumm, DocLine
   ListIterator<DocVatSummary> vatSumLi = vatSumm.listIterator();
   while(vatSumLi.hasNext() && !foundSummRec){
    DocVatSummary curr =  vatSumLi.next();
-    if(Objects.equals(curr.getVatCode().getId(), ln.getVatCodeCompany().getId())){
+    if(Objects.equals(curr.getVatCode().getId(), ln.getVatCode().getId())){
      // found vat Code
      if(Objects.equals(curr.getFund().getId(), ln.getRestrictedFund().getId())){
       // found fund for this vat entry
       double goods = curr.getGoods();
       double vat = curr.getVat();
-      if(ln.getVatCodeCompany().getIrrecoverRate() == 0.0){
+      if(ln.getVatCode().getIrrecoverRate() == 0.0){
        // no irrecoverable tax so do not need GL account
        foundSummRec = true;
        goods += ln.getDocAmount();
@@ -3874,7 +3874,7 @@ public List<DocVatSummary> updateVatSummary(List<DocVatSummary> vatSumm, DocLine
         double irrecoverable = curr.getIrrecoverableVat();
         goods += ln.getDocAmount();
         vat += ln.getTaxAmnt();
-        double lnIrrecoverable = ln.getVatCodeCompany().getIrrecoverRate() * goods;
+        double lnIrrecoverable = ln.getVatCode().getIrrecoverRate() * goods;
         irrecoverable += lnIrrecoverable;
         curr.setGoods(goods);
         curr.setVat(vat);
@@ -3899,10 +3899,10 @@ public List<DocVatSummary> updateVatSummary(List<DocVatSummary> vatSumm, DocLine
     newSumm.setGlAccount(ln.getGlAccount());
     newSumm.setGoods(ln.getDocAmount());
     newSumm.setVat(ln.getTaxAmnt());
-    newSumm.setVatCode(ln.getVatCodeCompany());
-    if(ln.getVatCodeCompany().getIrrecoverRate() != 0.0){
+    newSumm.setVatCode(ln.getVatCode());
+    if(ln.getVatCode().getIrrecoverRate() != 0.0){
      newSumm.setIrrecoverable(true);
-     double irrecoverable = ln.getVatCodeCompany().getIrrecoverRate() * ln.getDocAmount();
+     double irrecoverable = ln.getVatCode().getIrrecoverRate() * ln.getDocAmount();
      newSumm.setIrrecoverableVat(irrecoverable);
     }
    

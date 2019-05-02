@@ -7,14 +7,12 @@ package com.rationem.setup.comp;
 
 import org.primefaces.event.SelectEvent;
 import javax.faces.event.ActionEvent;
-import com.rationem.entity.config.company.Ledger;
 import java.util.ListIterator;
 import com.rationem.ejbBean.config.common.BasicSetup;
 import java.util.ArrayList;
 import javax.faces.event.AjaxBehaviorEvent;
 import com.rationem.busRec.config.company.LedgerRec;
 import com.rationem.ejbBean.common.SysBuffer;
-import com.rationem.setup.common.DefaultLoadBean;
 import com.rationem.util.BaseBean;
 import com.rationem.util.MessageUtil;
 import java.util.Date;
@@ -30,7 +28,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 
 /**
@@ -106,10 +104,10 @@ public class LedgerBean extends BaseBean {
 
 public void onUpdtFrmDisp(){
  logger.log(INFO, "onUpdtFrmDisp called Selected {0}",this.editLedger);
- RequestContext rCtx = RequestContext.getCurrentInstance();
+ PrimeFaces pf = PrimeFaces.current();
  logger.log(INFO, "editLedger name {0}", editLedger.getName());
- rCtx.update("dialogContent");
- rCtx.execute("PF('ledgerDgWv').show()");
+ pf.ajax().update("dialogContent");
+ pf.executeScript("PF('ledgerDgWv').show()");
 }
 public void onEditRow(SelectEvent e) {
     logger.log(INFO,"onEditRow with {0}",e);
@@ -167,8 +165,8 @@ return ledgers;
         if(ledger.getId() != null){
          MessageUtil.addInfoMessage("ledgerCr", "blacResponse");
          ledger = null;
-         RequestContext rCtx = RequestContext.getCurrentInstance();
-         rCtx.update("ledCrPG");
+         PrimeFaces pf = PrimeFaces.current();
+         pf.ajax().update("ledCrPG");
         }else{
          MessageUtil.addErrorMessage("ledCr", "errorText");
         }
@@ -214,8 +212,8 @@ return ledgers;
             MessageUtil.addErrorMessage("ledName", "ledNameDup", "errorText");
             //this.addError("You cannot reuse the same ledger name");
             this.ledger.setName(null);
-            RequestContext rCtx = RequestContext.getCurrentInstance();
-            rCtx.update("ledCrPG");
+            PrimeFaces pf = PrimeFaces.current();
+            pf.ajax().update("ledCrPG");
            }
           }
         }
@@ -230,9 +228,9 @@ return ledgers;
         logger.log(INFO, "EditLedger descr post update {0}", editLedger.getDescr());
         editLedger = setup.updateLedger(editLedger,getView());
         ledgers.set(0, editLedger);
-        RequestContext rCtx = RequestContext.getCurrentInstance();
-        rCtx.update("ldgrlstId");
-        rCtx.execute("PF('ledgerDgWv').hide()");
+        PrimeFaces pf = PrimeFaces.current();
+        pf.ajax().update("ldgrlstId");
+        pf.executeScript("PF('ledgerDgWv').hide()");
 
         logger.log(INFO, "edit ledger id {0}",this.editLedger.getId());
 

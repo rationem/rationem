@@ -15,8 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 //import javax.enterprise.context.Dependent;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 
 import java.util.logging.Logger;
 
@@ -27,7 +25,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -146,8 +144,8 @@ public class PostCodeBean extends BaseBean {
  
  public void onChangePostTypeCode(ValueChangeEvent evt){
   this.postTypeEdit = (PostTypeRec)evt.getNewValue();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("postTyUpdtFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("postTyUpdtFrm");
  }
  public void onCreatePostType(){
   LOGGER.log(INFO, "onCreatePostType called");
@@ -158,8 +156,8 @@ public class PostCodeBean extends BaseBean {
    LOGGER.log(INFO, "Comp Mgr returns postType with id: {0}", postType.getId());
    MessageUtil.addInfoMessage("postTyCr", "blacResponse");
    postType = null;
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("postTyCrFrm");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("postTyCrFrm");
   }catch(Exception ex){
    MessageUtil.addErrorMessage("postTyCr", "errorText");
    
@@ -184,8 +182,8 @@ public class PostCodeBean extends BaseBean {
    }
    MessageUtil.addInfoMessage("postTyUpdt", "blacResponse");
    //postTypeEdit = null;
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("postTyUpdtFrm");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("postTyUpdtFrm");
   }catch(Exception ex){
    MessageUtil.addErrorMessage("postTyUpdt", "errorText");
    
@@ -211,8 +209,8 @@ public class PostCodeBean extends BaseBean {
   }else{
    ((UIInput) toValidate).setValid(true);
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("postCd");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("postCd");
   
   
   

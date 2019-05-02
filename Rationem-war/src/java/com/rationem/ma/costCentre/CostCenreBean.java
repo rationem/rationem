@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -93,9 +93,9 @@ public class CostCenreBean extends BaseBean {
   
   updateCostCent = this.costCentreSelected;
   logger.log(INFO, "Update ref {0}", updateCostCent.getRefrence());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editCcFrm");
-  rCtx.execute("PF('editCcDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editCcFrm");
+  pf.executeScript("PF('editCcDlgWv').show()");
   
  }
  
@@ -110,9 +110,9 @@ public class CostCenreBean extends BaseBean {
    }
   }
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("ccList");
-  rCtx.execute("PF('editCcDlgWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("ccList");
+  pf.executeScript("PF('editCcDlgWv').hide()");
   updateCostCent = null;
   
  }
@@ -120,8 +120,8 @@ public class CostCenreBean extends BaseBean {
  public void onCcSelect(SelectEvent evt){
   CostCentreRec selected = (CostCentreRec)evt.getObject();
   this.updateCostCent = selected;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("costCntreUpdt");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("costCntreUpdt");
  }
  
  public void onAddRespPerson(){
@@ -138,10 +138,10 @@ public class CostCenreBean extends BaseBean {
    respPerson.setId(id);
    newCostCent.setResponsibilityOf(respPerson);
    respPerson = null;
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("addRespPersDlg");
-   rCtx.update("resp");
-   rCtx.execute("PF('crPersDlg').hide();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("addRespPersDlg");
+   pf.ajax().update("resp");
+   pf.executeScript("PF('crPersDlg').hide();");
   }catch(BacException ex){
    MessageUtil.addErrorMessage("partnerIndivCr", "errorText");
    
@@ -155,16 +155,16 @@ public class CostCenreBean extends BaseBean {
  public void onAddRespPersonClose(){
   logger.log(INFO, "onAddRespPersonClose");
   respPerson = new PartnerPersonRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addRespPersDlg");
-  rCtx.execute("PF('crPersDlg').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addRespPersDlg");
+  pf.executeScript("PF('crPersDlg').hide();");
  }
  public void onAddRespPersonDlg(){
   logger.log(INFO, "onAddRespPersonDlg called");
   respPerson = new PartnerPersonRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addRespPersDlg");
-  rCtx.execute("PF('crPersDlg').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addRespPersDlg");
+  pf.executeScript("PF('crPersDlg').show();");
  }
  
  public void onSaveCostCentre(){
@@ -176,9 +176,9 @@ public class CostCenreBean extends BaseBean {
   try{
    this.costCentreMgr.updateCostCentre(newCostCent, usr, this.getView());
    MessageUtil.addInfoMessage("maCostCentreCr", "blacResponse");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    newCostCent = new CostCentreRec();
-   rCtx.update("costCntreCr");
+   pf.ajax().update("costCntreCr");
    
   }catch(BacException ex){
    MessageUtil.addErrorMessage("maCostCentSave", "errotText");

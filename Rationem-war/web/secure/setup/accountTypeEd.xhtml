@@ -9,29 +9,32 @@
   <h:outputText value="#{pageTitle.cfg_acntTypeUp}" styleClass="panelHeader" />
  </ui:define>
  <ui:define name="content">
-  <h:form id="glActTyEd" prependId="false">
+  <h:form id="glActTyEd">
    <p:contextMenu for="actTypeTbl">
     <p:menuitem value="#{formText.edit}" actionListener="#{accountType.onEditActTyMnu}"/>
    </p:contextMenu>
-   <p:dataTable id="actTypeTbl" value="#{accountType.acTypes}" rows="5" 
-                         paginator="true" var="actType"
-                         emptyMessage="#{validationText.actTypeListNone}"
-                         rowKey="#{actType.id}" sortBy="#{actType.name}" sortOrder="ascending"
-                         selection="#{accountType.selectedAcType}"
-                         selectionMode="single">
-                
-             
-    <f:facet name="header">
-     <h:outputText value="#{formText.actTypes}"/>
+   <p:dataTable 
+    id="actTypeTbl" value="#{accountType.acTypes}" rows="#{accountType.usrBuff.tblRows}"
+    paginator="true" var="actType" rowKey="#{actType.id}" sortBy="#{actType.name}"
+    sortOrder="ascending" emptyMessage="#{validationText.actTypeListNone}"
+    selection="#{accountType.selectedAcType}" selectionMode="single" liveResize="true"
+    paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+    <f:facet name="{Exporters}">
+     <h:commandLink style="float:right;"  >
+      <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+      <p:dataExporter type="xls" target="actTypeTbl" fileName="#{listHeading.acntType_FN}"
+                      postProcessor="#{arAccntListBean.postProcessXLS}" />
+     </h:commandLink>
      <h:commandLink style="float:right;">
-       <h:graphicImage library="images" name="Excel-48.gif" width="24"/>
-       <p:dataExporter type="xls" target="actTypeTbl" fileName="#{formText.actTyFn}" postProcessor="#{accountType.postProcessXLS}"  />
-       </h:commandLink>
-      <h:commandLink style="float:right;">
-       <h:graphicImage library="images" name="csv_text.png" width="24"/>
-       <p:dataExporter type="csv" target="actTypeTbl" fileName="#{formText.actTyFn}"  />
-       </h:commandLink>
+      <p:graphicImage name="/images/csv_text.png" width="24" />
+      <p:dataExporter type="csv" target="actTypeTbl" fileName="#{listHeading.acntType_FN}" />
+     </h:commandLink>
     </f:facet>
+    <f:facet name="header">
+     <h:outputText value="#{listHeading.acntTypeLstH}"/>
+    </f:facet>
+
+
     <p:column width="10" exportable="false">
      <p:rowToggler />
     </p:column>
@@ -54,7 +57,7 @@
      </f:facet>
      <h:outputText value="#{actType.numberRange.shortDescr} "/>
     </p:column>
-    <p:column sortBy="#{actType.processCode.name}" width="60" >
+    <p:column sortBy="#{actType.processCode.name}" width="150" >
      <f:facet name="header">
       <h:outputText value="#{formText.actTyCode}"/>
      </f:facet>
@@ -72,42 +75,13 @@
      </f:facet>
      <h:outputText value="#{actType.module.moduleCode}"/>
     </p:column>
-    <p:column sortBy="#{actType.profitAndLossAccount}" width="70">
-     <f:facet name="header">
-      <h:outputText value="#{formText.actTyPlHdr}"/>
-     </f:facet>
-     <p:selectBooleanCheckbox disabled="true" value="#{actType.profitAndLossAccount}"/> 
-    </p:column>
-    <p:column width="70" sortBy="#{actType.debit}">
-     <f:facet name="header">
-      <h:outputText value="#{formText.actTyDebitHdr}"/>
-     </f:facet>
-     <p:selectBooleanCheckbox disabled="true" value="#{actType.debit}"/> 
-    </p:column>
-    <p:column sortBy="#{actType.controlAccount}" width="70">
-     <f:facet name="header">
-      <h:outputText value="#{formText.actTypReconAct}"/>
-     </f:facet>
-     <p:selectBooleanCheckbox disabled="true" value="#{actType.controlAccount}"/> 
-    </p:column>
-      
-    <p:column sortBy="#{actType.systemPost}" width="90">
-     <f:facet name="header">
-      <h:outputText value="#{formText.actTySysPsHdr}"/>
-     </f:facet>
-     <p:selectBooleanCheckbox disabled="true" value="#{actType.systemPost}"/> 
-    </p:column>
-    <p:column sortBy="#{actType.retainedEarn}" width="70">
-     <f:facet name="header">
-      <h:outputText value="#{formText.actTyRetEarnHdr}"/>
-     </f:facet>
-     <p:selectBooleanCheckbox disabled="true" value="#{actType.retainedEarn}"/> 
-    </p:column>
-    
-    
+
     <p:rowExpansion>
-     <h:panelGrid columns="2" styleClass="panelNoBorders" style="width: 300px;">
-      <f:facet name="header">
+     <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-6,ui-grid-col-6"
+                  styleClass="ui-noborder">
+      <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-3,ui-grid-col-2"
+                   styleClass="ui-noborder">
+       <f:facet name="header">
        <h:outputText value="#{formText.actTypeNumRngDet}" styleClass="sect-header"/>
       </f:facet>
       <h:outputLabel for="expNumRngSDescr" value="#{formText.actTypeNumRng}"  />
@@ -119,8 +93,24 @@
       <h:outputLabel for="exNumRngToNum" value="#{formText.numRngEndNum}" />
       <h:outputText id="exNumRngToNum" value="#{actType.numberRange.toNum}" 
                              />
-     </h:panelGrid>
-               
+      </p:panelGrid>
+      <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-3,ui-grid-col-2"
+                   styleClass="ui-noborder">
+       <f:facet name="header">
+       <h:outputText value="Account settings" styleClass="sect-header"/>
+      </f:facet>
+      <h:outputText value="#{formText.actTyPlHdr}"/>
+      <p:selectBooleanCheckbox disabled="true" value="#{actType.profitAndLossAccount}"/>
+      <h:outputText value="#{formText.actTyDebitHdr}"/>
+      <p:selectBooleanCheckbox disabled="true" value="#{actType.debit}"/>
+      <h:outputText value="#{formText.actTypReconAct}"/>
+      <p:selectBooleanCheckbox disabled="true" value="#{actType.controlAccount}"/>
+      <h:outputText value="#{formText.actTySysPsHdr}"/>
+      <p:selectBooleanCheckbox disabled="true" value="#{actType.systemPost}"/>
+      <h:outputText value="#{formText.actTyRetEarnHdr}"/>
+      <p:selectBooleanCheckbox disabled="true" value="#{actType.retainedEarn}"/>
+      </p:panelGrid>
+     </p:panelGrid>
     </p:rowExpansion> 
    </p:dataTable>
   </h:form>
@@ -128,7 +118,7 @@
   <h:form id="actTyEdFrmId" prependId="false">
    <p:dialog id="dlg" widgetVar="editAcntGrpWvar"  dynamic="true"  
                       header="#{formText.actTyEdUpdateDlgHdr}" >
-    <p:growl  autoUpdate="true"/>
+    <p:growl   />
     <p:panelGrid  styleClass="panelNoBorders">
      <p:row>
       <p:column>

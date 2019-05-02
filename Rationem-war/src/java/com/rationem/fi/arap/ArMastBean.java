@@ -70,7 +70,7 @@ import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.RequestContext;
+
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.event.TransferEvent;
@@ -802,9 +802,9 @@ public List<CountryRec> countryComplete(String input){
      ptnrPerson = null;
      
      PrimeFaces.current().ajax().update("arActCrFrm");
-     /*RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.execute("PF('actWv').back();");
-     rCtx.update("actDetails");
+     /*PrimeFaces pf = PrimeFaces.current();
+     pf.executeScript("PF('actWv').back();");
+     pf.ajax().update("actDetails");
      */
      LOGGER.log(INFO, "end onSaveArAccountNew");
     }else{
@@ -957,7 +957,7 @@ public List<CountryRec> countryComplete(String input){
       LOGGER.log(INFO, "WEb need to get sort orders");
       UserRec usr = getLoggedInUser();
       LOGGER.log(INFO, "LOgged in user {0}", usr);
-      sortOrderList = this.buff.getSortOrders(usr,getView());
+      sortOrderList = this.buff.getSortOrders();
       Collections.sort(sortOrderList, new SortOrderByName());
       /*if(sortOrderList != null && !sortOrderList.isEmpty()){
        SortOrderRec sort = sortOrderList.get(0);
@@ -1246,14 +1246,14 @@ public List<CountryRec> countryComplete(String input){
   }
 
   public void onNewPtnrDlg(){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    List<String> updts = new ArrayList<>();
    updts.add("newPtrAcnt");
    updts.add("newPtnrPg");
    
-   rCtx.update(updts);
+   pf.ajax().update(updts);
    
-   rCtx.execute("PF('crPtnrWv').show()");
+   pf.executeScript("PF('crPtnrWv').show()");
    
    LOGGER.log(INFO, "onNewPtnrDlg");
   }
@@ -1262,14 +1262,14 @@ public List<CountryRec> countryComplete(String input){
    LOGGER.log(INFO, "onNewPtnrTrf called");
    UserRec currUsr = this.getLoggedInUser();
    Date currDate = new Date();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    switch(selectedPtnrTypeCd){
     case "indiv":
      ptnrPerson.setCreatedBy(currUsr);
      ptnrPerson.setCreatedDate(currDate);
      long ptnrId = ptnrMgr.createIndivPartnerAR(ptnrPerson, currUsr, getView()); 
      this.ptnrPerson.setId(ptnrId);
-     rCtx.update("personName");
+     pf.ajax().update("personName");
      break;
     case "corp":
      ptnrCorp.setCreatedBy(currUsr);
@@ -1277,9 +1277,9 @@ public List<CountryRec> countryComplete(String input){
      LOGGER.log(INFO, "currUsr id {0}", currUsr.getId());
      ptnrId = ptnrMgr.createCorporatePartnerAR(ptnrCorp, currUsr, getView()); 
      ptnrCorp.setId(ptnrId);
-     rCtx.update("tradName");
+     pf.ajax().update("tradName");
    }
-   rCtx.execute("PF('crPtnrWv').hide()");
+   pf.executeScript("PF('crPtnrWv').hide()");
   }
   
   
@@ -1296,11 +1296,11 @@ public List<CountryRec> countryComplete(String input){
    LOGGER.log(INFO, "onPostCodeSelect called with value {0}", evt.getObject());
    LOGGER.log(INFO, "called by {0}", evt.getComponent().getClientId());
    String clientId = evt.getComponent().getClientId();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    switch(clientId){
     case "addrPostCdSearchEd":
      arAccountEdit.setAccountAddress((AddressRec)evt.getObject());
-     rCtx.update("editAddrPg");
+     pf.ajax().update("editAddrPg");
      break;
     default:
      arAccount.setAccountAddress((AddressRec)evt.getObject());
@@ -1341,7 +1341,7 @@ public List<CountryRec> countryComplete(String input){
    }
    LOGGER.log(INFO, "bnkBr cr usr {0} updt usr {1}", new Object[]{bnkBr.getCreatedBy(),
     bnkBr.getUpdatedBy()});
-   //RequestContext rCtx = RequestContext.getCurrentInstance();
+   //PrimeFaces pf = PrimeFaces.current();
    try{
    bnkBr = this.bankMgr.updateBankBranch(bnkBr, getView());
    newBank.getBankAccount().setAccountForBranch(bnkBr);
@@ -1350,8 +1350,8 @@ public List<CountryRec> countryComplete(String input){
    PrimeFaces pf = PrimeFaces.current();
    pf.ajax().update("newBankActFrm:addSortCode");
    pf.executeScript("PF('addBnkBrWv').hide()");
-   //rCtx.update("addSortCode");
-   //rCtx.execute("PF('addBnkBrWv').hide()");
+   //pf.ajax().update("addSortCode");
+   //pf.executeScript("PF('addBnkBrWv').hide()");
    }catch (Exception e){
     //MessageUtil.addErrorMessage("bnkBankBrCr", "errorText");
     MessageUtil.addClientWarnMessage("addBranchFrm:addBrMsg", "bnkBranchCr", "errorText");
@@ -1366,8 +1366,8 @@ public List<CountryRec> countryComplete(String input){
    if(newBank.isCollectionAuthorisation()){
     if(!newBank.getBankAccount().isDirectDebitsAllowed()){
      MessageUtil.addWarnMessage("bacsDDColnotVal", "validationText");
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("ddColMsg");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("ddColMsg");
     }
    }
   }
@@ -1438,7 +1438,7 @@ public List<CountryRec> countryComplete(String input){
     LOGGER.log(INFO, "Sort code in set  {0}", curr.getBankAccount().getAccountForBranch().getSortCode());
    }
    
-   //RequestContext rCtx = RequestContext.getCurrentInstance();
+   //PrimeFaces pf = PrimeFaces.current();
    PrimeFaces pf = PrimeFaces.current();
    if(view.equals("arActUpdate")){
     pf.ajax().update("actDetails:bnkTbl");
@@ -1499,17 +1499,17 @@ public List<CountryRec> countryComplete(String input){
     LOGGER.log(INFO, "Account num  {0}", curr.getBankAccount().getAccountNumber());
     LOGGER.log(INFO, "Sort code in set  {0}", curr.getBankAccount().getAccountForBranch().getSortCode());
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("bnkTbl");
-   rCtx.execute("PF('addBnkAcntArWv').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("bnkTbl");
+   pf.executeScript("PF('addBnkAcntArWv').hide()");
   }
   
   public void onBankAccountAutoCrDlg(){
    LOGGER.log(INFO, "onBankAccountAutoCrDlg called");
    newBnkAcnt.setAccountForBranch(new BankBranchRec());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("bnkAcntAutoFrm");
-   rCtx.execute("PF('bnkAcntAutoWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("bnkAcntAutoFrm");
+   pf.executeScript("PF('bnkAcntAutoWv').show()");
   }
  
   public void onBankAccountSelect(SelectEvent evt){
@@ -1579,7 +1579,7 @@ public List<CountryRec> countryComplete(String input){
   public void onSortCodeSelect(SelectEvent evt){
     LOGGER.log(INFO, "onSortCodeSelect called with {0}", evt.getObject());
     BankBranchRec selBr = (BankBranchRec)evt.getObject();
-    //RequestContext rCtx = RequestContext.getCurrentInstance();
+    //PrimeFaces pf = PrimeFaces.current();
     ListIterator<BankBranchRec> li = bankBranchList.listIterator();
     boolean found = false;
     branchFound = false;
@@ -1662,8 +1662,8 @@ public List<CountryRec> countryComplete(String input){
    PrimeFaces pf = PrimeFaces.current();
    pf.ajax().update("addBranchFrm");
    pf.executeScript("PF('addBnkBrWv').show()");
-   //rCtx.update("newbankBrPg");
-   //rCtx.execute("PF('addBnkBrWv').show()");
+   //pf.ajax().update("newbankBrPg");
+   //pf.executeScript("PF('addBnkBrWv').show()");
    
    
   }
@@ -1699,7 +1699,7 @@ public List<CountryRec> countryComplete(String input){
   }
   
   public String onAcntCrFlow(FlowEvent evt){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    String currStep = evt.getOldStep();
    String nextStep = evt.getNewStep();
    LOGGER.log(INFO,"curr {0} next {1}",new Object[]{currStep,nextStep});
@@ -1707,7 +1707,7 @@ public List<CountryRec> countryComplete(String input){
     if(arAccount.getPaymentTerms() == null){
      arAccount.setPaymentTerms(this.getPayTermsList().get(0));
     }
-    rCtx.update("actDetails:arAccountPanel");
+    pf.ajax().update("actDetails:arAccountPanel");
     LOGGER.log(INFO, "payment terms {0}", arAccount.getPaymentTerms().getPayTermsCode());
     
    }*/
@@ -1729,7 +1729,7 @@ public List<CountryRec> countryComplete(String input){
      postCodeAddress = null;
      saveOk = false;
      
-     rCtx.update("arActCrFrm");
+     pf.ajax().update("arActCrFrm");
     }
    }
    if(nextStep.equals("summary")){
@@ -1848,18 +1848,18 @@ public List<CountryRec> countryComplete(String input){
      }
     }
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("arAcntAddrEdPgId");
-   rCtx.execute("PF('custAddrEdDlgWv').show();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("arAcntAddrEdPgId");
+   pf.executeScript("PF('custAddrEdDlgWv').show();");
   }
   
   public void onArAcntAddrEdTransf(){
    LOGGER.log(INFO, "onArAcntAddrEdTransf called");
    arAcntAddrEdit = mdmMgr.addressUpdate(arAcntAddrEdit, this.getLoggedInUser(), getView());
    arAccount.setAccountAddress(arAcntAddrEdit);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("actDetails:addressPglId");
-   rCtx.execute("PF('custAddrEdDlgWv').hide();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("actDetails:addressPglId");
+   pf.executeScript("PF('custAddrEdDlgWv').hide();");
   }
   
   public void onArAcntAddrNew(){
@@ -1886,14 +1886,14 @@ public List<CountryRec> countryComplete(String input){
     updates.add("arActCrFrm:addrPostCdPG");
     PrimeFaces.current().ajax().update(updates);
    }else{
-    //RequestContext rCtx = RequestContext.getCurrentInstance();
+    //PrimeFaces pf = PrimeFaces.current();
     PrimeFaces.current().ajax().update("arAcntAddrEdPgId");
    }
   }
   public void onAcntChPayTermsValCh(ValueChangeEvent evt){
    PaymentTermsRec newTerms = (PaymentTermsRec)evt.getNewValue();
    arAccount.setPaymentTerms(newTerms);
-   //RequestContext rCtx = RequestContext.getCurrentInstance();
+   //PrimeFaces pf = PrimeFaces.current();
    PrimeFaces.current().ajax().update("actDetails:arAccountPanel");
   }
   
@@ -1962,7 +1962,7 @@ public List<CountryRec> countryComplete(String input){
   
   public void onBankAccountTrTransfer(){
    LOGGER.log(INFO,"onBankAccountTrTransfer called");
-   //RequestContext rCtx = RequestContext.getCurrentInstance();
+   //PrimeFaces pf = PrimeFaces.current();
    PrimeFaces pf = PrimeFaces.current();
    newBank.getBankAccount().setCreatedBy(this.getLoggedInUser());
    newBank.getBankAccount().setCreatedOn(new Date());
@@ -1982,9 +1982,9 @@ public List<CountryRec> countryComplete(String input){
    pf.executeScript("PF('addNewBnkAcntTrWv').hide()");
    MessageUtil.addClientInfoMessage("newBankActFrm:bnkAcCrMsg", "bnkActCr", "blacResponse");
    pf.ajax().update("newBankActFrm:bnkAcCrMsg");
-   // rCtx.execute("PF('addNewBnkAcntTrWv').hide()");
+   // pf.executeScript("PF('addNewBnkAcntTrWv').hide()");
     //MessageUtil.addInfoMessage("bnkActCr", "blacResponse");
-    //rCtx.update("newbankBrPg");
+    //pf.ajax().update("newbankBrPg");
     
   }
   
@@ -2005,13 +2005,13 @@ public List<CountryRec> countryComplete(String input){
     partnerSelected = true;
     
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    if(arAccountSelected){
     arAccountSelected = false;
-    rCtx.update("actDetOp");
+    pf.ajax().update("actDetOp");
    }
    this.arAccount = null;
-   rCtx.update("actCd");
+   pf.ajax().update("actCd");
   }
   
   public List<PaymentTermsRec> onPayTermsComplete(String input){
@@ -2091,13 +2091,13 @@ public List<CountryRec> countryComplete(String input){
    }
   
     
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("custEdFrm");
-   rCtx.execute("PF('CustEditWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("custEdFrm");
+   pf.executeScript("PF('CustEditWv').show()");
   /* if(selectedPtnrTypeCd.equalsIgnoreCase("corp")){
-    rCtx.update("ptnrCorpName");
+    pf.ajax().update("ptnrCorpName");
    }else{
-    rCtx.update("custIndivPnlId");
+    pf.ajax().update("custIndivPnlId");
    }*/
    LOGGER.log(INFO,"end with edit {0}",custEdit);
    }
@@ -2113,8 +2113,8 @@ public List<CountryRec> countryComplete(String input){
     LOGGER.log(INFO, "rolesAvailable {0}", rolesAvailable);
     custRoles.setSource(rolesAvailable);
     custRoles.setTarget(rolesAssigned);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("custEdAP:roleTab");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("custEdAP:roleTab");
    }
   }
   
@@ -2150,9 +2150,9 @@ public List<CountryRec> countryComplete(String input){
    arAccount.setArAccountFor(custPtnrBase);
    
    LOGGER.log(INFO, "Updated Partner");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("actDetails");
-   rCtx.execute("PF('CustEditWv').hide();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("actDetails");
+   pf.executeScript("PF('CustEditWv').hide();");
   }
   
   public void onCustEditBankAddBtn(){ 
@@ -2162,16 +2162,16 @@ public List<CountryRec> countryComplete(String input){
    newBank = new ArBankAccountRec();
    newBank.setBankAccount(new BankAccountRec());
    newBank.getBankAccount().setAccountForBranch(new BankBranchRec());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("custBnkFrm");
-   rCtx.execute("PF('addArBnkWVar').show();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("custBnkFrm");
+   pf.executeScript("PF('addArBnkWVar').show();");
   
   }
   
   public void onCustSelBtn(){
    
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.execute("PF('custSelWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.executeScript("PF('custSelWv').show()");
    custSelOpts = new PartnerSelectOption();
   }
   
@@ -2183,15 +2183,15 @@ public List<CountryRec> countryComplete(String input){
     ptnrCorp = (PartnerCorporateRec)evt.getObject();
    }
    
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("actDetOp");
-   rCtx.execute("PF('custSelWv').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("actDetOp");
+   pf.executeScript("PF('custSelWv').hide()");
   }
   public void onCustSrchBtn(){
    LOGGER.log(INFO, "onCustSrchBtn called");
    custSrchList = this.mdmMgr.getPartnersBySelOpt(custSelOpts);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("selPtnrTbl");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("selPtnrTbl");
   }
 
   public void onCharityValueChange(ValueChangeEvent evt){
@@ -2233,9 +2233,9 @@ public List<CountryRec> countryComplete(String input){
    if(contactRoleList == null || contactRoleList.isEmpty()){
     contactRoleList = buff.getContactRoles();
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("contactAddFrm");
-   rCtx.execute("PF('contAddWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("contactAddFrm");
+   pf.executeScript("PF('contAddWv').show()");
   }
   
   public void onContactNewTrf(){
@@ -2250,9 +2250,9 @@ public List<CountryRec> countryComplete(String input){
    contactNew.setCreatedBy(this.getLoggedInUser());
    contList.add(contactNew);
    arAccount.setContacts(contList);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("actDetails:contactsTbl");
-   rCtx.execute("PF('contAddWv').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("actDetails:contactsTbl");
+   pf.executeScript("PF('contAddWv').hide()");
   }
   public void onContAttachUpload(FileUploadEvent evt){
    LOGGER.log(INFO, "onContAttachUpload called");
@@ -2331,7 +2331,7 @@ public List<CountryRec> countryComplete(String input){
   public void onBnkAcntAutoCr(){
    LOGGER.log(INFO, "onBnkAcntAutoCr");
    bnkVal = new BankValidation();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    try{
    newBnkAcnt = bnkVal.validateBank(newBnkAcnt.getAccountForBranch().getSortCode(),
      newBnkAcnt.getAccountNumber());
@@ -2377,13 +2377,13 @@ public List<CountryRec> countryComplete(String input){
     
     branchFound = true;
     
-    rCtx.execute("PF('bnkAcntAutoWv').hide()");
+    pf.executeScript("PF('bnkAcntAutoWv').hide()");
     MessageUtil.addInfoMessage("bnkCrVal", "blacResponse");
-    rCtx.update("newbankBrPg");
-    rCtx.update("arAcntCrGr");
+    pf.ajax().update("newbankBrPg");
+    pf.ajax().update("arAcntCrGr");
    }catch(BacException ex){
     MessageUtil.addErrorMessage("bnkDetInval", "errorText", ex.getMessage());
-    rCtx.update("autoCrMsg");
+    pf.ajax().update("autoCrMsg");
    }
     
    LOGGER.log(INFO, "newBnkAcnt sort {0}", newBnkAcnt.getAccountForBranch().getSortCode());
@@ -2459,8 +2459,8 @@ public List<CountryRec> countryComplete(String input){
     selectedPtnrTypeCd="indiv";
     this.ptnrPerson = (PartnerPersonRec)arAccount.getArAccountFor();
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("actDetOp");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("actDetOp");
    LOGGER.log(INFO, "arAccountSelect complete");
    
   }
@@ -2471,8 +2471,8 @@ public List<CountryRec> countryComplete(String input){
      MessageUtil.addErrorMessage("arAccountNumUnique", "validationText");
      arAccountEntered = false;
      arAccount.setArAccountCode(null);
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("accountCode");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("accountCode");
       
     }else{
       arAccountEntered = true;
@@ -2525,7 +2525,7 @@ public void actionCreateCorpPtnr(){
   public List<BankBranchRec> sortCodeComplete(String inputValue){
    LOGGER.log(INFO, "sortCodeComplete called with {0}",inputValue);
    
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    String baseInput = inputValue;
    List<BankBranchRec> retList = new ArrayList<>();
    if(inputValue == null || inputValue.isEmpty()){
@@ -2538,7 +2538,7 @@ public void actionCreateCorpPtnr(){
      updt.add("brDescrOp");
      updt.add("createBranchBtn");
      updt.add("arValidateBnkBtnId");
-     rCtx.update(updt);
+     pf.ajax().update(updt);
    }
    LOGGER.log(INFO, "bankBranchList {0}", bankBranchList);
    if(bankBranchList == null || bankBranchList.isEmpty()){
@@ -2546,7 +2546,7 @@ public void actionCreateCorpPtnr(){
     LOGGER.log(INFO, "bankBranchList  returned from {0}", bankBranchList);
     
     LOGGER.log(INFO, "sortCodeEntered {0} bankAccountEntered {1}", new Object[]{sortCodeEntered, bankAccountEntered});
-    rCtx.update("createBranchBtn");
+    pf.ajax().update("createBranchBtn");
     return bankBranchList;
    }
    boolean brFound = false;

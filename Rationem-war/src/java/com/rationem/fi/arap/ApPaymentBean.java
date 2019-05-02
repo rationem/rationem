@@ -26,8 +26,6 @@ import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.fi.ApManager;
 import com.rationem.ejbBean.fi.DocumentManager;
 import com.rationem.ejbBean.tr.PaymentMediumManager;
-import com.rationem.entity.document.DocBankLineBacs;
-import com.rationem.entity.document.DocBankLineChq;
 import com.rationem.helper.PayRunSumAct;
 import com.rationem.helper.comparitor.ApLineByAcntRef;
 import com.rationem.helper.comparitor.DocLineApByAcntPayLevelMedium;
@@ -48,7 +46,7 @@ import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.event.SelectEvent;
 import java.util.logging.Logger;
-import org.primefaces.context.RequestContext;
+
 import org.primefaces.event.RowEditEvent;
 
 import static java.util.logging.Level.INFO;
@@ -751,7 +749,7 @@ public class ApPaymentBean extends BaseBean {
    fiDocument.setFisYear(fisPerYear.getYear());
    upDates.add("apPaySinglFrm:postDate");
    upDates.add("apPaySinglFrm:period");
-   RequestContext.getCurrentInstance().update(upDates);
+   PrimeFaces.current().ajax().update(upDates);
    
   }
  }
@@ -787,7 +785,7 @@ public class ApPaymentBean extends BaseBean {
   LOGGER.log(INFO, "onDocPayAmnt called");
   amountUnallocated = amountPaid - amountAllocated;
   docLineAp.setDocAmount(amountPaid);
-  RequestContext.getCurrentInstance().update("apPaySinglFrm:unallocated");
+  PrimeFaces.current().ajax().update("apPaySinglFrm:unallocated");
  }
  
  public List<DocTypeRec> onDocTypeComplete(String input){
@@ -826,7 +824,7 @@ public class ApPaymentBean extends BaseBean {
   DocLineApRec apLine = docLinesOutStanding.get(0);
   apLine.setPaidAmount(9999);
   docLinesOutStanding.set(0, apLine);
-  RequestContext.getCurrentInstance().update("apPaySinglFrm:dataListOP");
+  PrimeFaces.current().ajax().update("apPaySinglFrm:dataListOP");
  }
  
  
@@ -894,7 +892,7 @@ public class ApPaymentBean extends BaseBean {
   List<String> updt = new ArrayList<>();
   updt.add("apPaySinglFrm:unallocated");
   updt.add("apPaySinglFrm:osInvs");
-  RequestContext.getCurrentInstance().update(updt);
+  PrimeFaces.current().ajax().update(updt);
   
   
  
@@ -902,7 +900,7 @@ public class ApPaymentBean extends BaseBean {
  
  public StreamedContent onPayPdfDownload(){
   StreamedContent pdfFile;
-  //FacesContext fc = FacesContext.getCurrentInstance();
+  //FacesContext fc = FacesContext.current();
   //InputStream is = fc.getExternalContext().getResourceAsStream("/resources/pdfTemplate/CreditNoteVatComp.pdf");
   InputStream fileData = payMediumMgr.getChequePdfTemplate(fiDocument, docLineAp.getPayType());
   String chqFileName = this.formTextApForKey("chqPdf_FN");
@@ -956,9 +954,9 @@ public class ApPaymentBean extends BaseBean {
    }
   }
   if(!payRunAcntDocLines.isEmpty()){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("acntLinesOsFrm");
-   rCtx.execute("PF('acntLinesOsWv').show();");
+   PrimeFaces rCtx = PrimeFaces.current();
+   rCtx.ajax().update("acntLinesOsFrm");
+   rCtx.executeScript("PF('acntLinesOsWv').show();");
   }
  }
  
@@ -968,7 +966,7 @@ public class ApPaymentBean extends BaseBean {
   int currStep = oldStep;
   currStep--;
   setStep(currStep);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces rCtx = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   updates.add("apPayRunFrm");
   
@@ -987,7 +985,7 @@ public class ApPaymentBean extends BaseBean {
    default:
     break;
   }
-  rCtx.update(updates);
+  rCtx.ajax().update(updates);
  } 
  
  public void onPayRunNextBtn(){
@@ -997,7 +995,7 @@ public class ApPaymentBean extends BaseBean {
   currStep++;
   setStep(currStep);
   LOGGER.log(INFO, "getStep is now {0} curr {1}", new Object[]{getStep(),currStep});
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces rCtx = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   updates.add("apPayRunFrm");
   updates.add("apPayRunFrm:errMsg");
@@ -1028,7 +1026,7 @@ public class ApPaymentBean extends BaseBean {
     break;
   }
   
-  rCtx.update(updates);
+  rCtx.ajax().update(updates);
  }
  
  public void onPayRunInvRowEdit(RowEditEvent evt){
@@ -1114,9 +1112,9 @@ public class ApPaymentBean extends BaseBean {
    payRunSumSelection.setPayment(bal);
    runTotalAmountPd += bal;
    LOGGER.log(INFO, "end of trf pd total {0}", runTotalAmountPd);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("apPayRunFrm:sumTbl");
-   rCtx.execute("PF('acntLinesOsWv').hide();");
+   PrimeFaces rCtx = PrimeFaces.current();
+   rCtx.ajax().update("apPayRunFrm:sumTbl");
+   rCtx.executeScript("PF('acntLinesOsWv').hide();");
   }
  }
  
@@ -1142,7 +1140,7 @@ public class ApPaymentBean extends BaseBean {
    }
   }
   if(found){
-   RequestContext.getCurrentInstance().update("apPayRunFrm");
+   PrimeFaces.current().ajax().update("apPayRunFrm");
    LOGGER.log(INFO, "Update table");
   }
  }
@@ -1253,7 +1251,7 @@ public class ApPaymentBean extends BaseBean {
   
   
   this.setStep(1);
-  RequestContext.getCurrentInstance().update("apPayRunFrm");
+  PrimeFaces.current().ajax().update("apPayRunFrm");
  }
  
  public void onPayRunPartPayEdit(CellEditEvent evt){
@@ -1362,7 +1360,7 @@ public class ApPaymentBean extends BaseBean {
   fiDocument.setFisPeriod(fisPerYear.getPeriod());
   fiDocument.setFisYear(fisPerYear.getYear());
   updates.add("apPaySinglFrm:period");
-  RequestContext.getCurrentInstance().update(updates);
+  PrimeFaces.current().ajax().update(updates);
   
  }
  public void onPrintOutput(){
@@ -1390,7 +1388,7 @@ public class ApPaymentBean extends BaseBean {
   }
   LOGGER.log(INFO, "errorFound {0}", errorFound);
   if(errorFound){
-   RequestContext.getCurrentInstance().update("apPaySinglFrm:msg");
+   PrimeFaces.current().ajax().update("apPaySinglFrm:msg");
    return;
   }
   UserRec usr = this.getLoggedInUser();
@@ -1605,7 +1603,7 @@ public class ApPaymentBean extends BaseBean {
    amountPaid = 0.0;
    amountUnallocated = 0.00;
    docLinesOutStanding = null;
-   RequestContext.getCurrentInstance().update("apPaySinglFrm");
+   PrimeFaces.current().ajax().update("apPaySinglFrm");
   }
   
  }

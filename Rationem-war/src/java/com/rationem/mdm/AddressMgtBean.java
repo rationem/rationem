@@ -11,7 +11,7 @@ import com.rationem.util.BaseBean;
 import java.util.ListIterator;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.CloseEvent;
 
 import static java.util.logging.Level.INFO;
@@ -68,17 +68,17 @@ public class AddressMgtBean extends BaseBean {
  
  
 public void onAddAdressBtn(){
- RequestContext rCtx = RequestContext.getCurrentInstance();
- rCtx.execute("PF('newAddrWv').show()");
+ PrimeFaces pf = PrimeFaces.current();
+ pf.executeScript("PF('newAddrWv').show()");
  
 } 
 
 public void onAddAddressCloseBtn(CloseEvent evt){
  logger.log(INFO, "onAddAddressCloseBtn called");
  newAddr = null;
- RequestContext rCtx = RequestContext.getCurrentInstance();
- rCtx.update("newAddFrmId");
- rCtx.execute("PF('newAddrWv').hide()");
+ PrimeFaces pf = PrimeFaces.current();
+ pf.ajax().update("newAddFrmId");
+ pf.executeScript("PF('newAddrWv').hide()");
  
 }
 
@@ -88,16 +88,16 @@ public void onAddAddressSaveBtn(){
  
  addrList = this.getAddrList();
  addrList.add(newAddr);
- RequestContext rCtx = RequestContext.getCurrentInstance();
- rCtx.update("addrList");
- rCtx.execute("PF('newAddrWv').hide()");
+ PrimeFaces pf = PrimeFaces.current();
+ pf.ajax().update("addrList");
+ pf.executeScript("PF('newAddrWv').hide()");
 }
 
 public void onEditAddrBtn(){
  logger.log(INFO, "onEditAddrBtn selected {0}", editAddr.getId());
- RequestContext rCtx = RequestContext.getCurrentInstance();
- rCtx.update("editAddrFrmId");
- rCtx.execute("PF('addrEditDlgWv').show()");
+ PrimeFaces pf = PrimeFaces.current();
+ pf.ajax().update("editAddrFrmId");
+ pf.executeScript("PF('addrEditDlgWv').show()");
 }
 
 public void onEditAddrSave(){
@@ -112,9 +112,9 @@ public void onEditAddrSave(){
    found = true;
   }
  }
- RequestContext rCtx = RequestContext.getCurrentInstance();
- rCtx.update("addrList");
- rCtx.execute("PF('addrEditDlgWv').hide()");
+ PrimeFaces pf = PrimeFaces.current();
+ pf.ajax().update("addrList");
+ pf.executeScript("PF('addrEditDlgWv').hide()");
 }
  
 }

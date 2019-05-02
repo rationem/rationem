@@ -18,7 +18,7 @@ import javax.ejb.EJB;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 
 /**
@@ -95,11 +95,11 @@ public class UnitOfmeasureBean extends BaseBean {
    MessageUtil.addErrorMessage("uomSelected", "errorText");
    return;
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editPgId");
-  rCtx.update("editCode");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editPgId");
+  pf.ajax().update("editCode");
   
-  rCtx.execute("PF('editUomWv').show()");
+  pf.executeScript("PF('editUomWv').show()");
  }
     
     public void createUomAction(){
@@ -112,8 +112,8 @@ public class UnitOfmeasureBean extends BaseBean {
          String msg = responseForKey("uomCr") +uom.getName();
          MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
          uom = new UomRec();
-         RequestContext rCtx = RequestContext.getCurrentInstance();
-         rCtx.update("uom");
+         PrimeFaces pf = PrimeFaces.current();
+         pf.ajax().update("uom");
         }catch(BacException e){
          String msgHdr = this.responseForKey("uom") ;
          String msg = this.errorForKey("uomCr")  +uom.getName();
@@ -148,9 +148,9 @@ public class UnitOfmeasureBean extends BaseBean {
       MessageUtil.addWarnMessageWithoutKey(msgHdr, msg);
       
      }
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("uomTblId");
-     rCtx.execute("PF('editUomWv').hide()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("uomTblId");
+     pf.executeScript("PF('editUomWv').hide()");
     }
    }
   }

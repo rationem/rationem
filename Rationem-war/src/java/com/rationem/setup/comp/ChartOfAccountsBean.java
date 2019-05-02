@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -207,9 +207,9 @@ public class ChartOfAccountsBean extends BaseBean implements Serializable {
         try{
          compMgr.newChartOfAccounts(coa, getView());
          MessageUtil.addInfoMessage("coaCreated", "blacResponse");
-         RequestContext rCtx = RequestContext.getCurrentInstance();
+         PrimeFaces pf = PrimeFaces.current();
          coa = null;
-         rCtx.update("coaCrFrm");
+         pf.ajax().update("coaCrFrm");
          
         }catch(BacException e){
          MessageUtil.addErrorMessage("coaCr", "errorText");   
@@ -222,8 +222,8 @@ public class ChartOfAccountsBean extends BaseBean implements Serializable {
      logger.log(INFO, "onChartChange new Value {0}", evt.getNewValue());
      coa = (ChartOfAccountsRec)evt.getNewValue();
      logger.log(INFO, "coa now {0}", coa.getName());
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("coaChFrm");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("coaChFrm");
     }
     
     public void onChartUpdateSave(){

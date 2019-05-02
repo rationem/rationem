@@ -7,164 +7,227 @@
  <ui:define name="title">#{pageTitle.fiGlAcntCr}</ui:define>
  <ui:define name="header"> </ui:define>
  <ui:define name="content">
-  <h:form id="glActMstfrm" prependId="false" >
-   <p:growl autoUpdate="true"  />
-   <p:outputPanel id="toolBar">
-    <p:toolbar>
-     <f:facet name="left">
-      
-     </f:facet>
-    </p:toolbar>
-   </p:outputPanel>
-   <p:wizard styleClass="wizard-width" flowListener="#{glAccountBean.onAccountFlowProcess}" >
-    <p:tab id="Chart" title="#{formText.glAccountChart}" >
-     <p:growl autoUpdate="true"  />
-     <p:panel header="#{formText.glAccountCoaAccount}" >
-      <h:panelGrid id="chartGridId" columns="2">
-       <p:outputLabel for="coaLst" value="#{formText.glAccountChart}"/>
-       <p:selectOneMenu id="coaLst" filter="true"
-                                   value="#{glAccountBean.glAccount.chartOfAccounts}"
-                                   converter="com.rationem.util.converter.ChartOfAccounts"
-                                   valueChangeListener="#{glAccountBean.onCoaChanged}"
-                                                >
-         <p:ajax event="change" update="compLst refInput" partialSubmit="true" process="coaLst" />
-         <f:selectItems value="#{glAccountBean.coaList}" var="coaItem"
-                                   itemLabel="#{coaItem.reference}"
-                                   itemValue="#{coaItem}" />
-         </p:selectOneMenu>
-        <p:outputLabel for="actTylst" value="#{formText.glAccountActTy}"/>
-        <p:selectOneMenu id="actTylst" rendered="true"  filter="true"
-                                   value="#{glAccountBean.glAccount.accountType}"
-                                   converter="com.rationem.util.converter.GlAccountType"
-                                   requiredMessage="#{formText.glAccountActTyReq}"
-                                   valueChangeListener="#{glAccountBean.onActTypeChanged}">
-         <p:ajax event="change" update="chartGridId" partialSubmit="true" process="actTylst"  />
-         <f:selectItems value="#{glAccountBean.accountTyList}" var="accntTypeItem" 
-                        itemLabel="#{accntTypeItem.description}" itemValue="#{accntTypeItem}" />
-        </p:selectOneMenu>
-        <p:outputLabel for="refInput" value="#{formText.glAccountRef}"/>
-        <p:inputText id="refInput" 
-                               value="#{glAccountBean.glAccount.ref}"
-                               title="#{formHelpText.glAccountRef}"
-                               required="true" requiredMessage="#{validationText.glActRefReq}" >
-         <p:ajax event="blur" listener="#{glAccountBean.onGlAccountRefBlur}" 
-                            update="crGlActBtn refInput" />
-         </p:inputText>
-        <p:outputLabel for="name" value="#{formText.glAccountName}"/>
-         <p:inputText id="name"
-                                         value="#{glAccountBean.glAccount.name}"
-                                         title="#{formHelpText.glAccountName}"/>
-        <p:outputLabel for="fullName" value="#{formText.glAccountFullName}"/>
-        <p:inputText id="fullName" size="60"
-                                         value="#{glAccountBean.glAccount.description}"
-                                         title="#{formHelpText.glAccountFullName}"/>
-        <p:outputLabel for="plRadio" value="#{formText.glAccountPlAct}"/>
-         <h:panelGroup >
-          <p:selectBooleanCheckbox id="plRadio" value="#{glAccountBean.glAccount.accountType.profitAndLossAccount}"
-                                   disabled="true">
-           <f:selectItem itemLabel="PL" itemValue="true" />
-           <f:selectItem itemLabel="BS" itemValue="false" />
-          </p:selectBooleanCheckbox>
-         </h:panelGroup>
-                  
-         <p:outputLabel for="actCat" value="#{formText.glAccountActCat}"
-                                             rendered="#{glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
-          <p:inputText id="actCat" value="#{glAccountBean.plAccount.accountCat}"
-                       title="#{formHelpText.glActCat}"
-                       rendered="#{glAccountBean.glAccount.accountType.profitAndLossAccount}"
+  <div class="ui-fluid">
+   <h:form id="glActMstfrm">
+    <p:growl id="grl">
+
+    </p:growl>
+    <p:outputPanel id="toolBar">
+     <p:toolbar>
+      <f:facet name="left">
+
+      </f:facet>
+     </p:toolbar>
+    </p:outputPanel>
+    <p:steps id="steps" activeIndex="#{glAccountBean.step}">
+     <p:menuitem  value="#{formText.glAccountCoaAccount}"/>
+     <p:menuitem value="#{formText.glAccountCompDtls}"/>
+    </p:steps>
+    <p:panelGrid id="navPg" columns="3" columnClasses="ui-grid-col-1,ui-grid-col-10,ui-grid-col-1"
+                 layout="grid" styleClass="ui-noborder">
+     <p:commandButton id="backBtn" value="#{formText.back}" rendered="#{glAccountBean.step gt 0}"
+                      actionListener="#{glAccountBean.onAcntCrStepBack}"/>
+     <h:panelGroup rendered="#{glAccountBean.step eq 0}" />
+     <h:panelGroup />
+     <p:commandButton id="nextBtn" value="#{formText.next}"
+                      process="apActCrFrm:acntNumPg" actionListener="#{glAccountBean.onAcntCrStepBack}"
+                     ajax="false" rendered="#{glAccountBean.step lt 1}"/>
+
+     <h:panelGroup rendered="#{glAccountBean.step eq 1}" />
+    </p:panelGrid>
+    <p:growl />
+    <p:panel header="#{formText.glAccountCoaAccount}" rendered="#{glAccountBean.step eq 0}" >
+     <p:panelGrid
+      id="chartGridId" columns="2" layout="grid" columnClasses="ui-grid-col-1,ui-grid-col-2"
+      styleClass="ui-noborder">
+      <p:outputLabel for="coaLst" value="#{formText.glAccountChart}"/>
+      <p:selectOneMenu id="coaLst" filter="true"
+                       value="#{glAccountBean.glAccount.chartOfAccounts}"
+                       converter="com.rationem.util.converter.ChartOfAccounts"
+                       valueChangeListener="#{glAccountBean.onCoaChanged}" >
+       <f:selectItems value="#{glAccountBean.coaList}" var="coaItem"
+                      itemLabel="#{coaItem.reference}"
+                      itemValue="#{coaItem}" />
+      </p:selectOneMenu>
+      <p:outputLabel for="actTylst" value="#{formText.glAccountActTy}"/>
+      <p:selectOneMenu id="actTylst" rendered="true"  filter="true"
+                       value="#{glAccountBean.glAccount.accountType}"
+                       converter="com.rationem.util.converter.GlAccountType"
+                       requiredMessage="#{formText.glAccountActTyReq}"
+                       valueChangeListener="#{glAccountBean.onActTypeChanged}">
+       <p:ajax event="itemSelect" listener="#{glAccountBean.onAcntCrAcntTySelect}" />
+       <f:selectItems value="#{glAccountBean.accountTyList}" var="accntTypeItem"
+                      itemLabel="#{accntTypeItem.description}" itemValue="#{accntTypeItem}" />
+      </p:selectOneMenu>
+     </p:panelGrid>
+     <p:panelGrid id="textFlds" layout="grid" columns="1" columnClasses="ui-grid-col-4"
+                  styleClass="ui-noborder">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="ref" value="#{glAccountBean.glAccount.ref}" title="#{formHelpText.glAccountRef}"
+                    required="true" requiredMessage="#{validationText.glActRefReq}" >
+        <p:ajax event="blur" listener="#{glAccountBean.onGlAccountRefBlur}"
+                update="crGlActBtn ref" />
+       </p:inputText>
+       <p:outputLabel for="ref" value="#{formText.glAccountRef}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="name" value="#{glAccountBean.glAccount.name}"
+                    title="#{formHelpText.glAccountName}" required="true"/>
+       <p:outputLabel for="name" value="#{formText.glAccountName}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="fullName" size="60" value="#{glAccountBean.glAccount.description}"
+                    title="#{formHelpText.glAccountFullName}"/>
+       <p:outputLabel for="fullName" value="#{formText.glAccountFullName}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+
+     <p:panelGrid
+      id="boolCb" layout="grid" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-3,ui-grid-col-1"
+      styleClass="ui-noborder">
+      <h:outputText value="#{formText.glAccountCat}"/>
+      <h:panelGroup>
+       <h:outputText
+        value="#{formText.glAccountPlAct}" rendered="#{glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
+       <h:outputText
+        value="#{formText.glAccountBsAct}" rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
+      </h:panelGroup>
+      <p:commandButton icon="fa fa-info-circle"  title="#{formText.glAccountActTySett}"
+                       actionListener="#{glAccountBean.onAcntCrActTyShow}"/>
+      <p:outputLabel for="actCat" value="#{formText.glAccountActCat}"
+                     rendered="#{glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
+      <p:inputText
+       id="actCat" value="#{glAccountBean.plAccount.accountCat}" title="#{formHelpText.glActCat}"
+       rendered="#{glAccountBean.glAccount.accountType.profitAndLossAccount}" />
+      <p:outputLabel for="balBfwd" value="#{formText.glAccountBalFwd}"
+                     rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}" />
+      <p:selectBooleanCheckbox id="balBfwd" value="#{glAccountBean.bsAccount.balFwd}"
+                               disabled="#{glAccountBean.accountTypeCode != 'bs'}"
+                               rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
+      <h:panelGroup />
+     </p:panelGrid>
+
+    </p:panel>
+    <p:panel header="#{formText.glAccountCompDtls}" rendered="#{glAccountBean.step eq 1}" >
+     <p:panelGrid  layout="grid" columns="1" columnClasses="ui-grid-col-4" styleClass="ui-noborder">
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete
+        id="comp" value="#{glAccountBean.glAccountComp.company}" var="compV" itemValue="#{compV}"
+        converter="com.rationem.util.converter.CompanyBasic" itemLabel="#{compV.reference}" dropdown="true"
+        completeMethod="#{glAccountBean.onCompComplete}" required="true">
+        <p:column width="25%" >
+         <h:outputText value="#{compV.reference}"/>
+        </p:column>
+        <p:column width="75%" >
+         <h:outputText value="#{compV.name}"/>
+        </p:column>
+       </p:autoComplete>
+       <p:outputLabel for="comp" value="#{formText.glAccountComp}" />
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete
+        id="sortOrder" value="#{glAccountBean.glAccountComp.sortOrder}" var="sortOrdV" dropdown="true"
+        converter="com.rationem.util.converter.SortOrder" itemValue="#{sortOrdV}" required="true"
+        itemLabel="#{sortOrdV.name}" completeMethod="#{glAccountBean.onSortOrderComplete}"/>
+       <p:outputLabel for="sortOrder" value="#{formText.glAccountSort}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield"
+                    rendered="#{glAccountBean.glAccount.accountType.processCode eq 'BNK'}">
+       <p:autoComplete
+        id="bankClr" value="#{glAccountBean.glAccountComp.bankAccountCompanyCleared}" title="#{formHelpText.glActBank}"
+        var="bnkV" itemValue="#{bnkV}" itemLabel="#{bnkV.accountRef}" dropdown="true"
+        converter="com.rationem.util.converter.BankAccountCompany"/>
+       <p:outputLabel for="bankClr" value="#{formText.glAccountBnkCleared}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield"
+                    rendered="#{glAccountBean.glAccount.accountType.processCode eq 'BNK'}">
+       <p:autoComplete
+        id="bankunClr" value="#{glAccountBean.glAccountComp.bankAccountCompanyUncleared}" title="#{formHelpText.glActBank}"
+        var="bnkV" itemValue="#{bnkV}" itemLabel="#{bnkV.accountRef}" dropdown="true"
+        converter="com.rationem.util.converter.BankAccountCompany"/>
+       <p:outputLabel for="bankunClr" value="#{formText.glAccountBnkUnClr}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield" rendered="#{glAccountBean.compVatable}">
+       <p:autoComplete
+        id="vatCode" value="#{glAccountBean.glAccountComp.vatCode}" dropdown="true" var="vatCdV"
+        converter="com.rationem.util.converter.VatCodeCompany" itemLabel="#{vatCdV.vatCode.code}"
+        completeMethod="#{glAccountBean.onVatCodeComplete}">
+        <p:column>
+         <h:outputText value="#{vatCdV.vatCode.description}"/>
+        </p:column>
+       </p:autoComplete>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-1"
+                  styleClass="ui-noborder" rendered="#{glAccountBean.compVatable}">
+      <p:outputLabel for="noVat" value="#{formText.glAccountNoVat}"/>
+        <p:selectBooleanCheckbox id="noVat" value="#{glAccountBean.glAccountComp.noVatAllowed}"/>
+     </p:panelGrid>
+     <p:panelGrid layout="grid" columns="1" columnClasses="ui-grid-col-4" styleClass="ui-noborder">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="anlysis1" value="#{glAccountBean.glAccountComp.analysis1}"
+                    title="#{formHelpText.glAccountAnalysis1}"/>
+       <p:outputLabel for="anlysis1" value="#{formText.glAccountAnalysis1}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="anlysis2" value="#{glAccountBean.glAccountComp.analysis2}"
+                    title="#{formHelpText.glAccountAnalysis2}"/>
+       <p:outputLabel for="anlysis2" value="#{formText.glAccountAnalysis2}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield"
+                    rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}">
+       <p:inputText id="persResp" value="#{glAccountBean.glAccountComp.personResponsible}"
+                    title="#{formHelpText.glActResp}"/>
+       <p:outputLabel for="persResp" value="#{formText.glAccountResp}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid layout="grid" columnClasses="ui-grid-col-2" columns="1" styleClass="ui-noborder" >
+      <p:commandButton id="crGlActBtn" value="#{formText.save}" icon="fa fa-floppy-o"
+                       actionListener="#{glAccountBean.onSaveNewAccount}"
                        />
-                  
-          <p:outputLabel for="balBfwd" value="#{formText.glAccountBalFwd}"
-                                             rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}" />
-          <p:selectBooleanCheckbox id="balBfwd" value="#{glAccountBean.bsAccount.balFwd}"
-                                                       disabled="#{glAccountBean.accountTypeCode != 'bs'}"
-                                                       rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
-          <p:outputLabel for="sysPost" value="#{formText.actTySysPst}"
-                                             rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}" />
-          <p:selectBooleanCheckbox id="sysPost" value="#{glAccountBean.glAccount.accountType.systemPost}"
-                                                       disabled="true"
-                                                       rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"  />
-          <p:outputLabel for="retEarn" value="#{formText.actTyRetEran}" styleClass="greyOut"
-                                             rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
-          <p:selectBooleanCheckbox id="retEarn" disabled="true"
-                                   value="#{glAccountBean.glAccount.accountType.retainedEarn}"
-                                                       rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
-          <p:outputLabel for="ledger" value="#{formText.actTypLedger}"
-                                             style="font-weight: 100;"/>
-          <h:outputText id="ledger"  style="font-weight: 100;" title="#{formHelpText.actLedger}"
-                        value="#{glAccountBean.glAccount.accountType.subLedger.descr}"/>
-                  
-         </h:panelGrid>
-        </p:panel>
-       </p:tab>
-       <p:tab id="Company" title="#{formText.glAccountComp}" >
-        <p:panel header="#{formText.glAccountCompDtls}" >
-         <h:panelGrid columns="2">
-          <p:outputLabel for="compLst" value="#{formText.glAccountComp}" />
-          <p:selectOneMenu id="compLst" value="#{glAccountBean.glAccountComp.company}"
-                                               converter="com.rationem.util.converter.CompanyBasic"
-                                               valueChangeListener="#{glAccountBean.onCompanyChange}"
-                                               >
-           <p:ajax event="change" />
-           <f:selectItems value="#{glAccountBean.companyList}" var="compItem"
-                                               itemLabel="#{compItem.reference}" itemValue="#{compItem}" />
-          </p:selectOneMenu>
-          <p:outputLabel for="sortOrder" value="#{formText.glAccountSort}"/>
-          <p:selectOneMenu id="sortOrder" value="#{glAccountBean.glAccountComp.sortOrder}"
-                           converter="com.rationem.util.converter.SortOrder" 
-                           valueChangeListener="#{glAccountBean.onSortOrderChange}" >
-           <f:selectItems var="sortItem" value="#{glAccountBean.sortOrderList}"
-                                       itemValue="#{sortItem}"
-                                       itemLabel="#{sortItem.name}"/>
-           <p:ajax event="change" />
-          </p:selectOneMenu>
-          
-          <p:outputLabel for="bank" value="#{formText.glAccountBank}"
-                         rendered="#{glAccountBean.glAccount.accountType.processCode eq 'BNK'}"/>
-          <h:selectOneMenu id="bank" value="#{glAccountBean.glAccountComp.bank}"
-                                        title="#{formHelpText.glActBank}"
-                                        rendered="#{glAccountBean.glAccount.accountType.processCode eq 'BNK'}">
-           <f:selectItems var="bnkItem" value="#{glAccountBean.bankList}"
-                                       itemValue="#{bnkItem.id}" itemLabel="#{bnkItem.accountRef}"
-                                               />
-          </h:selectOneMenu>
-          
-           
-            <p:outputLabel for="vatCode" value="#{formText.glAccountVatCode}"  
-                          rendered="#{glAccountBean.compVatable}" />
-            
-             <p:selectOneMenu id="vatCode" value="#{glAccountBean.glAccountComp.vatCode}"
-                             rendered="#{glAccountBean.compVatable}"
-                             converter="com.rationem.util.converter.VatCodeCompany"
-                             valueChangeListener="#{glAccountBean.onVatCodeChange}">
-             <f:selectItems var="vatItem" value="#{glAccountBean.vatCodeList}"
-                            itemValue="#{vatItem}" itemLabel="#{vatItem.vatCode.code} #{vatItem.vatCode.description}"/>
-             <p:ajax event="change"/>
-            </p:selectOneMenu>
-             
-            
-            <p:outputLabel for="noVat" value="#{formText.glAccountNoVat}"/>
-            <p:selectBooleanCheckbox id="noVat" value="#{glAccountBean.glAccountComp.noVatAllowed}"/>
-          <p:outputLabel for="anlysis1" value="#{formText.glAccountAnalysis1}"/>
-          <p:inputText id="anlysis1" value="#{glAccountBean.glAccountComp.analysis1}"
-                                    title="#{formHelpText.glAccountAnalysis1}"/>
-          <p:outputLabel for="anlysis2" value="#{formText.glAccountAnalysis2}"/>
-          <p:inputText id="anlysis2" value="#{glAccountBean.glAccountComp.analysis2}"
-                                    title="#{formHelpText.glAccountAnalysis2}"/>
-          <p:outputLabel for="persResp" value="#{formText.glAccountResp}"
-                         rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
-          <p:inputText id="persResp" value="#{glAccountBean.glAccountComp.personResponsible}"
-                                           title="#{formHelpText.glActResp}"
-                                           rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
-          <p:commandButton id="crGlActBtn" value="#{formText.save}" icon="fa fa-floppy-o"
-                           actionListener="#{glAccountBean.onSaveNewAccount}"          
-                           action="#{glAccountBean.onSaveNewAccountAction}">
-       </p:commandButton>        
-      </h:panelGrid>
-     </p:panel>
-    </p:tab>
-   </p:wizard>
-  </h:form>
+     </p:panelGrid>
+    </p:panel>
+   </h:form>
+
+   <h:form id="displAcntTySettFrm">
+    <p:dialog
+     id="displAcntTySettDlg" widgetVar="displAcntTySettDlWv" responsive="true" closable="false"
+     dynamic="true">
+     <f:facet name="header">
+      <h:outputText value="#{formText.glAccountActTySett}"/>
+      <p:spacer width="3"/>
+      <h:outputText id="glref" value="#{glAccountBean.glAccount.ref}"/>
+     </f:facet>
+     <p:panelGrid
+      id="boolCb" layout="grid" columns="2" columnClasses="ui-grid-col-10,ui-grid-col-8"
+      styleClass="ui-noborder">
+      <p:outputLabel for="plRadio" value="#{formText.glAccountPlAct}"/>
+      <p:selectBooleanCheckbox id="plRadio" value="#{glAccountBean.glAccount.accountType.profitAndLossAccount}"
+                               disabled="true">
+       <f:selectItem itemLabel="PL" itemValue="true" />
+       <f:selectItem itemLabel="BS" itemValue="false" />
+      </p:selectBooleanCheckbox>
+      <p:outputLabel for="sysPost" value="#{formText.actTySysPst}"
+                     rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}" />
+      <p:selectBooleanCheckbox id="sysPost" value="#{glAccountBean.glAccount.accountType.systemPost}"
+                               disabled="true"
+                               rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"  />
+      <p:outputLabel for="retEarn" value="#{formText.actTyRetEran}" styleClass="greyOut"
+                     rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
+      <p:selectBooleanCheckbox id="retEarn" disabled="true"
+                               value="#{glAccountBean.glAccount.accountType.retainedEarn}"
+                               rendered="#{!glAccountBean.glAccount.accountType.profitAndLossAccount}"/>
+      <p:outputLabel for="ledger" value="#{formText.actTypLedger}"
+                     style="font-weight: 100;"/>
+
+      <h:outputText id="ledger"  style="font-weight: 100;" title="#{formHelpText.actLedger}"
+                    value="#{glAccountBean.glAccount.accountType.subLedger.descr}"/>
+     </p:panelGrid>
+
+    </p:dialog>
+
+   </h:form>
+  </div>
  </ui:define>
 </ui:composition>
   

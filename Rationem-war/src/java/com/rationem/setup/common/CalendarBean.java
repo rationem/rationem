@@ -28,7 +28,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.RowEditEvent;
 import org.primefaces.event.SelectEvent;
@@ -136,8 +136,8 @@ public class CalendarBean  extends BaseBean{
  public void setFlexYrSelected(CalendarRuleFlexYearRec flexYrSelected) {
   this.flexYrSelected = flexYrSelected;
   logger.log(INFO, "flexYrSelected updated with {0}", flexYrSelected);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addPeriodFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addPeriodFrm");
  }
 
  
@@ -251,9 +251,9 @@ public class CalendarBean  extends BaseBean{
     calFlex = sysBuff.getCalendarFlexYears(calFlex);
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displFrm");
-  rCtx.execute("PF('disCalWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displFrm");
+  pf.executeScript("PF('disCalWv').show()");
  }
  
  public void onSaveNewCal(){
@@ -290,10 +290,10 @@ public class CalendarBean  extends BaseBean{
     calFixeDt.setChangedOn(new Date());
     calFixeDt = (CalendarRuleFixedDateRec)sysBuff.updateCalendar(calFixeDt, getView());
     li.set(calFixeDt);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("calTbl");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("calTbl");
     logger.log(INFO, "Calendars updated with {0}", calFixeDt);
-    rCtx.execute("PF('updtCalDlgWv').hide()");
+    pf.executeScript("PF('updtCalDlgWv').hide()");
     return;
    }
   }
@@ -311,10 +311,10 @@ public class CalendarBean  extends BaseBean{
     calMonth.setChangedOn(new Date());
     calMonth = (CalendarRuleMonthRec)sysBuff.updateCalendar(calRec, getView());
     li.set(calMonth);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("calTbl");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("calTbl");
     logger.log(INFO, "Calendars updated with {0}", calMonth);
-    rCtx.execute("PF('updtCalDlgWv').hide()");
+    pf.executeScript("PF('updtCalDlgWv').hide()");
     return;
    }
   }
@@ -322,7 +322,7 @@ public class CalendarBean  extends BaseBean{
  }
  public void onUpdateDlg(){
   logger.log(INFO, "onUpdateDlg selectType {0}", selectType);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(selectType.equals("CalendarRuleFlexPerRec")){
    if(calFlex.getCalRuleFlexYears() == null || calFlex.getCalRuleFlexYears().isEmpty() ){
     calFlex = sysBuff.getCalendarFlexYears(calFlex);
@@ -330,16 +330,16 @@ public class CalendarBean  extends BaseBean{
   }
   
   
-  rCtx.update("upDtDlgOp");
-  rCtx.execute("PF('updtCalDlgWv').show()");
+  pf.ajax().update("upDtDlgOp");
+  pf.executeScript("PF('updtCalDlgWv').show()");
   
   
   
  }
  public void onDispRowToggle(ToggleEvent evt){
   logger.log(INFO,"on row toggle");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("dispCalDlgId");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("dispCalDlgId");
  }
 
  public void onFlexYearAddDlg(){
@@ -348,9 +348,9 @@ public class CalendarBean  extends BaseBean{
   cal.setTime(new Date());
   int yr = cal.get(Calendar.YEAR);
   flexYrNew.setCalYear(yr);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addYearFrm");
-  rCtx.execute("PF('addyearWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addYearFrm");
+  pf.executeScript("PF('addyearWv').show()");
  }
  
  public void onFlexPerAddDlg(){
@@ -384,9 +384,9 @@ public class CalendarBean  extends BaseBean{
    years.add(flexYrSelected);
   }
   calFlex.setCalRuleFlexYears(years);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("flexYrUpdtTbl");
-  rCtx.execute("PF('addPerWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("flexYrUpdtTbl");
+  pf.executeScript("PF('addPerWv').hide()");
   flexPerNew = null;
  }
  
@@ -418,8 +418,8 @@ public class CalendarBean  extends BaseBean{
   }
   calFlex.setCalRuleFlexYears(years);
   flexPerNew = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addPeriodFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addPeriodFrm");
  }
  public void onFlexPerAddNewTrf(){
   logger.log(INFO, "onFlexPerAddNewTrf called with year {0}",flexYrSelected.getCalYear() );
@@ -448,9 +448,9 @@ public class CalendarBean  extends BaseBean{
    years.add(flexYrSelected);
   }
   calFlex.setCalRuleFlexYears(years);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("flexYrNewTbl");
-  rCtx.execute("PF('addPerWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("flexYrNewTbl");
+  pf.executeScript("PF('addPerWv').hide()");
   flexPerNew = null;
  }
  
@@ -463,9 +463,9 @@ public class CalendarBean  extends BaseBean{
   flexYrNew = compMgr.updateCalendarRuleFlexYearRec(flexYrNew, getView());
   List<CalendarRuleFlexYearRec> years = calFlex.getCalRuleFlexYears();
   years.add(flexYrNew);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("flexYrUpdtTbl");
-  rCtx.execute("PF('addyearWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("flexYrUpdtTbl");
+  pf.executeScript("PF('addyearWv').hide()");
  }
  
  public void onFlexYearAddNew(){
@@ -482,9 +482,9 @@ public class CalendarBean  extends BaseBean{
   years.add(flexYrNew);
   calFlex.setCalRuleFlexYears(years);
   logger.log(INFO, "calFlex years {0}", years);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("flexYrNewTbl");
-  rCtx.execute("PF('addyearWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("flexYrNewTbl");
+  pf.executeScript("PF('addyearWv').hide()");
  }
  
  public void onPeriodRowEdit(RowEditEvent evt){

@@ -13,6 +13,7 @@ import com.rationem.busRec.ma.costCent.CostCentreRec;
 import com.rationem.busRec.ma.programme.ProgramAccountRec;
 import com.rationem.busRec.ma.programme.ProgrammeRec;
 import com.rationem.busRec.sales.SalesPartCompanyRec;
+import com.rationem.busRec.salesTax.vat.VatCodeCompanyRec;
 import com.rationem.busRec.salesTax.vat.VatReturnLineRec;
 
 
@@ -50,6 +51,7 @@ public class DocLineGlRec extends DocLineBaseRec {
  private DocLineArRec reconcilForArLine;
  private SalesPartCompanyRec salesPart;
  private VatReturnLineRec vatReturnLine;
+ private VatCodeCompanyRec vatCode;
  
  public DocLineGlRec() {
  }
@@ -248,6 +250,15 @@ public class DocLineGlRec extends DocLineBaseRec {
   this.reconcilForArLine = reconcilForArLine;
  }
 
+ public VatCodeCompanyRec getVatCode() {
+  return vatCode;
+ }
+
+ public void setVatCode(VatCodeCompanyRec vatCode) {
+  this.vatCode = vatCode;
+ }
+
+ 
  public VatReturnLineRec getVatReturnLine() {
   return vatReturnLine;
  }

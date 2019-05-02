@@ -67,7 +67,7 @@
                   rendered="#{calendarBean.selectType eq 'CalendarRuleMonthRec'}" />
    </f:facet>
     
-    <p:outputPanel id="fixedDateOp" autoUpdate="true" >
+    <p:outputPanel id="fixedDateOp"   >
      <h:panelGrid columns="2" rendered="#{calendarBean.selectType eq 'CalendarRuleFixedDateRec'}" >
       <h:outputText value="#{formText.calRef}"/>
       <h:outputText value="#{calendarBean.calFixeDt.reference}"/>
@@ -116,7 +116,7 @@
                        onclick="PF('disCalWv').hide();"/>
      </h:panelGrid>
     </p:outputPanel>
-    <p:outputPanel id="monthOp" autoUpdate="true" >
+    <p:outputPanel id="monthOp"   >
      <h:panelGrid columns="2" 
                   rendered="#{calendarBean.selectType eq 'CalendarRuleMonthRec'}" >
       <h:outputText value="#{formText.calRef}"/>

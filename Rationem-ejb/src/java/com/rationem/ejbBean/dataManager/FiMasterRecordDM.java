@@ -5,6 +5,7 @@
 
 package com.rationem.ejbBean.dataManager;
 
+import com.rationem.busRec.config.common.SortOrderRec;
 import com.rationem.busRec.config.company.AccountTypeRec;
 import javax.persistence.PessimisticLockException;
 import javax.persistence.LockTimeoutException;
@@ -637,6 +638,7 @@ public FiGlAccountCompRec getFiCompGlAccountRec(String glAcntRef, CompanyBasicRe
  
 }
 
+
 public List<FiGlAccountCompRec> getGlCompRecAcntsForCoaAcnt(FiGlAccountBaseRec coaAcntRec ){
  
  FiGLAccountBase coaAcnt = em.find(FiGLAccountBase.class, coaAcntRec.getId(), OPTIMISTIC);
@@ -648,9 +650,10 @@ public List<FiGlAccountCompRec> getGlCompRecAcntsForCoaAcnt(FiGlAccountBaseRec c
   LOGGER.log(INFO, "No comp accounts for GL account {0}", coaAcnt.getRef());
   return null;
  }
- List<FiGlAccountCompRec> compAcntRecList = new ArrayList<FiGlAccountCompRec>();
+ List<FiGlAccountCompRec> compAcntRecList = new ArrayList<>();
  for(FiGlAccountComp compAcnt:compAcnts ){
-  FiGlAccountCompRec compAcntRec = this.buildFiCompGlAccountRec(compAcnt);
+  FiGlAccountCompRec compAcntRec = buildFiCompGlAccountRec(compAcnt);
+  
   compAcntRecList.add(compAcntRec);
  }
  return compAcntRecList;
@@ -664,6 +667,7 @@ private FiGlAccountCompRec buildFiCompGlAccountRec(FiGlAccountComp ac){
   rec.setAnalysis2(ac.getAnalysis2());
   rec.setRepCategory(ac.getRepCategory());
   rec.setPersonResponsible(ac.getRespPerson());
+  
 
   if(ac.getChangedBy() != null){
     UserRec usr = userDM.getUserRecPvt(ac.getChangedBy());
@@ -701,7 +705,8 @@ private FiGlAccountCompRec buildFiCompGlAccountRec(FiGlAccountComp ac){
   rec.setVatCode(vatCode);
   
 
-
+  LOGGER.log(INFO, "Comp acnt id {0}", rec.getId());
+  LOGGER.log(INFO, "Comp acnt DB id {0}", rec.getId());
 
   return rec;
   
@@ -919,6 +924,32 @@ private FiGlAccountComp buildFiCompGlAccount(FiGlAccountCompRec ac, String pg){
   return acnt;
 }
 
+private FiGlAccountComp buildFiCompGlAccount(FiGLAccountBase chartAct, CompanyBasicRec compRec,
+        User usr, String pg){
+ LOGGER.log(INFO, "buildFiCompGlAccount with db GL chart ac {0} pg {1} ", new Object[]{
+  chartAct.getRef(), pg });
+ 
+ FiGlAccountComp compAct = new FiGlAccountComp();
+ 
+ AuditGlCompAccount aud = this.buildAuditGlCompAccount(compAct, usr, 'I', pg);
+ aud.setNewValue(chartAct.getRef());
+ compAct.setCreatedBy(usr);
+ compAct.setCreatedOn(new Date());
+ compAct.setCoaAccount(chartAct);
+ CompanyBasic comp = this.sysBuffer.getComp(compRec);
+ compAct.setCompany(comp);
+ em.persist(compAct);
+ 
+ return compAct;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   
+}
 private FiGlAccountComp buildFiCompGlAccount(FiGLAccountBase chartAct,
         FiGlAccountCompRec ac, String pg) throws BacException{
   LOGGER.log(INFO, "buildFiCompGlAccount with db GL chart ac {0} company GL rec {1} ",
@@ -2148,6 +2179,50 @@ public List<FiGlAccountCompRec> getCreditorReconAccounts(CompanyBasicRec comp) t
   }
   
   return vatCdList;
+ }
+ 
+ public List<FiGlAccountCompRec> glCompRecAcntsForCoaCreate(ChartOfAccountsRec coa, 
+    CompanyBasicRec comp, UserRec usrRec, String view ){
+  if(coa == null || comp == null){
+   LOGGER.log(INFO, "glCompRecAcntsForCoaAcntCreate called with coa {0}, comp {1}", 
+     new Object[]{coa,comp});
+   return null;
+  }
+  if(!trans.isActive()){
+   trans.begin();
+  }
+  LOGGER.log(INFO, "glCompRecAcntsForCoaAcntCreate called with coa {0}, comp {1}", 
+     new Object[]{coa.getReference(),comp.getReference()});
+  
+  List<FiGlAccountCompRec> retList = new ArrayList<>();
+  
+  TypedQuery coaQ = em.createNamedQuery("accountsByChart", FiGLAccountBase.class);
+  coaQ.setParameter("chartId", coa.getId());
+  
+  List<FiGLAccountBase> fiGlAcnts = coaQ.getResultList();
+  LOGGER.log(INFO, "Accounts found {0}", fiGlAcnts);
+  if(fiGlAcnts == null || fiGlAcnts.isEmpty()){
+   return null;
+   
+  }
+  User usr = em.find(User.class, usrRec.getId());
+  for(FiGLAccountBase curr:fiGlAcnts){
+   LOGGER.log(INFO, "glCompRecAcntsForCoaCreate db acnt id {0}", curr.getId());
+   FiGlAccountComp glAcntComp = buildFiCompGlAccount(curr, comp, usr, view);
+   LOGGER.log(INFO, "glAcntComp id {0}", glAcntComp.getId());
+   FiGlAccountCompRec glAcntCompRec = this.buildFiCompGlAccountRec(glAcntComp);
+   if(glAcntComp.getSortOrder() == null){
+    SortOrderRec sortRec = this.sysBuffer.getSortOrderByCode("DocDt");
+    SortOrder sort = em.find(SortOrder.class, sortRec.getId());
+    glAcntComp.setSortOrder(sort);
+    glAcntCompRec.setSortOrder(sortRec);
+   }
+   retList.add(glAcntCompRec);
+  }
+  
+  trans.rollback();
+  return retList;
+  
  }
  public FiPeriodBalanceRec updatePeriodBalances(FiPeriodBalanceRec bal, String page){
   LOGGER.log(INFO, "FiMastRecDM.updatePeriodBalances called with bal yr {0} per {1} src {2}", 

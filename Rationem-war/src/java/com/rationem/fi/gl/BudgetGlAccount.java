@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.RowEditEvent;
 
 /**
@@ -200,8 +200,8 @@ public class BudgetGlAccount extends BaseBean {
    annualTotal = 0.0;
    budgetYears = null;
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("glActBud");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("glActBud");
  }
  
  public void onBudgetYearChange(ValueChangeEvent evt){
@@ -245,8 +245,8 @@ public class BudgetGlAccount extends BaseBean {
     annualTotal += curr.getPeriodBudgetAmount();
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("glActBud");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("glActBud");
  }
  
  
@@ -295,9 +295,9 @@ public class BudgetGlAccount extends BaseBean {
   }
   budgetYears.add(budYearSel);
   annualTotal = 0.0;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("glActBud");
-  rCtx.execute("PF('addBudYrWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("glActBud");
+  pf.executeScript("PF('addBudYrWv').hide();");
   logger.log(INFO, "budgetList {0}", budgetList);
   budYearNew = null;
  }
@@ -310,8 +310,8 @@ public class BudgetGlAccount extends BaseBean {
   {annualTotal,preEditAmnt,finalAmnt});
   annualTotal -= preEditAmnt;
   annualTotal += finalAmnt;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("annTotal");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("annTotal");
  }
  
  public void onBudPerValEditInit(RowEditEvent evt){
@@ -336,8 +336,8 @@ public class BudgetGlAccount extends BaseBean {
    }else{
     curr.setPeriodBudgetAmount(finalPer);
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("budTblId");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("budTblId");
   }
   
  }
@@ -356,8 +356,8 @@ public class BudgetGlAccount extends BaseBean {
   try{
    glAcntMgr.updateGlAcntBugets(glAcntSel, getView());
    MessageUtil.addInfoMessage("budSaved", "blacResponse");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("glActBud");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("glActBud");
   }catch(Exception ex){
    logger.log(INFO, "could not save budget {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessage("budSaveNone", "errorText");

@@ -23,7 +23,7 @@ import static java.util.logging.Level.INFO;
 import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -168,7 +168,7 @@ public class PartnerAccounts extends BaseBean {
     apTotal += curr.getAccountBalance();
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  //PrimeFaces pf = PrimeFaces.current();
   List<String> updateIds= new ArrayList<>();
   updateIds.add("ptnrAcntsFrm:ptnrName");
   if(arAccounts != null){

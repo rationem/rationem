@@ -21,7 +21,7 @@ import javax.ejb.EJB;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 
 /**
@@ -106,9 +106,9 @@ public class TransactionTypeBean extends BaseBean{
  }
  
  public void onEditTransTypeDlg(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editFrmId");
-  rCtx.execute("PF('editDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editFrmId");
+  pf.executeScript("PF('editDlgWv').show()");
  }
  public void onSaveNewTransType(){
   logger.log(INFO, "onSaveNewTransType called trans ty {0}", transType);
@@ -119,8 +119,8 @@ public class TransactionTypeBean extends BaseBean{
   MessageUtil.addInfoMessageVar1("tranTyCr", "blacResponse", transType.getCode());
   transType = new TransactionTypeRec();
   transType.setLedger(ledgers.get(0));
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("tranTyCrFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("tranTyCrFrm");
   }catch(Exception ex){
    logger.log(INFO, "Trans type create failed reason {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessageParam1("tranTyCr", "blacResponse", transType.getCode());
@@ -146,14 +146,14 @@ public class TransactionTypeBean extends BaseBean{
     transTyFound = true;
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(transTyFound){
    transTypeSelected = null;
    List<String> toUpdate = new ArrayList<String>();
    toUpdate.add("transTypes");
    toUpdate.add("editFrmId");
-   rCtx.update(toUpdate);
-   rCtx.execute("PF('editDlgWv').hide()");
+   pf.ajax().update(toUpdate);
+   pf.executeScript("PF('editDlgWv').hide()");
    
   }
  }
@@ -170,19 +170,19 @@ public class TransactionTypeBean extends BaseBean{
     foundCode = true;
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(foundCode){
    transType.setCode(null);
    ((UIInput) toValidate).setValid(false);
    MessageUtil.addWarnMessage("transTyCdUniq", "validationText");
-   rCtx.update("tranTyCrFrm");
+   pf.ajax().update("tranTyCrFrm");
    
   }else{
    ((UIInput) toValidate).setValid(true);
    List<String> updates = new ArrayList<String>();
    updates.add("code");
    updates.add("codeLbl");
-   rCtx.update(updates);
+   pf.ajax().update(updates);
    
   }
   
@@ -203,19 +203,19 @@ public class TransactionTypeBean extends BaseBean{
     foundCode = true;
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(foundCode){
    transType.setCode(null);
    ((UIInput) toValidate).setValid(false);
    MessageUtil.addWarnMessage("transTyCdUniq", "validationText");
-   rCtx.update("tranTyCrFrm");
+   pf.ajax().update("tranTyCrFrm");
    
   }else{
    ((UIInput) toValidate).setValid(true);
    List<String> updates = new ArrayList<String>();
    updates.add("code");
    updates.add("codeLbl");
-   rCtx.update(updates);
+   pf.ajax().update(updates);
    
   }
   

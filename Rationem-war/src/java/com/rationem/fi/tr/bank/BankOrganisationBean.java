@@ -22,15 +22,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import java.util.logging.Logger;
 
 
 import javax.ejb.EJB;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.AjaxBehaviorEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 import static java.util.logging.Level.INFO;
@@ -259,34 +257,34 @@ public class BankOrganisationBean extends BaseBean {
   LOGGER.log(INFO, "onCreateBankContact called with {0}", ae.getSource());
   LOGGER.log(INFO, "family name {0} ",bankContact.getFamilyName());
   bankOrg.setBankContact(bankContact);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("bnkMgr");
-  rCtx.execute("PF('bnkContactCrWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("bnkMgr");
+  pf.executeScript("PF('bnkContactCrWv').hide();");
   bnkContactUsed = true;
  }
  
  public void onAddressSelect(SelectEvent se){
   LOGGER.log(INFO, "onAddressSelect called {0}",se.getObject() );
   bankAddr = (AddressRec)se.getObject();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addressGrd");
-  rCtx.execute("PF('addrSrchWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addressGrd");
+  pf.executeScript("PF('addrSrchWv').hide();");
  }
  
  public void onBranchAddressClear(){
   LOGGER.log(INFO, "onBranchAddressClear called");
   bankBranchAddr = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addressGrd");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addressGrd");
   
  }
  public void onBranchAddressSelect(SelectEvent evt){
   LOGGER.log(INFO, "onBranchAddressSelect called {0}",evt.getObject() );
   bankBranchAddr = (AddressRec)evt.getObject();
   LOGGER.log(INFO, "bankBranchAddr post cd {0}", bankBranchAddr.getPostCode());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addressGrd");
-  rCtx.execute("PF('addrSrchWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addressGrd");
+  pf.executeScript("PF('addrSrchWv').hide();");
  }
  
  public void onBranchAddressDlg(){
@@ -297,23 +295,23 @@ public class BankOrganisationBean extends BaseBean {
   }else{
    bankAddrList = masterDta.getAddressesForPostCodePart(new String());
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addRSchFrm");
-  rCtx.execute("PF('addrSrchWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addRSchFrm");
+  pf.executeScript("PF('addrSrchWv').show();");
  }
  public void onAddressDlg(){
   LOGGER.log(INFO, "onAddressDlg called with post code {0}", this.bankAddr.getPostCode());
   bankAddrList = masterDta.getAddressesForPostCodePart(bankAddr.getPostCode());
   LOGGER.log(INFO, "Addresses found {0}", bankAddrList);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addRSchFrm");
-  rCtx.execute("PF('addrSrchWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addRSchFrm");
+  pf.executeScript("PF('addrSrchWv').show();");
  }
  
  public void onAddressClear(){
   bankAddr =  new AddressRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addrPnl"); 
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addrPnl"); 
  }
  
  public void onBnkContactChange(ValueChangeEvent evt){
@@ -331,9 +329,9 @@ public class BankOrganisationBean extends BaseBean {
  
  
  public void onBankMgrDlg(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  //rCtx.update("bnkContactCr:bnkContactCrGrd");
-  rCtx.execute("PF('bnkContactCrWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  //pf.ajax().update("bnkContactCr:bnkContactCrGrd");
+  pf.executeScript("PF('bnkContactCrWv').show()");
   LOGGER.log(INFO, "onBankMgrDlg called");
  }
  public void onBankSelect(SelectEvent se){
@@ -399,8 +397,8 @@ public class BankOrganisationBean extends BaseBean {
   bankOrg = null;
   bankContact = null;
   bankAddr = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("bnkOrgCr");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("bnkOrgCr");
   }catch(Exception ex){
    LOGGER.log(WARNING, "Create bank failed {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessage("bnkBankCr", "errorText");

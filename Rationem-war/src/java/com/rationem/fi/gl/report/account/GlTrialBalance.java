@@ -29,12 +29,7 @@ import javax.ejb.EJB;
 import org.primefaces.event.SelectEvent;
 
 import static java.util.logging.Level.INFO;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -42,7 +37,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -366,17 +361,17 @@ public class GlTrialBalance extends BaseBean{
    acntBalList = sumBals;
   }
   logger.log(INFO, "acntBalList after call to gl Account mgr {0}", acntBalList);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(acntBalList == null || acntBalList.isEmpty()){
    MessageUtil.addWarnMessage("glReptTbNoBals", "validationText");
-   rCtx.update("tbGenGr");
+   pf.ajax().update("tbGenGr");
    
    
   }else{
    MessageUtil.addInfoMessage("glReptTbGen", "formText");
-   rCtx.update("tbGenGr");
-   rCtx.update("accordPnl");
-   rCtx.execute("PF('accordWv').select(1)");
+   pf.ajax().update("tbGenGr");
+   pf.ajax().update("accordPnl");
+   pf.executeScript("PF('accordWv').select(1)");
   }
  }
  public void onCompSelect(SelectEvent evt){
@@ -388,10 +383,10 @@ public class GlTrialBalance extends BaseBean{
   compSel = true;
   Date curr = new Date();
   fiscYrPer = this.sysBuff.getCompFiscalPeriodYearForDate(company, curr);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   updates.add("accordPnl");
-  rCtx.update(updates);
+  pf.ajax().update(updates);
  }
  
  @Override

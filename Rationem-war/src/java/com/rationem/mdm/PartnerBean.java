@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
 import javax.ejb.EJB;
 import org.primefaces.event.FlowEvent;
 import java.util.logging.Logger;
@@ -36,7 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.event.TabCloseEvent;
@@ -360,8 +359,8 @@ public class PartnerBean extends BaseBean {
     if(ptnrPerson != null){
      ptnrPerson = null;
     }
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("corpDetPg");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("corpDetPg");
     LOGGER.log(INFO, "ptnrCorp {0}", ptnrCorp);
    }else{
     if(ptnrPerson == null){
@@ -462,8 +461,8 @@ public class PartnerBean extends BaseBean {
      nextStep = evt.getOldStep();
     }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addrPnl");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addrPnl");
   return nextStep;
  }
  
@@ -482,8 +481,8 @@ public class PartnerBean extends BaseBean {
     if(ptnrPerson != null){
      ptnrPerson = null;
     }
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("corpDetPg");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("corpDetPg");
     LOGGER.log(INFO, "ptnrCorp {0}", ptnrCorp);
    }else{
     if(ptnrPerson == null){
@@ -584,8 +583,8 @@ public class PartnerBean extends BaseBean {
      nextStep = evt.getOldStep();
     }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addrPnl");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addrPnl");
   return nextStep;
  }
  
@@ -593,16 +592,16 @@ public class PartnerBean extends BaseBean {
   LOGGER.log(INFO, "onFindPartners called");
   this.ptnrList = ptnrMgr.getPartnersBySelOpt(ptnrSelOpt);
   LOGGER.log(INFO, "ptnrList {0}", ptnrList);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("partnerListId");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("partnerListId");
  }
  public void onNewAddrDefDlg(){
   LOGGER.log(INFO, "onNewAddrDefDlg called");
   newAddDlgFor = "default";
   this.addrNew = new AddressRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("newAddrFrm");
-  rCtx.execute("PF('addNewAddrDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("newAddrFrm");
+  pf.executeScript("PF('addNewAddrDlgWv').show()");
   
  }
  
@@ -610,17 +609,17 @@ public class PartnerBean extends BaseBean {
   LOGGER.log(INFO, "onNewAddrHoDlg called");
   newAddDlgFor = "headOff";
   this.addrNew = new AddressRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("newAddrFrm");
-  rCtx.execute("PF('addNewAddrDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("newAddrFrm");
+  pf.executeScript("PF('addNewAddrDlgWv').show()");
  }
  
  public void onNewAddrRegDlg(){
   LOGGER.log(INFO, "onNewAddrRegDlg called");
   newAddDlgFor = "regOff";
   this.addrNew = new AddressRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
   PrimeFaces pf = PrimeFaces.current();
+  
   pf.ajax().update("newAddrFrm");
   pf.executeScript("PF('addNewAddrDlgWv').show()");
  }
@@ -667,8 +666,8 @@ public class PartnerBean extends BaseBean {
    this.ptnrType = this.formTextForKey("ptnrIndiv");
    this.ptnrPerson = (PartnerPersonRec)ptnrBase;
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("ptnrType");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("ptnrType");
  }
  
  public void onPtnrRefValidate(FacesContext c, UIComponent comp, Object val){
@@ -929,9 +928,9 @@ public class PartnerBean extends BaseBean {
   if(addrList == null || addrList.isEmpty()){
    MessageUtil.addWarnMessage("addrNoAddrPc", "validationText");
   }else{
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("srchAddrLst");
-   rCtx.execute("PF('addrSrchWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("srchAddrLst");
+   pf.executeScript("PF('addrSrchWv').show()");
   }
  }
   
@@ -944,9 +943,9 @@ public class PartnerBean extends BaseBean {
   if(addrList == null || addrList.isEmpty()){
    MessageUtil.addWarnMessage("addrNoAddrPc", "validationText");
   }else{
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("srchAddrLst");
-   rCtx.execute("PF('addrSrchWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("srchAddrLst");
+   pf.executeScript("PF('addrSrchWv').show()");
   }
  }
  
@@ -1057,24 +1056,24 @@ public class PartnerBean extends BaseBean {
  public void onAddrSelectRow(SelectEvent evt){
   LOGGER.log(INFO, "onAddrSelectRow called with row {0}", evt.getObject());
   LOGGER.log(INFO, "addrTypeSrch {0}", addrTypeSrch);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(StringUtils.equals(addrTypeSrch, "default") ){
    //default address
    addrDefault = (AddressRec)evt.getObject();
    LOGGER.log(INFO, "default pc {0}", addrDefault.getPostCode());
-   PrimeFaces pf = PrimeFaces.current();
+   
    pf.ajax().update("ptnrCrFrm:addrPnl");
    pf.executeScript("PF('addrPstcdSrchDlgWv').hide()");
    
    
   }else if(addrTypeSrch.equalsIgnoreCase("headOffice")){
    addrHeadOff = (AddressRec)evt.getObject();
-   rCtx.update("hoAddrPg");
-   rCtx.execute("PF('addrSrchWv').hide()");
+   pf.ajax().update("hoAddrPg");
+   pf.executeScript("PF('addrSrchWv').hide()");
   }else if(addrTypeSrch.equalsIgnoreCase("regOffice")){
    addrRegOff = (AddressRec)evt.getObject();
-   rCtx.update("regOffAddrPg");
-   rCtx.execute("PF('addrSrchWv').hide()");
+   pf.ajax().update("regOffAddrPg");
+   pf.executeScript("PF('addrSrchWv').hide()");
   }
   
  }
@@ -1425,23 +1424,23 @@ PartnerBaseRec ptnrUpdate;
  
  public void onTransferAddr(){
   LOGGER.log(INFO, "onTransferAddr called for addr {0}",this.newAddDlgFor);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(newAddDlgFor.equalsIgnoreCase("default")){
    this.addrDefault = this.addrNew;
-   rCtx.update("addrDefPg");
+   pf.ajax().update("addrDefPg");
    this.addrDefEntries = addrNewEntries;
   }else if(newAddDlgFor.equalsIgnoreCase("regOff")){
    this.addrRegOff = addrNew;
    this.addrRegOffEntries = addrNewEntries;
-   rCtx.update("regOffAddrPg");
+   pf.ajax().update("regOffAddrPg");
   }else if(newAddDlgFor.equalsIgnoreCase("headOff")){
    this.addrHeadOff = addrNew;
    this.addrRegOffEntries = addrNewEntries;
-   rCtx.update("hoAddrPg");
+   pf.ajax().update("hoAddrPg");
    
   }
   addrNew = null;
   addrNewEntries = 0;
-  rCtx.execute("PF('addNewAddrDlgWv').hide()");
+  pf.executeScript("PF('addNewAddrDlgWv').hide()");
  }
 }

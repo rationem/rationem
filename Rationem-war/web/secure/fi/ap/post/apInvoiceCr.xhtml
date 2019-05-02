@@ -10,8 +10,10 @@
  <ui:define name="content">
   <div class="ui-fluid">
    <h:form id="apInvCrFrm" >
-    <p:growl autoUpdate="true" severity="info"  />
-      
+    <p:growl id="grl"  severity="info"  >
+     <p:autoUpdate />
+    </p:growl>
+
     <p:steps activeIndex="#{apDocPost.step}">
      <p:menuitem value="#{formText.docHdr}"/>
      <p:menuitem value="#{formText.payTab}"/>
@@ -22,77 +24,89 @@
       
     <div class="card card-w-title">
      <h1>#{apDocPost.stepName}</h1>
-     <p:messages autoUpdate="true" severity="warn" closable="true"/> 
+     <p:messages id="msgs" severity="warn " closable="true"/>
      <p:growl id="okMsg" severity="info"/>
-     <p:panelGrid id="docHdrPg" columns="8" layout="grid" styleClass="ui-noborder" rendered="#{apDocPost.step eq 0}" 
-         columnClasses="ui-grid-col-1,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-1,ui-grid-col-2,ui-grid-col-1,ui-grid-col-1">
+     <p:panelGrid id="docHdrPgBlk1" columns="4" layout="grid" styleClass="ui-noborder" rendered="#{apDocPost.step eq 0}"
+                  columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-2,ui-grid-col-2"
+                  >
       <p:outputLabel for="docComp" value="#{formText.docCompany}"/>
       <p:selectOneMenu id="docComp" value="#{apDocPost.invoice.company}" 
                         converter="com.rationem.util.converter.CompanyBasic"  >
        <f:selectItems var="compVar" value="#{apDocPost.compList}"
                       itemLabel="#{compVar.reference}" itemValue="#{compVar}" />
+       <p:ajax event="itemSelect" listener="#{apDocPost.onCompSelect}"/>
       </p:selectOneMenu>
       <h:outputText id="compName" value="#{apDocPost.invoice.company.name}"/>
-      <h:panelGroup/>
-      <p:outputLabel for="custNum" value="#{formTextAp.apAcntCode}"/>
-      <p:autoComplete id="custNum" value="#{apDocPost.docLineAp.apAccount}"
-                             converter="com.rationem.util.converter.ApAccount" 
-                             forceSelection="true"
-                             completeMethod="#{apDocPost.onApAccountsForPtnrComplete}" 
-                             var="vendAc" itemValue="#{vendAc}" 
-                             itemLabel="#{vendAc.accountCode}" dropdown="true" 
-                             required="true" requiredMessage="#{validationText.arActNum}"
-                             >
-       <p:ajax event="itemSelect" update="apInvCrFrm:docHdrPg, apInvCrFrm:docHdrTextPg" listener="#{apDocPost.onApAccountSelect}" />
-       <p:column>
-        <h:outputText value="#{vendAc.accountCode}"/>
-       </p:column>
-       <p:column>
-        <h:outputText value="#{vendAc.apAccountFor.name}"/>
-       </p:column>
-      </p:autoComplete>
-      <h:panelGroup />
-      <h:panelGroup />
-      <p:outputLabel for="invDate" value="#{formText.docDocDate}"/>
-      <p:calendar id="invDate" value="#{apDocPost.invoice.documentDate}" 
-                    mode="popup" required="true"
-                    
-                    requiredMessage="#{validationText.fiDocDocDate}"
-                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
-                    maxlength="10" size="10" disabled="#{apDocPost.docLineAp.apAccount.id eq null}" >
-       <p:ajax event="dateSelect" listener="#{apDocPost.onDateDocSel}" />
-      </p:calendar>
-      <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
-      <p:calendar id="postDate" value="#{apDocPost.invoice.postingDate}" 
-                    mode="popup" required="true" 
-                    requiredMessage="#{validationText.fiDocPostDate}"
-                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
-                    maxlength="10" size="10"
-                    disabled="#{apDocPost.docLineAp.apAccount.id eq null}">
-       <p:ajax event="dateSelect" listener="#{apDocPost.onDatePostSel}" />
-      </p:calendar>
-      <p:outputLabel for="taxDate" value="#{formText.docTaxDate}"/>
-      <p:calendar id="taxDate" value="#{apDocPost.invoice.taxDate}" 
-                    mode="popup" required="true"
-                    requiredMessage="#{validationText.fiDocTaxDate}"
-                    navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
-                    maxlength="10" size="10"
-                    disabled="#{apDocPost.docLineAp.apAccount.id eq null}"/>
-      <h:outputText value="#{formText.docPeriod}"/>
-      <h:outputText id="fisYrPer" value="#{apDocPost.invoice.fisYearPeriod}"/>
+      <h:panelGroup class="md-inputfield">
+       <p:autoComplete id="custNum" value="#{apDocPost.docLineAp.apAccount}"
+                       converter="com.rationem.util.converter.ApAccount"
+                       forceSelection="true"
+                       completeMethod="#{apDocPost.onApAccountsForPtnrComplete}"
+                       var="vendAc" itemValue="#{vendAc}"
+                       itemLabel="#{vendAc.accountCode}" dropdown="true"
+                       required="true" requiredMessage="#{validationText.arActNum}"
+                       >
+        <p:ajax event="itemSelect" update=" apInvCrFrm:docHdrTextPg apInvCrFrm:docHdrPgBlk2 apInvCrFrm:docHdrPgBlk3"
+                listener="#{apDocPost.onApAccountSelect}" />
+        <p:column>
+         <h:outputText value="#{vendAc.accountCode}"/>
+        </p:column>
+        <p:column>
+         <h:outputText value="#{vendAc.apAccountFor.name}"/>
+        </p:column>
+       </p:autoComplete>
+       <p:outputLabel for="custNum" value="#{formTextAp.apVendAcntCode}"/>
+      </h:panelGroup>
+     </p:panelGrid>
+     <p:panelGrid id="docHdrPgBlk2" columns="4" layout="grid" styleClass="ui-noborder" rendered="#{apDocPost.step eq 0}"
+                  columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-8"
+                  >
+      <h:panelGroup class="md-inputfield">
+       <p:calendar id="invDate" value="#{apDocPost.invoice.documentDate}"
+                   mode="popup" required="true"
+
+                   requiredMessage="#{validationText.fiDocDocDate}"
+                   navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                   maxlength="10" size="10" disabled="#{apDocPost.docLineAp.apAccount.id eq null}" >
+        <p:ajax event="dateSelect" listener="#{apDocPost.onDateDocSel}" />
+       </p:calendar>
+       <p:outputLabel for="invDate" value="#{formText.docDocDate}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:calendar id="postDate" value="#{apDocPost.invoice.postingDate}"
+                   mode="popup" required="true"
+                   requiredMessage="#{validationText.fiDocPostDate}"
+                   navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                   maxlength="10" size="10"
+                   disabled="#{apDocPost.docLineAp.apAccount.id eq null}">
+        <p:ajax event="dateSelect" listener="#{apDocPost.onDatePostSel}" />
+       </p:calendar>
+       <p:outputLabel for="postDate" value="#{formText.docPostDate}"/>
+      </h:panelGroup>
+      <h:panelGroup class="md-inputfield">
+       <p:calendar id="taxDate" value="#{apDocPost.invoice.taxDate}"
+                   mode="popup" required="true"
+                   requiredMessage="#{validationText.fiDocTaxDate}"
+                   navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true"
+                   maxlength="10" size="10"
+                   disabled="#{apDocPost.docLineAp.apAccount.id eq null}"/>
+       <p:outputLabel for="taxDate" value="#{formText.docTaxDate}"/>
+      </h:panelGroup>
+      <p:panelGrid layout="grid" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-2">
+       <h:outputText value="#{formText.docPeriod}"/>
+       <h:outputText id="fisYrPer" value="#{apDocPost.invoice.fisYearPeriod}"/>
+      </p:panelGrid>
+     </p:panelGrid>
+     <p:panelGrid id="docHdrPgBlk3" columns="2" columnClasses="ui-grid-col-3,ui-grid-col-3"
+                  styleClass="ui-noborder" rendered="#{apDocPost.step eq 0}">
       <p:outputLabel for="docType" value="#{formText.docType}"/>
-      <p:selectOneMenu id="docType" value="#{apDocPost.invoice.docType}" 
-                          converter="com.rationem.util.converter.DocType" autoWidth="false" 
+       <p:selectOneMenu id="docType" value="#{apDocPost.invoice.docType}"
+                        converter="com.rationem.util.converter.DocType" autoWidth="false" 
                           disabled="#{apDocPost.docLineAp.apAccount.id eq null}">
        <f:selectItems value="#{apDocPost.documentTypes}" var="docType" itemValue="#{docType}" 
                            itemLabel="#{docType.code}"/>
       </p:selectOneMenu>
-      <h:panelGroup />
-      <h:panelGroup />
-      <h:panelGroup />
-      <h:panelGroup />
-      <h:panelGroup />
-      <h:panelGroup />
+
       <p:outputLabel for="payTerms" value="#{formText.docPayTerms}"/>
       <p:selectOneMenu id="payTerms" value="#{apDocPost.docLineAp.payTerms}"
                             converter="com.rationem.util.converter.PaymentTerms" 
@@ -102,8 +116,7 @@
                            itemValue="#{payTerm}" itemLabel="#{payTerm.description}"/>
        <p:ajax event="itemSelect" listener="#{apDocPost.onPaymentTermsSel}" /> 
       </p:selectOneMenu>
-      <h:panelGroup />
-      <h:panelGroup />
+
       <p:outputLabel for="dueDate" value="#{formText.docDueDate}"/>
       <p:calendar id="dueDate" value="#{apDocPost.docLineAp.dueDate}"
                        mode="popup" required="true"
@@ -111,15 +124,19 @@
                        navigator="true"  pattern="dd/MMM/yyyy" showOtherMonths="true" 
                        maxlength="10" size="12"
                        disabled="#{apDocPost.docLineAp.apAccount.id eq null}"/>
-      <h:panelGroup />
-      <h:panelGroup />
+
      </p:panelGrid>
-     <p:panelGrid id="docHdrTextPg" columns="4" layout="grid" columnClasses="ui-grid-col-2,ui-grid-col-8,ui-grid-col-1,ui-grid-col-1"
-                    styleClass="ui-noborder" rendered="#{apDocPost.step eq 0}">
-      <p:outputLabel for="docHdrTxt" value="#{formText.docHdrTxt}"/>
-      <p:inputText id="docHdrTxt" value="#{apDocPost.invoice.docHdrText}" 
-                      size="30" 
-                      disabled="#{apDocPost.docLineAp.apAccount.id eq null}"/>
+     <p:panelGrid id="docHdrTextPg" columns="3" layout="grid"
+                  columnClasses="ui-grid-col-7,ui-grid-col-1,ui-grid-col-1"
+                  styleClass="ui-noborder" rendered="#{apDocPost.step eq 0}">
+      <h:panelGroup class="md-inputfield">
+       <p:inputText id="docHdrTxt" value="#{apDocPost.invoice.docHdrText}"
+                    size="30"
+                    disabled="#{apDocPost.docLineAp.apAccount.id eq null}"/>
+       <p:outputLabel for="docHdrTxt" value="#{formText.docHdrTxt}"/>
+      </h:panelGroup>
+
+
       <p:outputLabel for="jumpLns" value="#{formTextAp.apDocWzSkip}"/>
       <p:selectBooleanCheckbox id="jumpLns" value="#{apDocPost.invWizSkip}"/>
       <h:panelGroup />
@@ -180,10 +197,25 @@
       <p:fileUpload id="inv" fileUploadListener="#{apDocPost.onOrderUpload}"
                         allowTypes="/(\.|\/)(doc|pdf|odt|txt|rtf)$/" label="#{formTextAp.apDocInvFS}" />
      </p:panelGrid>
-     <p:panelGrid id="notesPg" columns="2" columnClasses="ui-grid-1,ui-grid-11" rendered="#{apDocPost.step eq 3}">
+     <p:panelGrid id="notesPg" columns="2" columnClasses="ui-grid-1,ui-grid-11" 
+                  rendered="#{apDocPost.step eq 3}" styleClass="ui-noborder">
       <p:outputLabel for="invNotes" value="#{formText.docNote}"/>
-      <p:editor id="invNotes" value="#{apDocPost.invoice.notes}" height="100" />
-      
+
+      <p:textEditor id="invNotes" value="#{apDocPost.invoice.notes}" height="100" >
+       <f:facet name="toolbar">
+        <span class="ql-formats">
+         <button class="ql-bold"></button>
+         <button class="ql-italic"></button>
+         <button class="ql-underline"></button>
+         <button class="ql-strike"></button>
+        </span>
+        <span class="ql-formats">
+         <select class="ql-font"></select>
+         <select class="ql-size"></select>
+        </span>
+       </f:facet>
+      </p:textEditor>
+
      </p:panelGrid>
      <p:dataTable id="lines" value="#{apDocPost.invoice.docLines}"  var="ln" rowKey="#{ln.id}"
        rows="#{apDocPost.usrBuff.tblRows}" selection="#{apDocPost.docLineSel}" rendered="#{apDocPost.step eq 4}" 
@@ -217,7 +249,7 @@
       </p:column>
       <p:column width="70" sortBy="#{ln.glAccount.coaAccount.ref}">
        <f:facet name="header">
-        <h:outputText value="#{listHeading.docLineAcnt}"/>
+        <h:outputText value="#{listHeading.docLnAcnt}"/>
        </f:facet>
        <h:outputText value="#{ln.glAccount.coaAccount.ref}"/>
       </p:column  >
@@ -235,7 +267,7 @@
       </p:column>
       <p:column styleClass="column-financialValue" sortBy="#{ln.docAmount}">
        <f:facet name="header">
-        <h:outputText value="#{listHeading.docLineDebit}"/>
+        <h:outputText value="#{listHeading.docLnAmntDr}"/>
        </f:facet>
        <h:outputText value="#{ln.docAmount}" rendered="#{ln.postType.debit}">
         <f:convertNumber locale="#{apDocPost.invoice.company.locale}" minIntegerDigits="1"
@@ -245,7 +277,7 @@
       </p:column>
       <p:column styleClass="column-financialValue" sortBy="#{ln.docAmount}">
        <f:facet name="header">
-        <h:outputText value="#{listHeading.docLineCredit}"/>
+        <h:outputText value="#{listHeading.docLnAmntCr}"/>
        </f:facet>
        <h:outputText value="#{ln.docAmount}" rendered="#{!ln.postType.debit}">
         <f:convertNumber locale="#{apDocPost.invoice.company.locale}" minIntegerDigits="1"
@@ -303,11 +335,7 @@
       <p:menuitem  value="#{formText.delete}" icon="fa fa-trash" actionListener="#{apDocPost.onDocLineDel}"
                   disabled="#{apDocPost.lines lt 1}"/>
      </p:contextMenu>
-     <p:panelGrid layout="grid" columns="2" columnClasses="ui-g-1, ui-g-11" 
-                  rendered="#{apDocPost.step eq 4}" styleClass="ui-noborder">
-      <p:commandButton id="saveBtn" value="Save" icon="fa fa-save" action="#{apDocPost.onInvoiceSave}"
-                          disabled="#{apDocPost.lines lt 1}" />
-     </p:panelGrid>
+
      <p:panelGrid id="btnPg" layout="grid" columns="4"  styleClass="ui-noborder"
                   columnClasses="ui-grid-col-1,ui-grid-col-5,ui-grid-col-5,ui-grid-col-1">
       <p:commandButton  id="bkBtn" value="#{formText.back}" rendered="#{apDocPost.step gt 0}" 
@@ -316,6 +344,8 @@
       <h:panelGroup rendered="#{apDocPost.step eq 0}" />
       <h:panelGroup />
       <h:panelGroup />
+      <p:commandButton id="saveBtn" value="Save" icon="fa fa-save" action="#{apDocPost.onInvoiceSave}"
+                       disabled="#{apDocPost.lines lt 1}"  rendered="#{apDocPost.step eq 4}"/>
       <p:commandButton  id="nextBtn" value="#{formText.next}" rendered="#{apDocPost.step lt 4}"
                         process="apInvCrFrm" partialSubmit="true" 
                        update="apInvCrFrm" actionListener="#{apDocPost.onApInvNext}"/>
@@ -472,9 +502,10 @@
          <p:outputLabel for="addLnAmnt" value="#{formText.docLnAmnt}"/>
         </h:panelGroup>
         <h:panelGroup class="md-inputfield">
-         <p:autoComplete id="vatCode" value="#{apDocPost.docLineGl.vatCode}" var="vatCodeV" itemValue="#{vatCodeV}"
-                        converter="com.rationem.util.converter.VatCodeCompany" itemLabel="#{vatCodeV.vatCode.vatCode}"
-                        completeMethod="#{apDocPost.onVatCodeComplete}" dropdown="true"/>
+         <p:autoComplete
+          id="vatCode" value="#{apDocPost.docLineGl.vatCode}" var="vatCodeV" itemValue="#{vatCodeV}"
+          converter="com.rationem.util.converter.VatCodeCompany" itemLabel="#{vatCodeV.vatCode.vatCode}"
+          completeMethod="#{apDocPost.onVatCodeComplete}" dropdown="true"/>
          <p:outputLabel for="vatCode" value="#{formText.docLineTaxCode}"/>
         </h:panelGroup>
         <h:panelGroup class="md-inputfield">

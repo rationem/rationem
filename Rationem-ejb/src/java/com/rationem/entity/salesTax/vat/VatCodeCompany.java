@@ -75,7 +75,7 @@ public class VatCodeCompany implements Serializable {
  @JoinColumn(name="provn_gl_account_id", referencedColumnName="fi_comp_gl_account_id")
  private FiGlAccountComp provnGlAccount;
  
- @OneToMany(mappedBy = "vatCodeComp")
+ @OneToMany(mappedBy = "vatCode")
  private List<DocLineGl> glDocLines;
  /*
  @OneToMany(mappedBy = "vatCodeComp")

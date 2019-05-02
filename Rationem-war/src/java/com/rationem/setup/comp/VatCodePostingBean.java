@@ -13,19 +13,20 @@ import com.rationem.busRec.salesTax.vat.VatCodeCompanyRec;
 import com.rationem.busRec.salesTax.vat.VatCodeRec;
 import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.config.common.BasicSetup;
+import com.rationem.util.MessageUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.apache.commons.lang3.StringUtils;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 
@@ -35,8 +36,7 @@ import org.primefaces.event.SelectEvent;
  */
 
 public class VatCodePostingBean extends BaseBean {
- private static final Logger logger =
-            Logger.getLogger("accounts.beans.setup.comp.VatCodePostingBean");
+ private static final Logger LOGGER =  Logger.getLogger(VatCodePostingBean.class.getName());
  
  @EJB
  private SysBuffer sysBuff;
@@ -65,25 +65,34 @@ public class VatCodePostingBean extends BaseBean {
   * Creates a new instance of VatCodePostingBean
   */
  public VatCodePostingBean() {
-  logger.log(INFO, "VatCodePostingBean constructor");
+  LOGGER.log(INFO, "VatCodePostingBean constructor");
  }
 
- 
+@PostConstruct
+private void init(){
+ vatCodeList = setup.getVatCodes();
+ LOGGER.log(INFO, "vatCodeList in init {0}", vatCodeList);
+ if(vatCodeList == null || vatCodeList.isEmpty()){
+  MessageUtil.addClientWarnMessage("vatCodePostFrm:msgs", "vatCodeNone", "errorText");
+  PrimeFaces.current().ajax().update("vatCodePostFrm:msgs");
+  
+  LOGGER.log(INFO, "Message sent");
+ }
+}
 
 
  public List<FiGlAccountCompRec> getGlAccountList() {
-  if(glAccountList == null){
-   glAccountList = new ArrayList<FiGlAccountCompRec>();
-   
-   logger.log(INFO,"addVatPosting : {0}",addVatPosting);
+  LOGGER.log(INFO, "getGlAccountList call list at start{0}", glAccountList);
+  if(glAccountList == null || glAccountList.isEmpty()){
+   glAccountList = new ArrayList<>();
    
    CompanyBasicRec comp = getAddVatPosting().getCompany();
-   logger.log(INFO, "Company is {0}", comp);
+   LOGGER.log(INFO, "Company is {0}", comp);
    if(comp == null){
     return null;
    }
    List<FiGlAccountCompRec> compAcs = sysBuff.getGlAccountsByCompanyCode(comp);
-   logger.log(INFO, "vatposting bean gl accounts for company {0}", compAcs);
+   LOGGER.log(INFO, "vatposting bean gl accounts for company {0}", compAcs);
    boolean found = false;
    ListIterator<FiGlAccountCompRec> li = compAcs.listIterator();
    while(li.hasNext() && !found){
@@ -104,16 +113,16 @@ public class VatCodePostingBean extends BaseBean {
   }else{
    bsGlAccountList = new ArrayList<FiGlAccountCompRec>();
   }
-  logger.log(INFO, "Need to build new getBsGlAccountList" );
+  LOGGER.log(INFO, "Need to build new getBsGlAccountList" );
   if(glAccountList == null){
    glAccountList = getGlAccountList();
   }
   ListIterator<FiGlAccountCompRec> li = glAccountList.listIterator();
   while(li.hasNext()){
    FiGlAccountCompRec glAct = li.next();
-   logger.log(INFO, "glAct coaAcnt {0}", glAct.getCoaAccount());
-   logger.log(INFO, "glAct coaAcnt type {0}", glAct.getCoaAccount().getAccountType());
-   logger.log(INFO, "coaAcnt Process code {0}", glAct.getCoaAccount().getAccountType().getProcessCode());
+   LOGGER.log(INFO, "glAct coaAcnt {0}", glAct.getCoaAccount());
+   LOGGER.log(INFO, "glAct coaAcnt type {0}", glAct.getCoaAccount().getAccountType());
+   LOGGER.log(INFO, "coaAcnt Process code {0}", glAct.getCoaAccount().getAccountType().getProcessCode());
    if(glAct.getCoaAccount().getAccountType().getProcessCode().getName().equalsIgnoreCase("CLVAT")){
     bsGlAccountList.add(glAct);
    }
@@ -131,7 +140,7 @@ public class VatCodePostingBean extends BaseBean {
   }else{
    rateGlAccountList = new ArrayList<FiGlAccountCompRec>();
   }
-  logger.log(INFO, "Need to build new rateGlAccountList" );
+  LOGGER.log(INFO, "Need to build new rateGlAccountList" );
   if(glAccountList == null){
    glAccountList = getGlAccountList();
   }
@@ -152,19 +161,20 @@ public class VatCodePostingBean extends BaseBean {
 
  
  public List<FiGlAccountCompRec> getWoGlAccountList() {
+  LOGGER.log(INFO,"getWoGlAccountList called ");
   if(woGlAccountList != null){
    return woGlAccountList;
   }else{
-   woGlAccountList = new ArrayList<FiGlAccountCompRec>();
+   woGlAccountList = new ArrayList<>();
   }
   if(glAccountList == null){
    glAccountList = getGlAccountList();
   }
-  logger.log(INFO, "Need to build new pl account list");
+  LOGGER.log(INFO, "Need to build new pl account list");
   ListIterator<FiGlAccountCompRec> li = glAccountList.listIterator();
   while(li.hasNext()){
    FiGlAccountCompRec glAct = li.next();
-   logger.log(INFO, "glAct is pl {0}",glAct.getCoaAccount().isPl() );
+   LOGGER.log(INFO, "glAct is pl {0}",glAct.getCoaAccount().isPl() );
    if(!glAct.getCoaAccount().getAccountType().getProcessCode().getName().equalsIgnoreCase("CLVAT")){
     woGlAccountList.add(glAct);
    
@@ -201,9 +211,16 @@ public class VatCodePostingBean extends BaseBean {
    if(vatPosting == null){
     vatPosting = new VatCodeCompanyRec();
    }
-   selectedVatCode = vatCodeList.get(0);
+   if(vatCodeList == null || vatCodeList.isEmpty()){
+    
+    MessageUtil.addClientWarnMessage("vatCodePostFrm:msgs", "vatCodeNone", "errorText");
+    PrimeFaces.current().ajax().update("vatCodePostFrm");
+    //return null;
+   }else {
+    selectedVatCode = vatCodeList.get(0);
+   }
    
-   logger.log(INFO, "VAT codes returned from setup {0}", vatCodeList);
+   LOGGER.log(INFO, "VAT codes returned from setup {0}", vatCodeList);
   }
   return vatCodeList;
  }
@@ -228,7 +245,7 @@ public class VatCodePostingBean extends BaseBean {
  }
 
  public boolean isVatCodeCompRowSelected() {
-  logger.log(INFO, "vatCodeCompRowSelected {0}", vatCodeCompRowSelected);
+  LOGGER.log(INFO, "vatCodeCompRowSelected {0}", vatCodeCompRowSelected);
   return vatCodeCompRowSelected;
  }
 
@@ -253,10 +270,10 @@ public class VatCodePostingBean extends BaseBean {
 
  public VatCodeCompanyRec getAddVatPosting() {
   if(addVatPosting == null){
-   logger.log(INFO, "build addVatPosting");
+   LOGGER.log(INFO, "build addVatPosting");
    addVatPosting = new VatCodeCompanyRec();
    List<CompanyBasicRec> comps = this.sysBuff.getCompanies();
-   logger.log(INFO, "Companies from sys buffer {0}", comps);
+   LOGGER.log(INFO, "Companies from sys buffer {0}", comps);
    CompanyBasicRec defaultComp = comps.get(0);
    addVatPosting.setCompany(defaultComp);
   }
@@ -301,40 +318,61 @@ public class VatCodePostingBean extends BaseBean {
  }
 
  
- 
+ public void onRateCompSelect(SelectEvent evt){
+  LOGGER.log(INFO, "onRateCompSelect called with {0}", (CompanyBasicRec)evt.getObject());
+  if(addVatPosting == null){
+   addVatPosting = new VatCodeCompanyRec();
+  }
+  addVatPosting.setCompany((CompanyBasicRec)evt.getObject());
+  PrimeFaces.current().ajax().update("addCompVatRateFrm:liabGl");
+  
+ }
  
  
  public void onSelectVatCode(ValueChangeEvent evt){
-  logger.log(INFO, "onSelectVatCode called with {0}", evt.getNewValue());
+  LOGGER.log(INFO, "onSelectVatCode called with {0}", evt.getNewValue());
   if(vatPosting == null){
    vatPosting = new VatCodeCompanyRec();
   }
   this.selectedVatCode = (VatCodeRec)evt.getNewValue();
-  logger.log(INFO, "Selected VAT code {0}", selectedVatCode.getCode());
-  logger.log(INFO, "Company VAT code rec {0}", selectedVatCode.getVatCodeCompanies());
+  LOGGER.log(INFO, "Selected VAT code {0}", selectedVatCode.getCode());
+  LOGGER.log(INFO, "Company VAT code rec {0}", selectedVatCode.getVatCodeCompanies());
   if(selectedVatCode.getVatCodeCompanies() == null){
    List<VatCodeCompanyRec> compVatRecs = this.setup.getVatCompCodeForVatCode(selectedVatCode);
    selectedVatCode.setVatCodeCompanies(compVatRecs);
-   logger.log(INFO, "Vat codes company {0}", selectedVatCode.getVatCodeCompanies());
+   LOGGER.log(INFO, "Vat codes company {0}", selectedVatCode.getVatCodeCompanies());
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("vatCodePostFrm:vatComp");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("vatCodePostFrm:vatComp");
   
  }
+ 
+ 
+ public List<VatCodeRec> onVatCodeCompComplete(String input){
+  LOGGER.log(INFO, "onVatCodeCompComplete called with {0}", input);
+  if(StringUtils.isBlank(input)){
+   this.vatCodeList = sysBuff.getAllVatCodes();
+  }else{
+   this.vatCodeList = sysBuff.getAllVatCodesByRef(input);
+  }
+  LOGGER.log(INFO, "vatCodeList is {0}", vatCodeList);
+  return vatCodeList; 
+ }
+ 
  
  public void onVatRateChangeListener(ValueChangeEvent evt){
   FiGlAccountCompRec newGlAccount = (FiGlAccountCompRec)evt.getNewValue();
   addVatPosting.setRateGlAccount(newGlAccount);
  }
  public void onAddCompVatActionListener(){
-  logger.log(INFO, "addVatPosting ");
+  LOGGER.log(INFO, "addCompVatActListner ");
   
  }
  
  public void onUpdateVatPosting(){
-  logger.log(INFO, "onUpdateVatPosting selectedVatPosting.getId() {0}",selectedVatPosting.getId());
+  LOGGER.log(INFO, "onUpdateVatPosting selectedVatPosting.getId() {0}",selectedVatPosting.getId());
   if(selectedVatPosting.getId() == null){
-   logger.log(INFO, "new VAT record update added list");
+   LOGGER.log(INFO, "new VAT record update added list");
    ListIterator<VatCodeCompanyRec> li = updateAddList.listIterator();
    while(li.hasNext()){
     VatCodeCompanyRec rec = li.next();
@@ -348,7 +386,7 @@ public class VatCodePostingBean extends BaseBean {
    ListIterator<VatCodeCompanyRec> liAdd = selectedVatCode.getVatCodeCompanies().listIterator();
    while(liAdd.hasNext()){
     VatCodeCompanyRec rec = liAdd.next();
-    if(rec.getCompany().getId() == this.selectedVatPosting.getCompany().getId()){
+    if(Objects.equals(rec.getCompany().getId(), this.selectedVatPosting.getCompany().getId())){
      liAdd.set(selectedVatPosting);
     }
    }
@@ -357,18 +395,18 @@ public class VatCodePostingBean extends BaseBean {
    selectedVatPosting.setChangedOn(new Date());
    selectedVatPosting = sysBuff.vatCodeCompanyUpdate(selectedVatPosting, getView());
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("vatCodePostFrm:vatComp");
-  rCtx.execute("PF('editDlgWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("vatCodePostFrm:vatComp");
+  pf.executeScript("PF('editDlgWv').hide()");
  }
  
  public void onDeleteVatPosting(){
-  logger.log(INFO, "onDeleteVatPosting {0}",this.selectedVatPosting.getId());
+  LOGGER.log(INFO, "onDeleteVatPosting {0}",this.selectedVatPosting.getId());
   if(updateDeleteList == null){
    updateDeleteList = new ArrayList<VatCodeCompanyRec>();
   }
   if(selectedVatPosting.getId() == null || selectedVatPosting.getId() == 0){
-   logger.log(INFO,"not a saved record so just remove from new list");
+   LOGGER.log(INFO,"not a saved record so just remove from new list");
    ListIterator<VatCodeCompanyRec> li = updateAddList.listIterator();
    while(li.hasNext()){
     VatCodeCompanyRec rec = li.next();
@@ -383,30 +421,72 @@ public class VatCodePostingBean extends BaseBean {
      liAdd.remove();
     }
    }
-   logger.log(INFO, "Number of entries in datatable {0} ", selectedVatCode.getVatCodeCompanies().size());
+   LOGGER.log(INFO, "Number of entries in datatable {0} ", selectedVatCode.getVatCodeCompanies().size());
    
   }
   
  }
+ 
+ public List<FiGlAccountCompRec> onVatLiabGlComplete(String input){
+  LOGGER.log(INFO, "onVatLiabGlComplete called bsGL {0} input {1}", new Object[]{
+   bsGlAccountList, input });
+  if(bsGlAccountList != null && !bsGlAccountList.isEmpty() ){
+   return bsGlAccountList;
+  }else{
+   bsGlAccountList = new ArrayList<>();
+  }
+  LOGGER.log(INFO, "Need to build new getBsGlAccountList" );
+  if(glAccountList == null || glAccountList.isEmpty() ){
+   glAccountList = getGlAccountList();
+  }
+  ListIterator<FiGlAccountCompRec> li = glAccountList.listIterator();
+  while(li.hasNext()){
+   FiGlAccountCompRec glAct = li.next();
+   LOGGER.log(INFO, "glAct coaAcnt {0}", glAct.getCoaAccount());
+   LOGGER.log(INFO, "glAct coaAcnt type {0}", glAct.getCoaAccount().getAccountType());
+   LOGGER.log(INFO, "coaAcnt Process code {0}", glAct.getCoaAccount().getAccountType().getProcessCode());
+   if(glAct.getCoaAccount().getAccountType().getProcessCode().getName().equalsIgnoreCase("CLVAT")){
+    bsGlAccountList.add(glAct);
+   }
+  }
+  if(bsGlAccountList == null || bsGlAccountList.isEmpty()){
+   return null;
+  }
+  if(StringUtils.isBlank(input)){
+   LOGGER.log(INFO, "bsGlAccountList no input{0}", bsGlAccountList);
+   return bsGlAccountList; 
+  }else{
+   LOGGER.log(INFO, "bsGlAccountList check input{0}", bsGlAccountList);
+   List<FiGlAccountCompRec> retList = new ArrayList<>();
+   for(FiGlAccountCompRec curr: bsGlAccountList){
+    if(StringUtils.startsWith(curr.getCoaAccount().getRef(), input)){
+     retList.add(curr);
+    }
+   }
+   LOGGER.log(INFO, "retlist {0}", retList);
+  }
+  LOGGER.log(INFO, "Nothing to return");
+  return null;
+ }
  public void onWoAcntCBListener(){
-  logger.log(INFO, "onWoAcntCBListener state {0}", this.addVatPosting.isWoffIrrecoverable());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addWoAct");
+  LOGGER.log(INFO, "onWoAcntCBListener state {0}", this.addVatPosting.isWoffIrrecoverable());
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addWoAct");
  }
  
  public void onAddVatPostingDlg(){
-  logger.log(INFO, "onAddVatPostingDlg called");
+  LOGGER.log(INFO, "onAddVatPostingDlg called");
   addVatPosting = new VatCodeCompanyRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addVatPosting");
-  rCtx.update("addDlg");
-  rCtx.execute("PF('addDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addCompVatRateFrm");
+  
+  pf.executeScript("PF('addDlgWv').show()");
   
  }
  
  public void onAddVatPstCloseDlg(){
- RequestContext rCtx = RequestContext.getCurrentInstance(); 
- rCtx.execute("PF('addDlgWv').hide()");
+ PrimeFaces pf = PrimeFaces.current(); 
+ pf.executeScript("PF('addDlgWv').hide()");
  }
  public void onAddVatPosting(){
   List<VatCodeCompanyRec> vatCodes = selectedVatCode.getVatCodeCompanies();
@@ -426,18 +506,20 @@ public class VatCodePostingBean extends BaseBean {
   selectedVatCode.setVatCodeCompanies(vatCodes);
   updateAddList.add(addVatPosting);
   addVatPosting = null;
-  logger.log(INFO, "End onAddVatPosting num entries {0}",selectedVatCode.getVatCodeCompanies().get(0).getId());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("vatCodePostFrm:vatCompListOp");
-  rCtx.execute("PF('addDlgWv').hide()");
+  LOGGER.log(INFO, "End onAddVatPosting num entries {0}",selectedVatCode.getVatCodeCompanies().get(0).getId());
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("vatCodePostFrm:vatCompListOp");
+  pf.executeScript("PF('addDlgWv').hide()");
   
  }
  
+ 
  public void onCompVatRateEditListener(){
-  logger.log(INFO, "onCompVatRateEditListener rate ac selected is {0}" ,selectedVatPosting.getRateGlAccount().getCoaAccount().getRef());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('editDlgWv').show()");
+  LOGGER.log(INFO, "onCompVatRateEditListener rate ac selected is {0}" ,selectedVatPosting.getRateGlAccount().getCoaAccount().getRef());
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('editDlgWv').show()");
  }
+ 
  
  public void onVatRateSelect(SelectEvent evt){
   
@@ -445,18 +527,15 @@ public class VatCodePostingBean extends BaseBean {
   
  }
  
- public void validateAddComp(){
-  logger.log(INFO, "validateAddComp called");
-  
- }
+ 
  
  public void onSave(){
-  logger.log(INFO,"onSave called");
+  LOGGER.log(INFO,"onSave called");
   if(this.selectedVatCode == null){
    GenUtil.addErrorMessage("No VAT code selected");
    return;
   }
-  logger.log(INFO, "Added list {0}", updateAddList);
+  LOGGER.log(INFO, "Added list {0}", updateAddList);
  UserRec usr = this.getLoggedInUser();
  String view = this.getView();
  Date currDate = new Date();

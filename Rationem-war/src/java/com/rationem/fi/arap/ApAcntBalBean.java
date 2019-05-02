@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
+
 
 /**
  *
@@ -133,7 +134,7 @@ public class ApAcntBalBean extends BaseBean {
      totalBal += bal.getAmount();
     }
    }
-   RequestContext.getCurrentInstance().update("acntBalFrm:acntBalTbl");
+   PrimeFaces.current().ajax().update("acntBalFrm:acntBalTbl");
   }
  }
  
@@ -149,15 +150,15 @@ public class ApAcntBalBean extends BaseBean {
   
   acntLines = docMgr.getApLines(selOpt);
   LOGGER.log(INFO, "acntLines found {0}", acntLines);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(acntLines == null || acntLines.isEmpty()){
    MessageUtil.addClientWarnMessage("acntBalFrm:errMsg", "apAcntTrNo", "validationText");
-   rCtx.update("acntBalFrm:errMsg");
+   pf.ajax().update("acntBalFrm:errMsg");
    return;
   }
   
-  rCtx.update("lineItmsFrm");
-  rCtx.execute("PF('lineItmsWv').show();");
+  pf.ajax().update("lineItmsFrm");
+  pf.executeScript("PF('lineItmsWv').show();");
  }
  
  

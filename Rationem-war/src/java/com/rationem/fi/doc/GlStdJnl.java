@@ -58,7 +58,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 
 
@@ -218,7 +218,7 @@ public class GlStdJnl extends DocCommon  {
     part.setReference1(ln.getReference1());
     part.setReference2(ln.getReference2());
     part.setSortOrder(ln.getSortOrder());
-    part.setVatCode(ln.getVatCodeCompany());
+    //part.setVatCode(ln.getVatCode());
     
     return part;
     
@@ -244,7 +244,7 @@ public class GlStdJnl extends DocCommon  {
     rec.setReference1(ln.getReference1());
     rec.setReference2(ln.getReference2());
     rec.setSortOrder(ln.getSortOrder());
-    rec.setVatCodeCompany(ln.getVatCode());
+    //rec.setVatCode(ln.getVatCode());
     return rec;
    }
   public DocFiRec getJnl() {
@@ -932,9 +932,9 @@ public void onDocSavePartial(){
     partialDocCompl = jnl.getDocLines().size() > 0?true:false;
    }
    
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("editPartDocFrm");
-   rCtx.execute("PF('editPtDocWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("editPartDocFrm");
+   pf.executeScript("PF('editPtDocWv').show()");
    
   }
 
@@ -969,9 +969,9 @@ public void onDocSavePartial(){
       logger.log(INFO, "Part doc deleted {0}", String.valueOf(deleted));
       if(deleted){
        partDocsLi.remove();
-       RequestContext rCtx = RequestContext.getCurrentInstance();
-       rCtx.update("docsTbl");
-       rCtx.execute("PF('editPtDocWv').hide()");
+       PrimeFaces pf = PrimeFaces.current();
+       pf.ajax().update("docsTbl");
+       pf.executeScript("PF('editPtDocWv').hide()");
             
       }
      }
@@ -1000,9 +1000,9 @@ public void onDocSavePartial(){
     }else{
       lineDisabled = true;
     }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("period");
-   rCtx.update("fisYr");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("period");
+   pf.ajax().update("fisYr");
    
   }
 
@@ -1014,23 +1014,23 @@ public void onDocSavePartial(){
     glDocLine.setSortOrder(sortStr);
     
     
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
     ArrayList<String> toUpdate = new ArrayList<>();
     toUpdate.add("defSort");
     toUpdate.add("glActName");
     toUpdate.add("addLn");
-    rCtx.update(toUpdate);
+    pf.ajax().update(toUpdate);
     updateCanAddLine();
   }
 
   public void onCompanyChange(ValueChangeEvent evt){
    logger.log(INFO, "New company {0}", (CompanyBasicRec)evt.getNewValue());
    jnl.setCompany((CompanyBasicRec)evt.getNewValue());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    ArrayList<String> toUpdate = new ArrayList<>();
    toUpdate.add("period");
    toUpdate.add("fisYr");
-   rCtx.update(toUpdate);
+   pf.ajax().update(toUpdate);
   }
   
   public List<CostCentreRec> onCostCentComplete(String input){
@@ -1087,22 +1087,22 @@ public void onDocSavePartial(){
       canPost = false;
      }
     }
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
     List<String> toUpdate = new ArrayList();
     toUpdate.add("postFiDocBtn");
     toUpdate.add("docSumTbl");
     toUpdate.add(":editPartDocFrm:docTotalsPG");
     toUpdate.add("numLns");
     
-    rCtx.update(toUpdate);
-    rCtx.execute("PF('delLnWvar').hide()");
+    pf.ajax().update(toUpdate);
+    pf.executeScript("PF('delLnWvar').hide()");
     logger.log(INFO,"doclines {0}",glDocLines.size());
     logger.log(INFO,"numLines {0}",numLines);
   }
   
   public void onDelLineConfDlg(){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.execute("PF('delLnWvar').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.executeScript("PF('delLnWvar').show()");
   }
 
   public void onEdLineDlg(){
@@ -1117,9 +1117,9 @@ public void onDocSavePartial(){
    glDocLinePreEdit = new DocLineGlRec();
    glDocLinePreEdit.setDocAmount(this.glDocLineSelected.getDocAmount());
    glDocLinePreEdit.setPostType(glDocLineSelected.getPostType());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("editLineFrm");
-   rCtx.execute("PF('editLineDlgWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("editLineFrm");
+   pf.executeScript("PF('editLineDlgWv').show()");
   }
   /**
    * Add a line to the document
@@ -1199,13 +1199,13 @@ public void onDocSavePartial(){
     glDocLine.setId(id);
     
     addLineDisabled= true;
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
     ArrayList<String> toUpdate = new ArrayList<>();
     toUpdate.add("docTotalsPG");
     toUpdate.add("postBtn");
     toUpdate.add("messages");
     toUpdate.add("lineDet");
-    rCtx.update(toUpdate);
+    pf.ajax().update(toUpdate);
     //set the post key and GL accounts for the current line item
     MessageUtil.addInfoMessage("docLineAdded", "blacResponse");
 
@@ -1263,9 +1263,9 @@ public void onTransPartIalDoc(){
  if(!docFound){
   partialDocs.add(partialDocSelected);
  }
- RequestContext rCtx = RequestContext.getCurrentInstance();
- rCtx.update("docsTbl");
- rCtx.execute("PF('editPtDocWv').hide()");
+ PrimeFaces pf = PrimeFaces.current();
+ pf.ajax().update("docsTbl");
+ pf.executeScript("PF('editPtDocWv').hide()");
 }
 
  public void onTransEdLine(){
@@ -1294,14 +1294,14 @@ public void onTransPartIalDoc(){
     }
     logger.log(INFO, "totalDebits {0} totalCredits {1} bal {2}", new Object[]{totalDebits,totalCredits,docbalance});
     li.set(glDocLineSelected);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
     List<String> toUpdate = new ArrayList<>();
     toUpdate.add("drTot");
     toUpdate.add("crTot");
     toUpdate.add("docBal");
     toUpdate.add("docSumTbl");
-    rCtx.update(toUpdate);
-    rCtx.execute("PF('editLineDlgWv').hide()");
+    pf.ajax().update(toUpdate);
+    pf.executeScript("PF('editLineDlgWv').hide()");
    }
   }
  }
@@ -1556,8 +1556,8 @@ public void onTransPartIalDoc(){
     logger.log(INFO, "Amount string {0}", val);
     glDocLine.setDocAmount(Double.valueOf(val));
     updateCanAddLine();
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("addLn");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("addLn");
   }
 
   public void onGlAccountSelect(SelectEvent evt){
@@ -1655,24 +1655,24 @@ public void onTransPartIalDoc(){
      jnl.setFisPeriod(fisPer.getPeriod());
      logger.log(INFO, "found valid period");
      ((UIInput)uiComp).setValid(true);
-     RequestContext rCtx = RequestContext.getCurrentInstance();
+     PrimeFaces pf = PrimeFaces.current();
      List<String> toUpdate = new ArrayList<>();
      toUpdate.add("period");
      toUpdate.add("fisYr");
-     rCtx.update("messages");
-     rCtx.update(toUpdate);
+     pf.ajax().update("messages");
+     pf.ajax().update(toUpdate);
      return;
     }
    }
   }
   // if we get here then not valid
   logger.log(INFO, "Period not valid");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   MessageUtil.addErrorMessage("fiDocPerNotOpen", "validationText");
   
   jnl.setPostingDate(null);
-  rCtx.update("messages");
-  rCtx.update("postDate");
+  pf.ajax().update("messages");
+  pf.ajax().update("postDate");
   ((UIInput)uiComp).setValid(false);
  }
 }

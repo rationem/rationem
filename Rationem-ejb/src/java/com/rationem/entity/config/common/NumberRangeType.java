@@ -51,12 +51,12 @@ public class NumberRangeType implements Serializable {
  private Long id;
  
  @Column(name="num_range_type_code", length=20)
- private String numRangeTypeCode;
+ private String Code;
  @Column(name="num_range_type_name", length=70)
- private String numRangeTypeName;
+ private String Name;
  
  
- @OneToMany(mappedBy = "numberRangeForType")
+ @OneToMany(mappedBy = "numberRangeType")
  private List<NumberRange> numberRanges;
  
  @ManyToOne
@@ -83,20 +83,20 @@ public class NumberRangeType implements Serializable {
   this.id = id;
  }
 
- public String getNumRangeTypeCode() {
-  return numRangeTypeCode;
+ public String getCode() {
+  return Code;
  }
 
- public void setNumRangeTypeCode(String numRangeTypeCode) {
-  this.numRangeTypeCode = numRangeTypeCode;
+ public void setCode(String Code) {
+  this.Code = Code;
  }
 
- public String getNumRangeTypeName() {
-  return numRangeTypeName;
+ public String getName() {
+  return Name;
  }
 
- public void setNumRangeTypeName(String numRangeTypeName) {
-  this.numRangeTypeName = numRangeTypeName;
+ public void setName(String Name) {
+  this.Name = Name;
  }
 
  public List<NumberRange> getNumberRanges() {

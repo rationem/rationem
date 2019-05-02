@@ -31,7 +31,7 @@
     id="glAcslst" value="#{glAccountList.glcompAcs}" var='glactV' sortBy="#{glactV.coaAccount.ref}"
     paginator="true" paginatorAlwaysVisible="true" rowKey="#{glactV.id}"  reflow="true"
     rows="#{glAccountList.usrBuff.tblRows}" filteredValue="#{glAccountList.glcompAcsFiltered}"
-    paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">               
+    paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
     <f:facet name="{Exporters}">
      <h:commandLink style="float:right;"  >
       <p:graphicImage name="/images/Excel-48.gif" width="24"/>
@@ -68,16 +68,16 @@
     <p:column sortBy="#{glactV.coaAccount.description}" filterBy="#{glactV.coaAccount.description}">
      <f:facet name="header">
       <h:outputText value="#{listHeading.glAcDescr}"/>
-       </f:facet>
-       <h:outputText value="#{glactV.coaAccount.description}"/>
-      </p:column>
+     </f:facet>
+     <h:outputText value="#{glactV.coaAccount.description}"/>
+    </p:column>
     <p:column sortBy="#{glactV.coaAccount.accountType.profitAndLossAccount}" width="50" >
-       <f:facet name="header">
-        <h:outputText value="#{listHeading.glAcPl}"/>
-       </f:facet>
-       <p:selectBooleanButton value="#{glactV.coaAccount.accountType.profitAndLossAccount}" 
-                              onLabel="#{formText.yes}" offLabel="#{formText.no}"/>
-      </p:column>
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.glAcPl}"/>
+     </f:facet>
+     <p:selectBooleanButton value="#{glactV.coaAccount.accountType.profitAndLossAccount}" 
+                            onLabel="#{formText.yes}" offLabel="#{formText.no}"/>
+    </p:column>
     <p:column sortBy="#{glactV.coaAccount.accountType.name}" 
                 filterBy="#{glactV.coaAccount.accountType.name}" width="200">
        <f:facet name="header">

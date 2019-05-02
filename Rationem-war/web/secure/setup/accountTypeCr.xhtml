@@ -9,15 +9,18 @@
   <h:outputText value="#{pageTitle.cfg_acntTypeCr}" styleClass="panelHeader" /> 
  </ui:define>
  <ui:define name="content">
-  <h:form id="actTypFrm" prependId="false" >
-   <p:toolbar>
+  <div class="ui-fluid">
+   <h:form id="actTypFrm" >
+    <p:toolbar>
     <f:facet name="left">
      <p:commandButton id="saveledgr" value="#{formText.save}" 
                        actionListener="#{accountType.createAcType}"   />
      
     </f:facet >
    </p:toolbar>
-   <p:panelGrid id="acntTypPG" columns="2" styleClass="panelNoBorders">
+   <p:messages id="msgs" closable="true"/>
+   <p:panelGrid id="acntTypPG" columns="2" styleClass="ui-noborders" layout="grid"
+                columnClasses="ui-grid-col-2, ui-grid-col-3" >
     <p:outputLabel for="ref" value="#{formText.actTyRef}"/>
     <p:inputText id="ref" value="#{accountType.acType.name}"
                              title="#{formHelpText.actTyRef}" required="true"/>
@@ -40,9 +43,9 @@
     </p:selectOneMenu>
     
     <p:outputLabel for="numCntrlSel" value="#{formText.actTypeNumRng}"/>
-    <p:selectOneMenu id="numCntrlSel" value="#{accountType.acType.numberRange}" filter="true" filterMatchMode="contains"
-                                     required="true" requiredMessage="#{errorText.actType_NumRng}"
-                                     converter="com.rationem.util.converter.NumberControl"
+    <p:selectOneMenu id="numCntrlSel" value="#{accountType.acType.numberRange}" filter="true" 
+                     required="true" requiredMessage="#{errorText.actType_NumRng}" filterMatchMode="contains"
+                     converter="com.rationem.util.converter.NumberControl"
                                      valueChangeListener="#{accountType.onNumCntrlChanged}" >
      <f:selectItems var="numCntrl" value="#{accountType.numControls}" itemValue="#{numCntrl}"
                                     itemLabel="#{numCntrl.shortDescr} #{numCntrl.longDescr}" />
@@ -72,6 +75,7 @@
                                value="#{accountType.acType.retainedEarn}"/>
    </p:panelGrid>
   </h:form>
+  </div>
  </ui:define>
 </ui:composition>
  

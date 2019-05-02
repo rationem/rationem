@@ -104,7 +104,7 @@ public class NumberRange implements Serializable {
  private List<AuditNumberControl> auditNumberContolChanges;
  @ManyToOne
  @JoinColumn(name="num_rng_ty_id" , referencedColumnName="id")
- private NumberRangeType numberRangeForType;
+ private NumberRangeType numberRangeType;
  
     public NumberRange() {
     }
@@ -143,12 +143,12 @@ public class NumberRange implements Serializable {
   this.NumberControlId = NumberControlId;
  }
 
- public NumberRangeType getNumberRangeForType() {
-  return numberRangeForType;
+ public NumberRangeType getNumberRangeType() {
+  return numberRangeType;
  }
 
- public void setNumberRangeForType(NumberRangeType numberRangeForType) {
-  this.numberRangeForType = numberRangeForType;
+ public void setNumberRangeType(NumberRangeType numberRangeType) {
+  this.numberRangeType = numberRangeType;
  }
 
  

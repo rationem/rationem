@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 import java.util.logging.Logger;
@@ -148,7 +148,7 @@ public class CompanyBankAcntUpdateBean extends BaseBean {
   List<String> updts = new ArrayList<>();
   updts.add("updateBnkAc");
   
-  RequestContext.getCurrentInstance().update(updts);
+  PrimeFaces.current().ajax().update(updts);
  }
  
  public void onEditTransfer(){
@@ -158,8 +158,8 @@ public class CompanyBankAcntUpdateBean extends BaseBean {
   bnkAcntCompSel.setUpdatedOn(new Date());
   bnkAcntCompSel = bankMgr.updateBankAccountCompany(bnkAcntCompSel, getView());
   MessageUtil.addClientInfoMessage("chqTemplUptFrm:bnkUpdated", "trBnkAcOwnUpdt", "blacResponse");
-  RequestContext.getCurrentInstance().execute("PF('updtDlgWv').hide()");
-  RequestContext.getCurrentInstance().update("chqTemplUptFrm:bnkUpdated");
+  PrimeFaces.current().executeScript("PF('updtDlgWv').hide()");
+  PrimeFaces.current().ajax().update("chqTemplUptFrm:bnkUpdated");
  }
  
  

@@ -49,7 +49,6 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.SelectEvent;
@@ -297,8 +296,8 @@ public class CompanyBean extends BaseBean implements Serializable  {
   
   public void onNewCompVatRegistration(){
    LOGGER.log(INFO, "onNewCompVatRegistration");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.execute("PF('addRegDlgWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.executeScript("PF('addRegDlgWv').show()");
   }
   public void onPeriodRuleSel(ValueChangeEvent e) {
      LOGGER.log(INFO, "onPeriodRuleSel {0}", e.getNewValue());
@@ -308,8 +307,8 @@ public class CompanyBean extends BaseBean implements Serializable  {
   public void onPostCodeSearch(){
    LOGGER.log(INFO, "onPostCodeSearch called");
    addrList = this.addrMgr.getAddressesForPostCodePart(postCodeSrch);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("selectedAddrTbl");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("selectedAddrTbl");
   }
    public void onCompTySel(ValueChangeEvent e){
     LOGGER.log(INFO, "new comp type {0}", e.getNewValue());
@@ -320,51 +319,51 @@ public class CompanyBean extends BaseBean implements Serializable  {
      company.setCorp(false);
     }
     LOGGER.log(INFO, "company.isCorp {0}", company.isCorp());
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("compCrPg");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("compCrPg");
    }
    
    public void onAddrAdd(){
     LOGGER.log(INFO, "onAddrAdd called");
     addrSelected = new AddressRec();
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
     
-    rCtx.execute("PF('addrAddDlgWv').show()");
-    rCtx.update("addrAddPnlId");
+    pf.executeScript("PF('addrAddDlgWv').show()");
+    pf.ajax().update("addrAddPnlId");
    }
    public void onAddrAddReset(){
     LOGGER.log(INFO, "onAddrAdd called");
     addrSelected = null;
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.execute("PF('addrAddDlgWv').hide()");
-    rCtx.update("addrAddPnlId");
-    rCtx.update("compCrPg");
-    rCtx.reset("addrAddFrm:addrAddPnlId");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.executeScript("PF('addrAddDlgWv').hide()");
+    pf.ajax().update("addrAddPnlId");
+    pf.ajax().update("compCrPg");
+    pf.resetInputs("addrAddFrm:addrAddPnlId");
    }
    public void onAddrAddSave(){
     LOGGER.log(INFO, "onAddrAdd called");
     addrSelected = addrMgr.createAddress(addrSelected, getLoggedInUser(), getView());
     company.setAddress(addrSelected);
     addrSelected = null;
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
     
-    rCtx.execute("PF('addrAddDlgWv').hide()");
-    rCtx.update("addrAddPnlId");
-    rCtx.update("compCrPg");
+    pf.executeScript("PF('addrAddDlgWv').hide()");
+    pf.ajax().update("addrAddPnlId");
+    pf.ajax().update("compCrPg");
    }
    public void onAddrChng(){
     LOGGER.log(INFO, "onAddrChng called");
     addrSelected = company.getAddress();
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("addrEditFrm");
-    rCtx.execute("PF('addrEditDlgWv').show()");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("addrEditFrm");
+    pf.executeScript("PF('addrEditDlgWv').show()");
     
    }
    public void onAddrChngReset(){
     addrSelected = null;
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.execute("PF('addrEditDlgWv').hide()");
-    rCtx.update("addrEditFrm");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.executeScript("PF('addrEditDlgWv').hide()");
+    pf.ajax().update("addrEditFrm");
    }
    public void onAddrChngSave(){
     LOGGER.log(INFO, "onAddrChngSave called for addr {0}", addrSelected);
@@ -373,18 +372,18 @@ public class CompanyBean extends BaseBean implements Serializable  {
     addrSelected = this.addrMgr.addressUpdate(addrSelected, this.getLoggedInUser(), getView());
     company.setAddress(addrSelected);
     MessageUtil.addInfoMessage("addrUpdated", "blacResponse");
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("compCrPg");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("compCrPg");
     addrSelected = null;
-    rCtx.execute("PF('addrEditDlgWv').hide()");
+    pf.executeScript("PF('addrEditDlgWv').hide()");
    }
    public void onAddrSelRowSel(SelectEvent evt){
     LOGGER.log(INFO, "onAddrSelRowSel called with {0}", evt.getObject());
     LOGGER.log(INFO, "addrSelected called with {0}", this.addrSelected);
     company.setAddress(addrSelected);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("compCrPg");
-    rCtx.execute("PF('selAddrDlgWv').hide()");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("compCrPg");
+    pf.executeScript("PF('selAddrDlgWv').hide()");
    }
    
    public void onAddrSelClick(){
@@ -392,13 +391,13 @@ public class CompanyBean extends BaseBean implements Serializable  {
     LOGGER.log(INFO, "Current post code {0}", company.getAddress().getPostCode());
     addrList = addrMgr.getAddressesForPostCodePart(company.getAddress().getPostCode());
     LOGGER.log(INFO, "Address found {0}", addrList);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.execute("PF('selAddrDlgWv').show()");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.executeScript("PF('selAddrDlgWv').show()");
    }
    public void onCharityBtn(ValueChangeEvent evt){
     company.setCharity(Boolean.parseBoolean(String.valueOf(evt.getNewValue())));
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("compDetPgId");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("compDetPgId");
    }
    public void onCoASelect(ValueChangeEvent e){
      LOGGER.log(INFO, "onCoASelect called with new value", e.getNewValue());
@@ -448,9 +447,9 @@ public class CompanyBean extends BaseBean implements Serializable  {
     if(!refValid){
      MessageUtil.addErrorMessage("compRefUnique", "validationText");
      company.setReference(null);
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("comCrFrm");
-     rCtx.reset("comCrFrm");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("comCrFrm");
+     pf.resetInputs("comCrFrm");
     }
     
    }
@@ -483,8 +482,8 @@ public class CompanyBean extends BaseBean implements Serializable  {
      //this.company.setCurrency(cntry.getCurrCode());
      Locale loc = this.getLocale(cntry);
      company.setLocale(loc);
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("coa");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("coa");
      
     }
     if(evt.getNewStep().equalsIgnoreCase("vatTabId") && evt.getOldStep().equalsIgnoreCase("compDetId")){
@@ -682,8 +681,8 @@ public class CompanyBean extends BaseBean implements Serializable  {
    if(companies == null || companies.isEmpty()){
     this.compEditDisabled = true;
     MessageUtil.addErrorMessage("compsNone", "errorText");
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("compUpdtFrm");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("compUpdtFrm");
     return null;
    }
    if(companies != null){
@@ -848,8 +847,8 @@ public class CompanyBean extends BaseBean implements Serializable  {
      company = null;
      vatRegScheme = null;
      vatRegistration = null;
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("compUpdtFrm");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("compUpdtFrm");
       
     }
     public String onCreatCompAction(){

@@ -344,7 +344,11 @@
   <div id="bottom" >
    <ui:insert name="bottom" >
     <p:spacer width="1" height="20"/>
-    <p:messages autoUpdate="true" showSummary="true" showDetail="true" severity="info" globalOnly="true"/>
+    <p:messages  showSummary="true" showDetail="true" severity="info" globalOnly="true">
+     <p:autoUpdate />
+    </p:messages>
+     
+     
    </ui:insert>
    
   </div>

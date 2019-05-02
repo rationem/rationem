@@ -117,7 +117,7 @@ public class DocumentManager {
    gl.setReference1(p.getReference1());
    gl.setReference2(p.getReference2());
    gl.setSortOrder(p.getSortOrder());
-   gl.setVatCodeCompany(p.getVatCode());
+   gl.setVatCode(p.getVatCode());
    return gl;
   }
   
@@ -141,7 +141,7 @@ public class DocumentManager {
    gl.setReference1(p.getReference1());
    gl.setReference2(p.getReference2());
    gl.setSortOrder(p.getSortOrder());
-   gl.setVatCodeCompany(p.getVatCode());
+   //gl.setVatCode(p.getVatCode());
    return gl;
   }
   
@@ -575,7 +575,7 @@ public class DocumentManager {
   reconLine.setReset(subLedLine.isReset());
   reconLine.setSortOrder(subLedLine.getSortOrder());
   reconLine.setTaxAmnt(subLedLine.getTaxAmnt());
-  reconLine.setVatCodeCompany(subLedLine.getVatCodeCompany());
+  
   
   
   return reconLine;

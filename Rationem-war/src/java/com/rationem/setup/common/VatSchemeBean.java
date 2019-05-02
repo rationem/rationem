@@ -5,16 +5,11 @@
 package com.rationem.setup.common;
 
 import com.rationem.util.BaseBean;
-import com.rationem.util.GenUtil;
-import com.rationem.busRec.salesTax.vat.VatFlatRateIndRateRec;
 import com.rationem.busRec.salesTax.vat.VatFlatRateIndRateRec;
 import com.rationem.busRec.salesTax.vat.VatSchemeRec;
 import com.rationem.ejbBean.config.common.BasicSetup;
 import com.rationem.exception.BacException;
 import com.rationem.util.MessageUtil;
-import javax.inject.Named;
-//import javax.enterprise.context.ConversationScoped;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +18,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import javax.ejb.EJB;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -64,8 +59,8 @@ public class VatSchemeBean extends BaseBean {
    vatSchemes = setup.getVatSchemesAll();
    if(!vatSchemes.isEmpty()){
     vatScheme = vatSchemes.get(0);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("vatSchemeUpdtFrm");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("vatSchemeUpdtFrm");
     logger.log(INFO, "update page called");
    }
   }
@@ -94,8 +89,8 @@ public class VatSchemeBean extends BaseBean {
    flIndRates = this.setup.getVatIndustriesAll();
    if(!flIndRates.isEmpty()){
     flIndRate = flIndRates.get(0);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("flRatePg");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("flRatePg");
    }
   }
   return flIndRates;
@@ -115,8 +110,8 @@ public class VatSchemeBean extends BaseBean {
    MessageUtil.addInfoMessage("vatIndRateUpdate", "blacResponse");
    
    flIndRate = null;
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("flRatePg");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("flRatePg");
   }catch(Exception ex){
    MessageUtil.addErrorMessage("vatIndRateUpdt", "errorText");
   }
@@ -133,8 +128,8 @@ public class VatSchemeBean extends BaseBean {
    MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
    
    flIndRate = null;
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("flRatePg");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("flRatePg");
   }catch(Exception ex){
    MessageUtil.addErrorMessage("vatIndRateAdd", "errorText");
   }
@@ -151,8 +146,8 @@ public class VatSchemeBean extends BaseBean {
    String msg =this.responseForKey("vatSchemeCreated")+ vatCr.getRef();
    MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
    vatScheme = null;
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("vatSchemeFrm");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("vatSchemeFrm");
    //GenUtil.addInfoMessage("Created VAT Scheme ref: "+vatCr.getRef());
   }catch(BacException ex){
    //GenUtil.addErrorMessage("BAC Error "+ex.getLocalizedMessage());
@@ -177,15 +172,15 @@ public class VatSchemeBean extends BaseBean {
  
  public void onVatSchemeChange(ValueChangeEvent evt){
   vatScheme = (VatSchemeRec)evt.getNewValue();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("vatSchemeUpdtFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("vatSchemeUpdtFrm");
  }
  
  public void onVatIndustryChange(ValueChangeEvent evt){
   flIndRate = (VatFlatRateIndRateRec)evt.getNewValue();
   logger.log(INFO, "onVatIndustryChange new rate {0}", evt.getNewValue());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("vatFlatRateUpdtFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("vatFlatRateUpdtFrm");
  }
  
 }

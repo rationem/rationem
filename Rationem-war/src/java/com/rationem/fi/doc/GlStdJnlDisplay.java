@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.SelectEvent;
 
@@ -111,8 +111,8 @@ public class GlStdJnlDisplay extends BaseBean{
   logger.log(INFO, "onClearSelections called");
   selectOpts = new FiDoclSelectionOpt();
   selectOpts.setComp(this.getCompList().get(0));
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("selectionPg ");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("selectionPg ");
  }
  public void onDocDtFromChange(ValueChangeEvent evt){
   logger.log(INFO, "onDocDtFromChange called with {0}", evt.getNewValue());
@@ -120,8 +120,8 @@ public class GlStdJnlDisplay extends BaseBean{
   selectOpts.setDocDateFrom(fromDate);
   selectOpts.setDocDateTo(fromDate);
   logger.log(INFO, "Date to {0}", selectOpts.getDocDateTo());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("docDtTo");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("docDtTo");
   
   
  }
@@ -190,8 +190,8 @@ public class GlStdJnlDisplay extends BaseBean{
   if(selectOpts.getEntryDateTo() == null || selectOpts.getEntryDateTo().before(entryFromDate)){
    selectOpts.setEntryDateTo(entryFromDate);
    logger.log(INFO, "EntryDateTo {0}", selectOpts.getEntryDateTo());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("entryDtTo");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("entryDtTo");
   }
   
  }
@@ -211,9 +211,9 @@ public class GlStdJnlDisplay extends BaseBean{
   }
   logger.log(INFO, "docSelected lines  2 {0}", docSelected.getDocLines());
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("docDispFrm");
-  rCtx.execute("PF('docDispWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("docDispFrm");
+  pf.executeScript("PF('docDispWv').show()");
  }
  
  public void onDocLineMenuEdit(){
@@ -224,9 +224,9 @@ public class GlStdJnlDisplay extends BaseBean{
   }
   logger.log(INFO, "docSelected lines  2 {0}", docSelected.getDocLines());
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("docEditFrm");
-  rCtx.execute("PF('docEditWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("docEditFrm");
+  pf.executeScript("PF('docEditWv').show()");
  }
  
  public List<DocTypeRec> onDocTypeComplete(String input){
@@ -257,7 +257,7 @@ public class GlStdJnlDisplay extends BaseBean{
   logger.log(INFO, "onDocChangeSave called with {0}", docSelected.getDocHdrText());
   docSelected.setChangedBy(this.getLoggedInUser());
   docSelected.setChangedOn(new Date());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   try{
   docSelected = this.docMgr.updateDocument(docSelected, getLoggedInUser(), getView());
   logger.log(INFO, "Posted doc id {0}", docSelected.getId());
@@ -268,8 +268,8 @@ public class GlStdJnlDisplay extends BaseBean{
    DocFiRec curr = docLi.next();
    if(Objects.equals(curr.getId(), docSelected.getId())){
     docLi.set(docSelected);
-    rCtx.update("jnlListDt");
-    rCtx.execute("PF('docEditWv').hide();");
+    pf.ajax().update("jnlListDt");
+    pf.executeScript("PF('docEditWv').hide();");
    }
   }
   }catch(Exception ex){
@@ -283,8 +283,8 @@ public void onPostDateFrChange(ValueChangeEvent evt){
  if(selectOpts.getPostDateTo() == null || selectOpts.getPostDateTo().before(newDate)){
   logger.log(INFO, "Need to set post date to {0}", newDate);
   selectOpts.setPostDateTo(newDate);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("postDtTo");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("postDtTo");
  }
 }
 public List<UserRec> onUserComplete(String input){

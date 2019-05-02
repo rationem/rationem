@@ -32,7 +32,7 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -163,9 +163,9 @@ public class ChequeBookBean extends BaseBean {
     li.set(chequeBkSel);
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('updtDlgWv').hide()");
-  rCtx.update("chqBkUpdt:chqBkTbl");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('updtDlgWv').hide()");
+  pf.ajax().update("chqBkUpdt:chqBkTbl");
  }
  
  public void onSaveNewChequBook(){
@@ -178,13 +178,13 @@ public class ChequeBookBean extends BaseBean {
   if(chequeBkSel.getNumberControlId() != null){
    
    MessageUtil.addInfoMessageVar1("trChqBkCr", "blacResponse", chequeBkSel.getShortDescr());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.reset("chqBkCr:chqPnl");
-   rCtx.update("chqBkCr:grwl");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.resetInputs("chqBkCr:chqPnl");
+   pf.ajax().update("chqBkCr:grwl");
    
   }else{
    MessageUtil.addErrorMessageParam1("chqBkNoSave", "errorText", chequeBkSel.getShortDescr());
-   RequestContext.getCurrentInstance().update("chqBkCr:msg");
+   PrimeFaces.current().ajax().update("chqBkCr:msg");
  }
  }
  

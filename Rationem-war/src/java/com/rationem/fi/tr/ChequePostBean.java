@@ -24,7 +24,7 @@ import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -188,7 +188,7 @@ public void onBankAcntSelect(SelectEvent evt){
     LOGGER.log(INFO, "Check book auto num {0}", selOpts.getChkBk().isAutoNum());
    }
   }
-  RequestContext rctx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(chequeBooks == null || chequeBooks.isEmpty()){
    MessageUtil.addErrorMessage("chkBk4BnkNo", "errorText");
   }

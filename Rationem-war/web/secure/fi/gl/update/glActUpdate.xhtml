@@ -22,7 +22,7 @@
            
     </f:facet >
    </p:toolbar>
-   
+   <p:messages id="msgs" closable="true" />
    <p:panelGrid  styleClass="panelNoBorders">
     <p:row>
      <p:column>
@@ -163,6 +163,7 @@
      
   <h:form id="editAcFrm">
    <p:dialog header="#{formText.glAccountEditCompAc}" widgetVar="editAcWVar" dynamic="true" modal="true">
+    <p:messages id="msgs" closable="true" />
     <h:panelGrid id="newCompGrd" columns="2">
      <p:outputLabel for="edComp" value="#{formText.glAccountComp}"/>
       <h:inputText id="edComp" value="#{glAccountBean.selectedCompAc.company.reference}" disabled="true"/>
@@ -172,11 +173,18 @@
        <f:selectItems value="#{glAccountBean.sortOrderList}" var="sortOrd" itemValue="#{sortOrd}" 
                         itemLabel="#{sortOrd.sortCode} #{sortOrd.name}" />
       </p:selectOneMenu>
+      <p:outputLabel for="vatStatus" value="#{formText.glAccountVatStatus}"/>
+      <p:selectOneMenu id="vatStatus" value="#{glAccountBean.selectedCompAc.vatStatus}">
+       <f:selectItem itemLabel="#{formText.vatOutside}" itemValue="0" noSelectionOption="true"/>
+       <f:selectItem itemLabel="#{formText.vatInput}" itemValue="1" />
+       <f:selectItem itemLabel="#{formText.vatOutput}" itemValue="2" />
+       <p:ajax event="itemSelect" listener="#{glAccountBean.onEditVatStatusSelect}" />
+      </p:selectOneMenu>
       <p:outputLabel for="vatCd" value="#{formText.glAccountVatCode}"/>
       <p:autoComplete id="vatCd" value="#{glAccountBean.selectedCompAc.vatCode}"
                         completeMethod="#{glAccountBean.vatCodeComplete}"
                         forceSelection="true" converter="com.rationem.util.converter.VatCodeCompany"
-                        dropdown="true" 
+                        dropdown="true" disabled="#{glAccountBean.selectedCompAc.vatStatus eq 0}"
                         var="vatCdVar" itemValue="#{vatCdVar}" itemLabel="#{vatCdVar.vatCode.code}">
        <f:facet name="itemtip">
         <h:panelGrid columns="3">

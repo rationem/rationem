@@ -217,6 +217,7 @@ public class VatDM {
    rec.setChangedBy(chUsr);
    rec.setChangedOn(cd.getChangedOn());
   }
+  rec.setAddnlCat(cd.getAddnlCat());
   rec.setCode(cd.getCode());
   LOGGER.log(INFO, "created user  {0}", cd.getCreatedBy());
   User usr = cd.getCreatedBy();
@@ -524,15 +525,16 @@ public class VatDM {
    em.persist(cd);
    AuditVatCode aud = this.buildAuditVatCode(cd, 'I', crUsr, pg);
    aud.setNewValue(rec.getCode());
-   
+   newVatCode = true;
   }else{
-   cd = em.find(VatCode.class, rec.getId(),OPTIMISTIC_FORCE_INCREMENT);
+   cd = em.find(VatCode.class, rec.getId());
   }
   
   if(newVatCode){
+   cd.setAddnlCat(rec.getAddnlCat());
    cd.setCode(rec.getCode());
    cd.setDescription(rec.getDescription());
-   cd.getIrrrecoverableRate();
+   cd.setIrrrecoverableRate(rec.getIrrrecoverableRate());
    cd.setRate(rec.getRate());
    cd.setValidFrom(rec.getValidFrom());
    cd.setValidTo(rec.getValidTo());
@@ -553,6 +555,14 @@ public class VatDM {
     vatCodeChanged = true;
    }
    
+   if(rec.getAddnlCat() != cd.getAddnlCat()){
+    AuditVatCode aud = this.buildAuditVatCode(cd, 'U', chUsr, pg);
+    aud.setFieldName("VAT_CD_ADDNL_CAT");
+    aud.setNewValue(String.valueOf(rec.getAddnlCat()));
+    aud.setOldValue(String.valueOf(cd.getAddnlCat()));
+    cd.setAddnlCat(rec.getAddnlCat());
+    vatCodeChanged = true;
+   }
    if((rec.getDescription() == null && cd.getDescription() != null) ||
       (rec.getDescription() != null && cd.getDescription() == null) ||  
       (rec.getDescription() != null && !rec.getDescription().equalsIgnoreCase(cd.getDescription()))){
@@ -1380,11 +1390,11 @@ public CompanyBasicRec getCompVatRegRec(CompanyBasicRec compRec){
  public List<VatCodeRec> getAllVatCodes() throws BacException {
   LOGGER.log(INFO, "VatDM.allVatCodes called");
   List<VatCodeRec> codeList = new ArrayList<>();
-  Query q = em.createNamedQuery("allVatCodes");
-  List resultLst = q.getResultList();
-  ListIterator li = resultLst.listIterator();
+  TypedQuery q = em.createNamedQuery("allVatCodes",VatCode.class);
+  List<VatCode> resultLst = q.getResultList();
+  ListIterator<VatCode> li = resultLst.listIterator();
   while(li.hasNext()){
-   VatCode vatCd = (VatCode)li.next();
+   VatCode vatCd = li.next();
    VatCodeRec vatRec = this.buildVatCodeRec(vatCd);
    codeList.add(vatRec);
    
@@ -2254,10 +2264,15 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
  
  public VatCodeRec vatCodeUpdate(VatCodeRec code, String pg){
   LOGGER.log(INFO, "VatDM.vatCodeUpdate called code {0}", code);
+  LOGGER.log(INFO, "VAT code {0} id {1} created by {2} changed by {3}", new Object[]{
+   code.getCode(), code.getId(), code.getCreatedBy(), code.getChangedBy()});
   if(!trans.isActive()){
    trans.begin();
   }
   VatCode cd = this.buildVatCode(code, pg);
+  if(code.getId() == null){
+   code.setId(cd.getId());
+  }
   trans.commit();
   return code;
  }

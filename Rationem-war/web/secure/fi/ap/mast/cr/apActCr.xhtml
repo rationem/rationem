@@ -27,11 +27,11 @@
                           converter="com.rationem.util.converter.CompanyBasic" >
           <f:selectItems var="compVar" value="#{apMast.compList}" itemValue="#{compVar}"
                          itemLabel="#{compVar.reference}"/>
-          <p:ajax/>
+          <p:ajax event="itemSelect" listener="#{apMast.onCompanySelect}"/>
          </p:selectOneMenu>
          
         </h:panelGroup>
-        <h:panelGroup />
+        <h:outputText id="compName" value="#{apMast.apAccount.company.name}"/>
         <h:panelGroup class="md-inputfield">
          <p:inputText id="accountCode" value="#{apMast.apAccount.accountCode}"
                        title="#{formHelpText.arActCode}" size="5" required="true" 
@@ -264,7 +264,7 @@
           <p:keyFilter mask="email"  for="acntEmail" regEx="/[a-z0-9_\.\-@]/i" preventPaste="true"/>
           <p:inputText id="acntEmail" maxlength="50" value="#{apMast.apAccount.acntEmail}"
                           size="30" validatorMessage="#{validationText.emailValidation}"  >
-           <f:validator validatorId="com.bac.util.helper.emailValidator"  />
+           <f:validator validatorId="com.rationem.util.helper.emailValidator"  />
           </p:inputText>
           <p:outputLabel for="acntEmail" value="#{formTextAp.apAcntEmail}"/>
          </h:panelGroup>
@@ -560,7 +560,7 @@
         <h:outputText value="#{formTextAp.apPtnrPers}"
                    rendered="#{apMast.selectedPtnrTypeCd eq 'indiv'}"/>
        </f:facet>
-       <p:messages id="errMsg" closable="true" severity="warn, error" autoUpdate="true" />
+       <p:messages id="errMsg" closable="true" severity="warn, error"  />
        <p:growl id="grl" />
        <p:panelGrid id="newCorpPG" layout="grid" columns="1" 
                  rendered="#{apMast.selectedPtnrTypeCd eq 'corp'}" styleClass="ui-noborder">
@@ -971,7 +971,7 @@
        <f:facet name="header">
         <h:outputText value="#{pageTitle.trBankBrCr}"/>
        </f:facet>
-       <p:messages id="msgs" autoUpdate="true" closable="true"/>
+       <p:messages id="msgs" closable="true"/>
        <p:tooltip  trackMouse="true"  showEffect="clip" position="right" />
        <p:panelGrid id="trBnkBrNewPg" layout="grid" columns="5" styleClass="ui-noborder">
         <h:panelGroup class="md-inputfield">
@@ -1088,7 +1088,7 @@
        <f:facet name="header">
         <h:outputText value="#{formText.bnkBankAdd}"/>
        </f:facet>
-       <p:messages id="errMsg" severity="error, warn" closable="true" autoUpdate="true"/>
+       <p:messages id="errMsg" severity="error, warn" closable="true"  />
        
        <p:panelGrid id="addrPg" layout="grid" columns="3" styleClass="ui-noborder">
         <h:panelGroup class="md-inputfield">
@@ -1199,7 +1199,7 @@
      <div class="ui-g-12">
       <p:dialog id="trBnkNewDlg" dynamic="true" widgetVar="trBnkNewDlgWv" modal="true" 
                 header="#{formText.addrNew}"  >
-       <p:messages id="errMsg"  closable="true"  autoUpdate="true"/>
+       <p:messages id="errMsg"  closable="true"   />
        <p:panelGrid id="bnkAddrNewPg" layout="grid" columns="1" styleClass="ui-noborder">
         <h:panelGroup class="md-inputfield">
          <p:inputText id="trBankNewAddrHse" size="5" 

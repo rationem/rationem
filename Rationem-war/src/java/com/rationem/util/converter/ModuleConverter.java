@@ -21,7 +21,7 @@ import javax.faces.convert.ConverterException;
  */
 @FacesConverter("com.rationem.util.converter.Module")
 public class ModuleConverter implements Converter{
-  private static Map<Long, ModuleRec> CACHE = new HashMap<>();
+  private static final Map<Long, ModuleRec> CACHE = new HashMap<>();
   
 
   @Override

@@ -12,22 +12,29 @@ import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.config.common.BasicSetup;
 import com.rationem.exception.BacException;
 import com.rationem.util.MessageUtil;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.faces.component.EditableValueHolder;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import javax.faces.model.SelectItem;
+import org.apache.commons.lang3.StringUtils;
+import org.primefaces.PrimeFaces;
+import org.primefaces.event.SelectEvent;
 
 /**
  * VAT Code Cross company
  * @author Chris
  */
 public class VatCodeBean extends BaseBean {
- private static final Logger logger =
-            Logger.getLogger("accounts.beans.setup.common.VatCodeBean");
+ private static final Logger LOGGER =  Logger.getLogger(VatCodeBean.class.getName());
  @EJB
  private BasicSetup setup;
  
@@ -37,6 +44,8 @@ public class VatCodeBean extends BaseBean {
  private VatCodeCompanyRec vatPosting;
  private boolean vatCatDisabled = false;
  private List<VatCodeRec> vatCodes;
+ private List<SelectItem> vatCategories;
+ 
  
 
  /**
@@ -45,6 +54,20 @@ public class VatCodeBean extends BaseBean {
  public VatCodeBean() {
  }
  
+ @PostConstruct
+ private void init(){
+ 
+  // Set VAT categories
+  vatCategories = new ArrayList<>();
+  String text = this.formTextForKey("vatVatable");
+  SelectItem vatable = new SelectItem();
+  vatable.setLabel(text);
+  vatable.setValue("V");
+  vatCategories.add(vatable);
+  SelectItem exempt = new SelectItem();
+  
+  
+ }
  
 
  public VatCodeRec getVatCode() {
@@ -63,8 +86,8 @@ public class VatCodeBean extends BaseBean {
    vatCodes = this.sysBuff.getVatCodes();
    if(vatCodes != null && !vatCodes.isEmpty()){
     vatCode = vatCodes.get(0);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("vatCodeUpdtFrm");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("vatCodeUpdtFrm");
    }
   }
   return vatCodes;
@@ -92,28 +115,63 @@ public class VatCodeBean extends BaseBean {
   this.vatCatDisabled = vatCatDisabled;
  }
  
+ 
  public void onVatCodeChange(ValueChangeEvent evt){
-  logger.log(INFO, "onVatCodeChange {0}", evt.getNewValue());
+  LOGGER.log(INFO, "onVatCodeChange {0}", evt.getNewValue());
   vatCode = (VatCodeRec)evt.getNewValue();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("vatCodeUpdtFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("vatCodeUpdtFrm");
  }
  
- public void onVatCodeUpdateSave(){
-  logger.log(INFO, "onVatCodeUpdateSave called");
-  vatCode.setChangedBy(this.getLoggedInUser());
-  vatCode.setChangedOn(new Date());
-  try{
-  vatCode = this.sysBuff.vatCodeUpdate(vatCode, this.getView());
-  MessageUtil.addInfoMessage("vatCodeUpdated", "blacResponse");
-  } catch(Exception ex){
-   logger.log(INFO, "Update VAT code exception {0}", ex.getLocalizedMessage());
-   MessageUtil.addErrorMessage("vatCodeUpdt", "errorText");
+ public List<VatCodeRec> onVatCodeComplete(String input){
+  
+  if(StringUtils.isBlank(input)){
+   return this.sysBuff.getVatCodes();
+  }else{
+   return sysBuff.getAllVatCodesByRef(input);
   }
   
  }
+ 
+ public void onVatCodeSelect(SelectEvent evt){
+  vatCode = (VatCodeRec)evt.getObject();
+  PrimeFaces.current().ajax().update("vatCodeUpdtFrm");
+ }
+  
+ 
+ public void onVatCodeUpdateSave(){
+  LOGGER.log(INFO, "onVatCodeUpdateSave called");
+  vatCode.setChangedBy(this.getLoggedInUser());
+  vatCode.setChangedOn(new Date());
+  try{
+  vatCode = sysBuff.vatCodeUpdate(vatCode, this.getView());
+  
+  MessageUtil.addClientInfoMessage("vatCodeUpdtFrm:msg", "vatCodeUpdated", "blacResponse");
+  if(vatCode.getId() == null){
+   MessageUtil.addClientWarnMessage("vatCodeUpdtFrm:msg", "vatCodeUpdated", "blacResponse");
+  }
+  PrimeFaces.current().ajax().update("vatCodeUpdtFrm:msg");
+  } catch(Exception ex){
+   LOGGER.log(INFO, "Update VAT code exception {0}", ex.getLocalizedMessage());
+   MessageUtil.addClientWarnMessage("vatCodeUpdtFrm:msg", "vatCodeUpdated", "blacResponse");
+   PrimeFaces.current().ajax().update("vatCodeUpdtFrm:msg");
+  }
+  
+ }
+ 
+ public void onVatCodeValidate(FacesContext context, UIComponent toValidate, Object value){
+  LOGGER.log(INFO, "onVatCodeValidate called with {0}", value);
+  String valStr = (String)value;
+  VatCodeRec vatCode = this.sysBuff.getVatCodeByCode(valStr);
+  if(vatCode == null){
+   ((EditableValueHolder) toValidate).setValid(true);
+  }else{
+   ((EditableValueHolder) toValidate).setValid(false);
+  }
+  PrimeFaces.current().ajax().update("vatCodeCrFrm:vatCd");
+ }
  public void onVatRateChange(ValueChangeEvent evt){
-  logger.log(INFO, "New vat rate {0}", evt.getNewValue());
+  LOGGER.log(INFO, "New vat rate {0}", evt.getNewValue());
   if(evt.getNewValue().getClass().getCanonicalName().equalsIgnoreCase("java.lang.Long")){
    vatCatDisabled = false;
   }else{
@@ -123,7 +181,7 @@ public class VatCodeBean extends BaseBean {
   
  }
  public void onSaveVatCode(){
-  logger.log(INFO, "Web onSaveVatCode called");
+  LOGGER.log(INFO, "Web onSaveVatCode called");
   vatCode.setCreatedBy(getLoggedInUser());
   vatCode.setCreatedOn(new Date());
   String src = getView();

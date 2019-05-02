@@ -23,7 +23,6 @@ import com.rationem.busRec.fi.company.FundRec;
 import com.rationem.busRec.fi.glAccount.FiGlAccountCompRec;
 import com.rationem.busRec.ma.costCent.CostCentreRec;
 import com.rationem.busRec.ma.programme.ProgrammeRec;
-import com.rationem.busRec.partner.PartnerBaseRec;
 import com.rationem.busRec.partner.PartnerPersonRec;
 import com.rationem.busRec.partner.PartnerRoleRec;
 import com.rationem.busRec.salesTax.vat.VatCodeCompanyRec;
@@ -54,7 +53,7 @@ import java.util.logging.Logger;
 
 
 import static java.util.logging.Level.INFO;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.SelectEvent;
@@ -220,13 +219,13 @@ public class ApDocPost extends BaseBean {
    ListIterator<DocVatSummary> vatSumLi = vatSumm.listIterator();
    while(vatSumLi.hasNext() && !foundSummRec){
     DocVatSummary curr =  vatSumLi.next();
-    if(Objects.equals(curr.getVatCode().getId(), ln.getVatCodeCompany().getId())){
+    if(Objects.equals(curr.getVatCode().getId(),  ln.getVatCode().getId())){
      // found vat Code
      if(Objects.equals(curr.getFund().getId(), ln.getRestrictedFund().getId())){
       // found fund for this vat entry
       double goods = curr.getGoods();
       double vat = curr.getVat();
-      if(ln.getVatCodeCompany().getIrrecoverRate() == 0.0){
+      if(ln.getVatCode().getIrrecoverRate() == 0.0){
        // no irrecoverable tax so do not need GL account
        foundSummRec = true;
        goods += ln.getDocAmount();
@@ -241,7 +240,7 @@ public class ApDocPost extends BaseBean {
         double irrecoverable = curr.getIrrecoverableVat();
         goods += ln.getDocAmount();
         vat += ln.getTaxAmnt();
-        double lnIrrecoverable = ln.getVatCodeCompany().getIrrecoverRate() * goods;
+        double lnIrrecoverable = ln.getVatCode().getIrrecoverRate() * goods;
         irrecoverable += lnIrrecoverable;
         curr.setGoods(goods);
         curr.setVat(vat);
@@ -266,10 +265,10 @@ public class ApDocPost extends BaseBean {
     newSumm.setGlAccount(ln.getGlAccount());
     newSumm.setGoods(ln.getDocAmount());
     newSumm.setVat(ln.getTaxAmnt());
-    newSumm.setVatCode(ln.getVatCodeCompany());
-    if(ln.getVatCodeCompany().getIrrecoverRate() != 0.0){
+    newSumm.setVatCode(ln.getVatCode());
+    if(ln.getVatCode().getIrrecoverRate() != 0.0){
      newSumm.setIrrecoverable(true);
-     double irrecoverable = ln.getVatCodeCompany().getIrrecoverRate() * ln.getDocAmount();
+     double irrecoverable = ln.getVatCode().getIrrecoverRate() * ln.getDocAmount();
      newSumm.setIrrecoverableVat(irrecoverable);
     }
    
@@ -375,17 +374,17 @@ public class ApDocPost extends BaseBean {
  private DocLineGlRec buildReconGlLine(DocLineApRec apLine, DocFiRec apDoc,LineTypeRuleRec lnTyGl){
   
   FiGlAccountCompRec recAcnt = apLine.getApAccount().getReconciliationAc();
-  DocLineGlRec apRec = new DocLineGlRec();
-  apRec.setGlAccount(recAcnt);
+  DocLineGlRec glRec = new DocLineGlRec();
+  glRec.setGlAccount(recAcnt);
   //apRec.setDocAmount(apLine.getDocAmount());
-  apRec.setAccountRef(recAcnt.getCoaAccount().getRef());
-  apRec.setSortOrder(apLine.getSortOrder());
-  apRec.setComp(apLine.getComp());
-  apRec.setCreateBy(apLine.getCreateBy());
-  apRec.setCreateDate(apLine.getCreateDate());
-  apRec.setDocFi(apDoc);
-  apRec.setLineText(apLine.getLineText());
-  apRec.setLineType(lnTyGl);
+  glRec.setAccountRef(recAcnt.getCoaAccount().getRef());
+  glRec.setSortOrder(apLine.getSortOrder());
+  glRec.setComp(apLine.getComp());
+  glRec.setCreateBy(apLine.getCreateBy());
+  glRec.setCreateDate(apLine.getCreateDate());
+  glRec.setDocFi(apDoc);
+  glRec.setLineText(apLine.getLineText());
+  glRec.setLineType(lnTyGl);
   // determine post type from apLIne
   PostTypeRec ptRec;
   if(apLine.getPostType().isDebit()){
@@ -394,11 +393,11 @@ public class ApDocPost extends BaseBean {
    ptRec = sysBuff.getPostTypeForCode("glCrRecon");   
   }
   
-  apRec.setPostType(ptRec);
-  apRec.setReference1(docLineAp.getReference1());
-  apRec.setReference2(docLineAp.getReference2());
-  apRec.setVatCodeCompany(docLineAp.getVatCodeCompany());
-  return apRec;
+  glRec.setPostType(ptRec);
+  glRec.setReference1(docLineAp.getReference1());
+  glRec.setReference2(docLineAp.getReference2());
+  //glRec.setVatCode(docLineAp.getVatCode());
+  return glRec;
  }
  
  private List<DocLineGlRec> buildInvReconLines(DocLineApRec apLine,List<FundBalance> fndbal,
@@ -620,9 +619,9 @@ public class ApDocPost extends BaseBean {
    
   docLineGl.setSortOrder(sortText);
   if(StringUtils.contains(getViewSimple(), "apInvoiceCr")){
-   RequestContext.getCurrentInstance().update("addDocLnFrm:addLnSort");
+   PrimeFaces.current().ajax().update("addDocLnFrm:addLnSort");
   }else if(StringUtils.contains(getViewSimple(), "apCreditNoteCr")){
-   RequestContext.getCurrentInstance().update("addLineFrm:addLnSort");
+   PrimeFaces.current().ajax().update("addLineFrm:addLnSort");
   }
   
   
@@ -630,19 +629,19 @@ public class ApDocPost extends BaseBean {
  }
  public void onAddLineTrf(){
   LOGGER.log(INFO, "onAddLineTrf called view {0} ",getViewSimple());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  //rCtx.execute("PF('docLinesWv').addRow()");
+  PrimeFaces pf = PrimeFaces.current();
+  //pf.executeScript("PF('docLinesWv').addRow()");
   List<String> updt = new ArrayList<>();
   if(StringUtils.equals(getViewSimple(), "apInvoiceCr")){
    
    if(docLineGl.getDocAmount() == 0){
     MessageUtil.addWarnMessage("apDocLnAmntNone", "validationText");
-    RequestContext.getCurrentInstance().update("addDocLnMsg");
+    PrimeFaces.current().ajax().update("addDocLnMsg");
     return;
    }
    if(docLineGl.getDocAmount() < 0){
     MessageUtil.addWarnMessage("fiDocAmntNeg", "validationText");
-    RequestContext.getCurrentInstance().update("addDocLnMsg");
+    PrimeFaces.current().ajax().update("addDocLnMsg");
     return;
    }
    LOGGER.log(INFO, "After check abount");
@@ -675,19 +674,19 @@ public class ApDocPost extends BaseBean {
    updt.add("apInvCrFrm:linesCxtMnu");
    updt.add("apInvCrFrm:saveBtn");
    updt.add("apInvCrFrm:lines");
-   rCtx.execute("PF('addDocLnWv').hide()");
-   rCtx.update(updt);
+   pf.executeScript("PF('addDocLnWv').hide()");
+   pf.ajax().update(updt);
   }else{
    // credit note
    // validate entry
    if(docLineGl.getDocAmount() == 0){
     MessageUtil.addWarnMessage("apDocLnAmntNone", "validationText");
-    RequestContext.getCurrentInstance().update("addLineFrm:addDocLnMsg");
+    PrimeFaces.current().ajax().update("addLineFrm:addDocLnMsg");
     return;
    }
    if(docLineGl.getDocAmount() < 0){
     MessageUtil.addWarnMessage("fiDocAmntNeg", "validationText");
-    RequestContext.getCurrentInstance().update("addLineFrm:addDocLnMsg");
+    PrimeFaces.current().ajax().update("addLineFrm:addDocLnMsg");
     return;
    }
    LOGGER.log(INFO, "After check abount");
@@ -713,8 +712,8 @@ public class ApDocPost extends BaseBean {
    
    updt.add("apCrnFrm:docAmount");
    updt.add("apCrnFrm:lines");
-   rCtx.execute("PF('addDocLnWv').hide()");
-   rCtx.update(updt);
+   pf.executeScript("PF('addDocLnWv').hide()");
+   pf.ajax().update(updt);
   }
   
  }
@@ -770,12 +769,13 @@ public class ApDocPost extends BaseBean {
    if(curr.getClass().getSimpleName().equals("DocLineGLRec")){
     DocLineGlRec currGl = (DocLineGlRec)curr;
     curr.setLineType(lnTyGl);
-    if(currGl.getVatCodeCompany() != null){
+    if(currGl.getVatCode() != null){
      vatSummary = this.updateVatSummary(vatSummary, currGl);
     }
    }else if ( curr.getClass().getSimpleName().equals("DocLineApRec")){
     curr.setLineType(lnTyAp);
    }
+   
    LOGGER.log(INFO, "Line type {0}", curr.getLineType().getLineCode());
    lnGLIt.set(curr);
   }
@@ -878,10 +878,10 @@ public class ApDocPost extends BaseBean {
    
     if(currView.equals("apInvoiceCr")){
      invoice = postingDoc;
-     RequestContext.getCurrentInstance().update("apInvCrFrm:lines");
+     PrimeFaces.current().ajax().update("apInvCrFrm:lines");
     } else {
      creditNote = postingDoc;
-     RequestContext.getCurrentInstance().update("apCrnFrm:lines");
+     PrimeFaces.current().ajax().update("apCrnFrm:lines");
     }
    return null;
   }
@@ -946,8 +946,10 @@ public class ApDocPost extends BaseBean {
  
  if(StringUtils.isBlank(input)){
   retList = apMgr.getApAccountsAll(comp);
+  LOGGER.log(INFO, "apMgr.getApAccountsAll returns {0}", retList);
  }else{
   retList = apMgr.getApAccountsStartinfWithCode(comp, input);
+  LOGGER.log(INFO, "returns {0} called with Comp {1} and input {2}", new Object[]{retList, comp.getReference(),input});
  }
  
  return retList;
@@ -955,6 +957,7 @@ public class ApDocPost extends BaseBean {
  
  public void onApAccountSelect(SelectEvent evt){
   LOGGER.log(INFO, "onApAccountSelect called with object {0}", evt.getObject());
+ 
   
   
  }
@@ -983,9 +986,9 @@ public class ApDocPost extends BaseBean {
   if(currPersList != null && !currPersList.isEmpty()){
    // check to see if on of these should be used
    LOGGER.log(INFO, "Found partners with name check if should be used");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("newPtnrPersFrm:similarNamesTbl");
-   rCtx.execute("PF('ptnrFndWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("newPtnrPersFrm:similarNamesTbl");
+   pf.executeScript("PF('ptnrFndWv').show()");
    return;
   }
   onApContactNewPostMerge("ptnrApContCr");
@@ -997,9 +1000,9 @@ public class ApDocPost extends BaseBean {
   contactApNew.setChangedOn(new Date());
   LOGGER.log(INFO, "onApContactNewMerge - contactApNew id {0}", contactApNew.getId());
   //MessageUtil.addClientInfoMessage("apInvCrFrm:okMsg", "ptnrMerged", "blacResponse");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('ptnrFndWv').hide();");
-  rCtx.execute("PF('newPtnrDlgWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('ptnrFndWv').hide();");
+  pf.executeScript("PF('newPtnrDlgWv').hide();");
   onApContactNewPostMerge("ptnrMerged");
   
  }
@@ -1007,10 +1010,10 @@ public class ApDocPost extends BaseBean {
  public void onApContactNewDupl(){
   LOGGER.log(INFO, "onApContactNewDupl called");
   //MessageUtil.addClientInfoMessage("apInvCrFrm:okMsg", "ptnrAddDupl", "blacResponse");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('ptnrFndWv').hide();");
-  rCtx.execute("PF('newPtnrDlgWv').hide();");
-  //rCtx.update("apInvCrFrm:okMsg");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('ptnrFndWv').hide();");
+  pf.executeScript("PF('newPtnrDlgWv').hide();");
+  //pf.ajax().update("apInvCrFrm:okMsg");
   onApContactNewPostMerge("ptnrAddDupl");
  }
  
@@ -1021,21 +1024,28 @@ public class ApDocPost extends BaseBean {
   roles.add(rl);
   contactApNew.setPartnerRoles(roles);
   contactApNew = (PartnerPersonRec)ptnrMgr.updatePartner(contactApNew, getView());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(contactApNew.getId() == null){
    MessageUtil.addClientErrorMessage("newPtnrPersFrm:errMsg", "partnerApContCr", "errorText");
-   rCtx.update("newPtnrPersFrm:errMsg");
+   pf.ajax().update("newPtnrPersFrm:errMsg");
   }else{
    docLineAp.setOrderedBy(contactApNew);
    MessageUtil.addClientInfoMessage("apInvCrFrm:okMsg", msgId, "blacResponse");
    List<String> updateList = new ArrayList<>();
    updateList.add("apInvCrFrm:okMsg");
    updateList.add("apInvCrFrm:orderedBy");
-   rCtx.update(updateList);
-   rCtx.execute("PF('newPtnrDlgWv').hide();");
+   pf.ajax().update(updateList);
+   pf.executeScript("PF('newPtnrDlgWv').hide();");
   }
  }
  
+ public void onCompSelect(SelectEvent evt){
+  LOGGER.log(INFO, "onCompSelect called with {0}", evt.getObject());
+  invoice.setCompany((CompanyBasicRec)evt.getObject());
+  List<String> updates = new ArrayList<>();
+  updates.add("apInvCrFrm:compName");
+  PrimeFaces.current().ajax().update(updates);
+ }
  public List<CostCentreRec> onCostCentreComplete(String input){
   List<CostCentreRec> retList = null;
   switch(getViewSimple()){
@@ -1055,10 +1065,10 @@ public class ApDocPost extends BaseBean {
   docLineGl = new DocLineGlRec();
   UUID uuid = UUID.randomUUID();
   docLineGl.setId(uuid.getLeastSignificantBits());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   
-  rCtx.update("addLineFrm");
-  rCtx.execute("PF('addDocLnWv').show();");
+  pf.ajax().update("addLineFrm");
+  pf.executeScript("PF('addDocLnWv').show();");
  }
  
  public void onCrnCtxMnu(SelectEvent evt){
@@ -1088,7 +1098,7 @@ public class ApDocPost extends BaseBean {
   List<String> updates = new ArrayList<>();
   //updates.add("apCrnFrm:docAmount");
   updates.add("apCrnFrm:lines");
-  RequestContext.getCurrentInstance().update(updates);
+  PrimeFaces.current().ajax().update(updates);
   return;
   }
  }
@@ -1142,7 +1152,7 @@ public class ApDocPost extends BaseBean {
   }
   
   if(!updates.isEmpty()){
-   RequestContext.getCurrentInstance().update(updates);
+   PrimeFaces.current().ajax().update(updates);
   }
  }
  
@@ -1190,7 +1200,7 @@ public class ApDocPost extends BaseBean {
   docLineAp.setDueDate(dueDate);
   
   
-  RequestContext.getCurrentInstance().update(updates);
+  PrimeFaces.current().ajax().update(updates);
   
  }
  
@@ -1198,11 +1208,11 @@ public class ApDocPost extends BaseBean {
   LOGGER.log(INFO, "onDocLineAdd called");
   docLineGl = new DocLineGlRec();
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(getViewSimple().equals("apInvoiceCr")){
    docLineGl.setDocHeaderBase(invoice); 
-   rCtx.update("addDocLnFrm");
-   rCtx.execute("PF('addDocLnWv').show();");
+   pf.ajax().update("addDocLnFrm");
+   pf.executeScript("PF('addDocLnWv').show();");
   }
   
  }
@@ -1227,7 +1237,7 @@ public class ApDocPost extends BaseBean {
      updt.add("apInvCrFrm:linesCxtMnu");
      updt.add("apInvCrFrm:saveBtn");
      updt.add("apInvCrFrm:lines");
-     RequestContext.getCurrentInstance().update(updt);
+     PrimeFaces.current().ajax().update(updt);
      return;
     }
     LOGGER.log(INFO, "Check next line" );
@@ -1291,7 +1301,7 @@ public class ApDocPost extends BaseBean {
      dueDate = getDueDateFromPayTerm(pt, invoice.getDocumentDate(), invoice.getPostingDate());
     }
     docLineAp.setDueDate(dueDate);
-    RequestContext.getCurrentInstance().update("apInvCrFrm2:dueDate");
+    PrimeFaces.current().ajax().update("apInvCrFrm2:dueDate");
     break;
    case "apCreditNoteCr":
     if(creditNote.getDocumentDate() != null && creditNote.getPostingDate() != null){
@@ -1302,7 +1312,7 @@ public class ApDocPost extends BaseBean {
      dueDate = getDueDateFromPayTerm(pt, creditNote.getDocumentDate(), creditNote.getPostingDate());
     }
     docLineAp.setDueDate(dueDate);
-    RequestContext.getCurrentInstance().update("apInvCrFrm2:dueDate");
+    PrimeFaces.current().ajax().update("apInvCrFrm2:dueDate");
     break;
   }
  }
@@ -1412,17 +1422,17 @@ public List<FundRec> onFundComplete(String input){
  
  public void onPartnerNewBtn(){
   contactApNew = new PartnerPersonRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("newPtnrPersFrm");
-  rCtx.execute("PF('newPtnrDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("newPtnrPersFrm");
+  pf.executeScript("PF('newPtnrDlgWv').show();");
  }
  
  public void onPartnerNewTrf(){
   
   if(StringUtils.equals(this.getViewSimple(), "apInvoiceCr")){
    docLineAp.setOrderedBy(contactApNew);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.execute("PF('newPtnrDlgWv').hide();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.executeScript("PF('newPtnrDlgWv').hide();");
   }
  }
  

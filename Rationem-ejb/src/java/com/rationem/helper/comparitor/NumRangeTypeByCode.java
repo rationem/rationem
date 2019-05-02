@@ -16,6 +16,6 @@ public class NumRangeTypeByCode implements Comparator<NumberRangeTypeRec> {
  
  @Override
  public int compare(NumberRangeTypeRec ty1,NumberRangeTypeRec ty2){
-  return ty1.getNumRangeTypeCode().compareTo(ty2.getNumRangeTypeCode());
+  return ty1.getCode().compareTo(ty2.getCode());
  }
 }

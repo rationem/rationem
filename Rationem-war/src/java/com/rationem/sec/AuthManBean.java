@@ -9,7 +9,6 @@ import com.rationem.busRec.user.UserRec;
 import com.rationem.ejbBean.buffer.AppBuffer;
 import com.rationem.ejbBean.manager.AuthenticationMgr;
 import com.rationem.ejbBean.manager.PasswordUtil;
-import com.rationem.ejbBean.sec.AuthDM;
 import com.rationem.util.BaseBean;
 import com.rationem.util.MessageUtil;
 import com.rationem.util.UserSessionBean;
@@ -17,10 +16,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.logging.Level;
 import javax.ejb.EJB;
 import java.util.logging.Logger;
@@ -35,10 +32,9 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.weld.logging.ValidatorLogger;
 
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.RequestContext;
+
 import org.primefaces.event.SelectEvent;
 
 
@@ -370,7 +366,7 @@ public class AuthManBean extends BaseBean {
  public void onSaveInitPw() throws NoSuchAlgorithmException {
   LOGGER.log(INFO, "onSaveInitPw called");
   LOGGER.log(INFO, "usrLogin {0} user name {1} ", new Object[]{usrLogin, userName});
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  
   if (this.userChangedPass.equalsIgnoreCase(this.userPass)) {
    MessageUtil.addWarnMessage("userNewPwDiff", "validationText");
    LOGGER.log(INFO, "Password the same. Init pw {0} revised pw {1}", new Object[]{userPass, userChangedPass});

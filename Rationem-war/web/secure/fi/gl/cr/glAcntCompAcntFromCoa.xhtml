@@ -1,0 +1,276 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/WEB-INF/template.xhtml">
+
+ <ui:define name="meta">
+  <link rel="SHORTCUT ICON" href="${request.contextPath}/resources/images/opy.png" type="image/png"/>
+ </ui:define>
+ <ui:define name="title">#{pageTitle.cfg_comp_ac_coa}</ui:define>
+ <ui:define name="header"> </ui:define>
+ <ui:define name="content">
+  <div class="ui-fluid">
+   <h:form id="glAcntCrFrm"  >
+    <p:messages id="msgs" closable="true"  />
+    <p:panelGrid layout="grid" columns="6"
+                 columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-1,ui-grid-col-1,ui-grid-col-3" >
+     <h:panelGroup class="md-inputfield">
+      <p:autoComplete 
+       id="chartAcnt" value="#{glAccountFromChart.coa}" dropdown="true" var="coaV"
+       itemValue="#{coaV}" itemLabel="#{coaV.reference}" forceSelection="true"
+       converter="com.rationem.util.converter.ChartOfAccounts" 
+       completeMethod="#{glAccountFromChart.onCoaComplete}" required="true" >
+       <p:column width="25%">
+        <h:outputText value="#{coaV.reference}"/>
+       </p:column>
+       <p:column width="75%">
+        <h:outputText value="#{coaV.name}"/>
+       </p:column>
+      </p:autoComplete>
+      <p:outputLabel for="chartAcnt" value="#{formText.coa}"/>
+     </h:panelGroup>
+     <h:panelGroup class="md-inputfield">
+      <p:autoComplete
+       id="comp" value="#{glAccountFromChart.compSelected}" var="cmpV" dropdown="true"
+       completeMethod="#{glAccountFromChart.onCompComplete}" itemValue="#{cmpV}"
+       converter="com.rationem.util.converter.CompanyBasic" itemLabel="#{cmpV.reference}"
+       forceSelection="true" required="true">
+       <p:column width="25%">
+        <h:outputText value="#{cmpV.reference}"/>
+       </p:column>
+       <p:column width="25%">
+        <h:outputText value="#{cmpV.name}"/>
+       </p:column>
+      </p:autoComplete>
+      <p:outputLabel for="comp" value="#{formText.comp}"/>
+     </h:panelGroup>
+
+
+
+
+
+      <p:commandButton 
+       id="createBtn" value="#{formText.glAccountCompAcsCrFrCoa}"
+       actionListener="#{glAccountFromChart.onCreateAccounts}"/>
+
+
+    </p:panelGrid>
+    <p:dataTable
+     id="glAcntsTbl" value="#{glAccountFromChart.compAccounts}" var="glAcntV" reflow="true"
+     rowKey="#{glAcntV.id}" selection="#{glAccountFromChart.compAccountSelected}" 
+     rows="#{glAccountFromChart.usrBuff.tblRows}" selectionMode="single" sortBy="#{glAcntV.coaAccount.ref}"
+     emptyMessage="No Gl Accounts for company" filteredValue="#{glAccountFromChart.compAccountsFiltered}"
+     paginator="true" paginatorAlwaysVisible="true"
+     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+     <f:facet name="header">
+      <h:outputText value="#{listHeading.glAcCompAcs}"/>
+     </f:facet>
+     <p:ajax event="contextMenu" listener="#{glAccountFromChart.onAccountListContextMnu}" />
+     <f:facet name="{Exporters}">
+      <h:commandLink style="float:right;"  >
+       <p:graphicImage name="/images/Excel-48.gif" width="24"/>
+       <p:dataExporter type="xls" target="glAcntsTbl" fileName="#{formText.glAccounts}"
+                       postProcessor="#{glAccountFromChart.postProcessXLS}" />
+      </h:commandLink>
+      <h:commandLink style="float:right;">
+       <p:graphicImage name="/images/csv_text.png" width="24" />
+       <p:dataExporter type="csv" target="glAcntsTbl" fileName="#{formText.glAccounts}" />
+      </h:commandLink>
+     </f:facet>
+
+     <p:column exportable="false" width="10">
+      <p:rowToggler  />
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.compCode}"/>
+      </f:facet>
+      <h:outputText value="#{glAcntV.company.reference}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{formText.glAccountRef}"/>
+      </f:facet>
+      <h:outputText value="#{glAcntV.coaAccount.ref}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.glAcName}"/>
+      </f:facet>
+      <h:outputText value="#{glAcntV.coaAccount.name}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.glAcDescr}"/>
+      </f:facet>
+      <h:outputText value="#{glAcntV.coaAccount.description}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.glAcPl}"/>
+      </f:facet>
+      <p:selectBooleanButton
+       value="#{glAcntV.coaAccount.accountType.profitAndLossAccount}"
+       onLabel="#{formText.yes}" offLabel="#{formText.no}"/>
+     </p:column>
+     <p:column>
+      <f:facet name="header">
+       <h:outputText value="#{listHeading.glAcType}"/>
+      </f:facet>
+      <h:outputText value="#{glAcntV.coaAccount.accountType.name}"/>
+     </p:column>
+     <p:rowExpansion>
+      <p:panelGrid
+       layout="grid" columns="4"
+       columnClasses="ui-grid-col-1,ui-grid-col-1,ui-grid-col-1,ui-grid-col-1" >
+       <h:outputText value="#{formText.glAccountSort}"/>
+       <h:outputText value="#{glAcntV.sortOrder.name}"/>
+       <h:panelGroup />
+       <h:panelGroup />
+
+       <h:outputText value="#{formText.glAccountAnalysis1}" />
+       <h:outputText value="#{glAcntV.analysis1}"/>
+       <h:outputText value="#{formText.glAccountAnalysis2}"/>
+       <h:outputText value="#{glAcntV.analysis2}"/>
+
+       <h:outputText value="#{formText.glAccountVatCode}"/>
+       <h:outputText value="#{glAcntV.vatCode.vatCode.code}"/>
+       <h:panelGroup />
+       <h:panelGroup />
+       <h:outputText value="#{formText.glAccountActCat}"/>
+       <h:outputText value="#{glAcntV.repCategory}"/>
+       <h:panelGroup />
+       <h:panelGroup />
+      </p:panelGrid>
+
+     </p:rowExpansion>
+    </p:dataTable>
+
+    <p:contextMenu for="glAcntsTbl">
+     <p:menuitem value="edit" actionListener="#{glAccountFromChart.onAccountEditBtn}"/>
+    </p:contextMenu>
+   </h:form>
+
+   <h:form id="editFrm" >
+    <p:dialog id="editDlgId" dynamic="true" widgetVar="editDlgWv" 
+              responsive="true" resizable="true" minWidth="600">
+     <f:facet name="header">
+      <h:outputText value="#{formTextGl.glAcntEdit}"/>
+
+      <h:outputText id="comp" value="#{glAccountFromChart.compAccountSelected.coaAccount.ref}" />
+     </f:facet>
+
+     <p:tabView>
+      <p:tab >
+       <f:facet name="title">
+        <h:outputText value="#{formTextGl.glCompAcntgenFld}"/>
+       </f:facet>
+       <p:panelGrid layout="grid" columns="4" styleClass="ui-noborder"
+                    columnClasses="ui-grid-col-2,ui-grid-col-3,ui-grid-col-4,ui-grid-col-3,">
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete
+          id="sortOrd" value="#{glAccountFromChart.compAccountSelected.sortOrder}" var="sortV" dropdown="true"
+          itemValue="#{sortV}" itemLabel="#{sortV.name}" forceSelection="true"
+          converter="com.rationem.util.converter.SortOrder" required="true"
+          completeMethod="#{glAccountFromChart.onSortOrderComplete}"/>
+         <p:outputLabel for="sortOrd" value="#{formText.glAccountSort}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:autoComplete
+          id="vatCd" value="#{glAccountFromChart.compAccountSelected.vatCode}"
+          converter="com.rationem.util.converter.VatCodeCompany" var="vatCdV" itemValue="#{vatCdV}"
+          completeMethod="#{glAccountFromChart.onVatCodeCompComplete}"
+          itemLabel="#{vatCdV.vatCode.code}" dropdown="true"
+          emptyMessage="#{validationText.vatCodeNone}"/>
+         <p:outputLabel for="vatCd" value="#{formText.glAccountVatCode}"/>
+        </h:panelGroup>
+        <p:outputLabel for="noVat" value="#{formText.glAccountNoVat}"/>
+        <p:selectBooleanButton
+         id="noVat" offLabel="#{formText.no}" onLabel="#{formText.yes}"
+         value="#{glAccountFromChart.compAccountSelected.noVatAllowed}"/>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="anal1" value="#{glAccountFromChart.compAccountSelected.analysis1}"/>
+         <p:outputLabel for="anal1" value="#{formText.glAccountAnalysis1}"/>
+        </h:panelGroup>
+        <h:panelGroup class="md-inputfield">
+         <p:inputText id="anal2" value="#{glAccountFromChart.compAccountSelected.analysis2}"/>
+         <p:outputLabel for="anal2" value="#{formText.glAccountAnalysis2}"/>
+        </h:panelGroup>
+       </p:panelGrid>
+      </p:tab>
+      <p:tab>
+       <f:facet name="title">
+        <h:outputText value="#{formTextGl.glCompAcntBs}"/>
+       </f:facet>
+       <p:panelGrid styleClass="ui-noborder"
+                    layout="grid" columns="2" columnClasses="ui-grid-col-10,ui-grid-col-4">
+        <p:outputLabel for="clr" value="#{formText.glAccountClear}"/>
+        <p:selectBooleanButton
+         id="clr" value="#{glAccountFromChart.compAccountSelected.accountClearing}"
+         offLabel="#{formText.no}" onLabel="#{formText.yes}"/>
+        <h:outputText value="#{formTextGl.glCompAcntRecon}"/>
+        <h:outputText value="#{glAccountFromChart.accountBs.reconForLed.name}"
+                      rendered="#{glAccountFromChart.accountBs.reconForLed ne null}"/>
+        <h:outputText value="#{formTextGl.glCompAcntReconNone}"
+                      rendered="#{glAccountFromChart.accountBs.reconForLed.name eq null}"/>
+       </p:panelGrid>
+       <p:fieldset 
+        legend="#{formTextGl.glCompAcntBnkFS}" rendered="#{glAccountFromChart.accountBs.reconForLed}"
+        collapsed="true" toggleable="true"
+        >
+
+        <p:panelGrid  styleClass="ui-noborder"
+                      layout="grid" columns="2" columnClasses="ui-grid-col-6,ui-grid-col-6">
+
+         <h:panelGroup class="md-inputfield">
+          <p:autoComplete
+           id="clrBnkAc" var="bnkAcClr" itemValue="#{bnkAcClr}" dropdown="true"
+           value="#{glAccountFromChart.compAccountSelected.bankAccountCompanyCleared}"
+           converter="com.rationem.util.converter.BankAccountCompany"
+           completeMethod="#{glAccountFromChart.onBnkAccntCompRecComplete}"
+           itemLabel="#{bnkAcClr.accountRef}"/>
+          <p:outputLabel for="clrBnkAc" value="#{formText.glAccountBnkCleared}"/>
+         </h:panelGroup>
+         <h:panelGroup class="md-inputfield">
+          <p:autoComplete
+           id="unClrBnkAc" dropdown="true"
+           value="#{glAccountFromChart.compAccountSelected.bankAccountCompanyUncleared}"
+           converter="com.rationem.util.converter.BankAccountCompany" var="bnkAcClr" itemValue="#{bnkAcClr}"
+           completeMethod="#{glAccountFromChart.onBnkAccntCompRecComplete}"
+           itemLabel="#{bnkAcClr.accountRef}"/>
+          <p:outputLabel for="unClrBnkAc" value="#{formText.glAccountBnkCleared}"/>
+         </h:panelGroup>
+        </p:panelGrid>
+       </p:fieldset>
+
+      </p:tab>
+      <p:tab >
+       <f:facet name="title">
+        <h:outputText value="#{formTextGl.glCompAcntPl}"/>
+       </f:facet>
+       <p:panelGrid layout="grid" columns="2" styleClass="ui-noborder"
+                    columnClasses="ui-grid-col-5, ui-grid-col-3">
+        <h:panelGroup class="md-inputfield">
+        <p:inputText id="respPers" value="#{glAccountFromChart.compAccountSelected.personResponsible}"/>
+        <p:outputLabel for="respPers" value="#{formText.glAccountResp}"/>
+       </h:panelGroup>
+       <h:panelGroup />
+       </p:panelGrid>
+      </p:tab>
+
+     </p:tabView>
+     <p:panelGrid id="btnPg" columns="2" columnClasses="ui-grid-col-6, ui-grid-col-6"
+                  styleClass="ui-noborder">
+      <p:commandButton id="trfBtn" value="#{formText.transfer}" icon="fa fa-arrow-left"
+                       actionListener="#{glAccountFromChart.onCompAcntEditTrf}"/>
+      <p:commandButton id="clsBtn" value="#{formText.close}" onclick="PF('editDlgWv').hide();"
+                       icon="fa fa-close"/>
+
+     </p:panelGrid>
+    </p:dialog>
+   </h:form>
+  </div>
+ </ui:define>
+</ui:composition>

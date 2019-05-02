@@ -25,7 +25,7 @@
     <f:facet name="header">
      <h:outputText value="#{formText.restInitPw}"/>
     </f:facet>
-    <p:outputPanel autoUpdate="true">
+    <p:outputPanel  >
      <p:panelGrid columns="2" >
       <p:outputLabel for="pw1" value="#{formText.pw1}"/>
       <p:password id="pw1" value="#{authManBean.userChangedPass}" match="pw2" feedback="true"
@@ -35,7 +35,7 @@
      <p:commandButton value="#{formText.save}" actionListener="#{authManBean.onSaveInitPw}" 
                       action="#{authManBean.onLoginBtnAction}" ajax="true"/>
      </p:panelGrid>
-     <p:messages showDetail="true" showSummary="true" autoUpdate="true"/>
+     <p:messages showDetail="true" showSummary="true"  />
     </p:outputPanel>
    </p:dialog>
  </h:form>

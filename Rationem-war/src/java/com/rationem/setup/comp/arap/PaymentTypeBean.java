@@ -33,7 +33,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.event.AjaxBehaviorEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 
@@ -269,7 +269,7 @@ public class PaymentTypeBean extends BaseBean {
    retList = new ArrayList<>();
    if(glAcntMgr.getGlAccountsForBankUnclr(payType.getPayTypeForBankAccount()) == null){
     MessageUtil.addClientWarnMessage("payTypeCr:errMsg", "payTyUnClGL", "errorText");
-    RequestContext.getCurrentInstance().update("payTypeCr:errMsg");
+    PrimeFaces.current().ajax().update("payTypeCr:errMsg");
     return null;
    }
    for(FiGlAccountCompRec bnkGlAc : glAcntMgr.getGlAccountsForBankUnclr(payType.getPayTypeForBankAccount())){
@@ -405,14 +405,14 @@ public class PaymentTypeBean extends BaseBean {
    payType = arapSetup.updatePaymentType(payType,  getView());
    if(StringUtils.equals(getViewSimple(), "paymentTypeCreate")){
     MessageUtil.addClientInfoMessage("payTypeCr:successMsg", "payTyCreateOk", "blacResponse");
-    RequestContext.getCurrentInstance().update("payTypeCr:successMsg");
+    PrimeFaces.current().ajax().update("payTypeCr:successMsg");
    }else if (StringUtils.equals(getViewSimple(), "paymentTypeUpdate")){
     MessageUtil.addClientInfoMessage("payTypeUpdt:successMsg", "payTyUpdateOk", "blacResponse");
-    RequestContext.getCurrentInstance().update("payTypeUpdt:successMsg");
+    PrimeFaces.current().ajax().update("payTypeUpdt:successMsg");
   }
   }catch(BacException ex){
    MessageUtil.addClientErrorMessage("payTypeCr:errMsg", "payTyUpdateErr", "errorText");
-   RequestContext.getCurrentInstance().update("payTypeCr:errMsg");
+   PrimeFaces.current().ajax().update("payTypeCr:errMsg");
   }
  }
  

@@ -17,6 +17,10 @@ import java.util.List;
  * @author Chris
  */
 public class VatCodeRec implements Serializable {
+ 
+ public static final int VAT_ADDNL_CAT_NONE = 0;
+ public static final int VAT_ADDNL_CAT_EXEMPT = 1;
+ public static final int VAT_ADDNL_CAT_OUTSIDE = 2;
 
  private Long Id;
  private String code;
@@ -31,6 +35,7 @@ public class VatCodeRec implements Serializable {
   * E= Export
   * Space = EU Supply
   */
+ private int addnlCat;
  private char importExport; 
  private char taxType;
  private boolean vatRule;
@@ -188,6 +193,15 @@ public class VatCodeRec implements Serializable {
   this.vatCodeCompanies = vatCodeCompanies;
  }
 
+ public int getAddnlCat() {
+  return addnlCat;
+ }
+
+ public void setAddnlCat(int addnlCat) {
+  this.addnlCat = addnlCat;
+ }
+
+ 
  public char getTaxType() {
   return taxType;
  }

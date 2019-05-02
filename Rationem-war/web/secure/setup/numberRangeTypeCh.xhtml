@@ -34,20 +34,20 @@
      <h:outputText value="#{formText.numRngs}"/>
     </f:facet>
                     
-    <p:column sortBy="#{numRngTy.numRangeTypeCode}" width="150" 
-               filterBy="#{numRngTy.numRangeTypeCode}" filterMatchMode="contains"
+    <p:column sortBy="#{numRngTy.code}" width="150"
+              filterBy="#{numRngTy.code}" filterMatchMode="contains"
               >
      <f:facet name="header">
       <h:outputText value="#{formText.numRngTyCode}" />
      </f:facet>
-     <h:outputText value="#{numRngTy.numRangeTypeCode}"/>
+     <h:outputText value="#{numRngTy.code}"/>
     </p:column>
-    <p:column sortBy="#{numRngTy.numRangeTypeName}" 
-               filterBy="#{numRngTy.numRangeTypeName}" filterMatchMode="contains">
+    <p:column sortBy="#{numRngTy.name}"
+              filterBy="#{numRngTy.name}" filterMatchMode="contains">
      <f:facet name="header">
       <h:outputText value="#{formText.numRngTyDescr}" />
      </f:facet>
-     <h:outputText value="#{numRngTy.numRangeTypeName}"/>
+     <h:outputText value="#{numRngTy.name}"/>
     </p:column>
    </p:dataTable>
    <p:contextMenu for="numRngTyList">
@@ -73,14 +73,14 @@
      <f:facet name="header">
       <h:outputText value="#{pageTitle.cfg_numRngTypeEdit}"/>
       <p:spacer width="2"/>
-      <h:outputText value="#{numberRange.numRangeTypeSelected.numRangeTypeCode}"/>
+      <h:outputText value="#{numberRange.numRangeTypeSelected.code}"/>
      </f:facet>
      <h:panelGrid columns="2">
       <h:outputLabel for="edTyCode" value="#{formText.numRngTyCode}"/>
-      <h:outputText id="edTyCode" value="#{numberRange.numRangeTypeSelected.numRangeTypeCode}"
-                            title="#{formHelpText.numRngTyCode}"  />
+      <h:outputText id="edTyCode" value="#{numberRange.numRangeTypeSelected.code}"
+                    title="#{formHelpText.numRngTyCode}"  />
       <h:outputLabel for="edLdescr" value="#{formText.numRngTyDescr}"/>
-      <p:inputText id="edLdescr" value="#{numberRange.numRangeTypeSelected.numRangeTypeName}"
+      <p:inputText id="edLdescr" value="#{numberRange.numRangeTypeSelected.name}"
                    title="#{formHelpText.numRngTyDescr}" size="50" />
       
       <p:commandButton value="#{formText.save}" icon="fa fa-long-arrow-left"

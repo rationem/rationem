@@ -29,7 +29,7 @@ public class NumberRangeRec implements Serializable {
  private boolean autoNum = false;
  private NumberRangeRec nextNumRange;
  private NumberRangeRec priorNumRange;
- private NumberRangeTypeRec numberRangeForType;
+ private NumberRangeTypeRec numberRangeType;
 
 
 
@@ -151,12 +151,12 @@ public class NumberRangeRec implements Serializable {
   this.NumberControlId = NumberControlId;
  }
 
- public NumberRangeTypeRec getNumberRangeForType() {
-  return numberRangeForType;
+ public NumberRangeTypeRec getNumberRangeType() {
+  return numberRangeType;
  }
 
- public void setNumberRangeForType(NumberRangeTypeRec numberRangeForType) {
-  this.numberRangeForType = numberRangeForType;
+ public void setNumberRangeType(NumberRangeTypeRec numberRangeType) {
+  this.numberRangeType = numberRangeType;
  }
 
  

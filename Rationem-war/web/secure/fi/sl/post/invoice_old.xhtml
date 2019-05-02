@@ -10,9 +10,9 @@
  <ui:define name="title">#{pageTitle.siInvNew}</ui:define>
  <ui:define name="header">#{pageTitle.siInvNew} </ui:define>
  <ui:define name="content">
- <p:growl autoUpdate="true"/>
+ <p:growl  />
  <h:form id="salesInvoiceFrm" prependId="false">  
-  <p:growl autoUpdate="true" />
+  <p:growl   />
   <p:toolbar>
    <f:facet name="left">
     <p:commandButton id="newDocBtn" icon="ui-icon-document" value="#{formText.new}" 
@@ -385,7 +385,7 @@
       
       <p:dialog id="addLineDlg" header="#{formTextSl.docInvLineCr}" widgetVar="addLineDlgWv" modal="true"
                 dynamic="true" closable="false"     >
-       <p:growl autoUpdate="true" />
+       <p:growl   />
         <h:panelGrid id="addLineGrid" columns="2" >
          <p:outputPanel>
          <p:focus for="slPartCompCode"/>
@@ -496,7 +496,7 @@
     <h:form id="dispLnDlgFrm">
       <p:dialog id="dispLineDlg" header="#{formText.slInvLineDisp}" widgetVar="dispLineDlgWv" modal="true"
                 dynamic="true" width="500" resizable="false" closable="false"         showEffect="clip" hideEffect="fold"    >
-       <p:growl autoUpdate="true" />
+       <p:growl   />
         <h:panelGrid id="dispLineGrid" columns="2" >
          
          <p:outputLabel for="slPartCompCodeDisp" value="#{formText.slPartCode}"/>     
@@ -541,7 +541,7 @@
     <h:form id="editLnDlgFrm">
       <p:dialog id="editLineDlg" header="#{formText.slInvLineEdit}" widgetVar="editLineDlgWv" modal="true"
                 dynamic="true" width="500" resizable="false" closable="false"         showEffect="clip" hideEffect="fold"    >
-       <p:growl autoUpdate="true" />
+       <p:growl   />
         <h:panelGrid id="editLineGrid" columns="2" >
          
          <p:outputLabel for="slPartCompCodeEdit" value="#{formText.slPartCode}"/>

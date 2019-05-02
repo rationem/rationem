@@ -33,7 +33,7 @@ import javax.ejb.EJB;
 import java.util.logging.Logger;
 
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.RowEditEvent;
 
 
@@ -245,8 +245,8 @@ public class BudgetFund extends BaseBean {
    annualTotal = 0.0;
    budgetYears = null;
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("fundBudFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("fundBudFrm");
  }
  
  public void onBudPerValEdit(RowEditEvent evt){
@@ -257,8 +257,8 @@ public class BudgetFund extends BaseBean {
   {annualTotal,preEditAmnt,finalAmnt});
   annualTotal -= preEditAmnt;
   annualTotal += finalAmnt;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("annTotal");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("annTotal");
  }
  
  public void onBudPerValEditInit(RowEditEvent evt){
@@ -283,8 +283,8 @@ public class BudgetFund extends BaseBean {
    }else{
     curr.setPeriodBudgetAmount(finalPer);
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("budTblId");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("budTblId");
   }
   
  }
@@ -304,8 +304,8 @@ public class BudgetFund extends BaseBean {
   try{
    glAcntMgr.updateGlAcntFndBudgets(glAcntSel, getView());
    MessageUtil.addInfoMessage("restrFndBudUpdt", "blacResponse");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("fundBudFrm");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("fundBudFrm");
   }catch(Exception ex){
    logger.log(INFO, "could not save budget {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessage("budSaveNone", "errorText");
@@ -360,9 +360,9 @@ public class BudgetFund extends BaseBean {
   }
   budgetYears.add(budYearSel);
   annualTotal = 0.0;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("fundBudFrm");
-  rCtx.execute("PF('addFndYrWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("fundBudFrm");
+  pf.executeScript("PF('addFndYrWv').hide();");
  }
  
 }

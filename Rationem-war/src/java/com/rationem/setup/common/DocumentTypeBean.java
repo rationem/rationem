@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import javax.ejb.EJB;
 import javax.faces.component.UIInput;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -122,8 +122,8 @@ public class DocumentTypeBean extends BaseBean {
   docType = this.sysBuff.updateDocType(docType, getView());
   docType = null;
   MessageUtil.addInfoMessage("docTyCr", "blacResponse");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("docTypeCrFrm");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("docTypeCrFrm");
   }catch(Exception ex){
    logger.log(INFO, "Could not create doc type: {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessage("docTyCr", "errorText");
@@ -145,9 +145,9 @@ public class DocumentTypeBean extends BaseBean {
    docTypeSelected.setChangedOn(new Date());
    docTypeSelected = this.sysBuff.updateDocType(docTypeSelected, getView());
    MessageUtil.addWarnMessageParam("docTyUpdt", "blacResponse",docTypeSelected.getCode());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("docsTbl");
-   rCtx.execute("PF('editDocTyWv').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("docsTbl");
+   pf.executeScript("PF('editDocTyWv').hide()");
   }catch(Exception ex){
    logger.log(INFO, "Doc type update failed {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessage("docTyUpDt", "errorText");
@@ -157,9 +157,9 @@ public class DocumentTypeBean extends BaseBean {
  }
  
  public void onShowEditDlg(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editDocTyFrm");
-  rCtx.execute("PF('editDocTyWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editDocTyFrm");
+  pf.executeScript("PF('editDocTyWv').show()");
  }
  
 }

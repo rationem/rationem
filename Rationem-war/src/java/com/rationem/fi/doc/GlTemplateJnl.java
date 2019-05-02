@@ -48,7 +48,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleSelectEvent;
@@ -438,9 +438,9 @@ public class GlTemplateJnl extends DocCommon {
    DocLineFiTemplGlRec curr = lineLi.next();
    if(Objects.equals(curr.getId(), glLineSel.getId())){
     lineLi.remove();
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("linesOverview");
-    rCtx.execute("PF('delLnWv').hide()");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("linesOverview");
+    pf.executeScript("PF('delLnWv').hide()");
     
     return;
    }
@@ -456,8 +456,8 @@ public class GlTemplateJnl extends DocCommon {
   
   double amnt = Double.parseDouble(evt.getNewValue().toString());
   this.glLine.setHomeAmount(amnt);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addLnBtn");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addLnBtn");
   
  }
  
@@ -505,9 +505,9 @@ public class GlTemplateJnl extends DocCommon {
   logger.log(INFO, "onEditNewLnShow called with selected {0}", this.glLineSel);
   preEditAmount = glLineSel.getHomeAmount();
   preEditPostTy = glLineSel.getPostType();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editLnDlg");
-  rCtx.execute("PF('editLnDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editLnDlg");
+  pf.executeScript("PF('editLnDlgWv').show()");
  }
  
  public void onEditNewLnTrf(){
@@ -540,13 +540,13 @@ public class GlTemplateJnl extends DocCommon {
     found = true;
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   updates.add("linesOverview");
   updates.add("listtTotals");
   updates.add("savebtn");
-  rCtx.update(updates);
-  rCtx.execute("PF('editLnDlgWv').hide()");
+  pf.ajax().update(updates);
+  pf.executeScript("PF('editLnDlgWv').hide()");
   
  }
  public void onFreqSelect(ValueChangeEvent evt){
@@ -568,8 +568,8 @@ public class GlTemplateJnl extends DocCommon {
     break;
   }
   tmplJnl.setNextPostDate(cal.getTime());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("startDate");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("startDate");
  }
  
  public void onGlAcntChange(ValueChangeEvent evt){
@@ -577,11 +577,11 @@ public class GlTemplateJnl extends DocCommon {
   this.glLine.setGlAccount(curr);
   String sort = this.determineSortOrder(tmplJnl, glLine, curr, tmplJnl.getCompany().getLocale());
   glLine.setSortOrder(sort);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   updates.add("acntName");
   updates.add("lnSort");
-  rCtx.update(updates);
+  pf.ajax().update(updates);
  }
  
  public String onAccrPostFlow(FlowEvent evt){
@@ -594,8 +594,8 @@ public class GlTemplateJnl extends DocCommon {
    logger.log(INFO, "onAccrPostFlow accrList {0}", accrJnls);
    if(accrJnls == null || accrJnls.isEmpty()){
     MessageUtil.addWarnMessage("docAccrOpenNf", "errorText");
-   // RequestContext rCtx = RequestContext.getCurrentInstance();
-   // rCtx.update("accrNfMsg");
+   // PrimeFaces pf = PrimeFaces.current();
+   // pf.ajax().update("accrNfMsg");
     
     
    }
@@ -620,18 +620,18 @@ public class GlTemplateJnl extends DocCommon {
   }else{
    MessageUtil.addInfoMessage("accrPostUnSelAll", "blacResponse");
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   updates.add("selectGr");
   updates.add("pstAccrSelBtn");
-  rCtx.update(updates);
+  pf.ajax().update(updates);
  }
  
  public void onAccrualPostChecked(SelectEvent evt){
   logger.log(INFO, "onAccrualPostChecked called with selected {0}", evt.getObject());
   logger.log(INFO, "Selected {0}", this.accrualsSelected);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("pstAccrSelBtn");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("pstAccrSelBtn");
   
   
  }
@@ -639,8 +639,8 @@ public class GlTemplateJnl extends DocCommon {
  public void onAccualPostUnchecked(UnselectEvent evt){
   logger.log(INFO, "onAccrualPostUnchecked called with selected {0}", evt.getObject());
   logger.log(INFO, "Selected {0}", this.accrualsSelected); 
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("pstAccrSelBtn");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("pstAccrSelBtn");
   
  }
  public void onAddLineBtn(){
@@ -669,18 +669,18 @@ public class GlTemplateJnl extends DocCommon {
   glLine.setGlAccount(glAcnts.get(0));
   String Sort = determineSortOrder(tmplJnl, glLine, glLine.getGlAccount(), tmplJnl.getCompany().getLocale());
   glLine.setSortOrder(Sort);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   updates.add("linePg");
   updates.add("docTotalsPG");
-  rCtx.update(updates);
+  pf.ajax().update(updates);
  }
  
  public void onPostDateSelect(SelectEvent evt){
   Date pstDate = (Date)evt.getObject();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("period");
-  rCtx.update("fisYr");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("period");
+  pf.ajax().update("fisYr");
   GregorianCalendar cal = (GregorianCalendar)GregorianCalendar.getInstance();
    cal.setTime(pstDate);
    logger.log(INFO, "tmpJnlTyp {0}", tmpJnlTyp);
@@ -688,7 +688,7 @@ public class GlTemplateJnl extends DocCommon {
    case "REV":
     cal.add(GregorianCalendar.MONTH, 1);
     tmplJnl.setNextPostDate(cal.getTime());
-    rCtx.update("tmpHdrPnl");
+    pf.ajax().update("tmpHdrPnl");
     break;
    case "REC":
     tmplJnl.setNumRecur(1);
@@ -716,7 +716,7 @@ public class GlTemplateJnl extends DocCommon {
      }
      logger.log(INFO, "cal {0}", cal.getTime());
      tmplJnl.setNextPostDate(cal.getTime());
-    rCtx.update("tmpHdrPnl");
+    pf.ajax().update("tmpHdrPnl");
     break;
   }
  }
@@ -735,10 +735,10 @@ public class GlTemplateJnl extends DocCommon {
  }
  public void onSaveNewTemplJnl(){
   logger.log(INFO, "onSaveNewTemplJnl called with {0}", this.tmplJnl);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(this.glLines == null || glLines.isEmpty()){
    MessageUtil.addErrorMessage("docNoLines", "errorText");
-   rCtx.update("overviewMsg");
+   pf.ajax().update("overviewMsg");
    return;
   }
   
@@ -789,7 +789,7 @@ public class GlTemplateJnl extends DocCommon {
     if(curr.getAmount() != 0){
      fundBal = true;
      MessageUtil.addErrorMessageParam1("docFndBal", "errorText", curr.getFund().getName());
-     rCtx.update("overviewMsg");
+     pf.ajax().update("overviewMsg");
      
     }
    }
@@ -882,8 +882,8 @@ public class GlTemplateJnl extends DocCommon {
     logger.log(INFO, "next posting {0}", tmplJnl.getNextPostDate());
     break;
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("tmpHdrPnl");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("tmpHdrPnl");
  }
  
  public void validateDocAmount(FacesContext c, UIComponent uiComp, Object val){
@@ -894,10 +894,10 @@ public class GlTemplateJnl extends DocCommon {
    
    glLine.setHomeAmount(0);
    MessageUtil.addWarnMessage("fiDocAmntNeg", "validationText");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("lnAmnt");
-   rCtx.update("addLnBtn");
-   rCtx.update("linGr");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("lnAmnt");
+   pf.ajax().update("addLnBtn");
+   pf.ajax().update("linGr");
    ((UIInput)uiComp).setValid(false);
   }else{
    ((UIInput)uiComp).setValid(true);
@@ -917,7 +917,7 @@ public class GlTemplateJnl extends DocCommon {
    openPeriods = accrualSelOpt.getComp().getCompanyPostingPeriods();
   }
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<String> updates = new ArrayList<>();
   for(CompPostPerRec openPer: openPeriods){
    if (openPer.getLedger().getCode().equals("GL")){
@@ -925,7 +925,7 @@ public class GlTemplateJnl extends DocCommon {
      ((UIInput)uiComp).setValid(true);
      updates.add("pstDate");
      updates.add("msgs");
-     rCtx.update(updates);
+     pf.ajax().update(updates);
      return;
     }
    }
@@ -938,7 +938,7 @@ public class GlTemplateJnl extends DocCommon {
   
   updates.add("pstDate");
   updates.add("msgs");
-  rCtx.update(updates);
+  pf.ajax().update(updates);
   
   
  }
@@ -975,24 +975,24 @@ public class GlTemplateJnl extends DocCommon {
      tmplJnl.setFisPeriod(fisPer.getPeriod());
      logger.log(INFO, "found valid period");
      ((UIInput)uiComp).setValid(true);
-     RequestContext rCtx = RequestContext.getCurrentInstance();
+     PrimeFaces pf = PrimeFaces.current();
      List<String> toUpdate = new ArrayList<>();
      toUpdate.add("period");
      toUpdate.add("fisYr");
-     rCtx.update("messages");
-     rCtx.update(toUpdate);
+     pf.ajax().update("messages");
+     pf.ajax().update(toUpdate);
      return;
     }
    }
   }
   // if we get here then not valid
   logger.log(INFO, "Period not valid");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   MessageUtil.addErrorMessage("fiDocPerNotOpen", "validationText");
   
   tmplJnl.setPostingDate(null);
-  rCtx.update("messages");
-  rCtx.update("postDate");
+  pf.ajax().update("messages");
+  pf.ajax().update("postDate");
   ((UIInput)uiComp).setValid(false);
  }
 

@@ -5,26 +5,19 @@
 package com.rationem.entity.salesTax.vat;
 
 import java.io.Serializable;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import com.rationem.entity.fi.company.CompanyBasic;
 import com.rationem.entity.user.User;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
-import java.util.Collection;
 import javax.persistence.NamedQuery;
 import javax.persistence.NamedQueries;
-import javax.persistence.TableGenerator;
 import javax.persistence.Column;
 import javax.persistence.Temporal;
 
@@ -90,6 +83,8 @@ public class VatCode implements Serializable {
  @Temporal(DATE)
  @Column(name="valid_to")
  private Date validTo;
+ @Column(name="additional_category")
+ private int addnlCat;
  
  @OneToMany(mappedBy = "vatCode")
  private List<VatCodeCompany> vatCodeComps;
@@ -119,6 +114,15 @@ public class VatCode implements Serializable {
   this.id = id;
  }
 
+ public int getAddnlCat() {
+  return addnlCat;
+ }
+
+ public void setAddnlCat(int addnlCat) {
+  this.addnlCat = addnlCat;
+ }
+
+ 
  public String getCode() {
   return code;
  }
@@ -278,10 +282,7 @@ public class VatCode implements Serializable {
    return false;
   }
   VatCode other = (VatCode) object;
-  if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-   return false;
-  }
-  return true;
+  return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
  }
 
  @Override

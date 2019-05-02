@@ -14,8 +14,8 @@
   <p:outputPanel id="stepOp">
   <div class="card card-w-title" >
    <h1>#{apDayBookBean.stepName}</h1>
-   <p:messages id="errMsg" autoUpdate="true" severity="warn, error" closable="true"/>
-   <p:growl id="okMsg"  autoUpdate="true" severity="info"/>
+   <p:messages id="errMsg"   severity="warn, error" closable="true"/>
+   <p:growl id="okMsg"    severity="info"/>
    <p:panelGrid id="selPg" columns="3" columnClasses="ui-grid-col-2,ui-grid-col-2,ui-grid-col-2" 
                 styleClass="ui-noborder" layout="grid" rendered="#{apDayBookBean.step eq 0}" >
     <p:outputLabel for="comp" value="#{formText.comp}"/>

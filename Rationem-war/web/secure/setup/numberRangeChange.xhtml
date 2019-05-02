@@ -8,112 +8,151 @@
  <ui:define name="title">#{formText.numRngEdTitle}</ui:define>
   <ui:define name="header"> </ui:define>
   <ui:define name="content">
-   <h:form id="listFrm" prependId="false">
-    
-    <p:contextMenu for="numRngList">
-     <p:menuitem value="#{formText.edit}" actionListener="#{numberRange.onEditNumDlg}"/>
-     <p:menuitem value="#{formText.delete}" actionListener="#{numberRange.onDeleteDlg}" />
-    </p:contextMenu>
-    <p:dataTable id="numRngList" value="#{numberRange.numberControlList}"
-                               var="numCntrl"
-                               selection="#{numberRange.selectNumberControl}"
-                               selectionMode="single" sortBy="#{numCntrl.shortDescr}"
-                               emptyMessage="#{formText.numRngNone}"
-                               filteredValue="#{numberRange.numberControlsFiltered}"
-                               rowKey="#{numCntrl.numberControlId}" paginator="true"
-                               paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
-                               rows="#{numberRange.usrBuff.tblRows}"   >
-     <f:facet name="{Exporters}">
-      <h:commandLink style="float:right;" >
+   <div class="ui-fluid">
+    <h:form id="listFrm" >
+     <p:messages id="msgs" closable="true"/>
+
+     <p:dataTable
+      id="numRngList" value="#{numberRange.numberControlList}" var="numCntrl"
+      selection="#{numberRange.selectNumberControl}" emptyMessage="#{formText.numRngNone}"
+      selectionMode="single" sortBy="#{numCntrl.shortDescr}" reflow="true"
+      rowKey="#{numCntrl.numberControlId}" paginator="true"
+      rows="#{numberRange.usrBuff.tblRows}"
+      filteredValue="#{numberRange.numberControlsFiltered}"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+      >
+      <p:ajax event="contextMenu" />
+      <f:facet name="{Exporters}">
+       <h:commandLink style="float:right;" >
         <p:graphicImage name="/images/Excel-48.gif" width="24"/>
         <p:dataExporter type="xls" target="numRngList" fileName="#{formText.numRng_Fn}" 
                         postProcessor="#{numberRange.postProcessXLS}" />
-      </h:commandLink>
-      <h:commandLink style="float:right;">
+       </h:commandLink>
+       <h:commandLink style="float:right;">
         <p:graphicImage name="/images/csv_text.png" width="24"/>
         <p:dataExporter type="csv" target="numRngList" fileName="#{formText.numRng_Fn}" />
-      </h:commandLink>
-    </f:facet>
-     <f:facet name="header">
-      <h:outputText value="#{formText.numRngs}"/>
-     </f:facet>
-                    
-     <p:column sortBy="#{numCntrl.shortDescr}" width="100" filterBy="#{numCntrl.shortDescr}" filterMatchMode="contains">
-      <f:facet name="header">
-       <h:outputText value="#{formText.numRngSdescr}" />
+       </h:commandLink>
       </f:facet>
-      <h:outputText value="#{numCntrl.shortDescr}"/>
-     </p:column>
-     <p:column sortBy="#{numCntrl.longDescr}" filterBy="#{numCntrl.shortDescr}" filterMatchMode="contains">
       <f:facet name="header">
-       <h:outputText value="#{formText.numRngLdescr}" />
+       <h:outputText value="#{formText.numRngs}"/>
       </f:facet>
-      <h:outputText value="#{numCntrl.longDescr}"/>
-     </p:column>
-     <p:column sortBy="#{numCntrl.module.moduleCode}" width="90" >
-      <f:facet name="header">
-       <h:outputText value="#{formText.numRngModule}" />
-      </f:facet>
-      <h:outputText value="#{numCntrl.module.moduleCode}"/>
-     </p:column>
-     <p:column sortBy="#{numCntrl.fromNum}" width="110" filterBy="#{numCntrl.fromNum}" filterMatchMode="gte" 
-               filterFunction="#{numberRange.onFilterByRngNum}">
-      <f:facet name="header">
-       <h:outputText value="#{formText.numRngFrNum}" />
-      </f:facet>
-      <h:outputText value="#{numCntrl.fromNum}">
-       <f:convertNumber integerOnly="true" groupingUsed="false"/>
-      </h:outputText>
-     </p:column>
-     <p:column sortBy="#{numCntrl.toNum}" width="100" filterBy="#{numCntrl.toNum}" filterMatchMode="gte" 
-               filterFunction="#{numberRange.onFilterByRngNum}">
-      <f:facet name="header">
-       <h:outputText value="#{formText.numRngEndNum}"  />
-      </f:facet>
-      <h:outputText value="#{numCntrl.toNum}">
-       <f:convertNumber integerOnly="true" groupingUsed="false"/>
-      </h:outputText>
-     </p:column>
-     
-    </p:dataTable>
-    
 
-    <p:confirmDialog id="delRngConfDlg" widgetVar="delRngConfWv" 
-                     message="#{formText.numRngDelMsg}"
+      <p:column sortBy="#{numCntrl.shortDescr}" width="150" filterBy="#{numCntrl.shortDescr}" filterMatchMode="contains">
+       <f:facet name="header">
+        <h:outputText value="#{formText.numRngSdescr}" />
+       </f:facet>
+       <h:outputText value="#{numCntrl.shortDescr}"/>
+      </p:column>
+      <p:column sortBy="#{numCntrl.longDescr}" filterBy="#{numCntrl.shortDescr}" filterMatchMode="contains">
+       <f:facet name="header">
+        <h:outputText value="#{formText.numRngLdescr}" />
+       </f:facet>
+       <h:outputText value="#{numCntrl.longDescr}"/>
+      </p:column>
+      <p:column sortBy="#{numCntrl.numberRangeType.name}" width="90" >
+       <f:facet name="header">
+        <h:outputText value="#{formText.numRngFor}" />
+       </f:facet>
+       <h:outputText value="#{numCntrl.numberRangeType.name}"/>
+      </p:column>
+      <p:column sortBy="#{numCntrl.module.moduleCode}" width="90" >
+       <f:facet name="header">
+        <h:outputText value="#{formText.numRngModule}" />
+       </f:facet>
+       <h:outputText value="#{numCntrl.module.moduleCode}"/>
+      </p:column>
+      <p:column sortBy="#{numCntrl.fromNum}" width="110" filterBy="#{numCntrl.fromNum}" filterMatchMode="gte"
+                filterFunction="#{numberRange.onFilterByRngNum}">
+       <f:facet name="header">
+        <h:outputText value="#{formText.numRngFrNum}" />
+       </f:facet>
+       <h:outputText value="#{numCntrl.fromNum}">
+        <f:convertNumber integerOnly="true" groupingUsed="false"/>
+       </h:outputText>
+      </p:column>
+      <p:column sortBy="#{numCntrl.toNum}" width="100" filterBy="#{numCntrl.toNum}" filterMatchMode="gte"
+                filterFunction="#{numberRange.onFilterByRngNum}">
+       <f:facet name="header">
+        <h:outputText value="#{formText.numRngEndNum}"  />
+       </f:facet>
+       <h:outputText value="#{numCntrl.toNum}">
+        <f:convertNumber integerOnly="true" groupingUsed="false"/>
+       </h:outputText>
+      </p:column>
+     </p:dataTable>
+     <p:contextMenu for="numRngList">
+      <p:menuitem value="#{formText.edit}" actionListener="#{numberRange.onEditNumDlg}"/>
+      <p:menuitem value="#{formText.delete}" actionListener="#{numberRange.onDeleteDlg}" />
+     </p:contextMenu>
+    </h:form >
+    <h:form id="delFrm">
+      <p:confirmDialog id="delRngConfDlg" widgetVar="delRngConfWv" 
+                       message="#{formText.numRngDelMsg}"
                             header="#{pageTitle.cfg_numRngDelDlg}">
-     <p:commandButton id="delNumRngCBY" value="#{formText.yes}" 
-                             actionListener="#{numberRange.onDeleteAction}"  />
-     <p:commandButton id="delNumRngCBN" value="#{formText.no}" 
-                             type="button"
+      <p:commandButton id="delNumRngCBY" value="#{formText.yes}"
+                       actionListener="#{numberRange.onDeleteAction}"  />
+      <p:commandButton id="delNumRngCBN" value="#{formText.no}"
+                       type="button"
                              oncomplete="delRngConfWv.hide()"/>
-    </p:confirmDialog>
-    
-    <p:dialog id="editNumRngId" widgetVar="editNumRngWVar" modal="true"
-              header="#{pageTitle.cfg_numRngEdit}" 
-                      >
-     <h:panelGrid columns="2">
-      <h:outputLabel for="edSdescr" value="#{formText.numRngSdescr}"/>
-      <h:outputText id="edSdescr" value="#{numberRange.selectNumberControl.shortDescr}"
-                            title="#{formHelpText.numRngSdescr}"  />
-      <h:outputLabel for="edLdescr" value="#{formText.numRngLdescr}"/>
-      <p:inputText id="edLdescr" value="#{numberRange.selectNumberControl.longDescr}"
-                            title="#{formHelpText.numRngLdescr}" />
-      <h:outputLabel for="edModule" value="#{formText.numRngModule}"/>
-      <h:outputText id="edModule" value="#{numberRange.selectNumberControl.module.moduleCode}"/>
-      <p:outputLabel for="edStartNum" value="#{formText.numRngFrNum}"/>
-      <p:inputText id="edStartNum" value="#{numberRange.selectNumberControl.fromNum}" 
-                             title="#{formHelpText.numRngFrNum}" required="true"/>
-      <p:outputLabel for="edEndNum" value="#{formText.numRngEndNum}" />
-      <p:inputText id="edEndNum" value="#{numberRange.selectNumberControl.toNum}" 
-                             title="#{formHelpText.numRngEndNum}" required="true"/>
-      <p:outputLabel for="edAutoNum" value="#{formText.numRngAuto}"/>
-      <p:selectBooleanCheckbox id="edAutoNum" 
-                                         value="#{numberRange.selectNumberControl.autoNum}" />
-      <p:commandButton value="#{formText.save}" icon="ui-icon-check"
-                                 actionListener="#{numberRange.onEditSaveAction}"  />
-   </h:panelGrid>
-  </p:dialog>
- </h:form>
-
- </ui:define>
+     </p:confirmDialog>
+    </h:form>
+    <h:form id="edit">
+     <p:dialog id="editNumRngId" widgetVar="editNumRngWVar" modal="true" dynamic="true"
+               header="#{pageTitle.cfg_numRngEdit}" responsive="true"
+               >
+      <p:messages id="msgs" closable="true"/>
+      <p:panelGrid columns="1" columnClasses="ui-grid-col-9" styleClass="ui-noborder"
+                   layout="grid">
+       <h:panelGroup class="md-inputfield">
+        <p:inputText id="edSdescr" value="#{numberRange.selectNumberControl.shortDescr}"
+                     title="#{formHelpText.numRngSdescr}"  />
+        <h:outputLabel for="edSdescr" value="#{formText.numRngSdescr}"/>
+       </h:panelGroup>
+       <h:panelGroup class="md-inputfield">
+        <p:inputText id="edLdescr" value="#{numberRange.selectNumberControl.longDescr}"
+                     title="#{formHelpText.numRngLdescr}" />
+        <h:outputLabel for="edLdescr" value="#{formText.numRngLdescr}"/>
+       </h:panelGroup>
+       <h:panelGroup class="md-inputfield">
+        <p:autoComplete
+         id="nrTy" value="#{numberRange.selectNumberControl.numberRangeType}" var="nrTypeV"
+         completeMethod="#{numberRange.onNumRngTypeComplete}" itemValue="#{nrTypeV}" dropdown="true"
+         converter="com.rationem.util.converter.NumberRangeType" itemLabel="#{nrTypeV.name}"
+         emptyMessage="#{validationText.numRandTypeNf}"/>
+        <h:outputLabel for="nrTy" value="#{formText.numRngFor}"/>
+       </h:panelGroup>
+       <h:panelGroup class="md-inputfield">
+        <p:autoComplete 
+         id="module" value="#{numberRange.selectNumberControl.module}" var="modV"
+         completeMethod="#{numberRange.onModuleComplete}" itemValue="#{modV}" dropdown="true"
+         converter="com.rationem.util.converter.Module" itemLabel="#{modV.moduleCode}"
+         emptyMessage="#{validationText.moduleNf}"/>
+        <h:outputLabel for="module" value="#{formText.numRngModule}"/>
+       </h:panelGroup>
+       <h:panelGroup class="md-inputfield">
+        <p:inputText id="edStartNum" value="#{numberRange.selectNumberControl.fromNum}"
+                     title="#{formHelpText.numRngFrNum}" required="true"/>
+        <p:outputLabel for="edStartNum" value="#{formText.numRngFrNum}"/>
+       </h:panelGroup>
+       <h:panelGroup class="md-inputfield">
+        <p:inputText id="edEndNum" value="#{numberRange.selectNumberControl.toNum}"
+                     title="#{formHelpText.numRngEndNum}" required="true"/>
+        <p:outputLabel for="edEndNum" value="#{formText.numRngEndNum}" />
+       </h:panelGroup>
+      </p:panelGrid>
+      <p:panelGrid
+       layout="grid" columns="2" columnClasses="ui-grid-col-6,ui-grid-col-6"
+       styleClass="ui-noborder">
+       <p:outputLabel for="edAutoNum" value="#{formText.numRngAuto}"/>
+       <p:selectBooleanCheckbox id="edAutoNum"
+                                value="#{numberRange.selectNumberControl.autoNum}" />
+       <p:commandButton value="#{formText.save}" icon="fa fa-save"
+                        actionListener="#{numberRange.onEditSaveAction}"  />
+       <p:commandButton value="#{formText.close}" icon="trash"
+                        onclick="PF('editNumRngWVar').hide()"  />
+      </p:panelGrid>
+     </p:dialog>
+    </h:form>
+   </div>
+  </ui:define>
 </ui:composition>

@@ -11,9 +11,9 @@
  <ui:define name="title">#{pageTitle.siInvNew}</ui:define>
  <ui:define name="header">#{pageTitle.siInvNew} </ui:define>
  <ui:define name="content">
- <p:growl autoUpdate="true"/>
+ <p:growl  />
  <h:form id="salesInvoiceFrm" prependId="false">  
-  <p:growl autoUpdate="true" />
+  <p:growl   />
   <p:toolbar>
    <f:facet name="left">
     <p:commandButton id="newDocBtn" icon="ui-icon-document" value="#{formText.new}" 
@@ -343,7 +343,7 @@
   <p:dialog id="addLineDlg" header="#{formTextSl.docInvLineCr}"  widgetVar="addLineDlgWv" modal="true"
                 dynamic="true" closable="false"     >
    
-       <p:growl autoUpdate="true" />
+       <p:growl   />
         <h:panelGrid id="addLineGrid" columns="2" >
          <p:outputPanel>
          <p:focus for="slPartCompCode"/>

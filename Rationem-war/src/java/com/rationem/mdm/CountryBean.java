@@ -15,7 +15,7 @@ import java.util.ListIterator;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import java.util.logging.Logger;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 import static java.util.logging.Level.INFO;
@@ -83,8 +83,8 @@ public class CountryBean extends BaseBean {
  
  public void onAddCountry(){
   country = new CountryRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('addCntryDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('addCntryDlgWv').show()");
   
  }
  
@@ -102,11 +102,11 @@ public class CountryBean extends BaseBean {
    countries = new ArrayList<CountryRec>();
   }
   countries.add(country);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   country = new CountryRec();
-  rCtx.update("countriesTbl");
-  rCtx.update("newCntryFrm");
-  rCtx.execute("PF('addCntryDlgWv').hide()");
+  pf.ajax().update("countriesTbl");
+  pf.ajax().update("newCntryFrm");
+  pf.executeScript("PF('addCntryDlgWv').hide()");
  }
  
  public void onSaveEdit(){
@@ -122,11 +122,11 @@ public class CountryBean extends BaseBean {
    if(cntry.getId() == countrySelected.getId()){
     li.set(countrySelected);
     foundCntry = true;
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
     countrySelected = null;
-    rCtx.update("countriesTbl");
-    rCtx.update("editCntryFrm");
-    rCtx.execute("PF('editCntryDlgWv').hide()");
+    pf.ajax().update("countriesTbl");
+    pf.ajax().update("editCntryFrm");
+    pf.executeScript("PF('editCntryDlgWv').hide()");
    }
   }
   }catch(Exception ex){
@@ -137,49 +137,49 @@ public class CountryBean extends BaseBean {
  }
  public void onCloseCountryDlg(){
   country = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("newCntryFrm");
-  rCtx.reset("newCntryFrm");
-  rCtx.execute("PF('addCntryDlgWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("newCntryFrm");
+  pf.resetInputs("newCntryFrm");
+  pf.executeScript("PF('addCntryDlgWv').hide()");
  }
  
  public void onCloseEditDlg(){
   countrySelected = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editCntryFrm");
-  rCtx.execute("PF('editCntryDlgWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editCntryFrm");
+  pf.executeScript("PF('editCntryDlgWv').hide()");
  }
  
  public void onCountryEdit(){
   logger.log(INFO, "selected {0}", this.countrySelected);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editCntryFrm");
-  rCtx.execute("PF('editCntryDlgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editCntryFrm");
+  pf.executeScript("PF('editCntryDlgWv').show()");
   
  }
  public void onCountrySelect(SelectEvent evt){
   logger.log(INFO, "Selected country {0}", evt.getObject());
   this.countrySelected = (CountryRec)evt.getObject();
   logger.log(INFO, "Selected country {0}", evt.getObject());
-  //RequestContext rCtx = RequestContext.getCurrentInstance();
-  //rCtx.update("editCntryFrm");
-  //rCtx.execute("PF('editCntryDlgWv').show()");
+  //PrimeFaces pf = PrimeFaces.current();
+  //pf.ajax().update("editCntryFrm");
+  //pf.executeScript("PF('editCntryDlgWv').show()");
   
  }
  
  public void onDepenNewChange(ValueChangeEvent evt){
   if((Boolean)evt.getNewValue()){
    country.getDependency();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("cDep");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("cDep");
   }
  }
  public void onDepenEditChange(ValueChangeEvent evt){
   logger.log(INFO, "editcDep new {0} ", evt.getNewValue());
   if((Boolean)evt.getNewValue()){
    countrySelected.getDependency();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("editcDep");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("editcDep");
   }
  }
 }

@@ -22,15 +22,15 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
  * @author Chris
  */
 public class BacsTransCodeBean extends BaseBean {
- private static final Logger LOGGER =
-            Logger.getLogger("accounts.fi.tr.BacsTransCodeBean");
+ private static final Logger LOGGER = 
+            Logger.getLogger(BacsTransCodeBean.class.getName());
  @EJB
  private SysBuffer sysBuff;
  
@@ -133,9 +133,9 @@ public class BacsTransCodeBean extends BaseBean {
    }
   }
   if(found){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("bacsCdLst:codeList");
-   rCtx.execute("PF('editTranCdDlg').hide();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("bacsCdLst:codeList");
+   pf.executeScript("PF('editTranCdDlg').hide();");
   }
  }
  
@@ -158,7 +158,7 @@ public class BacsTransCodeBean extends BaseBean {
     }
    }
    if(found){
-    RequestContext.getCurrentInstance().update("bacsCdLst:codeList");
+    PrimeFaces.current().ajax().update("bacsCdLst:codeList");
     MessageUtil.addInfoMessageVar1("trBacsTransCdDel", "blacResponse", bacsTransCodeSel.getPtnrBnkTransCode());
    }else{
     MessageUtil.addErrorMessageParam1("bacsTransCodeDel", "errorText", bacsTransCodeSel.getPtnrBnkTransCode());

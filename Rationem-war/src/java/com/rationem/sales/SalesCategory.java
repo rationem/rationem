@@ -22,7 +22,7 @@ import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
@@ -163,9 +163,9 @@ public class SalesCategory extends BaseBean {
    cat.setCreatedOn(new Date());
    cat = salesMgr.addSalesCategory(cat,getViewSimple());
    MessageUtil.addInfoMessageVar1("slCatAdded", "blacResponse", cat.getCode());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    cat = null;
-   rCtx.update("salesCatCrFrm");
+   pf.ajax().update("salesCatCrFrm");
   }catch(BacException ex){
    MessageUtil.addErrorMessage("slCatAdd", "errorText");
   }
@@ -191,9 +191,9 @@ public class SalesCategory extends BaseBean {
    }
    assignedSubCategories = cat.getSubCategories();
    this.subCategories = new DualListModel<>(unAllocatedCategories, assignedSubCategories);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("assignSubCatFrm");
-   rCtx.execute("PF('assignSubCatDlgWv').show();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("assignSubCatFrm");
+   pf.executeScript("PF('assignSubCatDlgWv').show();");
   }
   
  }
@@ -226,7 +226,7 @@ public class SalesCategory extends BaseBean {
   
   }
   cat.setSubCategories(assignedSubCategories);
-  RequestContext.getCurrentInstance().update("subCatTbl");
+  PrimeFaces.current().ajax().update("subCatTbl");
   
  }
  
@@ -279,9 +279,9 @@ public class SalesCategory extends BaseBean {
   }
   
   if(foundCat){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("subCatTbl");
-   rCtx.execute("PF('remSubCatWv').hide();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("subCatTbl");
+   pf.executeScript("PF('remSubCatWv').hide();");
   }else{
    MessageUtil.addWarnMessage("slCatRem", "errorText");
   }

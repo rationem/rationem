@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
@@ -88,7 +88,7 @@ public class GlPeriodUpdtBean extends BaseBean {
  public void onTransfPostPer(){
   
   boolean found = false;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   ListIterator<CompPostPerRec> li = postPeriods.listIterator();
   while(li.hasNext() && !found){
    CompPostPerRec curr = li.next();
@@ -100,17 +100,17 @@ public class GlPeriodUpdtBean extends BaseBean {
      continue;
     }
     li.set(postPeriodSel);
-    rCtx.update("glPerOpenClose:postPeriodTbl");
+    pf.ajax().update("glPerOpenClose:postPeriodTbl");
     found = true;
     
    }
   }
   
   if(found){
-   rCtx.execute("PF('editDlgWv').hide();");
+   pf.executeScript("PF('editDlgWv').hide();");
   }else{
    MessageUtil.addClientWarnMessage("postPerEdFrm:dlgErrMsg", "glPostPerUpdtNo", "validationText");
-   rCtx.update("postPerEdFrm:dlgErrMsg");
+   pf.ajax().update("postPerEdFrm:dlgErrMsg");
   }
  }
  

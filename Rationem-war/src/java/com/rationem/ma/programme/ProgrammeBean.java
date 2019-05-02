@@ -25,7 +25,7 @@ import com.rationem.util.MessageUtil;
 import java.util.GregorianCalendar;
 import javax.annotation.PostConstruct;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -153,24 +153,24 @@ public class ProgrammeBean extends BaseBean {
  public void onProgSelect(SelectEvent evt){
   logger.log(INFO, "onProgSelect called with {0}", evt.getObject());
   this.programme = (ProgrammeRec)evt.getObject();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("programmeUpdt");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("programmeUpdt");
   
  }
  public void onAddRespPersDlg(){
   logger.log(INFO, "onAddRespPersDlg called");
   respPerson = new PartnerPersonRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addRespPersDlg");
-  rCtx.execute("PF('crPersDlg').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addRespPersDlg");
+  pf.executeScript("PF('crPersDlg').show()");
  }
  
  
  public void onCompanyChange(ValueChangeEvent evt){
   compSelected = (CompanyBasicRec)evt.getNewValue();
   programmes = this.programmeMgr.getAllProgrammes(compSelected);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("prgTbl");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("prgTbl");
  }
  public void onSaveNewProgramme(){
   logger.log(INFO, "onSaveNewProgramme called");
@@ -203,9 +203,9 @@ public class ProgrammeBean extends BaseBean {
     respPerson.setId(id);
     programme.setResponsibilityOf(respPerson);
     MessageUtil.addInfoMessage("ptnrIndivCr", "blacResponse");
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("resp");
-    rCtx.execute("PF('crPersDlg').hide()");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("resp");
+    pf.executeScript("PF('crPersDlg').hide()");
    }
    
   }catch(BacException ex){

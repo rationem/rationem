@@ -9,12 +9,11 @@
   <h:outputText value="#{pageTitle.cfg_procCodeUpdt}" styleClass="panelHeader" /> 
  </ui:define>
  <ui:define name="content">
-  <h:form id="procCodeUpdtFrm" prependId="false" >
-   <p:contextMenu for="prCodeTbl">
-    <p:menuitem icon="ui-icon-pencil" value="#{formText.edit}" actionListener="#{processCodeBean.onEditDlg}"/>
-   </p:contextMenu>
+  <div class="ui-fluid">
+   <h:form id="procCodeUpdtFrm"  >
+
    <p:dataTable id="prCodeTbl" value="#{processCodeBean.processCodes}" paginator="true" 
-                var="procCodeV" rowKey="#{procCodeV.id}"
+                var="procCodeV" rowKey="#{procCodeV.id}" reflow="true"
                 selection="#{processCodeBean.processCodeSel}" selectionMode="single" 
                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
                 sortBy="#{procCodeV.name}" rows="#{processCodeBean.usrBuff.tblRows}" >
@@ -32,33 +31,40 @@
     <f:facet name="header">
      <h:outputText value="#{formText.procCd_codes}" />
     </f:facet>
-    <p:column width="100" >
+    <p:column width="200" sortBy="#{procCodeV.name}" >
      <f:facet name="header" >
       <h:outputText value="#{formText.procCd_name}"/>
      </f:facet>
      <h:outputText value="#{procCodeV.name}"/>
     </p:column>
-    <p:column>
+    <p:column sortBy="#{procCodeV.description}">
      <f:facet name="header">
       <h:outputText value="#{formText.procCd_desc}"/>
      </f:facet>
      <h:outputText value="#{procCodeV.description}"/>
     </p:column>
-    <p:column width="100">
+    <p:column width="100" sortBy="#{procCodeV.module.name}">
      <f:facet name="header">
       <h:outputText value="#{formText.procCd_mod}"/>
      </f:facet>
      <h:outputText value="#{procCodeV.module.name}"/>
     </p:column>
    </p:dataTable>
+   <p:contextMenu for="procCodeUpdtFrm:prCodeTbl">
+    <p:menuitem 
+     icon="fa fa-pencil-square-o" value="#{formText.edit}"
+     actionListener="#{processCodeBean.onEditDlg}"/>
+   </p:contextMenu>
   </h:form>
   
-  <p:dialog id="editDlg" widgetVar="editProcCdWv" modal="true" dynamic="true" >
-   <f:facet name="header">
+   <p:dialog id="editDlg" widgetVar="editProcCdWv" modal="true" dynamic="true" 
+             closable="false" responsive="true" >
+    <f:facet name="header">
     <h:outputText value="#{formText.procCd_editDlg}"/>
    </f:facet>
-   <h:form id="edprocFrm" prependId="false">
-    <p:panelGrid id="editProcPg" columns="2" styleClass="panelNoBorders">
+   <h:form id="edprocFrm">
+    <p:panelGrid id="editProcPg" columns="2" styleClass="panelNoBorders"
+                 layout="grid"  columnClasses="ui-grid-col-4, ui-grid-col-8">
      <p:outputLabel for="editName" value="#{formText.procCd_name}"/>
      <p:inputText id="editName" value="#{processCodeBean.processCodeSel.name}"/>
      <p:outputLabel for="editDesc" value="#{formText.procCd_desc}"/>
@@ -70,11 +76,15 @@
                      itemLabel="#{editModV.name} - #{editModV.description}"/>
      </p:selectOneMenu>
      
-     <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o" actionListener="#{processCodeBean.onEditSave}"/>
-     <p:commandButton  value="#{formText.reset}" icon="ui-icon-close" actionListener="#{processCodeBean.onEditReset}"/>
-     
+     <p:commandButton value="#{formText.save}" icon="fa fa-floppy-o"
+                      actionListener="#{processCodeBean.onEditSave}"/>
+     <p:commandButton  value="#{formText.close}" icon="ui-icon-close"
+                       type="button" onclick="PF('editProcCdWv').hide();"/>
+
     </p:panelGrid>
    </h:form>
+
   </p:dialog>
+  </div>
  </ui:define>
 </ui:composition>

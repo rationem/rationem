@@ -24,7 +24,9 @@ import com.rationem.busRec.salesTax.vat.*;
 import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.dataManager.ContactDM;
 import com.rationem.ejbBean.dataManager.VatDM;
+import com.rationem.helper.comparitor.NumberRangeByShrtDescr;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
 
@@ -478,6 +480,7 @@ public LocaleCodeRec updateLocaleCode(LocaleCodeRec loc, String pg){
         try{
           List<NumberRangeRec> numRanges = configDM.getNumCntrlAll();
           LOGGER.log(INFO, "Number of ranges returned from data manager {0}", numRanges);
+          Collections.sort(numRanges, new NumberRangeByShrtDescr());
           return numRanges;
         }catch(BacException e){
             throw new BacException(e.getLocalizedMessage());
@@ -511,7 +514,7 @@ public LocaleCodeRec updateLocaleCode(LocaleCodeRec loc, String pg){
   }
 
   public ProcessCodeRec addProcessCode(ProcessCodeRec pr, String pg){
-   pr = this.configDM.addProcessCode(pr, pg);
+   //pr = this.configDM.addProcessCode(pr, pg);
    pr = sysBuff.processCodeUpdate(pr, pg);
    return pr;
   }
@@ -576,7 +579,7 @@ public LocaleCodeRec updateLocaleCode(LocaleCodeRec loc, String pg){
  }
  
  public NumberRangeTypeRec upateNumberRangeType(NumberRangeTypeRec nrTyRec, String source){
-  LOGGER.log(INFO, "Basic Setup called with nr {0}", nrTyRec.getNumRangeTypeCode());
+  LOGGER.log(INFO, "Basic Setup called with nr {0}", nrTyRec.getCode());
   LOGGER.log(INFO, "create date nr {0}", nrTyRec.getCreatedDate().toString());
   nrTyRec = this.configDM.upateNumberRangeType(nrTyRec, source);
   LOGGER.log(INFO, "nr  id after call to DM {0}", nrTyRec.getId());

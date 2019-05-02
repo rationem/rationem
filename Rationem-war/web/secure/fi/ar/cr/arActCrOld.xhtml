@@ -8,7 +8,7 @@
  <ui:define name="header">#{pageTitle.apAcntCr}</ui:define>
  <ui:define name="content">
   <h:form id="arActCrFrm" prependId="false">
-   <p:growl autoUpdate="true" />
+   <p:growl   />
    
    <p:growl id="actNumMsg"/>
    <p:focus for="accountCode"/>
@@ -51,7 +51,7 @@
    </p:panelGrid>
    <p:wizard id="actDetails"   flowListener="#{arMastBean.onAcntCrFlow}" widgetVar="actWv"   >
     <p:tab id="ptnr" title="#{formTextAr.arPtnrDetTab}" titletip="#{formHelpText.arPtnrDetails}" >
-     <p:growl autoUpdate="true"/>
+     <p:growl  />
      <p:panel id="ptnrDetailsPanel" header="#{formTextAr.arPtnrDetPnl}">
       <p:panelGrid id="addrPg"  >
        <p:row>

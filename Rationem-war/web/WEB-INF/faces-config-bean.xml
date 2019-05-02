@@ -405,16 +405,7 @@
         <managed-bean-class>com.rationem.fi.tr.bank.BankOrganisationBean</managed-bean-class>
     <managed-bean-scope>view</managed-bean-scope>
     </managed-bean>
-    <managed-bean>
-        <managed-bean-name>bankOrganisationBean</managed-bean-name>
-        <managed-bean-class>com.rationem.fi.tr.bank.BankOrganisationBean</managed-bean-class>
-    <managed-bean-scope>view</managed-bean-scope>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>valueDateBean</managed-bean-name>
-        <managed-bean-class>com.rationem.setup.common.ValueDateBean</managed-bean-class>
-    <managed-bean-scope>view</managed-bean-scope>
-    </managed-bean>
+    
     <managed-bean>
         <managed-bean-name>valueDateBean</managed-bean-name>
         <managed-bean-class>com.rationem.setup.common.ValueDateBean</managed-bean-class>
@@ -463,4 +454,10 @@
         <managed-bean-class>com.rationem.fi.arap.ArAccountBalCheckBean</managed-bean-class>
     
         <managed-bean-scope>view</managed-bean-scope></managed-bean>
+    <managed-bean>
+        <description>Load GL accounts fro, selected chart</description>
+        <managed-bean-name>glAccountFromChart</managed-bean-name>
+        <managed-bean-class>com.rationem.fi.gl.GlAccountFromChart</managed-bean-class>
+        <managed-bean-scope>view</managed-bean-scope>
+    </managed-bean>
 </faces-config>

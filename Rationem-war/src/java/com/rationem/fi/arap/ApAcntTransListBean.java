@@ -28,7 +28,7 @@ import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleEvent;
 
@@ -132,7 +132,7 @@ public class ApAcntTransListBean extends BaseBean {
     if(Objects.equals(currLn.getId(), apLine.getId())){
      li.set(apLine);
      foundLn = true;
-     RequestContext.getCurrentInstance().update("acntTransFrm:linesDt");
+     PrimeFaces.current().ajax().update("acntTransFrm:linesDt");
     }
    } 
   }
@@ -221,7 +221,7 @@ public class ApAcntTransListBean extends BaseBean {
   LOGGER.log(INFO, "selOpt doc date fr {0} to  {1}", new Object[]{selOpt.getDocDateFr(),selOpt.getDocDateTo()});
   Date fromDate = (Date)value;
   List<String> updateLst = new ArrayList<>();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(fromDateNull){
    /*if(selOpt.getDocDateTo() != null){
     MessageUtil.addClientWarnMessage("acntTransFrm:errMsg", "apDocSelDocDtFrBlank", "validationText");
@@ -253,7 +253,7 @@ public class ApAcntTransListBean extends BaseBean {
   updateLst.add("acntTransFrm:docDateFr");
   updateLst.add("acntTransFrm:docDateTo");
   updateLst.add("acntTransFrm:errMsg");
-  rCtx.update(updateLst);
+  pf.ajax().update(updateLst);
   
   }
   
@@ -272,12 +272,12 @@ public class ApAcntTransListBean extends BaseBean {
   if (value != null){
    toDate = (Date)value;
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(value == null){
    LOGGER.log(INFO, "DocDateToValidate called with value null");
    ((EditableValueHolder) toValidate).setValid(true);
    selOpt.setDocDateTo(selOpt.getDocDateFr());
-   rCtx.update("acntTransFrm:docDateTo");
+   pf.ajax().update("acntTransFrm:docDateTo");
    return;
   }
   if(selOpt.getDocDateFr() == null){
@@ -295,7 +295,7 @@ public class ApAcntTransListBean extends BaseBean {
   LOGGER.log(INFO, "fromDateValid {0} time {1}", new Object[]{toDateValid,new Date()});
   ((EditableValueHolder) toValidate).setValid(toDateValid);
   updateSet.add("acntTransFrm:docDateTo");
-  rCtx.update(updateSet);
+  pf.ajax().update(updateSet);
  }
  
  public void onDocPostDateFrValidate(FacesContext context, UIComponent toValidate, Object value){
@@ -336,7 +336,7 @@ public class ApAcntTransListBean extends BaseBean {
   LOGGER.log(INFO,"UpdateList {0}",updateList);
   ((EditableValueHolder) toValidate).setValid(fromDateValid);
   updateList.add("acntTransFrm:postDateFr");
-  RequestContext.getCurrentInstance().update(updateList);
+  PrimeFaces.current().ajax().update(updateList);
  }
  
  public void onDocPostDateToValidate(FacesContext context, UIComponent toValidate, Object value){
@@ -375,20 +375,20 @@ public class ApAcntTransListBean extends BaseBean {
   LOGGER.log(INFO,"UpdateList {0}",updateList);
   ((EditableValueHolder) toValidate).setValid(toDateValid);
   updateList.add("acntTransFrm:postDateTo");
-  RequestContext.getCurrentInstance().update(updateList);
+  PrimeFaces.current().ajax().update(updateList);
  }
  
  public void onFiscalPeriodFromValidate(FacesContext context, UIComponent toValidate, Object value){
   LOGGER.log(INFO, "onFiscalPeriodFromValidate called with value {0}",value);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   boolean fromValid = false;
   if(value == null){
    LOGGER.log(INFO, "Value is null");
    if(selOpt.getFiscPerTo() != null){
     selOpt.setFiscPerTo(null);
     MessageUtil.addClientWarnMessage("acntTransFrm:errMsg", "apDocSelFpNull", "validationText");
-    rCtx.update("acntTransFrm:errMsg");
-    rCtx.update("acntTransFrm:fiscPerTo");
+    pf.ajax().update("acntTransFrm:errMsg");
+    pf.ajax().update("acntTransFrm:fiscPerTo");
     fromValid = true;
     
    }else{
@@ -403,7 +403,7 @@ public class ApAcntTransListBean extends BaseBean {
    if(selOpt.getFiscPerTo() == null){
     LOGGER.log(INFO, "period to is null");
     selOpt.setFiscPerTo(perFrVal);
-    rCtx.update("acntTransFrm:fiscPerTo");
+    pf.ajax().update("acntTransFrm:fiscPerTo");
     fromValid = true;
     LOGGER.log(INFO, "selOpt FiscPerTo is {0}",selOpt.getFiscPerTo());
    }else{
@@ -413,7 +413,7 @@ public class ApAcntTransListBean extends BaseBean {
     if(Long.parseLong(selOpt.getFiscPerFr()) > Long.parseLong(selOpt.getFiscPerTo())){
      LOGGER.log(INFO, "From cannot be greater than to");
      MessageUtil.addClientWarnMessage("acntTransFrm:errMsg", "apDocSelFiscPerFrTo", "validationText");
-     rCtx.update("acntTransFrm:errMsg");
+     pf.ajax().update("acntTransFrm:errMsg");
     }else{
      fromValid = true;
     }
@@ -423,7 +423,7 @@ public class ApAcntTransListBean extends BaseBean {
   LOGGER.log(INFO, "selOpt FiscPerFr is {0}",selOpt.getFiscPerFr());
   LOGGER.log(INFO, "fromValid {0}", String.valueOf(fromValid));
   ((EditableValueHolder) toValidate).setValid(fromValid);
-  rCtx.update("acntTransFrm:fiscPerFr");
+  pf.ajax().update("acntTransFrm:fiscPerFr");
  }
  
  public void onFiscalPeriodToValidate(FacesContext context, UIComponent toValidate, Object value){
@@ -431,12 +431,12 @@ public class ApAcntTransListBean extends BaseBean {
   LOGGER.log(INFO, "selOpt.getFiscPerFr() {0} getFiscPerTo {1}", new Object[]{selOpt.getFiscPerFr(),
    selOpt.getFiscPerTo()});
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(value == null && (selOpt.getFiscPerFr() == null || 
     selOpt.getFiscPerFr().equals(selOpt.getFiscPerTo()))){
    ((EditableValueHolder) toValidate).setValid(true);
    LOGGER.log(INFO, "Called with value blank and selOpt FiscPerFr equals FiscPerTo");
-   rCtx.update("acntTransFrm:fiscPerTo");
+   pf.ajax().update("acntTransFrm:fiscPerTo");
    return;
   }
   List<String> updateList = new ArrayList<>();
@@ -473,9 +473,9 @@ public class ApAcntTransListBean extends BaseBean {
   LOGGER.log(INFO, "toValid {0}", String.valueOf(toValid));
   
   ((EditableValueHolder) toValidate).setValid(toValid);
-  rCtx.update("acntTransFrm:fiscPerTo");
+  pf.ajax().update("acntTransFrm:fiscPerTo");
   
-  rCtx.update(updateList);
+  pf.ajax().update(updateList);
   LOGGER.log(INFO, "end selOpt.getFiscPerFr() {0} getFiscPerTo {1}", 
     new Object[]{selOpt.getFiscPerFr(),selOpt.getFiscPerTo()});  
  }
@@ -484,15 +484,15 @@ public class ApAcntTransListBean extends BaseBean {
  
  public void onFiscalYearFromValidate(FacesContext context, UIComponent toValidate, Object value){
   LOGGER.log(INFO, "onFiscalYearFromValidate called with value {0}",value);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   boolean fromValid = false;
   if(value == null){
    LOGGER.log(INFO, "Value is null");
    if(selOpt.getFiscYearTo() != null){
     selOpt.setFiscYearTo(null);
     MessageUtil.addClientWarnMessage("acntTransFrm:errMsg", "apDodSelFisYrFrEmpt", "validationText");
-    rCtx.update("acntTransFrm:errMsg");
-    rCtx.update("acntTransFrm:fiscYrTo");
+    pf.ajax().update("acntTransFrm:errMsg");
+    pf.ajax().update("acntTransFrm:fiscYrTo");
     fromValid = true;
     
    }else{
@@ -508,7 +508,7 @@ public class ApAcntTransListBean extends BaseBean {
    if(selOpt.getFiscYearTo() == null){
     LOGGER.log(INFO, "Year to is null");
     selOpt.setFiscYearTo(yearFrVal);
-    rCtx.update("acntTransFrm:fiscYrTo");
+    pf.ajax().update("acntTransFrm:fiscYrTo");
     fromValid = true;
    }else{
     LOGGER.log(INFO, "Year to has a value");
@@ -516,7 +516,7 @@ public class ApAcntTransListBean extends BaseBean {
     if(Long.parseLong(selOpt.getFiscYearFr()) > Long.parseLong(selOpt.getFiscYearTo())){
      LOGGER.log(INFO, "From cannot be greater than to");
      MessageUtil.addClientWarnMessage("acntTransFrm:errMsg", "apTransRptFiscYrFrTo", "errorText");
-     rCtx.update("acntTransFrm:errMsg");
+     pf.ajax().update("acntTransFrm:errMsg");
     }else{
      fromValid = true;
     }
@@ -524,14 +524,14 @@ public class ApAcntTransListBean extends BaseBean {
   }
   LOGGER.log(INFO, "fromValid {0}", String.valueOf(fromValid));
   ((EditableValueHolder) toValidate).setValid(fromValid);
-  rCtx.update("acntTransFrm:fiscYrFr");
+  pf.ajax().update("acntTransFrm:fiscYrFr");
  }
  
  public void onFiscalYearToValidate(FacesContext context, UIComponent toValidate, Object value){
   LOGGER.log(INFO,"onFiscalYearToValidate value {0}");
   LOGGER.log(INFO, "selOpt.getFiscPerFr() {0} getFiscPerTo {1}", 
     new Object[]{selOpt.getFiscYearFr(),selOpt.getFiscYearTo()});
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<String> updateList = new ArrayList<>();
   boolean toValid = false;
   if(value == null && selOpt.getFiscYearFr() != null){
@@ -565,9 +565,9 @@ public class ApAcntTransListBean extends BaseBean {
   }
   LOGGER.log(INFO, "toValid {0}", String.valueOf(toValid));
   ((EditableValueHolder) toValidate).setValid(toValid);
-  rCtx.update("acntTransFrm:fiscYrTo");
+  pf.ajax().update("acntTransFrm:fiscYrTo");
   
-  rCtx.update(updateList);
+  pf.ajax().update(updateList);
   LOGGER.log(INFO, "end selOpt.getFiscYearFr() {0} getFiscYearTo {1}", new Object[]{selOpt.getFiscYearFr(),selOpt.getFiscYearTo()});  
  }
  public void onGetTrans(){

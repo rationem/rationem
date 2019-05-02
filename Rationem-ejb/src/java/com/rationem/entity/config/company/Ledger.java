@@ -8,6 +8,7 @@ import com.rationem.entity.audit.AuditLedger;
 import com.rationem.entity.config.arap.PaymentType;
 import com.rationem.entity.fi.company.CompPostPer;
 import com.rationem.entity.fi.company.PeriodControl;
+import com.rationem.entity.fi.glAccount.FiBsAccount;
 import com.rationem.entity.user.User;
 import javax.persistence.NamedQueries;
 //import com.rationem.entity.config.company.PostType;
@@ -15,12 +16,10 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Version;
 import java.util.Date;
-import com.rationem.entity.user.UserLogin;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import static javax.persistence.DiscriminatorType.STRING;
@@ -28,15 +27,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Temporal;
 
-import static javax.persistence.TemporalType.DATE;
-import static javax.persistence.TemporalType.TIMESTAMP;
 import org.eclipse.persistence.annotations.Multitenant;
-import static org.eclipse.persistence.annotations.MultitenantType.SINGLE_TABLE;
 import org.eclipse.persistence.annotations.TenantDiscriminatorColumn;
 
 
@@ -101,6 +95,10 @@ public class Ledger implements Serializable {
  private List<AuditLedger> auditRecs;
  @OneToMany(mappedBy = "ledger")
  private List<CompPostPer> compPostPeriods;
+ @OneToMany(mappedBy = "reconForLed")
+ private List<FiBsAccount> reconcilAcnts;
+ @Column(name="is_sub_ledger")
+ private boolean subLeder;
     
   
 
@@ -159,6 +157,15 @@ public class Ledger implements Serializable {
   this.code = code;
  }
 
+ public List<CompPostPer> getCompPostPeriods() {
+  return compPostPeriods;
+ }
+
+ public void setCompPostPeriods(List<CompPostPer> compPostPeriods) {
+  this.compPostPeriods = compPostPeriods;
+ }
+
+ 
  public List<PeriodControl> getPeriodControls() {
   return periodControls;
  }
@@ -183,6 +190,24 @@ public class Ledger implements Serializable {
  public void setPaymentTypes(List<PaymentType> paymentTypes) {
   this.paymentTypes = paymentTypes;
  }
+
+ public List<FiBsAccount> getReconcilAcnts() {
+  return reconcilAcnts;
+ }
+
+ public void setReconcilAcnts(List<FiBsAccount> reconcilAcnts) {
+  this.reconcilAcnts = reconcilAcnts;
+ }
+
+ public boolean isSubLeder() {
+  return subLeder;
+ }
+
+ public void setSubLeder(boolean subLeder) {
+  this.subLeder = subLeder;
+ }
+ 
+ 
 
  public User getCreatedBy() {
   return createdBy;
@@ -239,10 +264,7 @@ public class Ledger implements Serializable {
    return false;
   }
   Ledger other = (Ledger) object;
-  if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-   return false;
-  }
-  return true;
+  return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
  }
 
  @Override

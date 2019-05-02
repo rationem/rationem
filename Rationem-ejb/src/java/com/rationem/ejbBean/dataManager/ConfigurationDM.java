@@ -56,6 +56,7 @@ import com.rationem.entity.fi.glAccount.FiGlAccountComp;
 import com.rationem.entity.tr.bacs.BacsTransCode;
 import com.rationem.entity.tr.bank.BankAccountCompany;
 import com.rationem.entity.tr.bank.ChequeTemplate;
+import com.rationem.helper.comparitor.AccountTypeByName;
 import javax.ejb.EJB;
 import java.util.Date;
 import java.util.ListIterator;
@@ -72,6 +73,7 @@ import javax.persistence.TransactionRequiredException;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityExistsException;
 import com.rationem.exception.BacException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -505,8 +507,8 @@ public class ConfigurationDM { //implements ConfigurationDMRemote, Serializable 
       nc.setShortDescr(rec.getShortDescr());
       nc.setToNum(rec.getToNum());
       nc.setAutoNum(rec.isAutoNum());
-      NumberRangeType nrTy = em.find(NumberRangeType.class, rec.getNumberRangeForType().getId());
-      nc.setNumberRangeForType(nrTy);
+      NumberRangeType nrTy = em.find(NumberRangeType.class, rec.getNumberRangeType().getId());
+      nc.setNumberRangeType(nrTy);
       
      }else{
       // changed ?
@@ -536,7 +538,9 @@ public class ConfigurationDM { //implements ConfigurationDMRemote, Serializable 
          (rec.getModule() != null && !Objects.equals(rec.getModule().getId(), nc.getModule().getId())) ){
         AuditNumberControl aud = buildAuditNumberControl(nc, rec.getCreatedDate(), 'U', chUsr, src);
         aud.setNewValue(rec.getModule().getModuleCode());
-        aud.setOldValue(nc.getModule().getModuleCode());
+        if(nc.getModule() != null){
+         aud.setOldValue(nc.getModule().getModuleCode());
+        }
         Module  m = em.find(Module.class , rec.getModule().getId(), OPTIMISTIC);
         nc.setModule(m);
         changedNc =true;
@@ -566,8 +570,8 @@ public class ConfigurationDM { //implements ConfigurationDMRemote, Serializable 
       if(rec.getToNum() != nc.getToNum()){
        AuditNumberControl aud = buildAuditNumberControl(nc, rec.getCreatedDate(), 'U', chUsr, src);
         aud.setNewValue(String.valueOf(rec.getToNum()));
-        aud.setOldValue(String.valueOf(rec.getToNum()));
-        nc.setShortDescr(rec.getShortDescr());
+        aud.setOldValue(String.valueOf(nc.getToNum()));
+        nc.setToNum(rec.getToNum());
         changedNc =true;
       }
      
@@ -634,27 +638,27 @@ public class ConfigurationDM { //implements ConfigurationDMRemote, Serializable 
    nrTy = em.find(NumberRangeType.class, nrTyRec.getId());
   }
   if(newNrTy){
-   nrTy.setNumRangeTypeCode(nrTyRec.getNumRangeTypeCode());
-   nrTy.setNumRangeTypeName(nrTyRec.getNumRangeTypeName());
+   nrTy.setCode(nrTyRec.getCode());
+   nrTy.setName(nrTyRec.getName());
   }else{
    User chUsr = em.find(User.class, nrTyRec.getChangedBy().getId());
    
-   if(!StringUtils.equals(nrTyRec.getNumRangeTypeCode(), nrTy.getNumRangeTypeCode())){
+   if(!StringUtils.equals(nrTyRec.getCode(), nrTy.getCode())){
     changedNrTy = true;
     AuditNumberRangeType aud = this.buildAuditNumberRangeType(nrTy, nrTy.getCreatedDate(), 'U', chUsr, pg);
     aud.setFieldName("NUM_R_TYPE_CD");
-    aud.setNewValue(nrTyRec.getNumRangeTypeCode());
-    aud.setOldValue(nrTy.getNumRangeTypeCode());
-    nrTy.setNumRangeTypeCode(nrTyRec.getNumRangeTypeCode());
+    aud.setNewValue(nrTyRec.getCode());
+    aud.setOldValue(nrTy.getCode());
+    nrTy.setCode(nrTyRec.getCode());
    }
    
-   if(!StringUtils.equals(nrTyRec.getNumRangeTypeName(), nrTy.getNumRangeTypeName())){
+   if(!StringUtils.equals(nrTyRec.getName(), nrTy.getName())){
     changedNrTy = true;
     AuditNumberRangeType aud = this.buildAuditNumberRangeType(nrTy, nrTy.getCreatedDate(), 'U', chUsr, pg);
     aud.setFieldName("NUM_R_TYPE_NM");
-    aud.setNewValue(nrTyRec.getNumRangeTypeName());
-    aud.setOldValue(nrTy.getNumRangeTypeName());
-    nrTy.setNumRangeTypeName(nrTyRec.getNumRangeTypeName());
+    aud.setNewValue(nrTyRec.getName());
+    aud.setOldValue(nrTy.getName());
+    nrTy.setName(nrTyRec.getName());
    }
    if(changedNrTy){
     nrTy.setChangedBy(chUsr);
@@ -680,11 +684,11 @@ public class ConfigurationDM { //implements ConfigurationDMRemote, Serializable 
    nrTyRec.setChangedDate(nrTy.getChangedDate());
   }
   
-  nrTyRec.setNumRangeTypeCode(nrTy.getNumRangeTypeCode());
-  nrTyRec.setNumRangeTypeName(nrTy.getNumRangeTypeName());
+  nrTyRec.setCode(nrTy.getCode());
+  nrTyRec.setName(nrTy.getName()); 
   return nrTyRec;
  }
-
+ 
  public NumberRangeRec getNumberControlRecPvt(NumberRange rec){
   return this.buildNumberControlRec(rec);
  }
@@ -760,8 +764,8 @@ private NumberRangeRec buildNumberControlRec(NumberRange rec){
  f.setShortDescr(rec.getShortDescr());
  f.setToNum(rec.getToNum());
  f.setNumberControlId(rec.getNumberControlId());
- NumberRangeTypeRec nrTy = this.buffer.getNumRangeTypeById(rec.getNumberRangeForType().getId());
- f.setNumberRangeForType(nrTy);
+ NumberRangeTypeRec nrTy = this.buffer.getNumRangeTypeById(rec.getNumberRangeType().getId());
+ f.setNumberRangeType(nrTy);
       
  return f;
 }
@@ -1130,32 +1134,68 @@ private NumberRangeRec buildNumberControlRec(NumberRange rec){
     private Ledger buildLedger(LedgerRec rec, String pg){
      LOGGER.log(INFO, "buildLedger called with {0}", rec);
      trans.begin();
-        Ledger l;
-        if(rec.getId() == null || rec.getId() < 1){
-         l= new Ledger();
-         User crUsr = em.find(User.class, rec.getCreatedBy().getId(), OPTIMISTIC);
-         l.setCreatedBy(crUsr);
-         l.setCreatedDate(rec.getCreatedDate());
-         em.persist(l);
-         AuditLedger aud = new AuditLedger();
-         aud.setAuditDate(new Date());
-         aud.setCreatedBy(crUsr);
-         aud.setLedger(l);
-         aud.setNewValue(rec.getCode());
-         aud.setSource(pg);
-         aud.setUsrAction('I');
-         LOGGER.log(INFO, "Ledger id {0}", l.getId());
-        }else{
-         l = em.find(Ledger.class, rec.getId(), OPTIMISTIC);
-        }
-        l.setId(rec.getId());
-        l.setChangedDate(rec.getChangedDate());
-        l.setCreatedDate(rec.getCreatedDate());
-        l.setName(rec.getName());
-        l.setDescr(rec.getDescr());
-        l.setCode(rec.getCode());
-    trans.commit();
-        return l;
+     boolean newLedger = false;
+     boolean changedLedger = false;
+     Ledger l;
+     if(rec.getId() == null || rec.getId() < 1){
+      l= new Ledger();
+      User crUsr = em.find(User.class, rec.getCreatedBy().getId(), OPTIMISTIC);
+      l.setCreatedBy(crUsr);
+      l.setCreatedDate(rec.getCreatedDate());
+      em.persist(l);
+      AuditLedger aud = this.buildAuditLedger(l, 'I', crUsr, pg);
+      aud.setNewValue(rec.getCode());
+      newLedger = true;
+     }else{
+      l = em.find(Ledger.class, rec.getId(), OPTIMISTIC);
+     }
+     if(newLedger){
+      l.setCode(rec.getCode());
+      l.setDescr(rec.getDescr());
+      l.setName(rec.getName());
+      l.setSubLeder(rec.isSubLeder());
+     }else{
+      User chUsr = em.find(User.class, rec.getChangedBy().getId());
+      if(!StringUtils.equals(l.getCode(), rec.getCode())){
+       AuditLedger aud = this.buildAuditLedger(l, 'U', chUsr, pg);
+       aud.setFieldName("LED_CODE");
+       aud.setNewValue(rec.getCode());
+       aud.setOldValue(l.getCode());
+       l.setCode(rec.getCode());
+       changedLedger = true;
+      }
+      if(!StringUtils.equals(l.getDescr(), rec.getDescr())){
+       AuditLedger aud = this.buildAuditLedger(l, 'U', chUsr, pg);
+       aud.setFieldName("LED_DESCR");
+       aud.setNewValue(rec.getCode());
+       aud.setOldValue(l.getDescr());
+       l.setDescr(rec.getDescr());
+       changedLedger = true;
+      }
+      if(!StringUtils.equals(l.getName(), rec.getName())){
+       AuditLedger aud = this.buildAuditLedger(l, 'U', chUsr, pg);
+       aud.setFieldName("LED_NAME");
+       aud.setNewValue(rec.getName());
+       aud.setOldValue(l.getName());
+       l.setName(rec.getName());
+       changedLedger = true;
+      }
+      if(l.isSubLeder() != rec.isSubLeder()){
+       AuditLedger aud = this.buildAuditLedger(l, 'U', chUsr, pg);
+       aud.setFieldName("LED_SUBLED");
+       aud.setNewValue(String.valueOf(rec.isSubLeder()));
+       aud.setOldValue(String.valueOf(l.isSubLeder()));
+       l.setSubLeder(rec.isSubLeder());
+       changedLedger = true;
+      }
+      if(changedLedger){
+       l.setChangedBy(chUsr);
+       l.setChangedDate(rec.getChangedDate());
+      }
+     }
+        
+     trans.commit();
+     return l;
     }
 
     public LedgerRec buildLedgerRecPvt(Ledger l){
@@ -1167,12 +1207,19 @@ private NumberRangeRec buildNumberControlRec(NumberRange rec){
         LOGGER.log(FINEST, "buildLedgerRec called with: {0}", l.getId());
         LedgerRec lgr = new LedgerRec();
         lgr.setId(l.getId());
-
-        lgr.setChangedDate(l.getChangedDate());
+        UserRec usrRec =  userDM.getUserRecPvt(l.getCreatedBy());
+        lgr.setCreatedBy(usrRec);
         lgr.setCreatedDate(l.getCreatedDate());
+        if(l.getChangedBy() != null){
+         usrRec =  userDM.getUserRecPvt(l.getChangedBy());
+         lgr.setChangedBy(usrRec);
+         lgr.setChangedDate(l.getChangedDate());
+        }
+        
         lgr.setName(l.getName());
         lgr.setDescr(l.getDescr());
         lgr.setCode(l.getCode());
+        lgr.setSubLeder(l.isSubLeder());
         return lgr;
     }
 
@@ -1826,6 +1873,8 @@ private NumberRangeRec buildNumberControlRec(NumberRange rec){
     
     
     private ProcessCode buildProcessCode(ProcessCodeRec pr, String pg){
+     LOGGER.log(INFO, "buildProcessCode called with proc code id {0} name {1}", 
+       new Object[]{pr.getId(),pr.getName()});
      ProcessCode code;
      boolean newRec = false;
      boolean updated = false;
@@ -3229,6 +3278,7 @@ public ProcessCodeRec addProcessCode(ProcessCodeRec pr, String pg){
 
       }
       LOGGER.log(INFO, "Num Account types returned {0}", actTypes.size());
+      Collections.sort(actTypes, new AccountTypeByName());
       return actTypes;
 
 
@@ -3664,7 +3714,7 @@ public ProcessCodeRec addProcessCode(ProcessCodeRec pr, String pg){
  }
  
  public NumberRangeTypeRec upateNumberRangeType(NumberRangeTypeRec nrTyRec, String source){
-  LOGGER.log(INFO, "upateNumberRangeType called with {0}", nrTyRec.getNumRangeTypeCode());
+  LOGGER.log(INFO, "upateNumberRangeType called with {0}", nrTyRec.getCode());
   if(!trans.isActive()){
    trans.begin();
   }

@@ -164,11 +164,7 @@ public class DocLineBase implements Serializable {
  @JoinColumn(name="line_type_id", referencedColumnName="line_type_id")
  private LineTypeRule lineType;
  
-    
- @ManyToOne
- @JoinColumn(name="vat_code_id", referencedColumnName="vat_code_comp_id")
- private VatCodeCompany vatCodeCompany;   
-
+ 
     /**
      * List of document lines cleared by this document line
      *
@@ -478,13 +474,7 @@ public class DocLineBase implements Serializable {
   this.postType = postType;
  }
 
- public VatCodeCompany getVatCodeCompany() {
-  return vatCodeCompany;
- }
-
- public void setVatCodeCompany(VatCodeCompany vatCodeCompany) {
-  this.vatCodeCompany = vatCodeCompany;
- }
+ 
 
  public List<VatReturnLine> getVatReturnLines() {
   return vatReturnLines;

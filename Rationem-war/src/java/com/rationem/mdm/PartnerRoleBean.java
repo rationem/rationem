@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -96,14 +96,14 @@ public class PartnerRoleBean extends BaseBean {
    ListIterator<PartnerRoleRec> li = roles.listIterator();
    List<String> updateList = new ArrayList<>();
    updateList.add("ptnrRoleFrm:okMsg");
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    while(li.hasNext()){
     PartnerRoleRec curr = li.next();
     if(Objects.equals(curr.getId(),roleSelected.getId())){
      li.set(roleSelected);
      updateList.add("ptnrRoleFrm:rolesList");
-     rCtx.update(updateList);
-     rCtx.execute("PF('edRlDlgWv').hide();");
+     pf.ajax().update(updateList);
+     pf.executeScript("PF('edRlDlgWv').hide();");
     }
    }
   }

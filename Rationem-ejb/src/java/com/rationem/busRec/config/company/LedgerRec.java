@@ -11,6 +11,7 @@ package com.rationem.busRec.config.company;
 import com.rationem.busRec.config.arap.PaymentTypeRec;
 //import com.rationem.busRec.config.fi.FiGlActTypeRec;
 import com.rationem.busRec.fi.company.PeriodControlRec;
+import com.rationem.busRec.fi.glAccount.FiBsAccountRec;
 import com.rationem.busRec.user.UserRec;
 import java.io.Serializable;
 import java.util.Date;
@@ -25,6 +26,8 @@ public class LedgerRec implements Serializable{
     private List<PeriodControlRec> periodControls;
     private List<PostTypeRec> postTypes;
     private List<PaymentTypeRec> paymentTypes;
+    private List<FiBsAccountRec> reconcilAcnts;
+    private boolean subLeder;
     private UserRec createdBy;
     private Date createdDate;
     private UserRec changedBy;
@@ -144,6 +147,23 @@ public class LedgerRec implements Serializable{
   this.postTypes = postTypes;
  }
 
+ public List<FiBsAccountRec> getReconcilAcnts() {
+  return reconcilAcnts;
+ }
+
+ public void setReconcilAcnts(List<FiBsAccountRec> reconcilAcnts) {
+  this.reconcilAcnts = reconcilAcnts;
+ }
+
+ public boolean isSubLeder() {
+  return subLeder;
+ }
+
+ public void setSubLeder(boolean subLeder) {
+  this.subLeder = subLeder;
+ }
+
+ 
  @Override
  public int hashCode() {
   int hash = 7;

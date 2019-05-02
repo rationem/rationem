@@ -75,6 +75,10 @@ public class BankAccountCompany extends BankAccount  implements Serializable {
  @OneToMany(mappedBy = "payTypeForBankAccount")
  @JoinColumn(name="BANK_ACCOUNT_ID", referencedColumnName="BANK_ACCOUNT_ID")
  private List<PaymentType> paymentTypes; 
+ 
+ @OneToMany(mappedBy = "bankAccount")
+ private List<FiGlAccountComp> glAccounts;
+ 
  @OneToMany(mappedBy = "bankAccountCompanyUncleared")
  private List<FiGlAccountComp> unclearedGlAccounts;
  @OneToMany(mappedBy = "clearedBankAc")
@@ -153,6 +157,14 @@ public class BankAccountCompany extends BankAccount  implements Serializable {
 
  public void setComp(CompanyBasic comp) {
   this.comp = comp;
+ }
+
+ public List<FiGlAccountComp> getGlAccounts() {
+  return glAccounts;
+ }
+
+ public void setGlAccounts(List<FiGlAccountComp> glAccounts) {
+  this.glAccounts = glAccounts;
  }
 
  

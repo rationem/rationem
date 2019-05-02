@@ -25,9 +25,9 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
 
 import static java.util.logging.Level.INFO;
+import org.primefaces.PrimeFaces;
 
 
 /**
@@ -61,7 +61,7 @@ public class ApAcntBalChkBean extends BaseBean {
  private void init(){
   if(getCompList() == null || getCompList().isEmpty()){
    MessageUtil.addClientErrorMessage("acntBalChkFrm:errMsg", "compsNone", "errorText");
-   RequestContext.getCurrentInstance().update("acntBalChkFrm:errMsg");
+   PrimeFaces.current().ajax().update("acntBalChkFrm:errMsg");
    
   }else{
    compSel = getCompList().get(0);
@@ -120,7 +120,7 @@ public class ApAcntBalChkBean extends BaseBean {
   }
   if(apLines == null || apLines.isEmpty()){
    MessageUtil.addClientWarnMessage("acntBalChkFrm:errMsg", "apAcntLinesCompNone", "validationText");
-   RequestContext.getCurrentInstance().update("acntBalChkFrm:errMsg");
+   PrimeFaces.current().ajax().update("acntBalChkFrm:errMsg");
    return false;
   }
   
@@ -157,7 +157,7 @@ public class ApAcntBalChkBean extends BaseBean {
   LOGGER.log(INFO, "Final AP account set {0} ap account {1}", new Object[]{apSingleLines,currAcnt});
   updated = updateBals(currAcnt, apSingleLines);
   
-  RequestContext.getCurrentInstance().update("acntBalChkFrm:acntUpdtTbl");
+  PrimeFaces.current().ajax().update("acntBalChkFrm:acntUpdtTbl");
   return updated;
   
  }

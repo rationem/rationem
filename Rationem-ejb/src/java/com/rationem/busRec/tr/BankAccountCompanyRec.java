@@ -19,6 +19,7 @@ public class BankAccountCompanyRec extends BankAccountRec {
   private double clearedBalance;
   private List<NumberRangeChequeRec> chequeBooks;
   private CompanyBasicRec comp;
+  private List<FiGlAccountCompRec> glAccounts;
   private List<FiGlAccountCompRec> unclearedGlAccounts;
   private FiGlAccountCompRec clearedGlAccount; 
   private boolean hasChqTemplate;
@@ -78,6 +79,15 @@ public class BankAccountCompanyRec extends BankAccountRec {
   this.comp = comp;
  }
 
+ public List<FiGlAccountCompRec> getGlAccounts() {
+  return glAccounts;
+ }
+
+ public void setGlAccounts(List<FiGlAccountCompRec> glAccounts) {
+  this.glAccounts = glAccounts;
+ }
+
+ 
  public boolean isHasChqTemplate() {
   return hasChqTemplate;
  }

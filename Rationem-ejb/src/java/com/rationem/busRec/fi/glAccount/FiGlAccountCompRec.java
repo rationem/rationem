@@ -21,6 +21,10 @@ import java.util.List;
  * @author Chris
  */
 public class FiGlAccountCompRec  implements Serializable{
+ 
+ public static final int VAT_NONE = 0;
+ public static final int VAT_INPUT = 1;
+ public static final int VAT_OUTPUT = 2;
 
   private Long id;
   //Common attributes
@@ -30,6 +34,7 @@ public class FiGlAccountCompRec  implements Serializable{
   private String analysis1;
   private String analysis2;
   private VatCodeCompanyRec vatCode;
+  private int vatStatus;
   private boolean noVatAllowed;
   private List<FiPeriodBalanceRec> periodBalances;
   private List<FiPeriodBalanceRec> restrictedBalances;
@@ -168,6 +173,14 @@ public class FiGlAccountCompRec  implements Serializable{
   public void setSortOrder(SortOrderRec sortOrder) {
     this.sortOrder = sortOrder;
   }
+
+ public int getVatStatus() {
+  return vatStatus;
+ }
+
+ public void setVatStatus(int vatStatus) {
+  this.vatStatus = vatStatus;
+ }
 
   
 

@@ -21,6 +21,11 @@
    <var>formTextAp</var>
   </resource-bundle>
   <resource-bundle>
+   <base-name>com.rationem.localisation.formTextGl</base-name>
+   <var>formTextGl</var>
+  </resource-bundle>
+  
+  <resource-bundle>
    <base-name>com.rationem.localisation.formTextMdm</base-name>
    <var>formTextMdm</var>
   </resource-bundle>

@@ -48,7 +48,7 @@
       <f:facet name="header">
        <h:outputText value="#{fiscalPeriodBean.detailPanelCr}"/>
       </f:facet>
-      <p:messages autoUpdate="true" severity="error" closable="true"/>
+      <p:messages   severity="error" closable="true"/>
       <p:panelGrid id="calPg" columns="2" rendered="#{fiscalPeriodBean.fisPerRule.calBasisOption eq 1}">
        <p:outputLabel for="monthNum" value="#{formText.fisPerCntrl_startMth}"/>
        <p:selectOneMenu id="monthNum" value="#{fiscalPeriodBean.fisCalMth.startMonthNumber}" >

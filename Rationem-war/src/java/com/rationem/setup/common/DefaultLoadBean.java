@@ -54,9 +54,11 @@ import com.rationem.busRec.tr.BankBranchRec;
 import com.rationem.busRec.tr.BankRec;
 import com.rationem.busRec.user.UserRec;
 import com.rationem.busRec.salesTax.vat.VatCodeCompanyRec;
+import com.rationem.busRec.salesTax.vat.VatCodeRec;
 import com.rationem.ejbBean.common.MasterDataManager;
 import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.config.common.BasicSetup;
+import com.rationem.ejbBean.config.common.VatManager;
 import com.rationem.ejbBean.config.company.CompanyManager;
 import com.rationem.ejbBean.tr.BankManager;
 import com.rationem.ejbBean.fi.GlAccountManager;
@@ -100,7 +102,7 @@ import org.primefaces.PrimeFaces;
 import org.primefaces.PrimeFaces.Ajax;
 //import org.apache.poi.hssf.record.RecordFormatException;
 
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DualListModel;
 
 
@@ -153,6 +155,9 @@ public class DefaultLoadBean extends BaseBean{
  
  @EJB
  private BasicSetup basicConfigMgr;
+ 
+ @EJB
+ private VatManager vatMgr;
  
 
  
@@ -358,6 +363,14 @@ public class DefaultLoadBean extends BaseBean{
   String ptnrRole = formTextForKey("cfgPtnrRole");
   DefaultConfigSetting defPtnrRole = new DefaultConfigSetting(ptnrRole,"ptnrRole",35);
   defConfigSource.add(defPtnrRole);
+  
+  String vatCode = formTextForKey("cfgVatCode");
+  DefaultConfigSetting defVatCode = new DefaultConfigSetting(vatCode,"vatCode",36);
+  defConfigSource.add(defVatCode);
+  
+  String vatCodeComp = formTextForKey("cfgVatCodeComp");
+  DefaultConfigSetting defVatCodeComp = new DefaultConfigSetting(vatCodeComp,"vatCodeComp",37);
+  defConfigSource.add(defVatCodeComp);
   
   
   defaults = new DualListModel<>(defConfigSource, defConfigTarget);
@@ -1878,13 +1891,13 @@ public class DefaultLoadBean extends BaseBean{
          boolean found = false;
          while(numRngTyLi.hasNext() && !found){
           NumberRangeTypeRec currTy = numRngTyLi.next();
-          LOGGER.log(INFO, "Type to be checked  has name: {0}", currTy.getNumRangeTypeName());
-          if(StringUtils.equals(currTy.getNumRangeTypeName(), strVal)){
-           cb.setNumberRangeForType(currTy);
+          LOGGER.log(INFO, "Type to be checked  has name: {0}", currTy.getName());
+          if(StringUtils.equals(currTy.getName(), strVal)){
+           cb.setNumberRangeType(currTy);
            found = true;
           }
          }
-         LOGGER.log(INFO, "number range type {0}", cb.getNumberRangeForType().getNumRangeTypeCode());
+         LOGGER.log(INFO, "number range type {0}", cb.getNumberRangeType().getCode());
          break;
         case 4:
          cb.setShortDescr(strVal);
@@ -2039,15 +2052,18 @@ public class DefaultLoadBean extends BaseBean{
        case Cell.CELL_TYPE_NUMERIC:
         LOGGER.log(INFO, "Cell Numeric {0}" , cell.getNumericCellValue()); 
         Double dval = cell.getNumericCellValue();
-        if(cell.getColumnIndex() == 0){
-         // comp ref numberic
-         comp.setReference(String.valueOf(dval.intValue()));
-        }else if(cell.getColumnIndex() == 4){
-         comp.setCompanyNumber(String.valueOf(dval.intValue()));
-         comp.setCorp(true);
-        }else if(cell.getColumnIndex() == 8){
-         LOGGER.log(INFO, "comp number {0}", comp.getCompanyNumber());
-         if(comp.getCompanyNumber() != null && !comp.getCompanyNumber().isEmpty()){
+      switch (cell.getColumnIndex()) {
+       case 0:
+        // comp ref numberic
+        comp.setReference(String.valueOf(dval.intValue()));
+        break;
+       case 4:
+        comp.setCompanyNumber(String.valueOf(dval.intValue()));
+        comp.setCorp(true);
+        break;
+       case 8:
+        LOGGER.log(INFO, "comp number {0}", comp.getCompanyNumber());
+        if(comp.getCompanyNumber() != null && !comp.getCompanyNumber().isEmpty()){
          boolean dateCell = DateUtil.isCellDateFormatted(cell);
          if(dateCell){
           Date incorpDt = DateUtil.getJavaDate(dval);
@@ -2056,10 +2072,14 @@ public class DefaultLoadBean extends BaseBean{
           MessageUtil.addErrorMessage("compIncorpDt", "errorText");
           continue;
          }
-         }
-        }else if(cell.getColumnIndex() == 9){
-         comp.setCharityNumber(String.valueOf(dval.intValue()));
         }
+        break;
+       case 9:
+        comp.setCharityNumber(String.valueOf(dval.intValue()));
+        break;
+       default:
+        break;
+      }
         break;
         
        case Cell.CELL_TYPE_STRING:
@@ -4271,9 +4291,9 @@ public class DefaultLoadBean extends BaseBean{
         while(li.hasNext() && !found){
          NumberRangeTypeRec nrTy = li.next();
          LOGGER.log(INFO, "File num range name {0} nrType name {1} ", new Object[]{
-          strVal,nrTy.getNumRangeTypeName()});
-         if(StringUtils.equals(nrTy.getNumRangeTypeName(), strVal)){
-          numRange.setNumberRangeForType(nrTy);
+          strVal,nrTy.getName()});
+         if(StringUtils.equals(nrTy.getName(), strVal)){
+          numRange.setNumberRangeType(nrTy);
           found = true;
          }
         }
@@ -4281,7 +4301,7 @@ public class DefaultLoadBean extends BaseBean{
          LOGGER.log(INFO, "No number range type found for ");
          
         }else{
-         LOGGER.log(INFO, "Num range type is now {0}", numRange.getNumberRangeForType().getNumRangeTypeCode());
+         LOGGER.log(INFO, "Num range type is now {0}", numRange.getNumberRangeType().getCode());
         }
         break;
        case 2:
@@ -4332,7 +4352,7 @@ public class DefaultLoadBean extends BaseBean{
              new Object[]{numRange.getShortDescr(),
       numRange.getLongDescr(),numRange.getFromNum(), numRange.getToNum()});
      LOGGER.log(INFO, "Module {0} type {1} auto {2}", new Object[]{
-      numRange.getModule().getModuleCode(), numRange.getNumberRangeForType().getNumRangeTypeName(),
+      numRange.getModule().getModuleCode(), numRange.getNumberRangeType().getName(),
       String.valueOf(numRange.isAutoNum())
      });
      numRange.setCreatedBy(currUsr);
@@ -4384,15 +4404,15 @@ public class DefaultLoadBean extends BaseBean{
         LOGGER.log(INFO, "String value {0}" , strVal);
         switch(colIndex){
          case 0:
-          nrTyRec.setNumRangeTypeCode(strVal);
+          nrTyRec.setCode(strVal);
           break;
          case 1:
-          nrTyRec.setNumRangeTypeName(strVal);
+          nrTyRec.setName(strVal);
         }
       }
       
      }
-    nrTyRec.setCreatedBy(currUsr);
+     nrTyRec.setCreatedBy(currUsr);
     nrTyRec.setCreatedDate(new Date());
     nrTyRec = this.basicConfigMgr.upateNumberRangeType(nrTyRec, getView());
     LOGGER.log(INFO, "Number Range object id {0}", nrTyRec.getId());
@@ -4900,6 +4920,166 @@ public class DefaultLoadBean extends BaseBean{
   }
  }
  
+ private void loadVatCode(String fname){
+  FacesContext fc = FacesContext.getCurrentInstance();
+  String filePath = BASE_DIR+fname;
+  LOGGER.log(INFO, "VAT code file name {0}", filePath);
+  try{
+   is = fc.getExternalContext().getResourceAsStream(filePath);
+  
+   workbook = new HSSFWorkbook(is);
+   sheet1 = workbook.getSheetAt(0);
+   
+   //Iterate through each rows from first sheet
+   Iterator<Row> rowIterator = sheet1.iterator();
+   while(rowIterator.hasNext()){
+    Row row = rowIterator.next();
+    LOGGER.log(INFO, "Row num {0}", row.getRowNum());
+    if(row.getRowNum() == 0){
+     continue;
+    }
+    if(row.getCell(0) == null){
+     break;
+    }
+    VatCodeRec vatCd = new VatCodeRec();
+    
+    //For each row, iterate through each columns
+     Iterator<Cell> cellIterator = row.cellIterator();
+     while(cellIterator.hasNext()){
+      Cell cell = cellIterator.next();
+      CellType cellTy = cell.getCellTypeEnum();
+      int colNum = cell.getColumnIndex();
+      
+      if(cellTy == CellType.STRING){
+       String strVal = cell.getStringCellValue();
+       switch(colNum){
+        case 0:
+         vatCd.setCode(strVal);
+         break;
+        case 1:
+         vatCd.setDescription(strVal);
+         break;
+        case 2:
+         char taxType = strVal.charAt(0);
+         vatCd.setTaxType(taxType);
+         break;
+       }
+      }
+      if(cellTy == CellType.NUMERIC){
+       double dblVal = (Double)cell.getNumericCellValue();
+       switch(colNum){
+        case 3:
+         vatCd.setRate(dblVal);
+         break;
+        case 4:
+         vatCd.setIrrrecoverableRate(dblVal);
+         break;
+        case 6:
+         int intVal = ((Double)dblVal).intValue();
+         vatCd.setAddnlCat(intVal);
+         break;
+        case 9:
+         if(DateUtil.isCellDateFormatted(cell)){
+          Date dt = DateUtil.getJavaDate(dblVal);
+          vatCd.setValidFrom(dt);
+         }
+         break;
+        case 10:
+         if(DateUtil.isCellDateFormatted(cell)){
+          Date dt = DateUtil.getJavaDate(dblVal);
+          vatCd.setValidTo(dt);
+         }
+       }
+      }
+      if(cellTy == CellType.BOOLEAN){
+       boolean bVal = cell.getBooleanCellValue();
+       vatCd.setInputTax(bVal);
+      }
+     }
+     // All rows populated
+     vatCd.setCreatedBy(this.getLoggedInUser());
+     vatCd.setCreatedOn(new Date());
+     vatCd = this.sysBuff.updateVatCode(vatCd, this.getView());
+    
+   
+    
+   }
+ 
+  }catch (IOException ex){
+   LOGGER.log(INFO, "Could not load file {0} eror {1}", 
+     new Object[]{fname,ex.getLocalizedMessage()});
+   
+  }
+  
+ }
+ 
+ private void loadVatCodeComp(String fname){
+  FacesContext fc = FacesContext.getCurrentInstance();
+  String filePath = BASE_DIR+fname;
+  LOGGER.log(INFO, "VAT code file name {0}", filePath);
+  try{
+   is = fc.getExternalContext().getResourceAsStream(filePath);
+  
+   workbook = new HSSFWorkbook(is);
+   sheet1 = workbook.getSheetAt(0);
+   
+   //Iterate through each rows from first sheet
+   Iterator<Row> rowIterator = sheet1.iterator();
+   while(rowIterator.hasNext()){
+    Row row = rowIterator.next();
+    LOGGER.log(INFO, "Row num {0}", row.getRowNum());
+    if(row.getRowNum() == 0){
+     continue;
+    }
+    if(row.getCell(0) == null){
+     break;
+    }
+    VatCodeCompanyRec vatCdComp = new VatCodeCompanyRec();
+    
+    //For each row, iterate through each columns
+     Iterator<Cell> cellIterator = row.cellIterator();
+     while(cellIterator.hasNext()){
+      Cell cell = cellIterator.next();
+      CellType cellTy = cell.getCellTypeEnum();
+      int colNum = cell.getColumnIndex();
+      
+      if(cellTy == CellType.STRING){
+       String strVal = cell.getStringCellValue();
+       switch(colNum){
+        case 0:
+         VatCodeRec vatCode = this.sysBuff.getVatCodeByCode(strVal);
+         vatCdComp.setVatCode(vatCode);
+         break;
+        case 1:
+         CompanyBasicRec comp = this.sysBuff.getCompany(strVal);
+         vatCdComp.setCompany(comp);
+         break;
+       }
+      }else if(cellTy == CellType.NUMERIC){
+       Integer intVal = ((Double)cell.getNumericCellValue()).intValue();
+       switch(colNum){
+        case 1:
+         // spreadsheet has company ref as number data
+         String strVal = intVal.toString();
+         CompanyBasicRec comp = this.sysBuff.getCompany(strVal);
+         vatCdComp.setCompany(comp);
+         break;
+        case 2:
+         // VAT 
+       }
+      }
+      
+     }
+     
+   }
+  }catch (IOException ex){
+   LOGGER.log(INFO, "Could not load file {0} eror {1}", 
+     new Object[]{fname,ex.getLocalizedMessage()});
+   
+  }
+   
+  
+ }
  public void onLoadComplete(){
   MessageUtil.addClientInfoMessage("defaultSetupFrm:grwl", "loadDefaultComplete", "blacResponse");
   progress = 0;
@@ -4915,13 +5095,13 @@ public class DefaultLoadBean extends BaseBean{
   steps = targetList.size();
   LOGGER.log(INFO, "steps {0}", steps);
   //stepNum = 30;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   this.showProgress = true;
-  rCtx.update("defaultSetupFrm");
+  pf.ajax().update("defaultSetupFrm");
   LOGGER.log(INFO, "showProgress {0}", showProgress);
   
   
-  rCtx.execute("PF('progBarWv').start()");
+  pf.executeScript("PF('progBarWv').start()");
   
   Collections.sort(targetList,new ConfigurationByOrder());
   LOGGER.log(INFO, "Sorted targetList {0}", targetList);
@@ -5187,6 +5367,12 @@ public class DefaultLoadBean extends BaseBean{
      this.loadPtnrRole("PartnerRole.xls", getLoggedInUser(), getView());
      stepNum++;
      MessageUtil.addClientInfoMessage("defaultSetupFrm:grwl", "setupLdDefPtnrRl", "blacResponse");
+     aj.update("defaultSetupFrm:grwl");
+     break;
+    case "vatCode":
+     this.loadVatCode("VatCode.xls");
+     stepNum++;
+     MessageUtil.addClientInfoMessage("defaultSetupFrm:grwl", "setupLdDefVat", "blacResponse");
      aj.update("defaultSetupFrm:grwl");
      break;
     default:

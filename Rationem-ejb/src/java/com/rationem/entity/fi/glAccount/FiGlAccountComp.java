@@ -21,6 +21,7 @@ import com.rationem.exception.BacException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.ListIterator;
+import java.util.Objects;
 import javax.persistence.*;
 
 import javax.persistence.SequenceGenerator;
@@ -41,10 +42,10 @@ import static org.eclipse.persistence.annotations.MultitenantType.SINGLE_TABLE;
  @NamedQuery(name = "GlCompAccountsAll",query = "SELECT gl.id "
     + "FROM FiGlAccountComp gl  "),
  
-@NamedQuery(name = "GlAccountCompByCompId", query =
-"Select gl FROM FiGlAccountComp gl where gl.company.id = :compId "),
-@NamedQuery(name = "glCompAcsForCoaAcnt", query =
-"Select gl  FROM FiGlAccountComp gl where gl.coaAccount.id = :comActId "),
+@NamedQuery(name = "GlAccountCompByCompId", 
+  query ="SELECT gl FROM FiGlAccountComp gl where gl.company.id = :compId "),
+@NamedQuery(name = "glCompAcsForCoaAcnt", 
+  query = "Select gl  FROM FiGlAccountComp gl where gl.coaAccount.id = :comActId "),
 @NamedQuery(name = "GlCompAcnt", query =
 "Select gl  FROM FiGlAccountComp gl where gl.company.id = :compId and gl.coaAccount.ref = :acntRef "),
 @NamedQuery(name = "GlCompAcntaAllForBnkClr", query =
@@ -99,6 +100,9 @@ public class FiGlAccountComp implements Serializable {
   private String analysis2;
   @Column(name="report_cat")
   private String repCategory;
+  
+  @Column(name="vat_status")
+  private int vatStatus;
   @OneToOne
   @JoinColumn(name="comp_vat_code_id",  referencedColumnName="vat_code_comp_id")
   private VatCodeCompany vatCode;
@@ -130,12 +134,15 @@ public class FiGlAccountComp implements Serializable {
  private BankAccountCompany bankAccountCompanyCleared;
  
  @ManyToOne
- @JoinColumn(name="BANK_AC_ID", referencedColumnName="BANK_ACCOUNT_ID" )
+ @JoinColumn(name="BANK_AC_UNCL_ID", referencedColumnName="BANK_ACCOUNT_ID" )
  private BankAccountCompany bankAccountCompanyUncleared;
  /*
  @OneToMany(mappedBy = "reconciliationAc")
  private List<ApAccount> apAccounts;
  */
+ @ManyToOne
+ @JoinColumn(name="BANK_AC_ID", referencedColumnName="BANK_ACCOUNT_ID" )
+ private BankAccountCompany bankAccount;
  
  
 
@@ -301,7 +308,7 @@ public class FiGlAccountComp implements Serializable {
     FiPeriodBalance restrBal = restrBalLi.next();
     if(restrBal.getBalPeriod() == period && restrBal.getBalYear() == year &&
        restrBal.getRestrictedFund() != null &&  
-       restrBal.getRestrictedFund().getId() == fnd.getId()){
+       Objects.equals(restrBal.getRestrictedFund().getId(), fnd.getId())){
      return restrBal;
     }
    }
@@ -329,6 +336,16 @@ public class FiGlAccountComp implements Serializable {
   this.vatCode = vatCode;
  }
 
+ public int getVatStatus() {
+  return vatStatus;
+ }
+
+ public void setVatStatus(int vatStatus) {
+  this.vatStatus = vatStatus;
+ }
+ 
+ 
+
 public FiPeriodBalance getActualPeriodBalance(int year, int period) throws BacException{
    ListIterator<FiPeriodBalance> balLi = periodBalances.listIterator();
    while(balLi.hasNext()){
@@ -342,7 +359,7 @@ public FiPeriodBalance getActualPeriodBalance(int year, int period) throws BacEx
 
 public void addActualBalance(FiPeriodBalance actBal){
    if(periodBalances == null){
-    periodBalances = new ArrayList<FiPeriodBalance>();
+    periodBalances = new ArrayList<>();
    }
    periodBalances.add(actBal);
   }
@@ -362,10 +379,7 @@ public void addActualBalance(FiPeriodBalance actBal){
    return false;
   }
   FiGlAccountComp other = (FiGlAccountComp) object;
-  if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-   return false;
-  }
-  return true;
+  return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
  }
 
  @Override

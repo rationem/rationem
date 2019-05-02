@@ -11,11 +11,12 @@ import com.rationem.util.MessageUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -70,13 +71,13 @@ public class SortOrderBean extends BaseBean {
  }
  
  public void onEditDlg(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editPanel");
-  rCtx.execute("PF('editSortOrderWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editPanel");
+  pf.executeScript("PF('editSortOrderWv').show()");
  }
  
  public void onSaveEditSortOrder(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   try{
    sortOrderSelected.setUpdatedBy(this.getLoggedInUser());
    sortOrderSelected.setUpdatedOn(new Date());
@@ -85,15 +86,15 @@ public class SortOrderBean extends BaseBean {
    boolean sortOrderFound = false;
    while(li.hasNext() && !sortOrderFound){
     SortOrderRec s = li.next();
-    if(s.getId() == sortOrderSelected.getId()){
+    if(Objects.equals(s.getId(), sortOrderSelected.getId())){
      li.set(s);
      sortOrderFound = true;
     }
    }
   MessageUtil.addInfoMessage("sortOrderUpdt", "blacResponse");
   
-  rCtx.update("sortTblId");
-  rCtx.execute("PF('editSortOrderWv').hide()");
+  pf.ajax().update("sortTblId");
+  pf.executeScript("PF('editSortOrderWv').hide()");
   }catch(Exception ex){
    logger.log(INFO, "Could not save sort order {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessage("sortOrderUpdt", "errorText");
@@ -101,14 +102,14 @@ public class SortOrderBean extends BaseBean {
  }
  public void onSaveNewSortOrder(){
   logger.log(INFO, "Called onSaveNewSortOrder");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   try{
    sortOrder.setCreatedBy(this.getLoggedInUser());
    sortOrder.setCreatedOn(new Date());
   sortOrder = sysBuff.sortOrderUpdate(sortOrder, getView());
   MessageUtil.addInfoMessage("sortOrderCr", "blacResponse");
   sortOrder = null;
-  rCtx.update("sortOrderFrm");
+  pf.ajax().update("sortOrderFrm");
   }catch(Exception ex){
    logger.log(INFO, "Could not save sort order {0}", ex.getLocalizedMessage());
    MessageUtil.addErrorMessage("sortOrderCr", "errorText");

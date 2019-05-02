@@ -143,7 +143,7 @@ public class CompanyManager {
     public AccountTypeRec createAccountType(AccountTypeRec accountType, String pg) {
      LOGGER.log(INFO, "createAccountType called wirh: {0}", accountType);
      
-      accountType = this.compDM.createAccountType(accountType, pg);
+      //accountType = this.compDM.createAccountType(accountType, pg);
       LOGGER.log(INFO, "DB entity returned: {0}",accountType);
       accountType = this.sysBuff.accountTypeUpdate(accountType,pg);
       return   accountType;    

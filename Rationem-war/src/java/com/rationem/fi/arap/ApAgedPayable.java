@@ -30,7 +30,7 @@ import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 /**
  *
  * @author user
@@ -109,7 +109,7 @@ public class ApAgedPayable extends BaseBean {
   days4 = 120;
   if(getCompList() == null){
    MessageUtil.addClientErrorMessage("agedPayFrm:errMsg", "compsNone", "errorText");
-   RequestContext.getCurrentInstance().update("agedPayFrm:errMsg");
+   PrimeFaces.current().ajax().update("agedPayFrm:errMsg");
    return;
   }
   
@@ -383,10 +383,10 @@ public class ApAgedPayable extends BaseBean {
   selOpt.setActRefFr((String)evt.getNewValue());
   if(StringUtils.isBlank(selOpt.getActRefTo())){
    selOpt.setActRefTo(selOpt.getActRefFr());
-   RequestContext.getCurrentInstance().update("agedPayFrm:acntRefTo");
+   PrimeFaces.current().ajax().update("agedPayFrm:acntRefTo");
   }else if(selOpt.getActRefFr().compareTo(selOpt.getActRefTo()) > 0){
    selOpt.setActRefTo(selOpt.getActRefFr());
-   RequestContext.getCurrentInstance().update("agedPayFrm:acntRefTo");
+   PrimeFaces.current().ajax().update("agedPayFrm:acntRefTo");
   }
  }
  
@@ -394,17 +394,17 @@ public class ApAgedPayable extends BaseBean {
   LOGGER.log(INFO, "onAcntRefFr called with {0}", evt.getNewValue());
   if(evt.getNewValue() == null && selOpt.getActRefFr() != null){
    selOpt.setActRefFr(null);
-   RequestContext.getCurrentInstance().update("agedPayFrm:acntRefFr");
+   PrimeFaces.current().ajax().update("agedPayFrm:acntRefFr");
    return;
   }
   selOpt.setActRefTo((String)evt.getNewValue());
   if(StringUtils.isBlank(selOpt.getActRefFr())){
    selOpt.setActRefFr(selOpt.getActRefTo());
-   RequestContext.getCurrentInstance().update("agedPayFrm:acntRefFr");
+   PrimeFaces.current().ajax().update("agedPayFrm:acntRefFr");
    
   }else if(selOpt.getActRefFr().compareTo(selOpt.getActRefTo()) > 0 ){
    selOpt.setActRefFr(selOpt.getActRefTo());
-   RequestContext.getCurrentInstance().update("agedPayFrm:acntRefFr");
+   PrimeFaces.current().ajax().update("agedPayFrm:acntRefFr");
   }
   
  }
@@ -412,7 +412,7 @@ public class ApAgedPayable extends BaseBean {
  public void onBackBtn(){
   setStep(0);
   setStepName(step0Text);
-  RequestContext.getCurrentInstance().update("agedPayFrm");
+  PrimeFaces.current().ajax().update("agedPayFrm");
  }
  
  public void onExecRpt(){
@@ -572,7 +572,7 @@ public class ApAgedPayable extends BaseBean {
   }
   setStep(1);
   setStepName(step1Text);
-  RequestContext.getCurrentInstance().update("agedPayFrm");
+  PrimeFaces.current().ajax().update("agedPayFrm");
  }
  
  public void onDetailBal(){
@@ -593,9 +593,9 @@ public class ApAgedPayable extends BaseBean {
     }
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displLinesFrm:linesDlg");
-  rCtx.execute("PF('linesWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displLinesFrm:linesDlg");
+  pf.executeScript("PF('linesWv').show()");
   
  }
  
@@ -622,9 +622,9 @@ public class ApAgedPayable extends BaseBean {
     apLinesSel.add(ln);
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displLinesFrm");
-  rCtx.execute("PF('linesWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displLinesFrm");
+  pf.executeScript("PF('linesWv').show()");
  }
  
  public void onDetailCat2(){
@@ -649,9 +649,9 @@ public class ApAgedPayable extends BaseBean {
     apLinesSel.add(ln);
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displLinesFrm");
-  rCtx.execute("PF('linesWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displLinesFrm");
+  pf.executeScript("PF('linesWv').show()");
  }
  
  public void onDetailCat3(){
@@ -676,9 +676,9 @@ public class ApAgedPayable extends BaseBean {
     apLinesSel.add(ln);
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displLinesFrm");
-  rCtx.execute("PF('linesWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displLinesFrm");
+  pf.executeScript("PF('linesWv').show()");
  }
  
  public void onDetailCat4(){
@@ -701,9 +701,9 @@ public class ApAgedPayable extends BaseBean {
     apLinesSel.add(ln);
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displLinesFrm");
-  rCtx.execute("PF('linesWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displLinesFrm");
+  pf.executeScript("PF('linesWv').show()");
  }
  
  public void onDetailCat5(){
@@ -727,8 +727,8 @@ public class ApAgedPayable extends BaseBean {
     apLinesSel.add(ln);
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displLinesFrm");
-  rCtx.execute("PF('linesWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displLinesFrm");
+  pf.executeScript("PF('linesWv').show()");
  }
 }

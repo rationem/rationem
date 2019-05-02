@@ -10,14 +10,17 @@ import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.config.common.BasicSetup;
 import com.rationem.util.BaseBean;
 import com.rationem.util.MessageUtil;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
+import javax.annotation.PostConstruct;
+import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
 
 /**
@@ -25,7 +28,7 @@ import org.primefaces.PrimeFaces;
  * @author Chris
  */
 public class ProcessCodeBean extends BaseBean {
- private static final Logger logger = Logger.getLogger(ProcessCodeBean.class.getName());
+ private static final Logger LOGGER = Logger.getLogger(ProcessCodeBean.class.getName());
  
  @EJB
  private SysBuffer sysBuff;
@@ -59,9 +62,7 @@ public class ProcessCodeBean extends BaseBean {
 
  
  public ProcessCodeRec getProcessCode() {
-  if(processCode == null){
-   processCode = new ProcessCodeRec();
-  }
+  
   return processCode;
  }
 
@@ -72,7 +73,7 @@ public class ProcessCodeBean extends BaseBean {
  public List<ProcessCodeRec> getProcessCodes() {
   if(processCodes == null){
    processCodes = sysBuff.getProcessCodes();
-   logger.log(INFO, "Process codes frpm Sys buff {0}", processCodes);
+   LOGGER.log(INFO, "Process codes frpm Sys buff {0}", processCodes);
   }
   return processCodes;
  }
@@ -89,17 +90,23 @@ public class ProcessCodeBean extends BaseBean {
   this.processCodeSel = processCodeSel;
  }
  
+ @PostConstruct
+ private void init(){
+  if(processCode == null){
+   processCode = new ProcessCodeRec();
+  }
+ }
  
  public void onAddProcCodeSave(){
-  
+  LOGGER.log(INFO, "onAddProcCodeSave called  with id {0}", processCode.getId());
   processCode.setCreatedBy(this.getLoggedInUser());
   processCode.setCreatedDate(new Date());
-  processCode = setup.addProcessCode(processCode, getView());
+  processCode = this.sysBuff.processCodeUpdate( processCode, getView());
   String msgHdr = responseForKey("procCd");
   if(processCode.getId() != null){
    String msg = this.responseForKey("procCdCr") + processCode.getName();
    MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
-   processCode = null;
+   processCode = new ProcessCodeRec();
    PrimeFaces rCtx = PrimeFaces.current();
    rCtx.ajax().update("procCodeCrFrm");
   }else{
@@ -110,13 +117,14 @@ public class ProcessCodeBean extends BaseBean {
  }
  
  public void onEditDlg(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editProcPg");
-  rCtx.execute("PF('editProcCdWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  
+  pf.ajax().update("editProcPg");
+  pf.executeScript("PF('editProcCdWv').show()");
  }
  
  public void onEditSave(){
-  logger.log(INFO, "onEditSAve called {0}", processCodeSel);
+  LOGGER.log(INFO, "onEditSAve called {0}", processCodeSel);
   processCodeSel.setChangedBy(this.getLoggedInUser());
   processCodeSel.setChangedDate(new Date());
   processCodeSel = sysBuff.processCodeUpdate(processCodeSel, getView());
@@ -124,21 +132,41 @@ public class ProcessCodeBean extends BaseBean {
   boolean found = false;
   while(li.hasNext() && !found){
    ProcessCodeRec rec = li.next();
-   logger.log(INFO, "processCodeSel id {0} rec id {1}", new Object[]{processCodeSel.getId(),rec.getId()});
-   if(rec.getId() == processCodeSel.getId()){
+   LOGGER.log(INFO, "processCodeSel id {0} rec id {1}", new Object[]{processCodeSel.getId(),rec.getId()});
+   if(Objects.equals(rec.getId(), processCodeSel.getId())){
     li.set(processCodeSel);
     found = true;
    }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("prCodeTbl");
-  rCtx.execute("PF('editProcCdWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("prCodeTbl");
+  pf.executeScript("PF('editProcCdWv').hide()");
  }
  
  public void onEditReset(){
   processCodeSel = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editProcPg");
-  rCtx.execute("PF('editProcCdWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editProcPg");
+  pf.executeScript("PF('editProcCdWv').hide()");
+ }
+ 
+ public List<ModuleRec> onModuleComplete(String input){
+  LOGGER.log(INFO, "onModuleComplete called with {0}", input);
+  
+  if(StringUtils.isBlank(input)){
+   return sysBuff.getModules();
+  }else{
+   List<ModuleRec> modLst = sysBuff.getModules();
+   List<ModuleRec> ret = new ArrayList<>();
+   if(modLst == null || modLst.isEmpty()){
+    return null;
+   }
+   for(ModuleRec curr:modLst){
+    if(StringUtils.startsWith(curr.getName(), input)){
+     ret.add(curr);
+    }
+   }
+   return ret;
+  }
  }
 }

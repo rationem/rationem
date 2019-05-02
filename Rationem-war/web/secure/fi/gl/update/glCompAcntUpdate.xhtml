@@ -130,7 +130,7 @@
    </p:contextMenu>
  </h:form> 
   
-  <h:form id="editCmpAcntFrm" prependId="false"> 
+  <h:form id="editCmpAcntFrm" > 
    <p:dialog id="editCompAcnt" widgetVar="editCompAcntWv" dynamic="true">
     <f:facet name="header">
      <h:outputText value="#{formText.glAccountEditCompAc}" styleClass="dlgHeader"/>
@@ -150,6 +150,12 @@
       <p:inputText id="edCompAnal1" value="#{glAccountBean.selectedCompAc.analysis1}" />
       <p:outputLabel for="edCompAnal2" value="#{formText.glAccountAnalysis1}"/>
       <p:inputText id="edCompAnal2" value="#{glAccountBean.selectedCompAc.analysis2}" />
+      <p:outputLabel for="vatStatus" value="#{formText.glAccountVatStatus}"/>
+      <p:selectOneMenu id="vatStatus" value="#{glAccountBean.selectedCompAc.vatStatus}">
+       <f:selectItem itemLabel="#{formText.vatOutside}" itemValue="0" noSelectionOption="true"/>
+       <f:selectItem itemLabel="#{formText.vatInput}" itemValue="1" />
+       <f:selectItem itemLabel="#{formText.vatOutput}" itemValue="2" />
+      </p:selectOneMenu>
       <p:outputLabel for="edCompVatCd" value="#{formText.glAccountVatCode}"
                      rendered="#{glAccountBean.selectedCompAc.coaAccount.pl}"/>
       <p:selectOneMenu  id="edCompVatCd" value="#{glAccountBean.selectedCompAc.vatCode}" var="compVatCdV"

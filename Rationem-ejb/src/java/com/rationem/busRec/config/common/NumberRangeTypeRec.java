@@ -17,8 +17,8 @@ import java.util.List;
 public class NumberRangeTypeRec implements Serializable {
  
  private Long id;
- private String numRangeTypeCode;
- private String numRangeTypeName;
+ private String Code;
+ private String Name;
  private List<NumberRangeRec> numberRanges;
  private UserRec createdBy;
  private Date createdDate;
@@ -33,20 +33,20 @@ public class NumberRangeTypeRec implements Serializable {
   this.id = id;
  }
 
- public String getNumRangeTypeCode() {
-  return numRangeTypeCode;
+ public String getCode() {
+  return Code;
  }
 
- public void setNumRangeTypeCode(String numRangeTypeCode) {
-  this.numRangeTypeCode = numRangeTypeCode;
+ public void setCode(String Code) {
+  this.Code = Code;
  }
 
- public String getNumRangeTypeName() {
-  return numRangeTypeName;
+ public String getName() {
+  return Name;
  }
 
- public void setNumRangeTypeName(String numRangeTypeName) {
-  this.numRangeTypeName = numRangeTypeName;
+ public void setName(String Name) {
+  this.Name = Name;
  }
 
  public List<NumberRangeRec> getNumberRanges() {

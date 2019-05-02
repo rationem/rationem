@@ -20,7 +20,7 @@ import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -154,11 +154,11 @@ public class ApDayBookBean extends BaseBean {
  public void onGetDocs(){
   LOGGER.log(INFO, "onGetDocs called");
   apLines = docMgr.getApDayBook(selOpts);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   
   if(apLines == null || apLines.isEmpty()){
    LOGGER.log(INFO, "No documents found");
-   rCtx.update("dayBkSel:errMsg");
+   pf.ajax().update("dayBkSel:errMsg");
   }else{
    step = 1;
    stepName = this.formTextApForKey("dayBookList");
@@ -176,7 +176,7 @@ public class ApDayBookBean extends BaseBean {
     }
    }
    LOGGER.log(INFO, "totalDoc {0}", totalDoc);
-   rCtx.update("dayBkSel");
+   pf.ajax().update("dayBkSel");
   }
  }
  

@@ -7,24 +7,20 @@ package com.rationem.fi.gl;
 
 import com.rationem.busRec.config.common.FundCategoryRec;
 import java.util.Date;
-import java.util.ListIterator;
 import com.rationem.util.BaseBean;
-import com.rationem.util.GenUtil;
-import com.rationem.exception.BacException;
 import com.rationem.ejbBean.config.company.CompanyManager;
 import javax.ejb.EJB;
 import com.rationem.busRec.fi.company.CompanyBasicRec;
 import com.rationem.busRec.fi.company.FundRec;
 import com.rationem.ejbBean.config.common.BasicSetup;
 import com.rationem.util.MessageUtil;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 
@@ -123,28 +119,28 @@ private void init(){
   
   public void onEditStart(SelectEvent evt){
    Date minDate = (Date)evt.getObject();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("fndEndDt");
-   rCtx.update("fndRetDt");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("fndEndDt");
+   pf.ajax().update("fndRetDt");
   }
   
   public void onEditValidFr(SelectEvent evt){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("fndEndDt");
-   rCtx.update("fndRetDt");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("fndEndDt");
+   pf.ajax().update("fndRetDt");
   }
   
   public void onFundChange(ValueChangeEvent evt){
    fund = (FundRec)evt.getNewValue();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("restrFndUpdtFrm");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("restrFndUpdtFrm");
    
   }
   public void onReturnRequiredChange(ValueChangeEvent evt){
    logger.log(INFO, "Return required {0}", evt.getNewValue());
    fund.setReturnRequired((Boolean)evt.getNewValue());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("restrFndUpdtFrm:fndRetDt");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("restrFndUpdtFrm:fndRetDt");
   }
   
   public void onSaveUpdate(){

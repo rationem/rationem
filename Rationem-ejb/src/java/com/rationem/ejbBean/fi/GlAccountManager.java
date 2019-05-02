@@ -133,19 +133,25 @@ public class GlAccountManager {
 
   }
 
-  
- public void saveAccountComp(FiGlAccountCompRec acnt, String pg){
-  
-  
- }  
+ 
+  public List<FiGlAccountCompRec> glCompAcntFrCoaCreate(ChartOfAccountsRec coa, 
+    CompanyBasicRec comp, UserRec usrRec, String pg){
+   LOGGER.log(INFO, "glCompAcntFrCoaCreate called with coa {0} and Comp ref {1}", new Object[]{
+    coa.getName(), comp.getReference() });
+   
+   List<FiGlAccountCompRec> retList = fiMastDM.getGlAccountsForCompany(comp.getId());
+   if(retList != null && !retList.isEmpty()){
+    LOGGER.log(INFO, "There already exist {0} accounts for Company", retList.size());
+    return null;
+   }
+   retList = fiMastDM.glCompRecAcntsForCoaCreate(coa, comp, usrRec, pg);
+   LOGGER.log(INFO, " Number company accounts created {0}", retList.size());
+   return retList;
+   
+  }
+   
 
-/**
- * Saves a new GL account and assigns to default company
- * @param glaccount
- * @param type account type profit & loss (pl) or Balance sheet (bs)
- * @param company Company ID
- * @throws BacException
- */
+
   public void saveNewGlAccount(FiGlAccountBaseRec glaccount,String type, Long company, String pg) throws BacException {
     LOGGER.log(INFO, "saveNewGlAccount called with account {0} company {1}",
             new Object[] {glaccount,company});
@@ -166,7 +172,7 @@ public class GlAccountManager {
     // Create chart of accounts Account
     try{
      LOGGER.log(INFO, "Company Sort order {0}", compAct.getSortOrder());
-      glaccount = fiMastDM.newCompPlAccount(glaccount, compAct,companyId,pg);
+      fiMastDM.newCompPlAccount(glaccount, compAct,companyId,pg);
 
       LOGGER.log(INFO, "After create GLaccount");
     }catch(BacException ex){
@@ -183,14 +189,18 @@ public class GlAccountManager {
  * @return
  * @throws BacException
  */
-  public List<FiGlAccountBaseRec> getGlAccountsForCompany(Long companyId, UserRec usr) throws BacException {
-    LOGGER.log(INFO, "GL Ac Mgr getGlAccountsForCompany called with {0} user id {1}",
-            new Object[] {companyId,usr.getId()});
+  public List<FiGlAccountBaseRec> getGlAccountsForCompany(Long companyId) throws BacException {
+    LOGGER.log(INFO, "GL Ac Mgr getGlAccountsForCompany called with comp id{0} ",
+            new Object[] {companyId});
     List<FiGlAccountCompRec> compAccounts = fiMastDM.getGlAccountsForCompany(companyId);
+    LOGGER.log(INFO, "compAccounts found {0}",compAccounts);
+    if(compAccounts ==  null || compAccounts.isEmpty()){
+     return null;
+    }
     LOGGER.log(INFO, "fiMastDM.getGlAccountsForCompany for company {0} found {1} accounts",
             new Object[] {companyId,compAccounts.size()});
     ListIterator li = compAccounts.listIterator();
-    List<FiGlAccountBaseRec> accounts = new ArrayList<FiGlAccountBaseRec>();
+    List<FiGlAccountBaseRec> accounts = new ArrayList<>();
     while(li.hasNext()){
       FiGlAccountCompRec compAc = (FiGlAccountCompRec)li.next();
       LOGGER.log(INFO, "compAc {0}", compAc);
@@ -271,12 +281,7 @@ public class GlAccountManager {
   }
 
   }
-/**
- * Saves a GL at chart of account level and thus updates all linked company GL accounts
- * @param account - Account that is changed
- * @param usr - User making the change
- * @throws BacException
- */
+
   public FiGlAccountBaseRec updateGlAccountCoa(FiGlAccountBaseRec account, UserRec usr, String view) throws BacException {
     LOGGER.log(INFO, "updateGlAccountCoa called with {0} class {1}", new Object[] {account,account.getClass()});
     
@@ -298,6 +303,7 @@ public class GlAccountManager {
     List<FiGlAccountCompRec> compAccounts = this.fiMastDM.getCompanyAccountsForCoaAccount(account);
     if(compAccounts != null && !compAccounts.isEmpty()){
      hasCompanyAccounts = true;
+     return;
     }
     LOGGER.log(INFO, "GLMgr deleteGlAccountCoa hasCompanyAccounts {0} num company Accounts {1}" ,
             new Object[] {hasCompanyAccounts,compAccounts.size()});
@@ -362,7 +368,7 @@ public class GlAccountManager {
       ListIterator li = compAcList.listIterator();
       while(li.hasNext() && !found){
         FiGlAccountCompRec rec = (FiGlAccountCompRec)li.next();
-        if(rec.getCompany().getId() == company.getId()){
+        if(Objects.equals(rec.getCompany().getId(), company.getId())){
           LOGGER.log(INFO, "Found company GL account: {0}", rec.getCompany().getReference());
           compAc = rec;
           found = true;

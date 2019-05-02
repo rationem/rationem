@@ -1255,6 +1255,7 @@ public class DocumentDM {
     glLine.setLineType(glLineType);
     glLine.setDocHeaderBase(doc);
     glLine.setGlAccount(vatRateGlAc);
+    
     docLines.add(glLine);
     LOGGER.log(INFO, "before bal update period bals doc debit {0} doc crdit {1}", 
             new Object[]{glAcBal.getPeriodDebitAmount(),glAcBal.getPeriodCreditAmount()});
@@ -1487,8 +1488,7 @@ public class DocumentDM {
   lnRec.setReference1(ln.getReference1());
   lnRec.setReference2(ln.getReference2());
   lnRec.setSortOrder(ln.getSortOrder());
-  VatCodeCompanyRec v = sysBuff.getVatCodeCompany(ln.getVatCodeCompany().getVatCode().getCode(), co);
-  lnRec.setVatCodeCompany(v);
+  
   return lnRec;
   
  }
@@ -1535,10 +1535,7 @@ public class DocumentDM {
     ln.setPostType(pt);
     ln.setReference1(rec.getReference1());
     ln.setReference2(rec.getReference2());
-    if(rec.getVatCodeCompany()!= null){
-     VatCodeCompany vc = em.find(VatCodeCompany.class, rec.getVatCodeCompany().getId(), OPTIMISTIC);
-     ln.setVatCodeCompany(vc);
-    }
+    
    }else{
     //only limited changes allowed
     User chUsr = em.find(User.class, rec.getChangeBy().getId(), OPTIMISTIC);
@@ -2002,6 +1999,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
       SalesPartCompany slPt = em.find(SalesPartCompany.class, lineRec.getSalesPart().getId());
       line.setSalesPart(slPt);
      }
+     
     } else{
      // changed line
      // cannot change these details
@@ -2192,7 +2190,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
    glLn.setRestrictedFund(ln.getRestrictedFund());
    glLn.setSalesPartCompany(ln.getSalesPart());
    glLn.setSortOrder(ln.getSortOrder());
-   glLn.setVatCodeComp(ln.getVatCodeComp());
+   glLn.setVatCode(ln.getVatCode());
    em.persist(glLn);
    return glLn;
   }
@@ -2870,10 +2868,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
    line.setReference1(rec.getReference1());
    line.setReference2(rec.getReference2());
    line.setSortOrder(rec.getSortOrder());
-   if(rec.getVatCodeCompany() != null){
-    VatCodeCompany vc = em.find(VatCodeCompany.class, rec.getVatCodeCompany().getId());
-    line.setVatCodeCompany(vc);
-   }
+   
   
    
   }else{
@@ -3177,10 +3172,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
    rec.setReference1(ln.getReference1());
    rec.setReference2(ln.getReference2());
    rec.setSortOrder(ln.getSortOrder());
-   if(ln.getVatCodeCompany() != null){
-    VatCodeCompanyRec vc = sysBuff.getVatCodeCompany(ln.getVatCodeCompany().getId(), comp);
-    rec.setVatCodeCompany(vc);
-   }
+   
   
   return rec;
  }
@@ -3327,15 +3319,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
      line.setPayType(pType);
      changedLine = true; 
     }
-    if(!Objects.equals(rec.getVatCodeCompany().getId(), line.getVatCodeCompany().getId())){
-     AuditDocLine aud = this.buildAuditDocLine(line, chUsr, pg, 'U');
-     aud.setFieldName("DOC_LN_VC");
-     aud.setNewValue(rec.getVatCodeCompany().getVatCode().getCode());
-     aud.setOldValue(line.getVatCodeCompany().getVatCode().getCode());
-     VatCodeCompany vc = em.find(VatCodeCompany.class, rec.getVatCodeCompany().getId());
-     line.setVatCodeCompany(vc);
-     changedLine = true; 
-    }
+    
     if(changedLine){
      line.setChangeBy(chUsr);
      line.setChangeDate(chDate);
@@ -3566,15 +3550,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
      l.setPayType(pType);
      changedLine = true; 
     }
-    if(!Objects.equals(rec.getVatCodeCompany().getId(), l.getVatCodeCompany().getId())){
-     AuditDocLine aud = this.buildAuditDocLine(l, chUsr, pg, 'U');
-     aud.setFieldName("DOC_LN_VC");
-     aud.setNewValue(rec.getVatCodeCompany().getVatCode().getCode());
-     aud.setOldValue(l.getVatCodeCompany().getVatCode().getCode());
-     VatCodeCompany vc = em.find(VatCodeCompany.class, rec.getVatCodeCompany().getId());
-     l.setVatCodeCompany(vc);
-     changedLine = true; 
-    }
+    
     if(changedLine){
      l.setChangeBy(chUsr);
      l.setChangeDate(chDate);
@@ -3944,10 +3920,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
     ln.setReference1(rec.getReference1());
     ln.setReference2(rec.getReference2());
     ln.setSortOrder(rec.getSortOrder());
-    if(rec.getVatCode() != null){
-     VatCodeCompany cd = em.find(VatCodeCompany.class, rec.getVatCode().getId(), OPTIMISTIC);
-     ln.setVatCode(cd);
-    }
+    
    }else{
     User chUsr = em.find(User.class, rec.getChangeBy().getId(), OPTIMISTIC);
     if((rec.getComp() == null && ln.getComp() != null)||
@@ -4079,17 +4052,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
      changedLine = true;
     }
     
-    if((rec.getVatCode() == null && ln.getVatCode() != null)||
-       (rec.getVatCode() != null && ln.getVatCode() == null) ||
-       (rec.getVatCode() != null && rec.getVatCode().getId() != ln.getVatCode().getId())){
-     AuditDocLinePartial aud = buildAuditDocLinePartial(ln, chUsr, pg, 'U');
-     aud.setFieldName("DOC_LN_VAT_CD");
-     aud.setNewValue(rec.getVatCode().getVatCode().getCode());
-     aud.setOldValue(ln.getVatCode().getVatCode().getCode());
-     VatCodeCompany cd = em.find(VatCodeCompany.class, rec.getVatCode().getId(), OPTIMISTIC);
-     ln.setVatCode(cd);
-     changedLine = true;
-    }
+    
     
     if(changedLine){
      ln.setChangeBy(chUsr);
@@ -4119,10 +4082,7 @@ private DocLineFiTemplGlRec buildDocLineFiTemplGlRec(DocLineFiTemplGl templ, boo
     rec.setReference1(ln.getReference1());
     rec.setReference2(ln.getReference2());
     ln.setSortOrder(rec.getSortOrder());
-    if(ln.getVatCode() != null){
-     VatCodeCompanyRec cd = sysBuff.getVatCodeCompany(ln.getVatCode().getId(), comp);
-     rec.setVatCode(cd);
-    }
+    
    
    return rec;
   }

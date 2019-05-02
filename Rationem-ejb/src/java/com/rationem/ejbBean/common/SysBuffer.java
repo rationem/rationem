@@ -63,6 +63,8 @@ import com.rationem.helper.comparitor.NumRangeTypeByCode;
 import com.rationem.helper.comparitor.PartnerRoleRecByName;
 import com.rationem.helper.comparitor.PaymentTermsByBasisDays;
 import com.rationem.helper.comparitor.PostTypeByDescr;
+import com.rationem.helper.comparitor.SortOrderByCode;
+import com.rationem.helper.comparitor.SortOrderByName;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -610,7 +612,16 @@ public class SysBuffer {
  public AccountTypeRec accountTypeUpdate(AccountTypeRec acntTy, String src){
   LOGGER.log(INFO, "accountTypeUpdate called with {0}", acntTy);
   acntTy = this.configDM.updateAccountType(acntTy, src);
-  ListIterator<AccountTypeRec> li = this.acntTypes.listIterator();
+  if(acntTy.getId() == null){
+   LOGGER.log(INFO,"could not save account type");
+   return acntTy;
+  }
+  if(acntTypes == null || acntTypes.isEmpty()){
+   acntTypes = new ArrayList<>();
+   acntTypes.add(acntTy);
+   return acntTy;
+  }
+  ListIterator<AccountTypeRec> li = acntTypes.listIterator();
   boolean tyFound = false;
   while(li.hasNext() && !tyFound){
    AccountTypeRec ty = li.next();
@@ -844,6 +855,7 @@ public PartnerRoleRec getPartnerRoleByCode(String code){
   if(sortOrders == null){
    sortOrders = this.configDM.getSortOrders();
   }
+  Collections.sort(sortOrders, new SortOrderByCode());
   return sortOrders;
  }
 
@@ -934,7 +946,7 @@ public PartnerRoleRec getPartnerRoleByCode(String code){
   }
   List<NumberRangeRec> rngsOfTy = new ArrayList<>();
   for(NumberRangeRec curr:rngs){
-   if(Objects.equals(curr.getNumberRangeForType().getId(), nrTy.getId())){
+   if(Objects.equals(curr.getNumberRangeType().getId(), nrTy.getId())){
     rngsOfTy.add(curr);
    }
   }
@@ -1491,6 +1503,25 @@ public CompanyBasicRec getCompFunds(CompanyBasicRec comp){
         }
     return chartsOfAccounts;
   }
+  
+ public List<ChartOfAccountsRec> getChartsOfAccountsByRef(String ref){
+  
+  getChartsOfAccounts();
+  if(chartsOfAccounts == null){
+   return null;
+  }
+  List<ChartOfAccountsRec> retList = new ArrayList();
+  for(ChartOfAccountsRec curr: chartsOfAccounts){
+   if(StringUtils.startsWith(curr.getReference(), ref)){
+    retList.add(curr);
+   }
+  }
+  if(retList.isEmpty()){
+   return null;
+  }else{
+   return retList;
+  }
+ }
 
  public ChartOfAccountsRec getChartOfAccountsbyId(Long chartId){
   List<ChartOfAccountsRec> chartAcntsList = getChartsOfAccounts();
@@ -1546,8 +1577,9 @@ public CompanyBasicRec getCompFunds(CompanyBasicRec comp){
    
    return rec;
   }
+  
   public SortOrderRec getSortOrderById(Long id){
-    SortOrderRec rec = new SortOrderRec();
+    SortOrderRec rec;
     if(sortOrders == null || sortOrders.isEmpty() ){
       sortOrders = this.getSortOrders();
     }
@@ -1555,7 +1587,7 @@ public CompanyBasicRec getCompFunds(CompanyBasicRec comp){
     boolean found = false;
     while(li.hasNext()){
       rec = (SortOrderRec)li.next();
-      if(rec.getId() == id){
+      if(Objects.equals(rec.getId(), id)){
         found = true;
         return rec;
       }
@@ -1569,15 +1601,41 @@ public CompanyBasicRec getCompFunds(CompanyBasicRec comp){
 
     return null;
   }
-  public ArrayList<SortOrderRec> getSortOrders(UserRec usr, String pg) throws BacException {
-     if(sortOrders == null || sortOrders.isEmpty()){
-      sortOrders = configDM.getSortOrders();
-    }
-    
-  return sortOrders;
+  public List<SortOrderRec> getSortOrdersByCodePrefix(String prefix) throws BacException {
+   LOGGER.log(INFO, "getSortOrdersByCodePrefix called with {0}", prefix);
+   if(StringUtils.isBlank(prefix)){
+    return this.getSortOrders();
+   }
+  List<SortOrderRec> retList = new ArrayList<>(); 
+  for(SortOrderRec curr:getSortOrders()){
+   if(StringUtils.startsWith(curr.getSortCode(), prefix)){
+    retList.add(curr);
+   }
+  } 
+  Collections.sort(retList, new SortOrderByCode());
+  return retList;
     
     
   }
+  
+  public List<SortOrderRec> getSortOrdersByNamePrefix(String prefix) throws BacException {
+   LOGGER.log(INFO, "getSortOrdersByCodePrefix called with {0}", prefix);
+   if(StringUtils.isBlank(prefix)){
+    return this.getSortOrders();
+   }
+  List<SortOrderRec> retList = new ArrayList<>(); 
+  for(SortOrderRec curr:getSortOrders()){
+   if(StringUtils.startsWith(curr.getName(), prefix)){
+    retList.add(curr);
+   }
+  } 
+  Collections.sort(retList, new SortOrderByName());
+  return retList;
+    
+    
+  }
+ 
+  
 
  public PaymentTypeRec getPostTypeBnkGlAcnt(PaymentTypeRec ptRec){
   ptRec = configDM.getPaymentTypeBnkAcntRec(ptRec);
@@ -2272,9 +2330,28 @@ public TransactionTypeRec getTransactionTypeRecById(Long tranId){
    LOGGER.log(INFO,"VAT codes returned from DB layer {0}", vatCodes);
    return vatCodes;
   }
+ }
+ 
+ public List<VatCodeRec> getAllVatCodesByRef(String ref){
+  LOGGER.log(INFO, "sys buffer getAllVatCodesByRef called with {0}",ref);
+  if(StringUtils.isBlank(ref)){
+   LOGGER.log(INFO, "Ref cannot be blank. Ref received {0}", ref);
+   return null;
+  }
+  ref = StringUtils.remove(ref, '%');
   
-  
-  
+  getAllVatCodes();
+  if(this.vatCodes == null || getAllVatCodes().isEmpty()){
+   LOGGER.log(INFO, "No VAT codes found");
+   return null;
+  }
+  List<VatCodeRec> retList = new ArrayList<>();
+  for(VatCodeRec curr:vatCodes){
+   if(StringUtils.startsWith(curr.getCode(), ref)){
+    retList.add(curr);
+   }
+  }
+  return retList;
  }
 
 
@@ -2298,6 +2375,30 @@ public TransactionTypeRec getTransactionTypeRecById(Long tranId){
    }
   } 
   return retList;
+ }
+ 
+ public List<VatCodeCompanyRec> getCompVatCodesByCode(CompanyBasicRec company, String code){
+  LOGGER.log(INFO, "getCompVatCodesByCode called with comp {0} and code {1}", 
+    new Object[]{company.getReference(), code});
+  if(company == null){
+   LOGGER.log(INFO, "Company is required {0} ", company);
+   return null;
+  }
+  List<VatCodeCompanyRec> list = this.getCompVatCodes(company);
+  if(list == null || list.isEmpty()){
+   return null;
+  }
+  if(StringUtils.isBlank(code)){
+   return list;
+  }else {
+   List<VatCodeCompanyRec> ret = new ArrayList<>();
+   for(VatCodeCompanyRec curr:list){
+    if(StringUtils.startsWith(curr.getVatCode().getCode(), code)){
+     ret.add(curr);
+    }
+   }
+   return ret;
+  }
  }
  
  public CompanyBasicRec getCompArAPSetting(CompanyBasicRec rec){
@@ -2788,9 +2889,9 @@ public List<VatRegistrationRec> getVatRegistrationsForCompany(CompanyBasicRec co
   //LOGGER.log(INFO, "SysBuff getProcessCodes processCodes at start {0}", processCodes);
   if(processCodes == null || processCodes.isEmpty() ){
    processCodes = configDM.getProcessCodesAll();
-   LOGGER.log(INFO, "processCodes from configDM {0}", processCodes);
+   
   }
-  LOGGER.log(INFO, "SysBuff getProcessCodes processCodes size {0}", processCodes.size());
+  
   return processCodes;
  }
 
@@ -3140,6 +3241,22 @@ public List<VatRegistrationRec> getVatRegistrationsForCompany(CompanyBasicRec co
   this.restrictedFunds = restrictedFunds;
  }
 
+ public VatCodeRec getVatCodeByCode(String cd){
+  if(vatCodes == null){
+   vatCodes = this.vatDM.getAllVatCodes();
+  }
+  if(vatCodes == null){
+   LOGGER.log(INFO, "No VAT codes");
+   return null;
+  }
+  for(VatCodeRec curr:vatCodes){
+   if(StringUtils.equals(curr.getCode(), cd)){
+    return curr;
+   }
+  }
+  LOGGER.log(INFO, "Could not find VAT code {0}", cd);
+  return null;
+ }
  public List<VatCodeRec> getVatCodes() {
   if(vatCodes == null){
    vatCodes = this.vatDM.getAllVatCodes();
@@ -3182,6 +3299,7 @@ public List<VatRegistrationRec> getVatRegistrationsForCompany(CompanyBasicRec co
   return compVatCode;
  }
  public VatCodeRec vatCodeUpdate(VatCodeRec code, String page){
+  LOGGER.log(INFO, "vatCodeUpdate called with VAT code {0}", code);
   code = this.vatDM.vatCodeUpdate(code, page);
   if(vatCodes == null){
    getVatCodes();
@@ -3245,5 +3363,29 @@ public List<VatRegistrationRec> getVatRegistrationsForCompany(CompanyBasicRec co
    }
   }
   return uom;
+ }
+ 
+ public VatCodeRec updateVatCode(VatCodeRec vatcd, String pg){
+  vatcd = this.vatDM.vatCodeUpdate(vatcd, pg);
+  if(vatcd.getId() == null){
+   LOGGER.log(INFO, "Failed to create new VAT code for code {0}", vatcd.getCode());
+   return null;
+  }
+  if(vatCodes == null ){
+   vatCodes = new ArrayList<>();
+  }
+  boolean found = false;
+  ListIterator<VatCodeRec> li = vatCodes.listIterator();
+  while(li.hasNext() && !found){
+   VatCodeRec curr = li.next();
+   if(Objects.equals(curr.getId(), vatcd.getId())){
+    li.set(vatcd);
+    found = true;
+   }
+  }
+  if(!found){
+   vatCodes.add(vatcd);
+  }
+  return vatcd;
  }
 }

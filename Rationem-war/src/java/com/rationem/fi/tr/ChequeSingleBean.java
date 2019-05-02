@@ -37,7 +37,7 @@ import javax.ejb.EJB;
 import javax.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.IOUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
@@ -384,9 +384,9 @@ public class ChequeSingleBean extends BaseBean {
   LOGGER.log(INFO, "onChequeBookSelItem called with {0}", evt.getObject());
   chequeBook = (NumberRangeChequeRec)evt.getObject();
   if(!chequeBook.isAutoNum()){
-   RequestContext.getCurrentInstance().update("chqSinglFrm:chqNum");
+   PrimeFaces.current().ajax().update("chqSinglFrm:chqNum");
   }
-  RequestContext.getCurrentInstance().update("chqSinglFrm:chqDownLoad");
+  PrimeFaces.current().ajax().update("chqSinglFrm:chqDownLoad");
  }
  
  public void onChequeNumberChange(ValueChangeEvent evt){
@@ -394,7 +394,7 @@ public class ChequeSingleBean extends BaseBean {
   String newVal = (String)evt.getNewValue();
   chequeNumber = StringUtils.leftPad(newVal, 8, '0');
   LOGGER.log(INFO, "chequeNumber {0}", chequeNumber);
-  RequestContext.getCurrentInstance().update("chqSinglFrm:chqNum");
+  PrimeFaces.current().ajax().update("chqSinglFrm:chqNum");
   
  }
  
@@ -430,12 +430,12 @@ public class ChequeSingleBean extends BaseBean {
   LOGGER.log(INFO, "chequeBooks {0}", chequeBooks);
   if(chequeBooks != null){
    LOGGER.log(INFO, "activate cheque books");
-   RequestContext.getCurrentInstance().update("chqSinglFrm:cb");
+   PrimeFaces.current().ajax().update("chqSinglFrm:cb");
   }
   /*
   if(docLineAp != null){
    LOGGER.log(INFO, "docLineAp {0}", docLineAp);
-   RequestContext.getCurrentInstance().update("chqSinglFrm:chqDownLoad");
+   PrimeFaces.current().ajax().update("chqSinglFrm:chqDownLoad");
   }
 */
  }

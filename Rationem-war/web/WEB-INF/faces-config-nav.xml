@@ -250,6 +250,10 @@
    <to-view-id>/secure/fi/gl/cr/glActCrComp.xhtml</to-view-id>
   </navigation-case>
   <navigation-case>
+   <from-outcome>glActCrCompCoa</from-outcome>
+   <to-view-id>/secure/fi/gl/cr/glAcntCompAcntFromCoa.xhtml</to-view-id>
+  </navigation-case>
+  <navigation-case>
    <from-outcome>glRestrFndCr</from-outcome>
    <to-view-id>/secure/fi/gl/cr/restrFundCr.xhtml</to-view-id>
   </navigation-case>

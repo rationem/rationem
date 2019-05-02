@@ -54,7 +54,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.SelectEvent;
@@ -524,7 +524,7 @@ public class ApMastBean extends BaseBean{
       LOGGER.log(INFO, "WEb need to get sort orders");
       UserRec usr = getLoggedInUser();
       LOGGER.log(INFO, "LOgged in user {0}", usr);
-      sortOrderList = this.buff.getSortOrders(usr,getView());
+      sortOrderList = this.buff.getSortOrders();
       if(sortOrderList != null && !sortOrderList.isEmpty()){
        SortOrderRec sort = sortOrderList.get(0);
        
@@ -568,7 +568,7 @@ public class ApMastBean extends BaseBean{
     updtList.add("apActCrFrm:errMsg");
     updtList.add("apActCrFrm:apAcntName");
     updtList.add("apActCrFrm:ptnrDetPg");
-    RequestContext.getCurrentInstance().update(updtList);
+    PrimeFaces.current().ajax().update(updtList);
     
    }else{
     apAccountEntered = true;
@@ -576,7 +576,7 @@ public class ApMastBean extends BaseBean{
     updtList.add("apActCrFrm:errMsg");
     updtList.add("apActCrFrm:apAcntName");
     updtList.add("apActCrFrm:ptnrDetPg");
-    RequestContext.getCurrentInstance().update(updtList);
+    PrimeFaces.current().ajax().update(updtList);
    }
   
  }
@@ -588,8 +588,8 @@ public class ApMastBean extends BaseBean{
  public void onAddrEditNewAddr(){
   addrEdit = new AddressRec();
   addrEdit.setCountry(this.apAccount.getCompany().getCountry());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addrEdFrm:addrEdPgId");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addrEdFrm:addrEdPgId");
  }
  
  public void onAddrPostCdSrch(){
@@ -598,9 +598,9 @@ public class ApMastBean extends BaseBean{
   LOGGER.log(INFO, "Addresses returned {0}",addressList);
   if(addressList == null || addressList.isEmpty() ){
    MessageUtil.addClientWarnMessage("selAddrFrm:grl", "addrNoAddrPc", "validationText");
-   RequestContext.getCurrentInstance().update("selAddrFrm:grl");
+   PrimeFaces.current().ajax().update("selAddrFrm:grl");
   }else{
-   RequestContext.getCurrentInstance().update("selAddrFrm:addrSelTbl");
+   PrimeFaces.current().ajax().update("selAddrFrm:addrSelTbl");
   }
   
   
@@ -614,7 +614,7 @@ public class ApMastBean extends BaseBean{
   
   if(evt.getObject() != null){
    AddressRec selected = (AddressRec)evt.getObject();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    List<String> updateList = new ArrayList<>();
    if(apAcntCrStep == 1){
     apAccount.setAccountAddress(selected);
@@ -627,8 +627,8 @@ public class ApMastBean extends BaseBean{
      bankAcApNew.getBankAccount().getAccountForBranch().getBank().setBankAddress(selected);
     updateList.add("trBnkNewFrm:bnkAddrPg");
    }
-   rCtx.update(updateList);
-   rCtx.execute("PF('selAddrWv').hide()");
+   pf.ajax().update(updateList);
+   pf.executeScript("PF('selAddrWv').hide()");
    
   // apAccount.getApAccountBanks().get(0).getBank().getBankOrganisation().getName();
    
@@ -638,7 +638,7 @@ public class ApMastBean extends BaseBean{
  
  public void onAddrEditDlg(){
   LOGGER.log(INFO, "onAddrEdit called");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   addrEdit = apAccount.getAccountAddress();
   if(addrEdit == null){
    addrEdit = new AddressRec();
@@ -652,7 +652,7 @@ public class ApMastBean extends BaseBean{
    if(apAccount.getCompany().getCountry() != null){
    if(Objects.equals(c.getId(), apAccount.getCompany().getCountry().getId())){
     addrEdit.setCountry(c);
-    rCtx.update("addrEdFrm:addrEdPgId");
+    pf.ajax().update("addrEdFrm:addrEdPgId");
     break;
    }
    }else{
@@ -660,13 +660,13 @@ public class ApMastBean extends BaseBean{
    }
   }
   
-  rCtx.execute("PF('addrEdDlgWv').show();");
+  pf.executeScript("PF('addrEdDlgWv').show();");
  }
  
  public void onApAcntCrBack(){
   LOGGER.log(INFO, "onApAcntCrNext called");
   apAcntCrStep--;
-  RequestContext.getCurrentInstance().update("apActCrFrm");
+  PrimeFaces.current().ajax().update("apActCrFrm");
  }
  public void onApAcntCrNext(){
   LOGGER.log(INFO, "onApAcntCrNext called");
@@ -680,7 +680,7 @@ public class ApMastBean extends BaseBean{
   List<String> updtList = new ArrayList<>();
   
   updtList.add("apActCrFrm");
-  RequestContext.getCurrentInstance().update(updtList);
+  PrimeFaces.current().ajax().update(updtList);
   
  }
  
@@ -691,9 +691,9 @@ public class ApMastBean extends BaseBean{
  public void onApAcntAddrFind(){
   LOGGER.log(INFO, "onApAcntAddrFind called");
   acntAddrNew = false;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("selAddrFrm");
-  rCtx.execute("PF('selAddrWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("selAddrFrm");
+  pf.executeScript("PF('selAddrWv').show();");
  }
  
  public void onApAcntAddrNew(){
@@ -702,7 +702,7 @@ public class ApMastBean extends BaseBean{
   List<String> updateLst = new ArrayList<>(); 
   updateLst.add("apActCrFrm:acntAddrNumNamePg");
   updateLst.add("apActCrFrm:acntAddrPg");
-  RequestContext.getCurrentInstance().update(updateLst);
+  PrimeFaces.current().ajax().update(updateLst);
  }
  public String onApAcntCrStepCh(FlowEvent evt){
   LOGGER.log(INFO, "onApAcntCrStepCh called");
@@ -775,8 +775,8 @@ public class ApMastBean extends BaseBean{
    br.getBranchAddress().setCountry(apAccount.getCompany().getCountry());
   }
   bankAcApNew.getBankAccount().setAccountForBranch(br);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('trBnkBrNewDlg').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('trBnkBrNewDlg').show();");
   dialogId = "trBnkBrNewDlg";
   addrEdit = br.getBranchAddress();
   LOGGER.log(INFO, "branch address country {0}", addrEdit.getCountry());
@@ -792,23 +792,23 @@ public class ApMastBean extends BaseBean{
   options.put("contentHeight", "100%");
   options.put("headerElement", "apBnkAcntCrhdr");
   
-  RequestContext.getCurrentInstance().openDialog("apBnkBrCrDlg",options,null);
+  //PrimeFaces.current().dialog("apBnkBrCrDlg",options,null);
   
  }
  
  public void onBankAccountSelect(SelectEvent evt){
   BankAccountRec s = (BankAccountRec)evt.getObject();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(getViewSimple().equals("apActCr") 
     && StringUtils.isBlank(bankAcApNew.getAccountName())){
    bankAcApNew.setAccountName(s.getAccountName());
-   rCtx.update("newBankActApFrm:newBnkAcntNm");
+   pf.ajax().update("newBankActApFrm:newBnkAcntNm");
   }
   
  }
  
  public void onBankAccountSubLedTrf(){
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   List<ArBankAccountRec> arBankActs = this.apAccount.getApAccountBanks();
   LOGGER.log(INFO, "Pre-transfer banks {0}", arBankActs);
   if(arBankActs == null){
@@ -826,8 +826,8 @@ public class ApMastBean extends BaseBean{
    bankAcApNew.setId(id);
    arBankActs.add(bankAcApNew);
    apAccount.setApAccountBanks(arBankActs);
-   rCtx.update("apActCrFrm:bnkTbl");
-   rCtx.execute("PF('addBnkAcntApWv').hide()");
+   pf.ajax().update("apActCrFrm:bnkTbl");
+   pf.executeScript("PF('addBnkAcntApWv').hide()");
   }
   
   LOGGER.log(INFO, "Pre-transfer banks {0}", arBankActs);
@@ -854,7 +854,7 @@ public class ApMastBean extends BaseBean{
     
    }
    
-   RequestContext.getCurrentInstance().update("trBnkNewFrm:bnkAddrPg");
+   PrimeFaces.current().ajax().update("trBnkNewFrm:bnkAddrPg");
   }
  }
  
@@ -879,7 +879,7 @@ public class ApMastBean extends BaseBean{
   if(bankExists){
    ((EditableValueHolder) toValidate).setValid(false);
    MessageUtil.addClientErrorMessage("trBnkNewFrm:errMsg", "bnkDupl", "validationText");
-   RequestContext.getCurrentInstance().update("trBnkNewFrm:errMsg");
+   PrimeFaces.current().ajax().update("trBnkNewFrm:errMsg");
   }else{
    ((EditableValueHolder) toValidate).setValid(true);
   }
@@ -922,18 +922,18 @@ public class ApMastBean extends BaseBean{
   bankAcApNew.getBankAccount().getAccountForBranch().setBank(new BankRec());
   bankAcApNew.getBankAccount().getAccountForBranch().getBank().setBankAddress(new AddressRec());
   bankAcApNew.getBankAccount().getAccountForBranch().getBank().setBankOrganisation(new PartnerCorporateRec());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("trBnkNewFrm");
-  rCtx.execute("PF('trBnkNewDlg').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("trBnkNewFrm");
+  pf.executeScript("PF('trBnkNewDlg').show()");
   
  }
  
  
  public void onBnkOrgCrBtn(){
   bankAcApNew.getBankAccount().getAccountForBranch().getBank().setBankOrganisation(new PartnerCorporateRec());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("trNewNewBnkOrgFrm");
-  rCtx.execute("PF('newNewBnkOrgWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("trNewNewBnkOrgFrm");
+  pf.executeScript("PF('newNewBnkOrgWv').show()");
  }
  
  public void onBankOrgPtnrTransf(){
@@ -948,9 +948,9 @@ public class ApMastBean extends BaseBean{
   bnkNewOrg = ptnrMgr.createCorporatePartnerBank(bnkNewOrg, getLoggedInUser(), getView());
   LOGGER.log(INFO, "bnkNewOrg {0}",bnkNewOrg);
   bankAcApNew.getBankAccount().getAccountForBranch().getBank().setBankOrganisation(bnkNewOrg);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("trBnkNewFrm:trBnkOrg");
-  rCtx.execute("PF('newBnkOrgWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("trBnkNewFrm:trBnkOrg");
+  pf.executeScript("PF('newBnkOrgWv').hide()");
   
   
  }
@@ -960,13 +960,13 @@ public class ApMastBean extends BaseBean{
   LOGGER.log(INFO, "Post code {0}", bankAcApNew.getBankAccount().getAccountForBranch().getBank().getBankAddress().getPostCode());
   LOGGER.log(INFO, "Street {0}", bankAcApNew.getBankAccount().getAccountForBranch().getBank().getBankAddress().getStreet());
   boolean newAddr = this.ptnrMgr.checkAddressUnique(bankAcApNew.getBankAccount().getAccountForBranch().getBank().getBankAddress());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(!newAddr){
     MessageUtil.addClientWarnMessage("newBnkAddr:errMsg", "addrDupl", "validationText");
-    rCtx.update("newBnkAddr:errMsg");
+    pf.ajax().update("newBnkAddr:errMsg");
   }else{
-   rCtx.update("trBnkNewFrm:bnkAddrPg");
-   rCtx.execute("PF('trBnkNewDlgWv').hide();");
+   pf.ajax().update("trBnkNewFrm:bnkAddrPg");
+   pf.executeScript("PF('trBnkNewDlgWv').hide();");
   }
  }
  public void onBankOrgTransfer(){
@@ -991,19 +991,25 @@ public class ApMastBean extends BaseBean{
   }
   bnk = bankMgr.createBank(bnk, crUsr, getView());
   LOGGER.log(INFO, "bnk id after create {0}", bnk.getId());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(bnk.getId() == null){
    MessageUtil.addClientErrorMessage("trBnkNewFrm:errMsg", "bnkBankCr", "errorText"); 
-   rCtx.update("trBnkNewFrm:errMsg");
+   pf.ajax().update("trBnkNewFrm:errMsg");
    
   }else{
    bankAcApNew.getBankAccount().getAccountForBranch().setBank(bnk);
-   rCtx.execute("PF('trBnkNewDlg').hide()");
-   rCtx.update("trBnkBrNewFrm:trBnkBrBank");
+   
+   pf.executeScript("PF('trBnkNewDlg').hide()");
+   pf.ajax().update("trBnkBrNewFrm:trBnkBrBank");
   }
   
   
  }
+  public void onCompanySelect(SelectEvent evt){
+   LOGGER.log(INFO, "onCompanySelect called with {0}", evt.getObject());
+   apAccount.setCompany((CompanyBasicRec)evt.getObject());
+   PrimeFaces.current().ajax().update("apActCrFrm:compName");
+  }
  
  public List<CountryRec> onCountryComplete(String input){
   LOGGER.log(INFO, "onCountryComplete called with {0}", input);
@@ -1030,7 +1036,7 @@ public class ApMastBean extends BaseBean{
     }else{
      LOGGER.log(INFO, "Account ref already used");
      MessageUtil.addClientWarnMessage("newPtnrFrm:errMsg", "ptnrRefUniq", "validationText");
-     RequestContext.getCurrentInstance().update("newPtnrFrm:errMsg");
+     PrimeFaces.current().ajax().update("newPtnrFrm:errMsg");
     }
     break;
    case "indiv":
@@ -1039,7 +1045,7 @@ public class ApMastBean extends BaseBean{
     }else{
      LOGGER.log(INFO, "Account ref already used");
      MessageUtil.addClientWarnMessage("newPtnrFrm:errMsg", "ptnrRefUniq", "validationText");
-     RequestContext.getCurrentInstance().update("newPtnrFrm:errMsg");
+     PrimeFaces.current().ajax().update("newPtnrFrm:errMsg");
     }
     
   }
@@ -1063,7 +1069,7 @@ public class ApMastBean extends BaseBean{
     }
     if(error){
      //ptnrCorp = null;
-     RequestContext.getCurrentInstance().update("newPtnrFrm:errMsg");
+     PrimeFaces.current().ajax().update("newPtnrFrm:errMsg");
      return;
     }
     try{
@@ -1074,10 +1080,10 @@ public class ApMastBean extends BaseBean{
      //ptnrCorp = ptnrMgr.createCorporatePtnrSubLed(ptnrCorp, this.getLoggedInUser(), this.getView());
      apAccount.setApAccountFor(ptnrCorp);
      MessageUtil.addClientInfoMessage("newPtnrFrm:grl", "ptnrIndivCr", "blacResponse");
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("apActCrFrm");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("apActCrFrm");
      
-     rCtx.execute("PF('crPtnrDlg').hide();");
+     pf.executeScript("PF('crPtnrDlg').hide();");
     
     }catch(BacException ex){
      GenUtil.addErrorMessage(errorForKey("PTNR_EXISTS"));
@@ -1097,8 +1103,8 @@ public class ApMastBean extends BaseBean{
    }
   }
   if(found){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("apActCrFrm:bnkTbl");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("apActCrFrm:bnkTbl");
   }
  }
  
@@ -1109,7 +1115,7 @@ public class ApMastBean extends BaseBean{
   bankAcApNew.setDdFileType(dd.getContentType());
   bankAcApNew.setSignedDD(dd.getContents());
   bankAcApNew.setDdFileName(dd.getFileName());
-  RequestContext.getCurrentInstance().update("newBankActApFrm:ddFilenamePg");
+  PrimeFaces.current().ajax().update("newBankActApFrm:ddFilenamePg");
  }
  
  public void onNewAcntAddrTrf(){
@@ -1118,9 +1124,9 @@ public class ApMastBean extends BaseBean{
   if(addrEdit != null){
   addrEdit = ptnrMgr.addressUpdate(addrEdit, getLoggedInUser(), getView());
   apAccount.setAccountAddress(addrEdit);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addrEdFrm:addrEdPgId");
-  rCtx.execute("PF('addrEdDlgWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addrEdFrm:addrEdPgId");
+  pf.executeScript("PF('addrEdDlgWv').hide();");
   }
  }
  
@@ -1141,9 +1147,9 @@ public class ApMastBean extends BaseBean{
    
  public void onBankAccountAutoCrDlg(){
   bankAcApNew.setBankAccount(new BankAccountRec());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("trBnkAcntCrWs:bnkAcntCrWs");
-  rCtx.execute("PF('trBnkAcntWsDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("trBnkAcntCrWs:bnkAcntCrWs");
+  pf.executeScript("PF('trBnkAcntWsDlgWv').show();");
   
  }
  public void onNewAcntCrPtnrDlg(){
@@ -1154,9 +1160,9 @@ public class ApMastBean extends BaseBean{
    ptnrPerson = new PartnerPersonRec();
   }
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("newPtnrFrm");
-  rCtx.execute("PF('crPtnrDlg').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("newPtnrFrm");
+  pf.executeScript("PF('crPtnrDlg').show();");
  }
  
  public void onNewBankAcntArDlg(){
@@ -1179,9 +1185,9 @@ public class ApMastBean extends BaseBean{
    bankNoSelect.setBankOrganisation(corp);
   }
   
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("newBankActApFrm");
-  rCtx.execute("PF('addBnkAcntApWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("newBankActApFrm");
+  pf.executeScript("PF('addBnkAcntApWv').show()");
   
   
  }
@@ -1193,8 +1199,8 @@ public class ApMastBean extends BaseBean{
   }
   bankAcApNew.getBankAccount().setAccountForBranch((BankBranchRec)evt.getObject());
   bankAccounts = ((BankBranchRec)evt.getObject()).getAccounts();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("newBankActApFrm:addApBankAcBnkAc");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("newBankActApFrm:addApBankAcBnkAc");
   
   
  }
@@ -1202,7 +1208,7 @@ public class ApMastBean extends BaseBean{
  public void onNewBankAcntTrTransfer(){
   LOGGER.log(INFO, "onNewBankAcntTrTransfer called with {0} ", bankAcApNew.getBankAccount());
   LOGGER.log(INFO,"bank Branch {0}",bankAcApNew.getBankAccount().getAccountForBranch());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   // attempt to create in DB
   BankAccountRec bnkAcnt = bankAcApNew.getBankAccount();
   if(bnkAcnt.getId() == null){
@@ -1223,13 +1229,13 @@ public class ApMastBean extends BaseBean{
   updates.add("newBankActApFrm:addApBankAcBranch");
   updates.add("newBankActApFrm:addApBankAcBnkAc");
   
-  rCtx.update(updates);
-  rCtx.execute("PF('trBnkAcntDlgWv').hide()");
+  pf.ajax().update(updates);
+  pf.executeScript("PF('trBnkAcntDlgWv').hide()");
  }
  
  public void onNewBankAcntValidTrf(){
   LOGGER.log(INFO, "onNewBankAcntValidTrf called");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   BankAccountRec bnkAcnt;
   
   BankValidation bankValWeb = new BankValidation();
@@ -1281,8 +1287,8 @@ public class ApMastBean extends BaseBean{
    
    //bnkAcnt = this.bankMgr.bankAccountUpdate(bnkAcnt, currUsr, getView(), true);
    bankAcApNew.setBankAccount(bnkAcnt);
-   rCtx.update("newBankActApFrm:newApbankAcntPg");
-   rCtx.execute("PF('trBnkAcntWsDlgWv').hide()");
+   pf.ajax().update("newBankActApFrm:newApbankAcntPg");
+   pf.executeScript("PF('trBnkAcntWsDlgWv').hide()");
   }catch(BacException ex){
    LOGGER.log(INFO, "Bank account Validation failed :{0} ",ex.getLocalizedMessage());
    if(StringUtils.startsWith(ex.getLocalizedMessage(), "INVALID - Modulus Check Failed")){
@@ -1296,7 +1302,7 @@ public class ApMastBean extends BaseBean{
    }else if (StringUtils.startsWith(ex.getLocalizedMessage(), "ERROR - User ID Expired")){
     MessageUtil.addErrorMessage("bvId", "validationText");
    }
-   rCtx.update("trBnkAcntCrWs:bnkValMsg");
+   pf.ajax().update("trBnkAcntCrWs:bnkValMsg");
   }
  }
  public void onNewBankBranchAddrToggle(ToggleEvent evt){
@@ -1324,11 +1330,11 @@ public class ApMastBean extends BaseBean{
   List<String> updates = new ArrayList<>();
   updates.add("trBnkBrNewFrm:msgs");
   updates.add("trBnkBrNewFrm:trBnkBrSort");
-  RequestContext.getCurrentInstance().update(updates);
+  PrimeFaces.current().ajax().update(updates);
  }
  public void onNewBankBranchTransfer(){
   LOGGER.log(INFO, bnkSortWs, ptnrMgr);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   LOGGER.log(INFO, "Transfer Branch address {0}", addrEdit);
   
   if (addrEdit != null){
@@ -1381,8 +1387,8 @@ public class ApMastBean extends BaseBean{
    // Branch not ceated
    MessageUtil.addErrorMessage("bnkBankBrCr", "errorText");
   }else{
-   rCtx.update("trBnkAcntFrm:trBnkSortCd");
-   rCtx.execute("PF('trBnkBrNewDlg').hide()");
+   pf.ajax().update("trBnkAcntFrm:trBnkSortCd");
+   pf.executeScript("PF('trBnkBrNewDlg').hide()");
   }
  }
  
@@ -1407,7 +1413,7 @@ public class ApMastBean extends BaseBean{
   ((EditableValueHolder) toValidate).setValid(false);
   MessageUtil.addClientWarnMessage("trNewBnkOrgFrm:errMsg", "ptnrLegalNameDupl", "validationText");
  
-  RequestContext.getCurrentInstance().update("trNewBnkOrgFrm:errMsg");
+  PrimeFaces.current().ajax().update("trNewBnkOrgFrm:errMsg");
   
   
  }
@@ -1490,8 +1496,8 @@ public class ApMastBean extends BaseBean{
   LOGGER.log(INFO, "onAddrEditPostCodeSel called with {0}", evt.getObject());
   AddressRec selAddr = (AddressRec)evt.getObject();
   this.addrEdit = selAddr;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addrEdFrm:addrEdPgId");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addrEdFrm:addrEdPgId");
   
  }
  
@@ -1569,7 +1575,7 @@ public class ApMastBean extends BaseBean{
    this.init();
    this.apAcntCrStepCompl = false;
    this.apAcntCrStep = 0;
-   RequestContext.getCurrentInstance().update("apActCrFrm");
+   PrimeFaces.current().ajax().update("apActCrFrm");
    return null;
   }catch(Exception ex){
    MessageUtil.addErrorMessage("apActCreate", "errorText");
@@ -1596,7 +1602,7 @@ public class ApMastBean extends BaseBean{
       apAccount.setAccountAddress(ptrnrDefaultAddr);
      }else{
       MessageUtil.addClientWarnMessage("apActCrFrm:grl", "apVenNoAddress", "formTextAp");
-      RequestContext.getCurrentInstance().update("apActCrFrm:grl");
+      PrimeFaces.current().ajax().update("apActCrFrm:grl");
       LOGGER.log(INFO, "Warn grl far addr {0}",ptrnrDefaultAddr);
      }
     
@@ -1611,8 +1617,8 @@ public class ApMastBean extends BaseBean{
     updates.add("apActCrFrm:addrCounty");
     updates.add("apActCrFrm:addrCountry");
     updates.add("apActCrFrm:addrPostCd");
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update(updates);
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update(updates);
 
 
   }

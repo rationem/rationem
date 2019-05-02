@@ -30,8 +30,6 @@ import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -40,7 +38,7 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.ToggleEvent;
 
 /**
@@ -145,13 +143,13 @@ public class ChequeListBean extends BaseBean {
  
  public void onChequeListAction(){
   LOGGER.log(INFO, "onChequeListAction Called ");
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   
   cheques = bankMgr.getChequesBySel(chqSelOpts);
   
   if(cheques == null || cheques.isEmpty()){
    MessageUtil.addWarnMessage("chqsNone", "errorText");
-   rCtx.update("chqListFrm:mess");
+   pf.ajax().update("chqListFrm:mess");
    return;
   }
   if(step == ChequeListBean.SELECT){
@@ -162,7 +160,7 @@ public class ChequeListBean extends BaseBean {
   
   
   
-  rCtx.update("chqListFrm");
+  pf.ajax().update("chqListFrm");
  }
  
  public void onChqListToggle(ToggleEvent evt){

@@ -12,7 +12,7 @@ import com.rationem.util.BaseBean;
 import com.rationem.util.MessageUtil;
 import java.util.Date;
 import javax.annotation.PostConstruct;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
@@ -43,7 +43,7 @@ public class ApAgeDebtSplitBean extends BaseBean {
  private void init(){
   if(getCompList() == null){
    MessageUtil.addClientErrorMessage("agedDebt:errMsg", "compsNone", "errorText");
-   RequestContext.getCurrentInstance().update("agedDebt:errMsg");
+   PrimeFaces.current().ajax().update("agedDebt:errMsg");
    return;
   }
   compSel = getCompList().get(0);
@@ -81,7 +81,7 @@ public class ApAgeDebtSplitBean extends BaseBean {
   compSel.getCompApAr().setChangedDate(new Date());
   compSel = sysBuff.updateCompArAP(compSel, getView());
   MessageUtil.addClientInfoMessage("agedDebt:okMsg", "apAgeSplOk", "blacResponse");
-  RequestContext.getCurrentInstance().update("agedDebt:okMsg");
+  PrimeFaces.current().ajax().update("agedDebt:okMsg");
  }
  
 }

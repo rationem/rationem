@@ -56,7 +56,7 @@ import static org.eclipse.persistence.annotations.MultitenantType.SINGLE_TABLE;
 @TenantDiscriminatorColumn(name="tenant_id",discriminatorType=STRING,length=50,contextProperty="tenantId")
 @NamedQueries({
  
-@NamedQuery(name="apActsByName", query="Select ap from ApAccount ap where ap.accountCode = :acntCode "
+@NamedQuery(name="apActsByName", query="Select ap from ApAccount ap where ap.accountCode like :acntCode "
         + "and ap.company.id = :compId"),
 @NamedQuery(name="apActsByNameXcomp", query="Select ap from ApAccount ap where ap.accountCode like :acntCode "
         + "and ap.company.id in :compIdList"),

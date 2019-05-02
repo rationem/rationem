@@ -32,7 +32,7 @@ import static java.util.logging.Level.INFO;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.event.ToggleEvent;
@@ -531,11 +531,11 @@ public class SalesPartBean extends BaseBean {
   part.setSalesPartCompany(compParts);
   partCompany = null;
   LOGGER.log(INFO,"Comps for part {0}",part.getSalesPartCompanies().size());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces pf = PrimeFaces.current();
   if(part.getSalesPartCompanies().size() > 0){
-   rCtx.update("compsGrid");
-   rCtx.update("compPartLines");
-   rCtx.execute("PF('addCompDlgWv').hide()");
+   pf.ajax().update("compsGrid");
+   pf.ajax().update("compPartLines");
+   pf.executeScript("PF('addCompDlgWv').hide()");
   }
  }
  
@@ -639,7 +639,7 @@ public class SalesPartBean extends BaseBean {
   selectedPart = (SalesPartRec)evt.getObject();
   LOGGER.log(INFO, "onSalePartSelect selectedPart {0}", selectedPart);
   if(selectedPart != null){
-   RequestContext.getCurrentInstance().update("editOp");
+   PrimeFaces.current().ajax().update("editOp");
   }
 
  }
@@ -671,8 +671,8 @@ public class SalesPartBean extends BaseBean {
    MessageUtil.addInfoMessage("slPartAdded", "blacResponse");
    part = new SalesPartRec(); 
    partCompany = new SalesPartCompanyRec();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("salesPartFrm");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("salesPartFrm");
   }catch(BacException ex){
   LOGGER.log(INFO, "Could save part BacException {0}", ex.getLocalizedMessage());
   MessageUtil.addErrorMessage("slPartAdd", "errorText");
@@ -750,7 +750,7 @@ public class SalesPartBean extends BaseBean {
     }
    }
   }
-  RequestContext.getCurrentInstance().update("editCompPartLines");
+  PrimeFaces.current().ajax().update("editCompPartLines");
  }
  public void onDispPartMenu(){
   LOGGER.log(INFO, "onDispPartMenu {0}", selectedPart.getSalesPartCompanies());
@@ -872,9 +872,9 @@ public class SalesPartBean extends BaseBean {
   partCompany.setValidTo(getMaxDate());
   LOGGER.log(INFO, "currency minor unit {0}", partCompany.getCompany().getCurrency().getMinorUnit());
   LOGGER.log(INFO, "partCompany valid to  {0}", partCompany.getValidTo());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addCompPtGrid");
-  rCtx.execute("PF('addCompDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addCompPtGrid");
+  pf.executeScript("PF('addCompDlgWv').show();");
   
   
  }
@@ -888,7 +888,7 @@ public class SalesPartBean extends BaseBean {
    }
   }
   if(foundPart){
-   RequestContext.getCurrentInstance().update("compPartLines");
+   PrimeFaces.current().ajax().update("compPartLines");
   }
  }
  
@@ -912,9 +912,9 @@ public class SalesPartBean extends BaseBean {
    }
   }
   if(foundCompPt){
-   RequestContext  rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("changePartAP:editCompPartLines");
-   rCtx.execute("PF('editCompDlgWv').hide();");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("changePartAP:editCompPartLines");
+   pf.executeScript("PF('editCompDlgWv').hide();");
   }
  }
  

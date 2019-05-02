@@ -43,7 +43,7 @@ import java.util.logging.Logger;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.RowEditEvent;
 
@@ -341,8 +341,8 @@ private ArrayList<SelectItem> buildCalSelectList(ArrayList<CalendarRuleBaseRec> 
       }
       
      }
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("rulPnlId");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("rulPnlId");
      }else if(evt.getOldStep().equalsIgnoreCase("ruleId") && evt.getNewStep().equalsIgnoreCase("summaryId")){
       if(fisPerRule.getCalBasisOption() == 2){
        if(fisCalFixedDate.getDayOfMonth() == 0){
@@ -379,8 +379,8 @@ private ArrayList<SelectItem> buildCalSelectList(ArrayList<CalendarRuleBaseRec> 
     }
     public void onFlexPerAddYr(){
      fisCalFlexYrAdd = new CalendarRuleFlexYearRec();
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.execute("PF('addYrDlgWv').show()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.executeScript("PF('addYrDlgWv').show()");
      logger.log(INFO, "onFlexPerAddYr After show dlg");
     }
 
@@ -394,9 +394,9 @@ private ArrayList<SelectItem> buildCalSelectList(ArrayList<CalendarRuleBaseRec> 
      logger.log(INFO, "origin flex years {0}", fisPerRule.getCalendarRule().getCalRuleFlexYears().size());
      fisPerRule.getCalendarRule().setCalRuleFlexYears(years);
      fisPerRule = sysBuffer.fisPeriodRuleCalUpdateYears(fisPerRule, this.getLoggedInUser(),getView());
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.execute("PF('addYrDlgWv').hide()");
-     rCtx.update("flexYr");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.executeScript("PF('addYrDlgWv').hide()");
+     pf.ajax().update("flexYr");
      
     }
     public void onFlexPerEdit(RowEditEvent evt){
@@ -442,9 +442,9 @@ private ArrayList<SelectItem> buildCalSelectList(ArrayList<CalendarRuleBaseRec> 
      String msg = this.responseForKey("fiscPerUpdt") + fisPerRule.getPeriodRule();
      String msgHdr = this.responseForKey("fiscPerRuleHdr");
      updatePerRuleOk = true;
-     /*RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.execute("PF('wizWv').back()");
-     rCtx.update("fisPerRuleUpdtFrm");*/
+     /*PrimeFaces pf = PrimeFaces.current();
+     pf.executeScript("PF('wizWv').back()");
+     pf.ajax().update("fisPerRuleUpdtFrm");*/
      MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);   
     }
     public void onStartMonthChange(ValueChangeEvent evt){
@@ -473,8 +473,8 @@ private ArrayList<SelectItem> buildCalSelectList(ArrayList<CalendarRuleBaseRec> 
      }
      logger.log(INFO, "newYear periods {0}", newYear.getFlexPeriods());
      fisCalFlexYr = newYear;
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("flexPersTblId");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("flexPersTblId");
       
      
      
@@ -642,9 +642,9 @@ public ArrayList<SelectItem> getSelectCalRuleByRuleId(int ruleId) {
             MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
             fisPerRule = null;
             createdPerRuleOk = true;
-            RequestContext rCtx = RequestContext.getCurrentInstance();
+            PrimeFaces pf = PrimeFaces.current();
             
-            rCtx.update("fisPCntrlFrm");
+            pf.ajax().update("fisPCntrlFrm");
         }catch(BacException e){
             logger.log(INFO, "Bean saveBasicPeriodAction error");
             String msgHdr = this.responseForKey("fiscPerRuleHdr");
@@ -730,8 +730,8 @@ public ArrayList<SelectItem> getSelectCalRuleByRuleId(int ruleId) {
       logger.log(INFO, "this.selectCalRule {0}", selectCalRule);
       logger.log(INFO, "Cal list {0}", calendarRules);
       logger.log(INFO, "after get period rule cal basis option is: {0}", currentCalbasis);
-      RequestContext rCtx = RequestContext.getCurrentInstance();
-      rCtx.update("fisPerRuleUpdtFrm");
+      PrimeFaces pf = PrimeFaces.current();
+      pf.ajax().update("fisPerRuleUpdtFrm");
      }catch(BacException e){
       MessageUtil.addErrorMessage("fiscalPeriodNf", "errorText");
      }catch(TransactionRolledbackLocalException e){
@@ -803,7 +803,7 @@ public ArrayList<SelectItem> getSelectCalRuleByRuleId(int ruleId) {
   if(val.getClass().getSimpleName().equalsIgnoreCase("Integer")){
    logger.log(INFO, "Check input");
    int yearInput = Integer.parseInt(valStr);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    if(valStr.length() == 4){
     logger.log(INFO, "4 digit number entered");
     List<CalendarRuleFlexYearRec> yearsUsed = fisPerRule.getCalendarRule().getCalRuleFlexYears();
@@ -844,7 +844,7 @@ public ArrayList<SelectItem> getSelectCalRuleByRuleId(int ruleId) {
      fisCalFlexYrAdd.setFlexPeriods(pers);
      logger.log(INFO, "fisPerRule Years {0}", this.fisPerRule.getCalendarRule().getCalRuleFlexYears());
     }
-    rCtx.update("addYrFrm");
+    pf.ajax().update("addYrFrm");
    }
    
   }

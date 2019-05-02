@@ -13,7 +13,7 @@
  <ui:define name="content">
  
   <h:form id="salesCrnFrm" prependId="false">
-   <p:growl autoUpdate="true"  showDetail="true"/>
+   <p:growl    showDetail="true"/>
    <p:tooltip />
    <p:toolbar>
     <f:facet name="left">
@@ -370,7 +370,7 @@
  <h:form id="addLineFrm" >
   <p:dialog id="addLineDlg" header="#{formTextSl.docLineAdd}" widgetVar="addLineDlgWv" modal="true"
                 dynamic="true" closable="false"     >
-   <p:growl autoUpdate="true" />
+   <p:growl   />
    <p:focus for="slPartCompCode"/>
    <h:panelGrid id="addLineGrid" columns="2" >
     <p:outputLabel for="slPartCompCode" value="#{formTextSl.partCode}"/>
@@ -486,7 +486,7 @@
     
     
  <h:form id="editLnDlgFrm">
-  <p:growl autoUpdate="true" />
+  <p:growl   />
   <p:dialog id="editLineDlg" header="#{formTextSl.docLineEdit}" widgetVar="editLineDlgWv" modal="true"
                 dynamic="true" width="500" resizable="false" closable="false"         showEffect="clip" hideEffect="fold"    >
    <h:panelGrid id="editLineGrid" columns="2" >

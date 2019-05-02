@@ -9,7 +9,6 @@ import com.rationem.util.BaseBean;
 import org.primefaces.event.SelectEvent;
 import javax.faces.event.ValueChangeEvent;
 import com.rationem.busRec.config.common.NumberRangeRec;
-import javax.faces.event.ActionEvent;
 import com.rationem.util.GenUtil;
 import com.rationem.busRec.config.common.ModuleRec;
 import com.rationem.busRec.config.common.NumberRangeTypeRec;
@@ -31,7 +30,7 @@ import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
-import org.primefaces.context.RequestContext;
+
 
 
 /**
@@ -116,7 +115,7 @@ public class NumberControlBean extends BaseBean{
 
     public List<SelectItem> getModuleSel(){
         LOGGER.log(INFO, "Web moduleSel");
-        moduleSel = new ArrayList<SelectItem>();
+        moduleSel = new ArrayList<>();
         SelectItem sel = new SelectItem();
         sel.setNoSelectionOption(true);
         sel.setLabel("Please select a module");
@@ -226,7 +225,7 @@ public class NumberControlBean extends BaseBean{
   
   List<NumberRangeTypeRec> retList = new ArrayList<>();
   for(NumberRangeTypeRec curr:getNumRangeTypeList()){
-   if(StringUtils.startsWith(curr.getNumRangeTypeCode(), code)){
+   if(StringUtils.startsWith(curr.getCode(), code)){
     retList.add(curr);
    }
   }
@@ -239,12 +238,12 @@ public class NumberControlBean extends BaseBean{
  
  public List<NumberRangeRec> onAddNumRngComplete(String nrCode){
   LOGGER.log(INFO, "Called onAddNumRng with {0} ", nrCode);
-  if(numRange.getNumberRangeForType() == null){
+  if(numRange.getNumberRangeType() == null){
    MessageUtil.addClientWarnMessage("numRngCr:msgs", "numRangeTypeNone", "validationText");
    PrimeFaces.current().ajax().update("numRngCr:msgs");
    return null;
   }
-  List<NumberRangeRec> nrRngList = sysBuff.getNumRangesOfType(numRange.getNumberRangeForType());
+  List<NumberRangeRec> nrRngList = sysBuff.getNumRangesOfType(numRange.getNumberRangeType());
   if(StringUtils.isBlank(nrCode)){
    return nrRngList;
   }
@@ -295,15 +294,15 @@ public class NumberControlBean extends BaseBean{
     ListIterator<NumberRangeRec> numlist = numberControlList.listIterator();
     while(numlist.hasNext() && !found){
      NumberRangeRec numRec = numlist.next();
-     if(numRec.getNumberControlId() == selectNumberControl.getNumberControlId()){
+     if(Objects.equals(numRec.getNumberControlId(), selectNumberControl.getNumberControlId())){
       numlist.remove();
       found = true;
      }
     }
     MessageUtil.addInfoMessage("numRngDel", "blacResponse");
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("editList");
-    rCtx.execute("PF('delRngConfWv').hide()");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("editList");
+    pf.executeScript("PF('delRngConfWv').hide()");
    }else{
     MessageUtil.addErrorMessage("numRngDel", "errorText");
    }
@@ -313,9 +312,9 @@ public class NumberControlBean extends BaseBean{
 
   public void onDeleteDlg(){
    LOGGER.log(INFO, "onDeleteDlg calld with selected {0}", selectNumberControl.getNumberControlId());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("delRngConfDlg");
-   rCtx.execute("PF('delRngConfWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("delRngConfDlg");
+   pf.executeScript("PF('delRngConfWv').show()");
   }
   
   public boolean onFilterByRngNum(Object value, Object filter, java.util.Locale loc) {
@@ -357,8 +356,8 @@ public class NumberControlBean extends BaseBean{
          String msg = this.responseForKey("numRngCr") + numRange.getShortDescr();
          MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
          numRange = null;
-         RequestContext rCtx = RequestContext.getCurrentInstance();
-         rCtx.update("valNumRngFrm");
+         PrimeFaces pf = PrimeFaces.current();
+         pf.ajax().update("valNumRngFrm");
             
         }catch(BacException er){
          MessageUtil.addErrorMessage("numRngCr", "errorText");
@@ -438,7 +437,7 @@ public class NumberControlBean extends BaseBean{
    LOGGER.log(INFO, "selectNumberControl id {0}",selectNumberControl.getNumberControlId());
    LOGGER.log(INFO, "long descr {0}",selectNumberControl.getLongDescr());
    PrimeFaces pf = PrimeFaces.current();
-   pf.ajax().update("editNumRngId");
+   pf.ajax().update("edit");
    pf.executeScript("PF('editNumRngWVar').show()");
    
   }
@@ -456,15 +455,28 @@ public class NumberControlBean extends BaseBean{
     selectNumberControl.setChangedBy(this.getLoggedInUser());
     selectNumberControl.setChangedDate(new Date());
     try{
+    
     selectNumberControl = this.setup.updateNumberControl(selectNumberControl, getView());
-    MessageUtil.addInfoMessageVar1("numRangeUpdated", "blacResponses", selectNumberControl.getShortDescr());
-    }catch(Exception ex){
-     MessageUtil.addErrorMessage("numRngUpdt", "errorText");
-    } 
+    ListIterator<NumberRangeRec> nrLi = numberControlList.listIterator();
+    boolean foundNr = false;
+    while(nrLi.hasNext() && !foundNr){
+     NumberRangeRec curr = nrLi.next();
+     if(Objects.equals(curr.getNumberControlId(), selectNumberControl.getNumberControlId())){
+      nrLi.set(selectNumberControl);
+      foundNr = true;
+     }
+    }
+    MessageUtil.addClientInfoMessage("listFrm:msgs", "numRangeUpdated", "blacResponse");
     PrimeFaces pf = PrimeFaces.current();
-    pf.ajax().update("editList");
+    pf.ajax().update("listFrm:numRngList");
+    pf.ajax().update("listFrm:msgs");
     pf.executeScript("PF('editNumRngWVar').hide()");
-    MessageUtil.addInfoMessage("numRngUpDt", "blacResponse");
+    }catch(BacException ex){
+     LOGGER.log(INFO, "Number Range update error {0}", ex.getLocalizedMessage());
+     MessageUtil.addClientErrorMessage("edit:msgs", "numRngUpdt", "errorText");
+     PrimeFaces.current().ajax().update("\"edit:msgs\"");
+    } 
+    
     
   }
   
@@ -511,7 +523,8 @@ public class NumberControlBean extends BaseBean{
      MessageUtil.addInfoMessageVar1("numRangeUpdated", "blacReposnes", numRec.getShortDescr());
      int selectedInx = numberControlList.indexOf(numRec);
      numberControlList.set(selectedInx, numRec);
-    }catch(Exception ex){
+    }catch(BacException ex){
+     LOGGER.log(INFO, "Number range update error {0}", ex.getLocalizedMessage());
      MessageUtil.addErrorMessageParam1("numRngUpdt", "errorText", numRec.getShortDescr());
     }
     

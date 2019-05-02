@@ -624,15 +624,17 @@ public class ApAccountDM {
   code = StringUtils.trim(code);
   code = StringUtils.appendIfMissing(code, "%");
   
-  Query q = em.createNamedQuery("apActsBycode");
+  TypedQuery q = em.createNamedQuery("apActsByName", ApAccount.class);
   q.setParameter("compId", comp.getId());
   q.setParameter("acntCode", code);
 
-  List rs = q.getResultList();
+  List<ApAccount> rs = q.getResultList();
+  LOGGER.log(INFO, "Named query called with compId {0} accountCode {1} returned {2}", new Object[]{
+  comp.getId(), code, rs});
   
   List<ApAccountRec> retList = new ArrayList<>();
-  for(Object o:rs){
-   ApAccountRec curr = this.buildApAccountRec((ApAccount)o);
+  for(ApAccount o:rs){
+   ApAccountRec curr = this.buildApAccountRec(o);
    retList.add(curr);
   }
   return retList;

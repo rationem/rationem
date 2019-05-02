@@ -18,19 +18,14 @@ import com.rationem.busRec.ma.programme.ProgrammeRec;
 import com.rationem.busRec.user.UserRec;
 import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.fi.DocumentManager;
-import com.rationem.helper.CompProgrammeRec;
 import com.rationem.helper.TemplSelectOption;
 import com.rationem.util.BaseBean;
 import com.rationem.util.GenUtil;
 import com.rationem.util.MessageUtil;
 import com.rationem.helper.comparitor.FiGlAccountCompByRef;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Currency;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -42,7 +37,7 @@ import org.primefaces.event.FlowEvent;
 import static java.util.logging.Level.INFO;
 import javax.ejb.EJB;
 import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleEvent;
 import org.primefaces.model.Visibility;
@@ -291,9 +286,9 @@ public class GlTemplateJnlDisplay extends BaseBean {
  
  public void onDlgAddShow(){
   glSelectedLineAdd = new DocLineFiTemplGlRec();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("addJnlLnFrm");
-  rCtx.execute("PF('addJnlLnDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("addJnlLnFrm");
+  pf.executeScript("PF('addJnlLnDlgWv').show();");
   
  }
  
@@ -303,9 +298,9 @@ public class GlTemplateJnlDisplay extends BaseBean {
   glSelectedLineAdd.setLineNum(lines);
   glSelectedLineAdd.setId(lines * -1);
   glSelectedLines.add(glSelectedLineAdd);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editLinesDt");
-  rCtx.execute("PF('addJnlLnDlgWv').hide();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editLinesDt");
+  pf.executeScript("PF('addJnlLnDlgWv').hide();");
   
  }
  public void onDlgDisplShow(){
@@ -329,9 +324,9 @@ public class GlTemplateJnlDisplay extends BaseBean {
    glTemplSelected.setTotalDebit(drTot);
    glSelectedLines.add(glLn);
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("displDetfrm");
-  rCtx.execute("PF('displDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("displDetfrm");
+  pf.executeScript("PF('displDlgWv').show();");
  }
  
  public void onDlgEditLineDelete(){
@@ -350,9 +345,9 @@ public class GlTemplateJnlDisplay extends BaseBean {
  public void onDlgEditLineShow(){
   logger.log(INFO, "onDlgEditShow called with jnl {0}", glSelectedLineEdit);
   logger.log(INFO, "glSelectedLineEdit post type {0}", glSelectedLineEdit.getPostType().getPostTypeCode());
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editLineFrm");
-  rCtx.execute("PF('editLineWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editLineFrm");
+  pf.executeScript("PF('editLineWv').show()");
  }
  
  public void onDlgEditLineTransfer(){
@@ -367,9 +362,9 @@ public class GlTemplateJnlDisplay extends BaseBean {
     foundLine = true;
     }
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editLinesDt");
-  rCtx.execute("PF('editLineWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editLinesDt");
+  pf.executeScript("PF('editLineWv').hide()");
   
  }
  
@@ -407,9 +402,9 @@ public class GlTemplateJnlDisplay extends BaseBean {
   glTemplEdit.setTotalDebit(drTot);
   logger.log(INFO, "comp {0}", glTemplEdit.getCompany().getReference());
   docLocale = glTemplEdit.getCompany().getLocale();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editDetfrm");
-  rCtx.execute("PF('editDlgWv').show();");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editDetfrm");
+  pf.executeScript("PF('editDlgWv').show();");
  
  }
  
@@ -456,9 +451,9 @@ public class GlTemplateJnlDisplay extends BaseBean {
  }
  logger.log(INFO, "glTempSelected pre update {0}", glTemplSelected.getDocLines());
  
- RequestContext rCtx = RequestContext.getCurrentInstance();
- rCtx.update("jnlListDt");
- rCtx.execute("PF('editDlgWv').hide();");
+ PrimeFaces pf = PrimeFaces.current();
+ pf.ajax().update("jnlListDt");
+ pf.executeScript("PF('editDlgWv').hide();");
   
  }
  public void onDocDtFromSel(SelectEvent evt){
@@ -468,8 +463,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
   if(selOpts.getDocDateTo() != null && selOpts.getDocDateTo().before(curr)){
   selOpts.setDocDateTo(curr);
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("docDtTo");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("docDtTo");
  }
  
  public void onDocDtFromChange(ValueChangeEvent evt){
@@ -479,8 +474,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
   if(selOpts.getDocDateTo() != null && selOpts.getDocDateTo().before(curr)){
   selOpts.setDocDateTo(curr);
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("docDtTo");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("docDtTo");
   
  }
  
@@ -491,8 +486,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
   this.selOpts.setDocDateTo(curr);
   if(selOpts.getDocDateFrom() != null && selOpts.getDocDateFrom().before(curr)){
    selOpts.setDocDateFrom(curr);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("docDtFr");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("docDtFr");
   }
  }
  
@@ -504,8 +499,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
    selOpts.setDocDateFrom(curr);
    
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("docDtFr");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("docDtFr");
    
  }
  
@@ -524,8 +519,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
       li.set(ln);
      }
     }
-    RequestContext rCtx = RequestContext.getCurrentInstance();
-    rCtx.update("displLazyId");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("displLazyId");
    }
   }
  }
@@ -554,8 +549,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
    selOpts.setNextDateTo(curr);
    
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("nextPstTo");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("nextPstTo");
   
  }
  
@@ -568,8 +563,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
    selOpts.setNextDateTo(curr);
    
   }
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("nextPstTo");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("nextPstTo");
   
   
  }
@@ -581,8 +576,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
   this.selOpts.setNextDateTo(curr);
   if(selOpts.getNextDateFrom() != null && selOpts.getNextDateFrom().before(curr)){
    selOpts.setNextDateFrom(curr);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("nextPstFr");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("nextPstFr");
   }
  }
  
@@ -592,8 +587,8 @@ public class GlTemplateJnlDisplay extends BaseBean {
   this.selOpts.setDocDateTo(curr);
   if(selOpts.getNextDateFrom() != null && selOpts.getNextDateFrom().before(curr)){
    selOpts.setNextDateFrom(curr);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("nextPstFr");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("nextPstFr");
   }
  }
 

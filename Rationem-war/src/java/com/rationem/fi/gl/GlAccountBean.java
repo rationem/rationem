@@ -14,6 +14,7 @@ import com.rationem.util.BaseBean;
 import com.rationem.busRec.config.common.NumberRangeRec;
 import com.rationem.busRec.config.common.SortOrderRec;
 import com.rationem.busRec.config.company.AccountTypeRec;
+import com.rationem.busRec.config.company.LedgerRec;
 //import com.rationem.busRec.config.fi.FiGlActTypeRec;
 import com.rationem.busRec.fi.glAccount.FiPlAccountRec;
 import com.rationem.busRec.fi.glAccount.FiGlAccountBaseRec;
@@ -26,7 +27,6 @@ import com.rationem.busRec.fi.company.ChartOfAccountsRec;
 import com.rationem.busRec.fi.glAccount.FiGlAccountCompRec;
 import com.rationem.busRec.tr.BankAccountCompanyRec;
 import com.rationem.busRec.tr.BankAccountRec;
-import com.rationem.busRec.tr.BankBranchRec;
 import com.rationem.busRec.salesTax.vat.VatCodeCompanyRec;
 import com.rationem.busRec.salesTax.vat.VatCodeRec;
 import com.rationem.ejbBean.tr.BankManager;
@@ -44,8 +44,9 @@ import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
+import org.primefaces.PrimeFaces;
 import org.primefaces.component.tabview.Tab;
-import org.primefaces.context.RequestContext;
+
 import org.primefaces.event.FlowEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
@@ -58,6 +59,8 @@ import org.primefaces.event.ToggleEvent;
  */
 public class GlAccountBean extends BaseBean implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(GlAccountBean.class.getSimpleName());
+    public static final int STEP_START = 0;
+    public static final int STEP_END = 1;
 
     @EJB
     private SysBuffer sysBuffer;
@@ -118,7 +121,7 @@ public class GlAccountBean extends BaseBean implements Serializable {
     private FiGlAccountBaseRec refAccount;
     private CompanyBasicRec refComp;
 
-    private ArrayList<SortOrderRec> sortOrderList;
+    
     private ArrayList<BankAccountRec> bankList;
     private List<VatCodeCompanyRec> vatCodeList;
     private String vatCodeDescr;
@@ -144,6 +147,7 @@ public class GlAccountBean extends BaseBean implements Serializable {
 
     @PostConstruct
     private void init(){
+     LOGGER.log(INFO, "GlAccount update called by view {0}", getViewSimple());
      accountTyList = this.sysBuffer.getAcntTypes();
      LOGGER.log(INFO, "accountTyList {0}", accountTyList);
      actType = accountTyList.get(0);
@@ -155,12 +159,15 @@ public class GlAccountBean extends BaseBean implements Serializable {
      glAccount.setAccountType(actType);
      selectedCompany = getCompList().get(0);
      LOGGER.log(INFO, "init selectedCompany id {0}", selectedCompany.getId());
+     if(!StringUtils.equals("glCoaAcntUpdate", getViewSimple())){
      coaList = glActMgr.getCoaList();
-     if(coaList != null){
-      selectedCoA = coaList.get(0);
-     }else{
-      MessageUtil.addWarnMessage("glAcntNoCoa", "errorText");
+      if(coaList != null){
+       selectedCoA = coaList.get(0);
+      }else{
+       MessageUtil.addWarnMessage("glAcntNoCoa", "errorText");
+      }
      }
+     setStep(GlAccountBean.STEP_START);
      
      
     }
@@ -347,27 +354,9 @@ public class GlAccountBean extends BaseBean implements Serializable {
   }
 
 
-public ArrayList<SortOrderRec> getSortOrderList() {
-    LOGGER.log(INFO, "WEb getSortOrderList() called");
-    if(sortOrderList == null|| sortOrderList.isEmpty() ){
-      sortOrderList = this.sysBuffer.getSortOrders(this.getLoggedInUser(),this.getView());
-      ListIterator li = sortOrderList.listIterator();
-      while(li.hasNext()){
-        SortOrderRec rec = (SortOrderRec)li.next();
-      }
-      if(glAccountComp == null){
-        glAccountComp = new FiGlAccountCompRec();
-      }
-        SortOrderRec initSort = sortOrderList.get(0);
-        glAccountComp.setSortOrder(initSort);
-      
-    }
-    return sortOrderList;
-  }
 
-  public void setSortOrderList(ArrayList<SortOrderRec> sortOrderList) {
-    this.sortOrderList = sortOrderList;
-  }
+
+ 
 
   public List<FiGlAccountCompRec> getCompActList() {
    if(compActList == null){
@@ -896,7 +885,7 @@ public ArrayList<SortOrderRec> getSortOrderList() {
     if(accountTyList == null){
       accountTyList = glActMgr.getGlAccountTypes();
 
-
+    
     if(accountTyList != null && accountTyList.size() > 0){
       selectedAccountType = accountTyList.get(0);
       this.glAccount.setAccountType(selectedAccountType);
@@ -968,11 +957,12 @@ public void onCompanyChange(ValueChangeEvent evt){
   try{
     this.selectedCompany = this.sysBuffer.getCompanyById(selectedCompanyId);
   }catch(BacException e){
-    String msg = this.getErrorMessage().getString("compNoCompId") +" ref: "+ this.glAccount.getRef();
-    GenUtil.addErrorMessage(msg);
+    MessageUtil.addClientErrorMessage("glUpdt:msgs", "compNone", "errorText", " ref: "+ this.glAccount.getRef());
+    PrimeFaces.current().ajax().update("glUpdt:msgs");
   }
 
 }
+
 
 public void onContextMenuCoaAcntUpdate(SelectEvent evt){
  LOGGER.log(INFO, "onContextMenuCoaAcntUpdate called with {0}", evt.getObject());
@@ -1096,20 +1086,20 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
      compAcsLi.set(selectedCompAc);
     }
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("tabV:comAcTbl");
-   rCtx.execute("PF('editAcWVar').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("tabV:comAcTbl");
+   pf.executeScript("PF('editAcWVar').hide()");
   }
   
   public void onEditAcntEditCompAcDlg(){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.execute("PF('editAcWVar').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.executeScript("PF('editAcWVar').show()");
   }
  
   public void onEditCoaAcntDlg(){
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("editActDlgId");
-   rCtx.execute("PF('editActDlgWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("editActDlgId");
+   pf.executeScript("PF('editActDlgWv').show()");
   }
   
   public void onEditCoaPlAcntTrf(){
@@ -1140,9 +1130,9 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
     }
    }
    if(accountFound){
-    RequestContext rctx = RequestContext.getCurrentInstance();
-    rctx.update("acntTbl");
-    rctx.execute("PF('editActDlgWv').hide()");
+    PrimeFaces pf = PrimeFaces.current();
+    pf.ajax().update("glUpdt:acntTbl");
+    pf.executeScript("PF('editActDlgWv').hide()");
    }
    
   }
@@ -1170,9 +1160,9 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
   
   public void onEditCompAcntDlg(){
    LOGGER.log(INFO, "selectedCompAc {0}", selectedCompAc);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("editCompAcnt");
-   rCtx.execute("PF('editCompAcntWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("editCompAcnt");
+   pf.executeScript("PF('editCompAcntWv').show()");
    
   }
   
@@ -1194,15 +1184,15 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
      foundActnt = true;
     }
    }
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("compAcsTbl");
-   rCtx.execute("PF('editCompAcntWv').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("compAcsTbl");
+   pf.executeScript("PF('editCompAcntWv').hide()");
   }
   public void onEditCoaCompAcsDlg(){
    LOGGER.log(INFO, "onEditCoaCompAcsDlg called {0}", selectedCoaClass);
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("editCoaCompDlg");
-   rCtx.execute("PF('editCoaCompDlgWv').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("editCoaCompDlg");
+   pf.executeScript("PF('editCoaCompDlgWv').show()");
    if(selectedCoaClass.equals("pl")){
     selectedCoaAccountCompActs = this.glActMgr.getGlCompRecAcntsForCoaAcnt(selectedPlAccount);
     
@@ -1219,9 +1209,10 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
   public void onEditAcntAddCompDlg(){
    LOGGER.log(INFO, "onEditAcntAddCompDlg called select Ac {0}",this.selectedCompAc);
    
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.execute("PF('newCompAcWVar').show()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.executeScript("PF('newCompAcWVar').show()");
   }
+  
   public void onEditTabChange(TabChangeEvent evt){
    LOGGER.log(INFO, "tab now {0}", evt.getTab());
    Tab activeTab = evt.getTab();
@@ -1241,6 +1232,12 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
      glAccountSelected.setCompanyAccounts(compAcs);
     }
    }
+  }
+  
+  public void onEditVatStatusSelect(SelectEvent evt){
+   LOGGER.log(INFO, "onEditVatStatusSelect called ith value {0}", evt.getObject());
+   selectedCompAc.setVatStatus((Integer)evt.getObject());
+   PrimeFaces.current().ajax().update("editAcFrm:vatCd");
   }
   
   public String onAccountFlowProcess(FlowEvent evt){
@@ -1283,13 +1280,11 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
      LOGGER.log(INFO, "glAccountComp id {0}", glAccountComp.getId());
     }
     
-    RequestContext.getCurrentInstance().update("glActMstfrm:actTylst");
+    PrimeFaces.current().ajax().update("glActMstfrm:actTylst");
    } else if(evt.getOldStep().equalsIgnoreCase("Chart") && evt.getNewStep().equalsIgnoreCase("Company")){
     // move from Chart to company data
     LOGGER.log(INFO, "Account type {0}", glAccount.getAccountType());
-    if(this.sortOrderList != null && !sortOrderList.isEmpty() && glAccountComp.getSortOrder() == null){
-     glAccountComp.setSortOrder(sortOrderList.get(0));
-    }
+    
     if(glAccountComp == null){
      glAccountComp = new FiGlAccountCompRec();
      glAccountComp.setCompany(getCompList().get(0));
@@ -1340,6 +1335,43 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
    return nextStep;
   }
   
+  public void onAcntCrActTyShow(){
+   LOGGER.log(INFO, "called show account type settings. Gl acnt name {0}",
+     this.glAccount.getName());
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("displAcntTySettFrm:glref");
+   pf.executeScript("PF('displAcntTySettDlWv').show();");
+   
+  }
+  
+  public void onAcntCrAcntTySelect(SelectEvent evt){
+   LOGGER.log(INFO, "onAcntCrAcntTySelect called with {0}", evt.getObject().getClass().getSimpleName());
+   this.glAccount.setAccountType((AccountTypeRec)evt.getObject());
+   PrimeFaces.current().ajax().update("glActMstfrm");
+   
+  }
+  public void onAcntCrStepBack(){
+   LOGGER.log(INFO,"onAcntCrStepBack called. Step at start {0}",String.valueOf(getStep()));
+   int curr = getStep();
+   curr++;
+   if(curr < GlAccountBean.STEP_START){
+    curr = GlAccountBean.STEP_START;
+   }
+   setStep(curr);
+   PrimeFaces.current().ajax().update("glActMstfrm");
+  }
+  public void onAcntCrStepNext(){
+   LOGGER.log(INFO,"onAcntCrNextStep called. Step at start {0}",String.valueOf(getStep()));
+   int curr = getStep();
+   curr++;
+   if(curr > GlAccountBean.STEP_END){
+    curr = GlAccountBean.STEP_END;
+   }
+   setStep(curr);
+   PrimeFaces.current().ajax().update("glActMstfrm");
+   
+  }
+  
   
   public void onAccountRefUniqueValidate(FacesContext context, UIComponent comp, Object val){
    LOGGER.log(INFO, "onAccountRefUniqueValidate called with {0}", val);
@@ -1358,9 +1390,32 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
      ((EditableValueHolder)comp).setValid(true);
     }
    }
-   RequestContext.getCurrentInstance().update("glActMstfrm:newAcnt");
+   PrimeFaces.current().ajax().update("glActMstfrm:newAcnt");
   }
   
+  public List<LedgerRec> onLedgerComplete(String input){
+ LOGGER.log(INFO, "onLedgerComplete", input);
+ List<LedgerRec> ledgersBuff = this.sysBuffer.getLedgers();
+ List<LedgerRec> ledgers = new ArrayList<>();
+ LOGGER.log(INFO, "Ledgers from sys buff {0}", ledgersBuff);
+ for(LedgerRec curr:ledgersBuff){
+  if(curr.isSubLeder()){
+   ledgers.add(curr);
+  }
+ }
+ LOGGER.log(INFO, "Sub Ledgers  {0}", ledgers);
+ if(StringUtils.isBlank(input)){
+  return ledgers;
+ }else{
+  List<LedgerRec> retList = new ArrayList<>();
+  for(LedgerRec curr:ledgers){
+   if(StringUtils.startsWith(curr.getName(), input)){
+    retList.add(curr);
+   }
+  }
+  return retList;
+ }
+}
   public void onNewActAddBtnClick(){
    LOGGER.log(INFO, "onNewActAddBtnClick called ");
    List<FiGlAccountCompRec> compAcs = glAccount.getCompanyAccounts();
@@ -1376,9 +1431,9 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
    glAccount.setCompanyAccounts(compAcs);
    LOGGER.log(INFO, "glAccount.getCompanyAccounts().size {0}", glAccount.getCompanyAccounts().size());
    newCompAc = null;
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("tabV:comAcTbl");
-   rCtx.execute("PF('newCompAcWVar').hide()");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("tabV:comAcTbl");
+   pf.executeScript("PF('newCompAcWVar').hide()");
    LOGGER.log(INFO, "End add comp");
   }
   
@@ -1441,11 +1496,11 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
   public void onGlAccountChange(ValueChangeEvent evt){
    LOGGER.log(INFO, "onGlAccountChange called with new {0}", evt.getNewValue());
    this.glAccountSelected = (FiGlAccountBaseRec)evt.getNewValue();
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    List<String> updates = new ArrayList<>();
    updates.add("acTabV");
    updates.add("acName");
-   rCtx.update(updates);
+   pf.ajax().update(updates);
    
   }
   
@@ -1453,7 +1508,8 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
     LOGGER.log(INFO, "onGlAccountBlur called gl account number {0}", this.glAccount.getRef());
     String actNum = this.glAccount.getRef();
     LOGGER.log(INFO, "actNum {0}", actNum);
-    RequestContext rCtx = RequestContext.getCurrentInstance();
+    PrimeFaces pf = PrimeFaces.current();
+    
     FiGlAccountBaseRec glAct = this.glActMgr.getGlAccountCoaByRef(glAccount);
     LOGGER.log(INFO, "account from Manager {0}",glAct);
     if(glAct != null){
@@ -1468,7 +1524,8 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
         MessageUtil.addErrorMessage("glActNoAcntTypes", "validationText");
         glAccount.setRef(null);
         
-        rCtx.update("refInput");
+        pf.ajax().update("glActMstfrm:ref");
+        
         return;
        }else{
         
@@ -1488,7 +1545,7 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
       }catch(NumberFormatException ex){
         GenUtil.addErrorMessage("Account number must be numberic "+ex.getLocalizedMessage());
         glAccount.setRef(null);
-        rCtx.update("refInput");
+        pf.ajax().update("glActMstfrm:ref");
         return;
       }
       LOGGER.log(INFO, "Test numbers min val {0} max value {1} gl act num {2}",
@@ -1502,7 +1559,7 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
         saveGlBtnDisabled = false;
       }
     }
-    rCtx.update("refInput");
+    pf.ajax().update("glActMstfrm:ref");
     LOGGER.log(INFO, "saveGlBtnDisabled is now {0}", saveGlBtnDisabled);
   }
 
@@ -1535,8 +1592,28 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
    accountList = this.glActMgr.getGlAccountsForChart(selectedCoA);
    LOGGER.log(INFO, "accountList from glActMgr {0}", accountList);
    
-   RequestContext rCtx = RequestContext.getCurrentInstance();
-   rCtx.update("acntTbl");
+   PrimeFaces pf = PrimeFaces.current();
+   pf.ajax().update("acntTbl");
+  }
+  
+  public List<ChartOfAccountsRec> onCoaComplete(String input){
+   LOGGER.log(INFO, "onCoaComplete called with {0}", input);
+   
+   if(StringUtils.isBlank(input)){
+    coaList = glActMgr.getCoaList();
+    return coaList;
+   }else{
+    List<ChartOfAccountsRec> coas = glActMgr.getCoaList();
+    coaList = new ArrayList<>();
+    for(ChartOfAccountsRec curr:coas){
+     
+     if(StringUtils.startsWith(curr.getReference(), input)){
+      coaList.add(curr);
+     }
+    }
+    return coaList;
+   }
+  
   }
 
     public void onCoaChanged(ValueChangeEvent evt){
@@ -1564,7 +1641,11 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
       rec.setId(new Long(0));
       rec.setName("Select GL account");
       accountList.add(rec);
-      List<FiGlAccountBaseRec> accountListMgr  = this.glActMgr.getGlAccountsForCompany(selectedCompanyId, this.getLoggedInUser());
+      List<FiGlAccountBaseRec> accountListMgr  = this.glActMgr.getGlAccountsForCompany(selectedCompanyId);
+      if(accountListMgr == null || accountListMgr.isEmpty()){
+       showCompAccounts = false;
+       return;
+      }
       ListIterator liMgr = accountListMgr.listIterator();
       while(liMgr.hasNext()){
         rec = (FiGlAccountBaseRec)liMgr.next();
@@ -1576,9 +1657,26 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
 
     public void onCoaAcntCompEditDlg(){
      LOGGER.log(INFO, "onCoaAcntCompEditDlg called");
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("editCompAcntDlg");
-     rCtx.execute("PF('editCompAcntWv').show()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("editCompAcntDlg");
+     pf.executeScript("PF('editCompAcntWv').show()");
+    }
+    
+    public void onCoaSelect(SelectEvent evt){
+     LOGGER.log(INFO, "onCoaSelect called with {0}", evt.getObject());
+     coaSelected = true;
+     selectedCoA = (ChartOfAccountsRec)evt.getObject();
+     accountList = this.glActMgr.getGlAccountsForChart(selectedCoA);
+     PrimeFaces.current().ajax().update("glUpdt:acntTbl");
+    }
+    
+    public List<SortOrderRec> onSortOrderComplete(String input){
+     LOGGER.log(INFO, "onSortOrderComplete called with {0}", input );
+     if(StringUtils.isBlank(input)){
+      return sysBuffer.getSortOrders();
+     }else{
+      return sysBuffer.getSortOrdersByCodePrefix(input);
+     }
     }
     public void onSortOrderChange(ValueChangeEvent evt){
      SortOrderRec selected = (SortOrderRec)evt.getNewValue();
@@ -1600,9 +1698,9 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
       }
      }
      if(foundCompAcnt){
-      RequestContext rCtx = RequestContext.getCurrentInstance();
-      rCtx.update("compAcsTbl");
-      rCtx.execute("PF('editCompAcntWv').hide()");
+      PrimeFaces pf = PrimeFaces.current();
+      pf.ajax().update("compAcsTbl");
+      pf.executeScript("PF('editCompAcntWv').hide()");
      }
     }
     public void setCoaSelList(ArrayList<SelectItem> coaSelList) {
@@ -1617,6 +1715,19 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
      glAccountComp.setVatCode(selected);
     }
     
+    public List<VatCodeCompanyRec> onVatCodeComplete(String input){
+     LOGGER.log(INFO, "onVatCodeComplete called with {0}", input);
+     LOGGER.log(INFO, "selectedCompAc {0}", selectedCompAc);
+     if(selectedCompAc == null){
+      return null;
+     }
+     if(StringUtils.isBlank(input)){
+      return sysBuffer.getCompVatCodes(selectedCompAc.getCompany());
+     }else{
+      return sysBuffer.getCompVatCodesByCode(selectedCompAc.getCompany(), input);
+     }
+    }
+    
     public void onVatEditorSave(){
      LOGGER.log(INFO, "onVatEditorSave called {0}", glAccountComp.getVatCode().getVatCode().getDescription());
      vatCodeDescr = glAccountComp.getVatCode().getVatCode().getCode() +" "+glAccountComp.getVatCode().getVatCode().getDescription();
@@ -1626,7 +1737,7 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
     public void searchAction(){
       LOGGER.log(INFO, "Search Action called");
       try{
-        this.glActMgr.getGlAccountsForCompany(selectedCompanyId, this.getLoggedInUser());
+        this.glActMgr.getGlAccountsForCompany(selectedCompanyId);
         showCompAccounts = true;
 
       }catch(BacException e){
@@ -1647,7 +1758,7 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
 
       try{
 
-        updtAccount = this.glActMgr.updateGlAccountCoa(updtAccount,this.getLoggedInUser(), this.getView());
+        glActMgr.updateGlAccountCoa(updtAccount,this.getLoggedInUser(), this.getView());
         
         
       }catch(BacException e){
@@ -1766,10 +1877,7 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
         List<CompanyBasicRec> compl = this.getCompList();
         glAccountComp.setCompany(compl.get(0));
        }
-       if(glAccountComp.getSortOrder() == null){
-       SortOrderRec sortOrder = this.getSortOrderList().get(0);
-       glAccountComp.setSortOrder(sortOrder);
-       }
+       
       LOGGER.log(INFO,"WEB saveAccountAction for account {0} for company {1}",
               new Object[]{glAccountComp,glAccountComp.getCompany()} );
       LOGGER.log(INFO,"sort order is {0} ",new Object[]{
@@ -1804,7 +1912,7 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
           MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
           accountCreated = true;
           
-        }catch(Exception e){
+        }catch(BacException e){
          String msg = this.errorForKey("glAcntCr") +" "+plAccount.getRef();
          MessageUtil.addErrorMessageWithoutKey(msgHdr, msg);
           
@@ -1838,9 +1946,10 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
           glActMgr.createBsAccount(bsAccount, glAccountComp,glAccount.isPl(),getView());
         
         LOGGER.log(INFO,"after call to Mgr");
-        String msg = this.responseForKey("glAccountCr") +" "+bsAccount.getRef();
-        MessageUtil.addInfoMessageWithoutKey(msgHdr, msg);
+        MessageUtil.addClientInfoMessage("glActMstfrm:grl", "glAccountCr", "blacResponse", glAccountComp.getCoaAccount().getRef());
         accountCreated = true;
+        glAccountComp = null;
+        
         } catch(Exception ex){
          String msg = this.errorForKey("glAcntCr") +" "+plAccount.getRef();
          MessageUtil.addErrorMessageWithoutKey(msgHdr, msg);

@@ -6,9 +6,7 @@
 package com.rationem.setup.common;
 
 import java.util.ListIterator;
-import org.primefaces.event.RowEditEvent;
 import com.rationem.exception.BacException;
-import com.rationem.util.GenUtil;
 import java.io.Serializable;
 import com.rationem.busRec.config.common.ModuleRec;
 import com.rationem.busRec.user.UserRec;
@@ -25,8 +23,7 @@ import javax.ejb.EJBException;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
-import org.primefaces.context.RequestContext;
-import org.primefaces.event.CellEditEvent;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 
 
@@ -124,8 +121,8 @@ public class ModuleBean extends BaseBean implements Serializable{
         if(module.getId() > 0){
          MessageUtil.addInfoMessage("modCr", "blacResponse");
          module = null;
-         RequestContext rCtx = RequestContext.getCurrentInstance();
-         rCtx.update("createModule");
+         PrimeFaces pf = PrimeFaces.current();
+         pf.ajax().update("createModule");
             
         }else{
          MessageUtil.addErrorMessage("moduleNotCr", "errorText");
@@ -148,9 +145,9 @@ public class ModuleBean extends BaseBean implements Serializable{
     }
     
     public void onModuleEditDlg(){
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("updatePgId");
-     rCtx.execute("PF('editModWv').show()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("updatePgId");
+     pf.executeScript("PF('editModWv').show()");
     }
     
     public void onModuleEditSaveBtn(){
@@ -168,14 +165,14 @@ public class ModuleBean extends BaseBean implements Serializable{
        MessageUtil.addInfoMessage("modUpdt", "blacResponse");
       }
      }
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.update("modLst");
-     rCtx.execute("PF('editModWv').hide()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.ajax().update("modLst");
+     pf.executeScript("PF('editModWv').hide()");
     }
     public void onDeleteModule(){
      logger.log(INFO, "onDeleteModule called with selected row {0}", this.selectedModule);
-     RequestContext rCtx = RequestContext.getCurrentInstance();
-     rCtx.execute("PF('modDelWv').show()");
+     PrimeFaces pf = PrimeFaces.current();
+     pf.executeScript("PF('modDelWv').show()");
     }
     
     public void onRowSelect(SelectEvent evt){
@@ -197,9 +194,9 @@ public class ModuleBean extends BaseBean implements Serializable{
                  this.setup.deleteModule(selectedModule, this.getView());
                   lIt.remove();
                   completed = true;
-                  RequestContext rCtx = RequestContext.getCurrentInstance();
-                  rCtx.update("modLst");
-                  rCtx.execute("PF('modDelWv').hide()");
+                  PrimeFaces pf = PrimeFaces.current();
+                  pf.ajax().update("modLst");
+                  pf.executeScript("PF('modDelWv').hide()");
                 }
                 if(!completed){
                  MessageUtil.addErrorMessage("modNoDel", "errorText");

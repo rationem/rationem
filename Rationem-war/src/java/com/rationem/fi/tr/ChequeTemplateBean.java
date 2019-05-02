@@ -25,7 +25,7 @@ import org.primefaces.model.UploadedFile;
 import static java.util.logging.Level.INFO;
 import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
@@ -96,8 +96,8 @@ public class ChequeTemplateBean extends BaseBean {
   if(deleted){
    MessageUtil.addInfoMessage("trChqTemplDel", "blacResponse");
    
-   RequestContext.getCurrentInstance().execute("PF('templDelDlg').hide();");
-   RequestContext.getCurrentInstance().update("chqTemplUptFrm");
+   PrimeFaces.current().executeScript("PF('templDelDlg').hide();");
+   PrimeFaces.current().ajax().update("chqTemplUptFrm");
    templateSelected = null;
    return "chqTemplUpdt";
   }
@@ -109,7 +109,7 @@ public class ChequeTemplateBean extends BaseBean {
  
  public void onReset(){
   templ = new ChequeTemplateRec() ;
-  RequestContext.getCurrentInstance().update("chqTemplFrm:chqTemplPnlG");
+  PrimeFaces.current().ajax().update("chqTemplFrm:chqTemplPnlG");
  }
  public void onSaveTemplate(){
   LOGGER.log(INFO, "ViewSimple {0}", getViewSimple());
@@ -125,11 +125,11 @@ public class ChequeTemplateBean extends BaseBean {
   templ = payMediumMgr.updateChequeTemplate(templ, null, null, getView());
   if(templ.getId() == null){
    MessageUtil.addErrorMessage("chqTemplNoSave", "errorText");
-   RequestContext.getCurrentInstance().update("msg");
+   PrimeFaces.current().ajax().update("msg");
   }else{
    MessageUtil.addInfoMessage("trChqTemplSaved", "formText");
    templ = new ChequeTemplateRec();
-   RequestContext.getCurrentInstance().update("chqTemplFrm:chqTemplPnlG");
+   PrimeFaces.current().ajax().update("chqTemplFrm:chqTemplPnlG");
   }
   
  }
@@ -156,11 +156,11 @@ public class ChequeTemplateBean extends BaseBean {
    }
   }
   if(found){
-   RequestContext rctx = RequestContext.getCurrentInstance();
+   PrimeFaces pf = PrimeFaces.current();
    
-   rctx.update("chqTemplUptFrm:templateList");
-   rctx.execute("PF('editDlgWv').hide();");
-   rctx.reset("chqTemplUptFrm:editDlg");
+   pf.ajax().update("chqTemplUptFrm:templateList");
+   pf.executeScript("PF('editDlgWv').hide();");
+   pf.resetInputs("chqTemplUptFrm:editDlg");
    
   }
  }

@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import javax.ejb.EJB;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -139,7 +139,7 @@ public class SalesDaybook extends BaseBean {
      
     
    
-   RequestContext.getCurrentInstance().update("salesAP:dayBookList");
+   PrimeFaces.current().ajax().update("salesAP:dayBookList");
    
   }
  }

@@ -25,7 +25,7 @@ import static java.util.logging.Level.INFO;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 //import javax.faces.event.ValueChangeEvent;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DualListModel;
 
@@ -246,15 +246,15 @@ public class VatRegAssignBean extends BaseBean {
  }
  public void onRegSchEdit(){
   logger.log(INFO, "onRegSchEdit called. Selected reg scheme is {0}", this.vatRegSchemeSelected);
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("editSchFrm");
-  rCtx.execute("PF('editRegSchWv').show()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("editSchFrm");
+  pf.executeScript("PF('editRegSchWv').show()");
  }
  
  public void onRegSchEditClose(){
   vatRegSchemeSelected = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.execute("PF('editRegSchWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.executeScript("PF('editRegSchWv').hide()");
  }
  
  public void onRegSchEditSave(){
@@ -289,9 +289,9 @@ public class VatRegAssignBean extends BaseBean {
    }
   }
   vatRegSchemeSelected = null;
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  rCtx.update("vatschemetblId");
-  rCtx.execute("PF('editRegSchWv').hide()");
+  PrimeFaces pf = PrimeFaces.current();
+  pf.ajax().update("vatschemetblId");
+  pf.executeScript("PF('editRegSchWv').hide()");
  }
  /*public void onSaveSchemeAssignment(){
   logger.log(INFO, "called onsaveSchemeAssignment vat schemes {0}",vatSchemes);

@@ -33,7 +33,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import org.apache.commons.lang3.StringUtils;
 import java.util.logging.Logger;
-import org.primefaces.context.RequestContext;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.model.DefaultStreamedContent;
@@ -268,10 +268,10 @@ public class ApDocDisplayBean extends BaseBean {
   LOGGER.log(INFO, "contacts after call to contMgr {0}", contacts);
   if(contacts == null || contacts.isEmpty()){
    MessageUtil.addWarnMessage("contNone", "blacResponse");
-   RequestContext.getCurrentInstance().update("docTabV:contsAccordId:contErr");
+   PrimeFaces.current().ajax().update("docTabV:contsAccordId:contErr");
   }else{
    MessageUtil.addInfoMessage("contAcntLoad", "blacResponse");
-   RequestContext.getCurrentInstance().update("docTabV:contsAccordId:contactGr");
+   PrimeFaces.current().ajax().update("docTabV:contsAccordId:contactGr");
    
    
   }
@@ -291,10 +291,10 @@ public class ApDocDisplayBean extends BaseBean {
   
   if(contacts == null || contacts.isEmpty()){
    MessageUtil.addWarnMessage("contNone", "blacResponse");
-   RequestContext.getCurrentInstance().update("docTabV:contsAccordId:contErr");
+   PrimeFaces.current().ajax().update("docTabV:contsAccordId:contErr");
   }else{
    MessageUtil.addInfoMessage("contDocLoad","blacResponse");
-   RequestContext.getCurrentInstance().update("docTabV:contsAccordId:contErr");
+   PrimeFaces.current().ajax().update("docTabV:contsAccordId:contErr");
   }
   
   
@@ -306,10 +306,10 @@ public class ApDocDisplayBean extends BaseBean {
   contacts = contMgr.contactsForPtnr(contSelOpt, docLineAp.getApAccount().getApAccountFor());
   if(contacts == null || contacts.isEmpty()){
    MessageUtil.addWarnMessage("contNone", "blacResponse");
-   RequestContext.getCurrentInstance().update("docTabV:contsAccordId:contErr");
+   PrimeFaces.current().ajax().update("docTabV:contsAccordId:contErr");
   }else{
    MessageUtil.addInfoMessage("contPtnrLoad", "blacResponse");
-   RequestContext.getCurrentInstance().update("docTabV:contsAccordId:contactGr");
+   PrimeFaces.current().ajax().update("docTabV:contsAccordId:contactGr");
   }
   
  }
@@ -318,9 +318,9 @@ public class ApDocDisplayBean extends BaseBean {
  public void onContactNewMnu(){
   contact = new ContactRec();
   this.contactRoleList = this.sysBuff.getContactRoles();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
-  //rCtx.update("addCont");
-  rCtx.execute("PF('addContWv').show();");
+  PrimeFaces rCtx = PrimeFaces.current();
+  //rCtx.ajax().update("addCont");
+  rCtx.executeScript("PF('addContWv').show();");
  }
 
  public void onContactTrf(){
@@ -333,11 +333,11 @@ public class ApDocDisplayBean extends BaseBean {
    contact.setContactFor(docLineAp.getApAccount().getApAccountFor());
   
    contact = this.contMgr.contactUpdate(contact, this.getView());
-   RequestContext rCtx = RequestContext.getCurrentInstance();
+   PrimeFaces rCtx = PrimeFaces.current();
    if(contact.getId() == null){
     // save contact failed
     MessageUtil.addWarnMessage("contactSave", "errorText");
-    rCtx.update("uptErr");
+    rCtx.ajax().update("uptErr");
     
    }else{
     //save cont asuccess
@@ -347,8 +347,8 @@ public class ApDocDisplayBean extends BaseBean {
     List<String> updates = new ArrayList<>();
     updates.add("docTabV:contsAccordId:contTbl");
     updates.add("docTabV:contsAccordId:contactGr");
-    rCtx.update(updates);
-    rCtx.execute("PF('addContWv').hide()");
+    rCtx.ajax().update(updates);
+    rCtx.executeScript("PF('addContWv').hide()");
    }
   }
   
@@ -398,7 +398,7 @@ public class ApDocDisplayBean extends BaseBean {
    }
   }
   docSel = true;
-  RequestContext.getCurrentInstance().update("docTabV");
+  PrimeFaces.current().ajax().update("docTabV");
   LOGGER.log(INFO, "doc lines  {0}", doc.getDocLines());
   LOGGER.log(INFO, "onDocSelect docLineAp {0}",docLineAp);
  }
@@ -416,7 +416,7 @@ public class ApDocDisplayBean extends BaseBean {
  public void onTabChange(TabChangeEvent evt){
   LOGGER.log(INFO, "onTabChangeCalled with {0}", evt.getTab().getClientId());
   String currTabId = evt.getTab().getClientId();
-  RequestContext rCtx = RequestContext.getCurrentInstance();
+  PrimeFaces rCtx = PrimeFaces.current();
   switch(currTabId){
    case "docTabV:linesTabId":
     if(doc.getDocLines() == null || doc.getDocLines().isEmpty()){
@@ -435,7 +435,7 @@ public class ApDocDisplayBean extends BaseBean {
      }
     }
     LOGGER.log(INFO, "doc lines {0}", doc.getDocLines());
-    rCtx.update("docTabV:lines");
+    rCtx.ajax().update("docTabV:lines");
     break;
    case "docTabV:contactsId":
     contSelOpt = new ContactSelection();
