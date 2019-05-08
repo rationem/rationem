@@ -75,6 +75,7 @@ public class GlAccountBean extends BaseBean implements Serializable {
     private String crType = "none";
     private boolean showGl = false;
     private boolean showBs = false;
+    private List<SortOrderRec> sortOrders;
     private boolean coaSelected = false;
     private boolean actTypeSelected = false;
     private boolean editFields = false;
@@ -157,8 +158,11 @@ public class GlAccountBean extends BaseBean implements Serializable {
       glAccount = new FiBsAccountRec();
      }
      glAccount.setAccountType(actType);
-     selectedCompany = getCompList().get(0);
-     LOGGER.log(INFO, "init selectedCompany id {0}", selectedCompany.getId());
+     if(!StringUtils.equals("glCompAcntUpdate", getViewSimple())){
+      selectedCompany = getCompList().get(0);
+      LOGGER.log(INFO, "init selectedCompany id {0}", selectedCompany.getId());
+     }
+     
      if(!StringUtils.equals("glCoaAcntUpdate", getViewSimple())){
      coaList = glActMgr.getCoaList();
       if(coaList != null){
@@ -252,7 +256,17 @@ public class GlAccountBean extends BaseBean implements Serializable {
     this.showBs = showBs;
   }
 
+ public List<SortOrderRec> getSortOrders() {
+  return sortOrders;
+ }
 
+ public void setSortOrders(List<SortOrderRec> sortOrders) {
+  this.sortOrders = sortOrders;
+ }
+  
+  
+
+  
   public boolean isAutoGlNum() {
     return autoGlNum;
   }
@@ -359,14 +373,6 @@ public class GlAccountBean extends BaseBean implements Serializable {
  
 
   public List<FiGlAccountCompRec> getCompActList() {
-   if(compActList == null){
-    // need to build account list
-    if(selectedCompany.getId() == null){
-     selectedCompany = getCompList().get(0);
-    }
-    compActList = this.glActMgr.getCompanyAccounts(selectedCompany);
-   }
-   
    
     return compActList;
   }
@@ -951,7 +957,17 @@ public class GlAccountBean extends BaseBean implements Serializable {
     this.companySelList = companySelList;
   }
 
-public void onCompanyChange(ValueChangeEvent evt){
+  public void onCompAcntCompSel(SelectEvent evt){
+   LOGGER.log(INFO, "onCompAcntCompSel called with {0}", evt.getObject());
+   selectedCompany = (CompanyBasicRec)evt.getObject();
+   compActList = this.glActMgr.getCompanyAccounts(selectedCompany);
+   if(compActList == null || compActList.isEmpty()){
+    MessageUtil.addClientWarnMessage("glUpdt:msgs", "glAcntCompNone", "errorText", selectedCompany.getReference());
+   } else {
+    PrimeFaces.current().ajax().update("glUpdt:compAcsTbl");
+   }
+  }
+  public void onCompanyChange(ValueChangeEvent evt){
   LOGGER.log(INFO, "onCompanyChange called with new company id {0}",evt.getNewValue());
   //selectedCompanyId = (Long)evt.getNewValue();
   try{
@@ -1159,9 +1175,15 @@ public List<FiGlAccountBaseRec> onAccountComplete(String input){
   }
   
   public void onEditCompAcntDlg(){
-   LOGGER.log(INFO, "selectedCompAc {0}", selectedCompAc);
+   LOGGER.log(INFO, "onEditCompAcntDlg called {0}", selectedCompAc);
+   if(sortOrders == null || sortOrders.isEmpty()){
+    sortOrders = this.sysBuffer.getSortOrders();
+   }
    PrimeFaces pf = PrimeFaces.current();
-   pf.ajax().update("editCompAcnt");
+   List<String> updateLst = new ArrayList<>();
+   updateLst.add("editCmpAcntFrm:hdrAcntRef");
+   updateLst.add("editCmpAcntFrm:hdrAcntDescr");
+   pf.ajax().update(updateLst);
    pf.executeScript("PF('editCompAcntWv').show()");
    
   }

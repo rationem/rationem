@@ -11,27 +11,28 @@
  <ui:define name="title">#{pageTitle.fiGlAcntCompUpdt}</ui:define>
  <ui:define name="header">#{pageTitle.fiGlAcntCompUpdt} </ui:define>
  <ui:define name="content">
-  <h:form id="glUpdt"   prependId="false">
-   <h:panelGrid columns="2">
+  <h:form id="glUpdt"  >
+   <p:messages id="msgs" closable="true"/>
+   <p:panelGrid columns="2" layout="grid" columnClasses="ui-grid-col-1,ui-grid-col-2">
     <p:outputLabel for="comp" value="#{formText.glAccountComp}"/>
-    
-    <p:selectOneMenu id="comp" required="true" converter="com.rationem.util.converter.CompanyBasic"
-                     value="#{glAccountBean.selectedCompany}"  
-                           requiredMessage="#{validationText.glAcntCompReq}"
-                           valueChangeListener="#{glAccountBean.onCompanyChange}"
-                           >
-       <p:ajax event="change" />
-       <f:selectItems value="#{glAccountBean.compList}" var="compVar" itemValue="#{compVar}" 
-                      itemLabel="#{compVar.reference}"/>
-       </p:selectOneMenu>
-   </h:panelGrid>
-   
+    <p:autoComplete
+     id="comp" value="#{glAccountBean.selectedCompany}" var="compV" required="true"
+     converter="com.rationem.util.converter.CompanyBasic" itemValue="#{compV}"  dropdown="true"
+     completeMethod="#{glAccountBean.onCompComplete}" itemLabel="#{compV.reference}">
+     <p:ajax event="itemSelect" listener="#{glAccountBean.onCompAcntCompSel}"/>
+    </p:autoComplete>
+
+
+
+   </p:panelGrid>
+
    <p:dataTable id="compAcsTbl" value="#{glAccountBean.compActList}" var="compAcnt" 
                 rows="#{glAccountBean.usrBuff.tblRows}" rowKey="#{compAcnt.id}" 
                 paginator="true" selection="#{glAccountBean.selectedCompAc}" 
-                selectionMode="single" rowExpandMode="single" sortBy="#{compAcnt.coaAccount.ref}"
+                selectionMode="single" rowExpandMode="single" 
+                sortBy="#{compAcnt.coaAccount.ref}" emptyMessage="#{validationText.glCompAcntsNone}"
                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}" >
-    <p:ajax event="rowSelect" listener="#{glAccountBean.onEditCompRowSel}" />
+
     <p:ajax event="contextMenu" listener="#{glAccountBean.onContextmenuCompAcntUpdate}"/>
     <f:facet name="{Exporters}">
       <h:commandLink style="float:right;" >
@@ -126,25 +127,31 @@
    </p:dataTable>
    <p:contextMenu for="compAcsTbl">
     <p:menuitem value="#{formText.edit}" icon="ui-icon-pencil" 
-                actionListener="#{glAccountBean.onEditCompAcntDlg}"/>
+                actionListener="#{glAccountBean.onEditCompAcntDlg}" />
    </p:contextMenu>
  </h:form> 
   
   <h:form id="editCmpAcntFrm" > 
-   <p:dialog id="editCompAcnt" widgetVar="editCompAcntWv" dynamic="true">
+   <p:dialog id="editCompAcnt" widgetVar="editCompAcntWv" dynamic="true" closable="false">
     <f:facet name="header">
      <h:outputText value="#{formText.glAccountEditCompAc}" styleClass="dlgHeader"/>
      <p:spacer width="10"/>
-     <h:outputText value="#{glAccountBean.selectedCompAc.coaAccount.ref}"/>
+     <h:outputText id="hdrAcntRef" value="#{glAccountBean.selectedCompAc.coaAccount.ref}"/>
      <p:spacer width="5"/>
-     <h:outputText value="#{glAccountBean.selectedCompAc.coaAccount.description}"/>
+     <h:outputText id="hdrAcntDescr" value="#{glAccountBean.selectedCompAc.coaAccount.description}"/>
     </f:facet>
     
-     <p:panelGrid columns="2">
-      <p:outputLabel for="edCompSort" value="#{formText.glAccountSort}"/>
-      <p:selectOneMenu  id="edCompSort" value="#{glAccountBean.selectedCompAc.sortOrder}" var="compSrSmtV"
-                        converter="com.rationem.util.converter.SortOrder" >
-       <f:selectItems value="#{glAccountBean.sortOrderList}" var="sort" itemValue="#{sort}" itemLabel="#{sort.description}"/>
+    <p:panelGrid 
+     id="topPg" columns="2" layout="grid" columnClasses="ui-grid-col-6, ui-grid-col-2"
+     styleClass="ui-noborder">
+     <p:outputLabel for="edCompSort" value="#{formText.glAccountSort}"/>
+
+      <p:selectOneMenu  
+       id="edCompSort" value="#{glAccountBean.selectedCompAc.sortOrder}" var="compSrSmtV"
+       converter="com.rationem.util.converter.SortOrder" >
+       <f:selectItems 
+        value="#{glAccountBean.sortOrders}" var="sort" itemValue="#{sort}"
+        itemLabel="#{sort.description}"/>
       </p:selectOneMenu>
       <p:outputLabel for="edCompAnal1" value="#{formText.glAccountAnalysis1}"/>
       <p:inputText id="edCompAnal1" value="#{glAccountBean.selectedCompAc.analysis1}" />
@@ -212,9 +219,9 @@
         </h:panelGrid>
        </f:facet>
       </p:autoComplete>
-      <p:commandButton value="#{formText.transfer}" icon="ui-icon-arrowthick-1-w" 
+      <p:commandButton value="#{formText.transfer}" icon="fa fa-long-arrow-left"
                        actionListener="#{glAccountBean.onEditCompAntTransf}"/>
-      <p:commandButton value="#{formText.close}" icon="ui-icon-close" type="button" 
+      <p:commandButton value="#{formText.close}" icon="fa fa-close" type="button"
                        onclick="PF('editCompAcntWv').hide();"/>
      </p:panelGrid>
    

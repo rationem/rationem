@@ -365,7 +365,6 @@ public FiGlAccountCompRec buildFiCompGlAccountRecPvt(FiGlAccountComp ac){
  * @return 
  */
 private FiPlAccountRec buildPlAccountRec(FiPlAccount dbRec){
- LOGGER.log(INFO, "buildPlAccountRec called with {0}", dbRec);
  FiPlAccountRec plAc = new FiPlAccountRec();
  plAc = (FiPlAccountRec)buildBaseAccountForGlAccountRec(dbRec,plAc);  
  plAc.setAccountCat(dbRec.getAccountCat());
@@ -584,7 +583,6 @@ private FiGLAccountBase buildBaseAccountForGlAccount(FiGLAccountBase base,
  */
 private FiGlAccountBaseRec buildBaseAccountForGlAccountRec(FiGLAccountBase dbRec, 
         FiGlAccountBaseRec rec ){
- LOGGER.log(INFO, "dbRec {0} rec {1}", new Object[]{dbRec,rec});
  rec.setId(dbRec.getId());
  rec.setName(dbRec.getName());
  rec.setDescription(dbRec.getDescription());
@@ -704,10 +702,6 @@ private FiGlAccountCompRec buildFiCompGlAccountRec(FiGlAccountComp ac){
   VatCodeCompanyRec vatCode = new VatCodeCompanyRec();  //TODO: build VAT 
   rec.setVatCode(vatCode);
   
-
-  LOGGER.log(INFO, "Comp acnt id {0}", rec.getId());
-  LOGGER.log(INFO, "Comp acnt DB id {0}", rec.getId());
-
   return rec;
   
 }
@@ -2220,7 +2214,7 @@ public List<FiGlAccountCompRec> getCreditorReconAccounts(CompanyBasicRec comp) t
    retList.add(glAcntCompRec);
   }
   
-  trans.rollback();
+  trans.commit();
   return retList;
   
  }

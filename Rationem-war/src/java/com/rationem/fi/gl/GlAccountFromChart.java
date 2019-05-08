@@ -197,11 +197,11 @@ public class GlAccountFromChart extends BaseBean {
  
  public void onCompAcntEditTrf(){
   LOGGER.log(INFO, "called onEditCompAcntTrf with accnt ",compAccountSelected.getClass().getSimpleName());
-  /*
+  
   compAccountSelected.setChangedBy(this.getLoggedInUser());
   compAccountSelected.setChangedOn(new Date());
   compAccountSelected = this.glAcntMgr.updateGlAccountComp(compAccountSelected, getView());
-  */
+  
   this.accountBs = null;
   this.accountPl = null;
   PrimeFaces pf = PrimeFaces.current();

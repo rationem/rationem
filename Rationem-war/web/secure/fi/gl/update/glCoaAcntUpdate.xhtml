@@ -13,7 +13,7 @@
  <ui:define name="content">
   <div>
    <h:form id="glUpdt">
-    <p:panelGrid id="selPg" columns="2" columnClasses="ui-grid-col-4,ui-grid-col-2 "
+    <p:panelGrid id="selPg" columns="2" columnClasses="ui-grid-col-4,ui-grid-col-1 "
                  styleClass="ui-noborder">
      <p:outputLabel for="coa" value="#{formText.glAccountChart}"/>
 
@@ -30,12 +30,6 @@
      </f:facet>
       <p:ajax event="itemSelect" listener="#{glAccountBean.onCoaSelect}" />
 
-      <p:column width="25%">
-       <h:outputText value="#{coaV.reference}"/>
-      </p:column>
-      <p:column width="75%">
-       <h:outputText value="#{coaV.name}"/>
-      </p:column>
 
      </p:autoComplete>
 
