@@ -3280,7 +3280,7 @@ public List<VatRegistrationRec> getVatRegistrationsForCompany(CompanyBasicRec co
   LOGGER.log(INFO, "vatCodeCompanyUpdate called with {0}", compVatCode);
   boolean newVatCd = compVatCode.getId() == null;
   LOGGER.log(INFO, "New vatcode {0}", newVatCd);
-  compVatCode = this.vatDM.vatCodeCompanyUpdate(compVatCode, pg);
+  compVatCode = vatDM.vatCodeCompanyUpdate(compVatCode, pg);
   if(vatCompanyCodes == null){
    vatCompanyCodes = new ArrayList<>();
   }

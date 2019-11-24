@@ -1398,7 +1398,8 @@ public class ApMastBean extends BaseBean{
   
  }
  
- public void onPartnerBylegalValidate(FacesContext context, UIComponent toValidate, Object val){
+ public void onPartnerBylegalValidate(FacesContext context, UIComponent toValidate, 
+   Object val){
   LOGGER.log(INFO, "partnerBylegalNameCheck called with legal name {0}",val);
   
   String legName = StringUtils.replace((String)val, " ", "%");

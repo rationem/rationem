@@ -14,9 +14,11 @@ import com.rationem.busRec.user.UserRec;
 import com.rationem.busRec.salesTax.vat.*;
 import com.rationem.ejbBean.common.SysBuffer;
 import com.rationem.ejbBean.config.company.CompanyManager;
+import com.rationem.ejbBean.fi.GlAccountManager;
 import com.rationem.entity.audit.*;
 import com.rationem.entity.document.DocFi;
 import com.rationem.entity.document.DocLineBase;
+import com.rationem.entity.document.DocLineGl;
 import com.rationem.entity.fi.arap.ArAPAccountIF;
 import com.rationem.entity.fi.arap.ArAccount;
 import com.rationem.entity.fi.company.CompanyBasic;
@@ -50,7 +52,6 @@ import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -73,6 +74,9 @@ public class VatDM {
  
  @EJB
  private SysBuffer sysBuff;
+ 
+ @EJB
+ private GlAccountManager glAcntMgr;
 
  @PostConstruct
  private void init(){
@@ -245,6 +249,7 @@ public class VatDM {
   return vatCode;
   
  }
+ 
  private VatCodeCompanyRec buildVatCodeCompRec(VatCodeCompany comp){
   VatCodeCompanyRec rec = new VatCodeCompanyRec();
   rec.setId(comp.getId());
@@ -273,8 +278,12 @@ public class VatDM {
   VatCodeRec vatcd = this.buildVatCodeRec(comp.getVatCode());
   rec.setVatCode(vatcd);
   
-  
-  List<FiGlAccountCompRec> compGlAcs = compRec.getGlAccounts();
+  rec.setIrrecoverRate(comp.getIrrecoverRate());
+  LOGGER.log(INFO, "IrrecoverRate {0}", rec.getIrrecoverRate());
+  List<FiGlAccountCompRec> compGlAcs = glAcntMgr.getCompanyAccounts(compRec); //compRec.getGlAccounts();
+ 
+  LOGGER.log(INFO, "compGlAcs {0}",compGlAcs );
+  LOGGER.log(INFO, "DB chargeGL account {0}", comp.getChargeGlAccount());
   if(comp.getChargeGlAccount() != null){
    Long chargeGlId = comp.getChargeGlAccount().getId();
    ListIterator<FiGlAccountCompRec> li = compGlAcs.listIterator();
@@ -288,6 +297,7 @@ public class VatDM {
    }
    
   }
+  LOGGER.log(INFO, "DB VatGlAccount  {0}", comp.getVatGlAccount());
   if(comp.getVatGlAccount() != null){
    ListIterator<FiGlAccountCompRec> li = compGlAcs.listIterator();
    boolean found = false;
@@ -310,7 +320,10 @@ public class VatDM {
     }
    }
   }
-  
+  LOGGER.log(INFO, "DB VatCode wo flag {0}", comp.isChargeSingleGl());
+  rec.setWoffIrrecoverable(comp.isChargeSingleGl());
+  LOGGER.log(INFO, "VatCode Comp rec id {0} rate GL account {1} wo GL acnt {2} wo flag {3}",
+    new Object[]{rec.getId(), rec.getRateGlAccount(), rec.getChargeGlAccount(),rec.isWoffIrrecoverable()  });
   return rec;
    
  }
@@ -454,7 +467,9 @@ public class VatDM {
     AuditVatCodeComp aud = buildAuditVatCodeComp(vatComp, 'U', chUsr, pg);
     aud.setFieldName("VAT_COMP_CHARGE_GL");
     aud.setNewValue(v.getChargeGlAccount().getCoaAccount().getRef());
-    aud.setOldValue(vatComp.getChargeGlAccount().getCoaAccount().getRef());
+    if(vatComp.getChargeGlAccount() != null){
+     aud.setOldValue(vatComp.getChargeGlAccount().getCoaAccount().getRef());
+    }
     FiGlAccountComp chargeGl = em.find(FiGlAccountComp.class, v.getChargeGlAccount().getId(), OPTIMISTIC);
     vatComp.setChargeGlAccount(chargeGl);
     changedVatComp = true;
@@ -487,7 +502,9 @@ public class VatDM {
     AuditVatCodeComp aud = buildAuditVatCodeComp(vatComp, 'U', chUsr, pg);
     aud.setFieldName("VAT_COMP_RATE_GL");
     aud.setNewValue(v.getRateGlAccount().getCoaAccount().getRef());
-    aud.setOldValue(vatComp.getVatGlAccount().getCoaAccount().getRef());
+    if(vatComp.getVatGlAccount() != null){
+     aud.setOldValue(vatComp.getVatGlAccount().getCoaAccount().getRef());
+    }
     FiGlAccountComp rateGl = em.find(FiGlAccountComp.class, v.getRateGlAccount().getId(), OPTIMISTIC);
     vatComp.setVatGlAccount(rateGl);
     changedVatComp = true;
@@ -1455,6 +1472,38 @@ public VatCodeRec addVatPostingForCompanies(VatCodeRec vatCode, List<VatCodeComp
  return vatCode;
 }
 
+public boolean vatCodeCompanyCanDel(VatCodeCompanyRec vatCompRec, String pg){
+ LOGGER.log(INFO, "vatCodeCompanyCanDel called with {0}",vatCompRec);
+ boolean rc = false;
+ 
+ VatCodeCompany vatComp = em.find(VatCodeCompany.class, vatCompRec.getId());
+ List<DocLineGl> glLines = vatComp.getGlDocLines();
+ if(glLines == null || glLines.isEmpty()){
+  rc = true;
+ }
+ LOGGER.log(INFO, "glLines {0} rc status {1}", new Object[]{glLines,rc});
+ 
+ return rc;
+}
+
+public boolean vatCodeCompanyDel(VatCodeCompanyRec vatCompRec, String pg, 
+  UserRec userRec) {
+ LOGGER.log(INFO, "vatCodeCompanynDel called with {0}",vatCompRec);
+ 
+ User usr = em.find(User.class, userRec.getId());
+ VatCodeCompany vatComp = em.find(VatCodeCompany.class, vatCompRec.getId());
+ AuditVatCodeComp aud = this.buildAuditVatCodeComp(vatComp, 'D', usr, pg);
+ String newVal = vatCompRec.getCompany().getReference()+" : "+vatCompRec.getVatCode().getCode();
+ aud.setNewValue(newVal);
+ try{
+  em.remove(vatComp);
+ } catch(IllegalArgumentException ex){
+  LOGGER.log(INFO, "Could not delete {0} reason {1}", new Object[]{vatComp.getId(), ex.getLocalizedMessage()});
+  return false;
+ }
+ return true;
+}
+
 public VatCodeCompanyRec vatCodeCompanyUpdate(VatCodeCompanyRec vatCompRec, String pg){
  LOGGER.log(INFO, "VATdm.vatCodeCompanyUpdate caled with {0}", vatCompRec);
  boolean newVatComp = vatCompRec.getId() == null;
@@ -1976,18 +2025,26 @@ public VatRegistration vatRegistrationUpdatePvt(CompanyBasic comp, VatRegistrati
  
  public VatCodeRec getVatCompRecsForVatCode(VatCodeRec vatCode) throws BacException {
   LOGGER.log(INFO,"VatDM getVatCompRecsForVatCode called with code {0} ",vatCode.getCode());
+  if(!trans.isActive()){
+   trans.begin();
+  }
   VatCode cd = em.find(VatCode.class, vatCode.getId(), OPTIMISTIC);
   List<VatCodeCompany> vatCompLst = cd.getVatCodeComps();
+  LOGGER.log(INFO, "DM getVatComps from DB: {0}", vatCompLst);
   List<VatCodeCompanyRec> vatCompRecLst = new ArrayList<>();
   ListIterator<VatCodeCompany> vatCompLstLi = vatCompLst.listIterator();
   while(vatCompLstLi.hasNext()){
    VatCodeCompany compVat = vatCompLstLi.next();
    VatCodeCompanyRec compVatRec = this.buildVatCodeCompRec(compVat);
+   LOGGER.log(INFO, "DM getVatComps VAT rate GL account {0} irrecove rate {1} "
+     + "Write off {2}", new Object[]{compVatRec.getRateGlAccount(),
+      compVatRec.getIrrecoverRate(), compVatRec.isWoffIrrecoverable() });
    vatCompRecLst.add(compVatRec);
   }
   LOGGER.log(INFO, "Number of comp vat Recs {0}", vatCompRecLst.size());
   VatCodeRec vatCodeRec = this.buildVatCodeRec(cd);
   vatCodeRec.setVatCodeCompanies(vatCompRecLst);
+  trans.rollback();
   return vatCodeRec;
  }
 

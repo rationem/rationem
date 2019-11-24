@@ -21,21 +21,22 @@
         <ui:insert name="head"/>
     </h:head>
 
-    <h:body styleClass="main-body">
-     <f:view>
+ <h:body styleClass="main-body main-rationem " class="container-fluid">
+  <f:view>
       <ui:insert name="metadata"/>
         <div class="layout-wrapper layout-overlay-menu">
             <ui:include src="./topbar.xhtml" />
             
             <ui:include src="./menu.xhtml" />
             
-            <div class="layout-main">
-                <div class="layout-main-content">
-                    <ui:insert name="content"/>
-                    
-                    <ui:include src="footer.xhtml" />
-                </div>
-                
+            <div class="layout-main ">
+             <div class="layout-main-content content-rationem">
+              <ui:insert name="content"/>
+             </div>
+             <div>
+              <ui:include src="footer.xhtml" />
+             </div>
+
                 
             </div>
         </div>

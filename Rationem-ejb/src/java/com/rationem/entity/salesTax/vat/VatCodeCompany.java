@@ -64,7 +64,7 @@ public class VatCodeCompany implements Serializable {
  private FiGlAccountComp vatGlAccount;
  @Column(name="irrecoverable_rate")
  private double irrecoverRate;
- @Column(name="chanrge_central_gl_account")
+ @Column(name="charge_central_gl_account")
  private boolean chargeSingleGl;
  @Column(name="no_irrecoverabe_line")
  private boolean noIrrecoverableLine;

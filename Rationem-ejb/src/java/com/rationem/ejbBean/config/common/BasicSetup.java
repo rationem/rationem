@@ -538,6 +538,19 @@ public LocaleCodeRec updateLocaleCode(LocaleCodeRec loc, String pg){
     LOGGER.log(INFO, "After DB call");
     return deleted;
   }
+  
+  public boolean vatCodeCompanyCanDel(VatCodeCompanyRec vatCompRec, String pg){
+   LOGGER.log(INFO, "vatCodeCompanyCanDel called with {0}",vatCompRec);
+   boolean rc = this.vatDM.vatCodeCompanyCanDel(vatCompRec, pg);
+   return rc;
+   
+  }
+  
+  public boolean vatCodeCompanyDel(VatCodeCompanyRec vatCompRec, String pg, UserRec userRec){
+   LOGGER.log(INFO, "vatCodeCompanyDel called with {0}",vatCompRec);
+   boolean rc = vatDM.vatCodeCompanyDel(vatCompRec, pg, userRec);
+   return rc;
+  }
 
   public List<AccountTypeRec> getFiGlAccountTypesAll() throws BacException {
     LOGGER.log(INFO,"BasicSetup getFiGlAccountTypesAll called");
@@ -631,7 +644,7 @@ public LocaleCodeRec updateLocaleCode(LocaleCodeRec loc, String pg){
   */
  public List<VatCodeCompanyRec> getVatCompCodeForVatCode(VatCodeRec vatCode) throws BacException {
   LOGGER.log(INFO, "Basic setup getVatCodeCompForVatCode called with Vat code {0}", vatCode.getCode());
-  vatCode = this.vatDM.getVatCompRecsForVatCode(vatCode);
+  vatCode = vatDM.getVatCompRecsForVatCode(vatCode);
   List<VatCodeCompanyRec> retlst = vatCode.getVatCodeCompanies();
           
   
